@@ -87,15 +87,23 @@
       else enhance(m);
     });
   }
-  var nativeRender=T.WebGLRenderer.prototype.render;
-  var frame=0;
-  T.WebGLRenderer.prototype.render=function(scene,camera){
-    if (config.enabled && (++frame<=2 || frame%120===0)) {
-      try { inspect(scene); } catch (err) {
-        if (!config.warned) {config.warned=true;console.warn('[MaterialFinish3D]',err);}
-      }
+  // r144/r160 assign render as an instance method, not always on the prototype.
+  // Wrap construction so the finish is applied before the original render.
+  var BaseRenderer=T.WebGLRenderer;
+  T.WebGLRenderer=new Proxy(BaseRenderer,{
+    construct:function(Target,args,NewTarget){
+      var instance=Reflect.construct(Target,args,NewTarget);
+      var draw=instance.render, frame=0;
+      instance.render=function(scene,camera){
+        if(config.enabled && (++frame<=2 || frame%120===0)){
+          try{inspect(scene);}catch(err){
+            if(!config.warned){config.warned=true;console.warn('[MaterialFinish3D]',err);}
+          }
+        }
+        return draw.apply(this,arguments);
+      };
+      return instance;
     }
-    return nativeRender.apply(this,arguments);
-  };
+  });
   T.WebGLRenderer.prototype.__materialFinishV1=true;
 })();
