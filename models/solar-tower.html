@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>塔式太阳能电站 · 3D 交互演示</title>
+<style>
+  :root{
+    --bg:#eef3f9;
+    --ink:#1b2430;
+    --ink2:#5a6879;
+    --line:#dde5ef;
+    --brand:#2f7de1;
+    --brand-soft:#e7f0fd;
+    --red:#d93a2b;
+    --shadow:0 10px 34px rgba(28,48,78,.13);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:fixed;inset:0;}
+  #scene{display:block;width:100%;height:100%;}
+
+  .head{
+    position:fixed;left:24px;top:20px;z-index:5;max-width:420px;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:16px;
+    padding:14px 18px;box-shadow:var(--shadow);
+  }
+  .head h1{margin:0 0 5px;font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .head h1 span{font-weight:500;color:var(--ink2);font-size:13px;}
+  .head p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink2);}
+
+  .panel{
+    position:fixed;right:22px;top:20px;z-index:6;
+    width:292px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+  }
+  .panel.collapsed{transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;}
+  .panel::-webkit-scrollbar{width:6px;}
+  .panel::-webkit-scrollbar-thumb{background:#cfdae8;border-radius:3px;}
+
+  #panelClose{
+    position:absolute;right:10px;top:10px;
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    cursor:pointer;font-size:14px;line-height:1;padding:0;
+  }
+  #panelClose:hover{background:var(--brand-soft);color:var(--brand);}
+  #panelOpen{
+    position:fixed;right:22px;top:20px;z-index:7;
+    width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    box-shadow:var(--shadow);cursor:pointer;font-size:17px;line-height:1;
+    display:none;
+  }
+  .panel.collapsed ~ #panelOpen{display:block;}
+
+  .grp{margin-bottom:14px;}
+  .grp:first-of-type .lbl{padding-right:32px;}
+  .lbl{
+    font-size:11.5px;font-weight:600;letter-spacing:.6px;
+    color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .lbl b{color:var(--brand);font-size:12.5px;font-weight:700;margin-left:auto;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
+    background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 50%,#e2eaf4 50%,#e2eaf4 100%);
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--brand);box-shadow:0 2px 6px rgba(47,125,225,.35);
+    cursor:grab;
+  }
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.08);}
+
+  .seg{display:flex;gap:6px;}
+  .seg button{
+    flex:1;padding:8px 4px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:10px;cursor:pointer;transition:all .18s ease;
+  }
+  .seg button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .seg button.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(47,125,225,.32);}
+  .seg button.warn.active{background:var(--red);border-color:var(--red);box-shadow:0 3px 10px rgba(217,58,43,.32);}
+
+  .toggles{display:flex;gap:6px;flex-wrap:wrap;}
+  .toggles button{
+    flex:1;min-width:72px;padding:7px 8px;font-size:12px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:9px;cursor:pointer;transition:all .18s ease;
+  }
+  .toggles button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .toggles button.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+
+  .readout{
+    margin-top:9px;padding:10px 12px;border-radius:12px;
+    background:linear-gradient(180deg,#f6faff,#eef5fd);
+    border:1px solid #e2ecf8;
+  }
+  .rv{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;color:var(--ink2);}
+  .rv + .rv{margin-top:5px;}
+  .rv b{font-size:15px;color:#15406f;font-variant-numeric:tabular-nums;}
+  .verdict{
+    margin-top:8px;padding-top:8px;border-top:1px dashed #d6e3f3;
+    font-size:11.5px;line-height:1.5;color:var(--ink2);
+  }
+  .verdict.good{color:#1d7a4c;}
+  .verdict.bad{color:var(--red);}
+
+  .mini{font-size:11px;color:#8794a6;margin-top:7px;line-height:1.5;}
+
+  .tip{
+    padding:11px 12px;border-radius:12px;border:1px solid #e2ecf8;
+    background:linear-gradient(180deg,#f8fbff,#f0f6fe);
+    font-size:11.5px;line-height:1.75;color:var(--ink2);
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .tip b{font-size:12px;color:#15406f;margin-bottom:3px;}
+  .tip i{
+    display:inline-block;width:9px;height:9px;border-radius:50%;
+    margin-right:6px;vertical-align:middle;
+  }
+  .tip i.blue{background:#2f7de1;}
+  .tip i.gray{background:#9aa8b8;}
+  .tip i.amber{background:#e08c2a;}
+  .tip i.red{background:#e62a1d;}
+  .tip .ok{color:#1d7a4c;font-weight:600;}
+  .tip .bad{color:var(--red);font-weight:600;}
+  .tip em{font-style:normal;font-family:ui-monospace,Menlo,Consolas,monospace;color:#15406f;}
+
+  .hint{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:5;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 20px;font-size:12px;color:var(--ink2);
+    box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .hint kbd{
+    background:#eef4fb;border:1px solid #dbe6f4;border-radius:5px;
+    padding:1px 5px;font-size:11px;font-family:inherit;color:#15406f;
+  }
+
+  #toast{
+    position:fixed;left:50%;bottom:74px;transform:translate(-50%,12px);
+    background:#1c2430;color:#fff;font-size:13px;padding:9px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+#stage{right:342px}.head{max-width:490px}.head h1{font-size:22px}.head p{font-size:14px}.panel{width:312px}.lbl,.toggles button,.rv,.tip,.mini{font-size:14px}.tip b{font-size:15px}.hint{left:20px;right:362px;transform:none;text-align:center;border-radius:12px}#panelOpen,#panelClose{font-size:20px}#panelOpen{right:12px}
+@media(max-width:800px){#stage{right:0}.head{left:12px;right:12px;top:12px;max-width:none;padding:10px 12px}.head h1{font-size:18px}.head p{font-size:12px}.panel{top:120px;right:12px;width:min(312px,calc(100vw - 24px));max-height:calc(100vh - 150px)}.hint{right:12px;left:12px;font-size:11px}.panel.collapsed{display:none}}
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="scene"></canvas></div>
+
+  <div class="head">
+    <h1>敦煌塔式光热电站 <span>· 材质与聚光</span></h1>
+    <p>参照首航高科敦煌 <b>100 MW</b> 熔盐塔式光热电站：定日镜反射阳光，塔顶加热熔盐，再经换热器产生蒸汽驱动汽轮机。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+    <div class="grp">
+      <div class="lbl">太阳高度角 <b id="elLabel">42°</b></div>
+      <input id="sliderEl" type="range" min="8" max="78" step="1" value="42" />
+      <div class="mini">高度角越大，阳光越接近直射，可用能量越多</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">太阳方位角 <b id="azLabel">西南偏南 28°</b></div>
+      <input id="sliderAz" type="range" min="-85" max="85" step="1" value="28" />
+      <div class="mini">0°＝正南。上午东南（负），下午西南（正）</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">定日镜阵列 <b id="ringLabel">6 环 · 262 面</b></div>
+      <input id="sliderRing" type="range" min="1" max="8" step="1" value="6" />
+      <div class="mini">平面镜绕塔一圈圈布置，环数越多、汇聚能量越多</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">镜面密度 <b id="densLabel">×1.0</b></div>
+      <input id="sliderDens" type="range" min="60" max="160" step="5" value="100" />
+      <div class="mini">每环镜面数目的倍率，密度越大阵列越密（最多约 700 面）</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">塔身显示比例 <b id="hLabel">1.00×</b></div>
+      <input id="sliderH" type="range" min="18" max="36" step="0.5" value="26" />
+      <div class="mini">实景塔高约 260 m；这里调整教学模型的显示比例。</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">光路控制 <b id="trackLabel">自动追踪</b></div>
+      <div class="toggles">
+        <button id="btnBeam">反射光束</button>
+        <button id="btnTrack" class="active">自动追踪</button>
+        <button id="btnDemo">演示一天</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">场区设施</div>
+      <div class="toggles">
+        <button id="btnSalt" class="active">熔盐储罐</button>
+        <button id="btnLabel" class="active">文字标注</button>
+      </div>
+      <div class="readout">
+        <div class="rv"><span>聚光强度（相对）</span><b id="effValue">—</b></div>
+        <div class="rv"><span>热盐温度（示意）</span><b id="tempValue">—</b></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">视角 / 导出</div>
+      <div class="toggles">
+        <button id="btnReset">默认视角</button>
+        <button id="btnFront">正视图</button><button id="btnMirror">近看定日镜</button><button id="btnReceiver">近看吸热器</button><button id="btnMaterial" class="active">实景材质</button><button id="btnBrand">近看塔身</button>
+        <button id="btnTop">俯视图</button>
+        <button id="btnShot">导出 PNG</button>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>聚光与储热原理</b>
+      <span><i class="red"></i>太阳光＝平行光，入射到每面定日镜上</span>
+      <span><i class="blue"></i>定日镜＝分格镜面的平面镜，可旋转＋俯仰</span>
+      <span><i class="gray"></i>塔顶吸热器＝所有镜面的公共「焦点」</span>
+      <span><i class="amber"></i>熔盐储罐＝白天蓄热、夜间继续发电</span>
+      <span class="ok">✓ 自动追踪：镜面法线平分「太阳方向」与「吸热器方向」</span>
+      <span class="bad">✗ 关闭追踪：反射光大部分偏离吸热器，效率骤降</span>
+    </div>
+  <details style="font-size:13px;line-height:1.7;margin-top:14px"><summary>实景参考与比例说明</summary><p>地面、玻璃镜面、混凝土与金属采用独立材质。镜场缩减为可交互的代表性环列；模型不按厂区的真实比例和完整布局复刻。</p><a href="https://www.xinhuanet.com/power/2021-02/26/c_1211041810.htm" target="_blank" rel="noopener">新华社：镜场与定日镜近景</a><br><a href="https://www.sh-ihw.com/news/129.html" target="_blank" rel="noopener">首航：35 块子镜与熔盐储热</a><br><a href="https://www.hollysys.com.cn/solution/case/50" target="_blank" rel="noopener">和利时：换热发电与空冷系统</a></details></div>
+  <button id="panelOpen" title="展开面板">‹</button>
+
+  <div class="hint">拖拽旋转 · 滚轮缩放 · <kbd>Shift</kbd>+拖拽平移</div>
+  <div id="toast"></div>
+
+  <script src="../shared/vendor/three-r144.min.js"></script>
+<script>
+/* =========================================================
+   塔式太阳能电站（光热发电）· 3D 交互演示
+   ---------------------------------------------------------
+   建模内容：
+     · 中央接收塔：塔身高度可调，塔顶吸热器＝所有光束的公共落点
+     · 定日镜阵列：绕塔多环布置的分格平面镜（InstancedMesh 批量渲染），
+       每面镜由 底座 / 立柱 / 驱动器 / 镜框 / 镜面 / 背架 组成
+       追踪原理：镜面法线取「太阳方向」与「吸热器方向」的角平分线
+     · 熔盐储罐：热盐罐（565℃）＋冷盐罐（290℃）＋保温管路
+     · 汽轮机房：吸热器 → 蒸汽 → 汽轮机 → 发电机
+   ========================================================= */
+(function () {
+  'use strict';
+
+  /* ================= 渲染器 / 场景 / 相机 ================= */
+  if (THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
+
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.14;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xc7d9e7);
+  scene.fog = new THREE.Fog(0xd6d0bc, 165, 440);
+
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 800);
+
+  /* ================= 环境贴图 ================= */
+  (function buildEnvironment() {
+    const c = document.createElement('canvas');
+    c.width = 1024; c.height = 512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0.00, '#5e95cc');
+    g.addColorStop(0.38, '#b7d4ee');
+    g.addColorStop(0.50, '#dfe5dc');
+    g.addColorStop(0.62, '#ba9d77');
+    g.addColorStop(1.00, '#645844');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 1024, 512);
+    [[280, 110, 26], [860, 175, 12]].forEach(function (p) {
+      const rg = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], p[2]);
+      rg.addColorStop(0, 'rgba(255,255,255,1)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(p[0], p[1], p[2], 0, Math.PI * 2); ctx.fill();
+    });
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const env = pmrem.fromEquirectangular(tex).texture;
+    pmrem.dispose();
+    tex.dispose();
+    scene.environment = env;
+  })();
+
+  /* ================= 灯光 ================= */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3c2d4, 0.34));
+
+  const sunLight = new THREE.DirectionalLight(0xfff3e0, 0.85);
+  sunLight.castShadow = true;
+  sunLight.shadow.mapSize.set(2048, 2048);
+  sunLight.shadow.camera.left = -60;
+  sunLight.shadow.camera.right = 60;
+  sunLight.shadow.camera.top = 60;
+  sunLight.shadow.camera.bottom = -60;
+  sunLight.shadow.camera.near = 10;
+  sunLight.shadow.camera.far = 400;
+  sunLight.shadow.bias = -0.0006;
+  sunLight.shadow.radius = 2.4;
+  scene.add(sunLight);
+  scene.add(sunLight.target);
+
+  const fillLight = new THREE.DirectionalLight(0xdce8ff, 0.18);
+  fillLight.position.set(-40, 30, -35);
+  scene.add(fillLight);
+
+  /* ================= 地面 ================= */
+  for(let band=0;band<3;band++){const positions=[],indices=[];for(let i=0;i<=90;i++){const x=-340+i*7.6,y=5+Math.abs(Math.sin(i*.43+band))*7+Math.sin(i*.15)*4;positions.push(x,0,-220-band*35,x,y,-220-band*35);if(i<90){const k=i*2;indices.push(k,k+1,k+2,k+1,k+3,k+2);}}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();scene.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x918571,roughness:1,side:THREE.DoubleSide})));}
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(1200,1200),
+    new THREE.MeshStandardMaterial({ color: 0xc2aa81, roughness: 1, metalness: 0 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.02;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(180, 72, 0xc0cfe1, 0xd5e0ee);
+  grid.position.y = -0.015;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.0;
+  scene.add(grid);
+
+  (function contactShadow() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 126);
+    g.addColorStop(0.00, 'rgba(38,58,88,0.30)');
+    g.addColorStop(0.45, 'rgba(38,58,88,0.16)');
+    g.addColorStop(0.72, 'rgba(38,58,88,0.06)');
+    g.addColorStop(1.00, 'rgba(38,58,88,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 256, 256);
+    const tex = new THREE.CanvasTexture(c);
+    const blob = new THREE.Mesh(
+      new THREE.PlaneGeometry(70, 70),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+    );
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 0.008;
+    blob.renderOrder = -1;
+    scene.add(blob);
+  })();
+
+  /* ================= 工具：几何合并 / 贴图 ================= */
+  function mergeGeos(list) {
+    const geos = list.map(function (g) { return g.index ? g.toNonIndexed() : g; });
+    let total = 0;
+    geos.forEach(function (g) { total += g.attributes.position.count; });
+    const pos = new Float32Array(total * 3);
+    const nor = new Float32Array(total * 3);
+    const uv = new Float32Array(total * 2);
+    let o = 0;
+    geos.forEach(function (g) {
+      pos.set(g.attributes.position.array, o * 3);
+      if (g.attributes.normal) nor.set(g.attributes.normal.array, o * 3);
+      if (g.attributes.uv) uv.set(g.attributes.uv.array, o * 2);
+      o += g.attributes.position.count;
+    });
+    const out = new THREE.BufferGeometry();
+    out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    out.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    return out;
+  }
+
+  function texFrom(fn, w, h) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    fn(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    return t;
+  }
+
+  let seed=317;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+  function mineralTexture(base,grain,joins=false){return texFrom((ctx,w,h)=>{ctx.fillStyle=base;ctx.fillRect(0,0,w,h);for(let i=0;i<42000;i++){const a=rnd()*.17;ctx.fillStyle=rnd()>.5?'rgba(255,255,255,'+a+')':'rgba(38,31,22,'+a+')';const r=.5+rnd()*grain;ctx.fillRect(rnd()*w,rnd()*h,r,r);}if(joins){ctx.strokeStyle='rgba(67,62,55,.22)';ctx.lineWidth=2;for(let y=0;y<h;y+=128){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}for(let x=0;x<w;x+=128){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}}},1024,1024);}
+  const desertTex=mineralTexture('#b99f73',4),concreteTex=mineralTexture('#d3cec1',2,true);
+  desertTex.wrapS=desertTex.wrapT=THREE.RepeatWrapping;desertTex.repeat.set(32,32);desertTex.anisotropy=8;
+  const claddingTex=texFrom((ctx,w,h)=>{ctx.fillStyle='#c3c6c4';ctx.fillRect(0,0,w,h);for(let x=0;x<w;x+=32){const g=ctx.createLinearGradient(x,0,x+32,0);g.addColorStop(0,'#a9adaa');g.addColorStop(.3,'#e1e3df');g.addColorStop(1,'#b2b7b3');ctx.fillStyle=g;ctx.fillRect(x,0,32,h);ctx.fillStyle='#747c78';for(let y=16;y<h;y+=64)ctx.fillRect(x+2,y,2,2);}ctx.strokeStyle='#9ca29e';for(let y=0;y<h;y+=128){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}},512,512);
+  const receiverTex=texFrom((ctx,w,h)=>{ctx.fillStyle='#1d2329';ctx.fillRect(0,0,w,h);for(let x=0;x<w;x+=8){ctx.fillStyle=x%24===0?'#42494c':'#292f34';ctx.fillRect(x,0,2,h);}for(let y=0;y<h;y+=85){ctx.fillStyle='#10171d';ctx.fillRect(0,y,w,3);}},1024,512);
+  const receiverFluxTex=texFrom((ctx,w,h)=>{const g=ctx.createLinearGradient(0,0,0,h);for(const [t,c] of [[0,'#000000'],[.14,'#141414'],[.29,'#7b7b7b'],[.43,'#ffffff'],[.57,'#ffffff'],[.71,'#7b7b7b'],[.86,'#141414'],[1,'#000000']])g.addColorStop(t,c);ctx.fillStyle=g;ctx.fillRect(0,0,w,h);},128,512);
+  ground.material.map=desertTex;ground.material.bumpMap=desertTex;ground.material.bumpScale=.055;ground.material.color.set(0xffffff);ground.material.needsUpdate=true;
+  // 7 × 5 子镜：银白玻璃底色，天空反射由环境贴图生成。
+  const mirrorTex=texFrom((ctx,w,h)=>{ctx.fillStyle='#7e8585';ctx.fillRect(0,0,w,h);const cols=7,rows=5,m=3,gap=1.6,cw=(w-m*2)/cols,ch=(h-m*2)/rows;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const v=242+((i*11+j*7)%9);ctx.fillStyle='rgb('+v+','+v+','+v+')';ctx.fillRect(m+i*cw,m+j*ch,cw-gap,ch-gap);ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=.7;ctx.strokeRect(m+i*cw,m+j*ch,cw-gap,ch-gap);}},1024,720);
+
+  // 硅光板贴图已移除：光电转换与塔顶光热发电主题无关
+
+  function makeGlowTexture(inner, outer) {
+    return texFrom(function (ctx, w, h) {
+      const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+      g.addColorStop(0, inner);
+      g.addColorStop(0.4, outer);
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }, 128, 128);
+  }
+  const glowTex = makeGlowTexture('rgba(255,214,130,0.95)', 'rgba(255,150,40,0.35)');
+  const steamTex = makeGlowTexture('rgba(255,255,255,0.85)', 'rgba(240,246,252,0.4)');
+
+  function makeLabel(text, bg, fg) {
+    const font = '600 34px "PingFang SC","Microsoft YaHei",sans-serif';
+    const mc = document.createElement('canvas').getContext('2d');
+    mc.font = font;
+    const w = Math.ceil(mc.measureText(text).width) + 34;
+    const h = 54;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.font = font;
+    const r = 13;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(w - r, 0); ctx.quadraticCurveTo(w, 0, w, r);
+    ctx.lineTo(w, h - r); ctx.quadraticCurveTo(w, h, w - r, h);
+    ctx.lineTo(r, h); ctx.quadraticCurveTo(0, h, 0, h - r);
+    ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = bg; ctx.fill();
+    ctx.strokeStyle = 'rgba(120,140,165,.5)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = fg; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 17, h / 2 + 1);
+    const t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: t, transparent: true, depthWrite: false, depthTest: false
+    }));
+    const s = 0.055;
+    sp.scale.set(w * s, h * s, 1);
+    return sp;
+  }
+
+  /* ================= 材质 ================= */
+  const M = {
+    concrete: new THREE.MeshStandardMaterial({ map:concreteTex,bumpMap:concreteTex,bumpScale:.035,color: 0xffffff, roughness: 0.92, metalness: 0.0, envMapIntensity: 0.35 }),
+    concreteDark: new THREE.MeshStandardMaterial({ map:concreteTex,color: 0xbebbad, roughness: 0.9, metalness: 0.0, envMapIntensity: 0.3 }),
+    panelDark: new THREE.MeshStandardMaterial({ color: 0x2c3540, roughness: 0.55, metalness: 0.35 }),
+    receiver: new THREE.MeshStandardMaterial({ map:receiverTex,bumpMap:receiverTex,bumpScale:.025,color: 0xffffff, roughness: 0.68, metalness: 0.32, emissive: 0x000000,emissiveMap:receiverFluxTex }),
+    pole: new THREE.MeshStandardMaterial({ color: 0x9b9e96, roughness: 0.37, metalness: 0.82, envMapIntensity: 0.5 }),
+    frame: new THREE.MeshStandardMaterial({ color: 0xa9afab, roughness: 0.30, metalness: 0.86, envMapIntensity: 0.5 }),
+    frameDark: new THREE.MeshStandardMaterial({ color: 0x7b8b9e, roughness: 0.55, metalness: 0.3, envMapIntensity: 0.4 }),
+    mirror: new THREE.MeshPhysicalMaterial({color:0xffffff,map:mirrorTex,roughness:.035,metalness:1,clearcoat:1,clearcoatRoughness:.045,envMapIntensity:1.1}),
+    pipe: new THREE.MeshStandardMaterial({ map:claddingTex,color: 0xd4bba0, roughness: 0.36, metalness: 0.68 }),
+    pipeCold: new THREE.MeshStandardMaterial({ map:claddingTex,color: 0xb9c4c5, roughness: 0.36, metalness: 0.68 }),
+    tankHot: new THREE.MeshStandardMaterial({ map:claddingTex,bumpMap:claddingTex,bumpScale:.03,color: 0xf4eee3, roughness: 0.48, metalness: 0.72 }),
+    tankCold: new THREE.MeshStandardMaterial({ map:claddingTex,bumpMap:claddingTex,bumpScale:.03,color: 0xe1e8e7, roughness: 0.48, metalness: 0.72 })
+  };
+
+  /* ================= 尺寸状态 ================= */
+  let TOWER_H = 26;
+  let RECEIVER_Y = 21.6;
+  const MIRROR_Y = 1.86;
+
+  /* ================= 中央接收塔（可重建） ================= */
+  let towerGroup = null;
+
+  function disposeGroup(g) {
+    if (!g) return;
+    g.traverse(function (o) { if (o.geometry) o.geometry.dispose(); });
+    scene.remove(g);
+  }
+
+  function buildTower() {
+    disposeGroup(towerGroup);
+    RECEIVER_Y = 0.6 + TOWER_H + 2.1;
+
+    const g = new THREE.Group();
+
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(6.2, 6.8, 0.6, 48), M.concreteDark);
+    base.position.y = 0.3;
+    base.castShadow = base.receiveShadow = true;
+    g.add(base);
+
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.65, TOWER_H, 64), M.concrete);
+    shaft.position.y = 0.6 + TOWER_H / 2;
+    shaft.castShadow = shaft.receiveShadow = true;
+    g.add(shaft);
+
+    const bandN = Math.max(3, Math.round(TOWER_H / 2));
+    for (let i = 1; i <= bandN; i++) {
+      const y = 0.6 + TOWER_H * i / (bandN + 1);
+      const r = 1.65 - (y - 0.6) / TOWER_H * 0.6;
+      const ring = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.07, 64), M.concreteDark);
+      ring.position.y = y;
+      g.add(ring);
+    }
+
+    // Vertical lettering follows the taper of the concrete tower.
+    const brandTex=texFrom((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#17517d';ctx.font='bold 360px "Noto Sans CJK SC","Microsoft YaHei",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';[..."首航高科"].forEach((c,i)=>ctx.fillText(c,w/2,256+i*512));},512,2048);
+    brandTex.anisotropy=8;
+    const brandMat=new THREE.MeshBasicMaterial({map:brandTex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,toneMapped:false,side:THREE.FrontSide});
+    for(const az of [.62,.62+Math.PI]){const ps=[],uv=[],idx=[],cols=32,rows=8,hh=Math.min(6,TOWER_H*.25),cy=.6+TOWER_H*.56;for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const u=i/cols,v=j/rows,y=cy+(v-.5)*hh,r=1.65-(y-.6)/TOWER_H*.6+.007,a=az+(u-.5)*1.5/r;ps.push(r*Math.sin(a),y,r*Math.cos(a));uv.push(u,v);}for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const k=j*(cols+1)+i;idx.push(k,k+1,k+cols+1,k+1,k+cols+2,k+cols+1);}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(ps,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();const mark=new THREE.Mesh(geo,brandMat);mark.name='首航高科';g.add(mark);}
+    const top=new THREE.Mesh(new THREE.CylinderGeometry(1.85,1.85,.9,64),M.concrete);top.position.y=.6+TOWER_H;g.add(top);
+    const recv=new THREE.Mesh(new THREE.CylinderGeometry(1.55,1.55,5.2,96),M.receiver);recv.position.y=RECEIVER_Y;recv.castShadow=true;g.add(recv);
+    for(const dy of [-2.7,2.7]){const collar=new THREE.Mesh(new THREE.CylinderGeometry(1.85,1.85,.35,64),M.concrete);collar.position.y=RECEIVER_Y+dy;g.add(collar);const rail=new THREE.Mesh(new THREE.TorusGeometry(1.95,.045,8,64),M.frame);rail.rotation.x=Math.PI/2;rail.position.y=RECEIVER_Y+dy+.30;g.add(rail);}
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.8,.6,64),M.concrete);cap.position.y=RECEIVER_Y+3.25;g.add(cap);
+    const tubes=[];for(let i=0;i<96;i++){const a=i/96*Math.PI*2,t=new THREE.CylinderGeometry(.022,.022,4.95,6);t.translate(1.565*Math.cos(a),RECEIVER_Y,1.565*Math.sin(a));tubes.push(t);}const bundle=new THREE.Mesh(mergeGeos(tubes),M.panelDark);bundle.material=M.receiver;g.add(bundle);
+    // 塔内熔盐立管，避免穿出塔身遮挡外墙文字
+    const riserH = RECEIVER_Y - 1.2;
+    const hotRiser = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, riserH, 12), M.pipe);
+    hotRiser.position.set(.38, 0.6 + riserH / 2, .2);
+    hotRiser.castShadow = true;
+    g.add(hotRiser);
+    const coldRiser = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, riserH, 12), M.pipeCold);
+    coldRiser.position.set(-.38, 0.6 + riserH / 2, .2);
+    coldRiser.castShadow = true;
+    g.add(coldRiser);
+
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 8), M.pole);
+    mast.position.y = 0.6 + TOWER_H + 1.3 + 1.3;
+    g.add(mast);
+
+    const door = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 0.3), M.panelDark);
+    door.position.set(0, 1.75, 1.62);
+    g.add(door);
+
+    scene.add(g);
+    towerGroup = g;
+
+    recvGlow.position.set(0, RECEIVER_Y, 0);
+    updateTargets();
+    updateLabelPositions();
+  }
+
+  /* ================= 吸热器辉光 / 蒸汽 ================= */
+  const recvGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: makeGlowTexture('rgba(255,255,245,0.72)','rgba(255,242,202,0.17)'), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  recvGlow.scale.set(8, 8, 1);
+  scene.add(recvGlow);
+
+  const STEAM_N = 16;
+  const steams = [];
+  for (let i = 0; i < STEAM_N; i++) {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: steamTex, transparent: true, opacity: 0, depthWrite: false
+    }));
+    s.userData = { t: Math.random() };
+    scene.add(s);
+    steams.push(s);
+  }
+
+  /* ================= 太阳本体 ================= */
+  const sunBall = new THREE.Mesh(
+    new THREE.SphereGeometry(4.4, 24, 24),
+    new THREE.MeshBasicMaterial({ color: 0xfff2c4, fog: false })
+  );
+  scene.add(sunBall);
+  const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTex, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending, fog: false
+  }));
+  sunGlow.scale.set(32, 32, 1);
+  scene.add(sunGlow);
+
+  /* ================= 定日镜阵列（InstancedMesh，可重建） ================= */
+  let heliostats = [];
+  let inst = null;
+  const dummy = new THREE.Object3D();
+  const UP = new THREE.Vector3(0, 1, 0);
+
+  const GEO = (function () {
+    const padGeo = new THREE.CylinderGeometry(0.46, 0.56, 0.2, 12);
+    padGeo.translate(0, 0.1, 0);
+    const poleGeo = new THREE.CylinderGeometry(0.09, 0.14, 1.35, 10);
+    poleGeo.translate(0, 0.77, 0);
+    const driveGeo = mergeGeos([
+      (function () { const b = new THREE.BoxGeometry(0.5, 0.32, 0.5); b.translate(0, 1.52, 0); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(0.72, 0.16, 0.72); b.translate(0, 1.40, 0); return b; })()
+    ]);
+    const frameGeo = mergeGeos([
+      (function () { const b = new THREE.BoxGeometry(2.5, 0.09, 0.12); b.translate(0, 0, 0.88); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(2.5, 0.09, 0.12); b.translate(0, 0, -0.88); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(0.12, 0.09, 1.76); b.translate(1.22, 0, 0); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(0.12, 0.09, 1.76); b.translate(-1.22, 0, 0); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(0.52, 0.2, 0.52); b.translate(0, -0.12, 0); return b; })()
+    ]);
+    const faceGeo = new THREE.PlaneGeometry(2.34, 1.62);
+    faceGeo.rotateX(-Math.PI / 2);
+    faceGeo.translate(0, 0.055, 0);
+    const backGeo = mergeGeos([
+      (function () { const b = new THREE.BoxGeometry(0.1, 0.1, 1.5); b.translate(0.78, -0.16, 0); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(0.1, 0.1, 1.5); b.translate(-0.78, -0.16, 0); return b; })(),
+      (function () { const b = new THREE.BoxGeometry(1.7, 0.09, 0.1); b.translate(0, -0.16, 0); return b; })()
+    ]);
+    return { padGeo: padGeo, poleGeo: poleGeo, driveGeo: driveGeo, frameGeo: frameGeo, faceGeo: faceGeo, backGeo: backGeo };
+  })();
+
+  function disposeInst() {
+    if (!inst) return;
+    inst.meshes.forEach(function (m) { scene.remove(m); m.dispose(); });
+    inst = null;
+  }
+
+  function buildHeliostats() {
+    disposeInst();
+
+    const list = [];
+    for (let ring = 1; ring <= state.rings; ring++) {
+      const r = 12 + 4.4 * (ring - 1);
+      const count = Math.max(6, Math.round(r * 1.9 * state.dens));
+      for (let k = 0; k < count; k++) {
+        const a = (k / count) * Math.PI * 2 + ring * 0.35;
+        list.push({
+          x: Math.cos(a) * r,
+          z: Math.sin(a) * r,
+          ring: ring,
+          offX: (Math.random() - 0.5) * 2.2,
+          offY: (Math.random() - 0.5) * 3.4,
+          target: new THREE.Vector3(),
+          nFixed: new THREE.Vector3(),
+          intensity: 0
+        });
+      }
+    }
+    heliostats = list;
+    const n = list.length;
+
+    const mk = function (geo, mat, shadow) {
+      const m = new THREE.InstancedMesh(geo, mat, n);
+      m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      m.castShadow = !!shadow;
+      m.frustumCulled = false;
+      scene.add(m);
+      return m;
+    };
+    const pad = mk(GEO.padGeo, M.pole, false);
+    const pole = mk(GEO.poleGeo, M.pole, true);
+    const drive = mk(GEO.driveGeo, M.frameDark, true);
+    const frame = mk(GEO.frameGeo, M.frame, true);
+    const face = mk(GEO.faceGeo, M.mirror, false);
+    const back = mk(GEO.backGeo, M.frameDark, false);
+
+    for (let i = 0; i < n; i++) {
+      dummy.position.set(list[i].x, 0, list[i].z);
+      dummy.quaternion.identity();
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      pad.setMatrixAt(i, dummy.matrix);
+      pole.setMatrixAt(i, dummy.matrix);
+      drive.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(list[i].x, MIRROR_Y, list[i].z);
+      dummy.updateMatrix();
+      frame.setMatrixAt(i, dummy.matrix);
+      face.setMatrixAt(i, dummy.matrix);
+      back.setMatrixAt(i, dummy.matrix);
+    }
+    [pad, pole, drive, frame, face, back].forEach(function (m) { m.instanceMatrix.needsUpdate = true; });
+    inst = { meshes: [pad, pole, drive, frame, face, back], n: n };
+
+    rebuildBeams(n);
+    updateTargets();
+    updateRingLabel();
+  }
+
+  /* ================= 反射光束 / 入射光线 ================= */
+  let beamMesh = null, rayMesh = null;
+  let beamGeo = null, rayGeo = null, beamPos = null, beamCol = null, rayPos = null, rayCol = null;
+  let RAY_STEP = 6, nRays = 0;
+
+  function rebuildBeams(n) {
+    if (beamMesh) { scene.remove(beamMesh); beamGeo.dispose(); beamMesh.material.dispose(); }
+    if (rayMesh) { scene.remove(rayMesh); rayGeo.dispose(); rayMesh.material.dispose(); }
+
+    beamPos = new Float32Array(n * 6);
+    beamCol = new Float32Array(n * 6);
+    beamGeo = new THREE.BufferGeometry();
+    beamGeo.setAttribute('position', new THREE.BufferAttribute(beamPos, 3));
+    beamGeo.setAttribute('color', new THREE.BufferAttribute(beamCol, 3));
+    beamMesh = new THREE.LineSegments(beamGeo, new THREE.LineBasicMaterial({
+      vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false, fog: false
+    }));
+    beamMesh.frustumCulled = false;
+    scene.add(beamMesh);
+
+    RAY_STEP = n > 400 ? 8 : (n > 200 ? 5 : 3);
+    nRays = Math.ceil(n / RAY_STEP);
+    rayPos = new Float32Array(nRays * 6);
+    rayCol = new Float32Array(nRays * 6);
+    rayGeo = new THREE.BufferGeometry();
+    rayGeo.setAttribute('position', new THREE.BufferAttribute(rayPos, 3));
+    rayGeo.setAttribute('color', new THREE.BufferAttribute(rayCol, 3));
+    rayMesh = new THREE.LineSegments(rayGeo, new THREE.LineBasicMaterial({
+      vertexColors: true, transparent: true, opacity: 0.5, depthWrite: false, fog: false
+    }));
+    rayMesh.frustumCulled = false;
+    scene.add(rayMesh);
+  }
+
+  function updateTargets(){for(const h of heliostats){const radius=Math.hypot(h.x,h.z),side=1.58/radius;h.target.set(h.x*side,RECEIVER_Y+h.offY*.6,h.z*side);h.nFixed.set(-h.x,TOWER_H*.5,-h.z).normalize();}}
+
+  /* ================= 熔盐储罐 ================= */
+  const saltGroup = new THREE.Group();
+  (function buildSalt() {
+    function tank(color, x, z) {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 6.2, 32), color);
+      body.position.y = 3.1;
+      body.castShadow = body.receiveShadow = true;
+      g.add(body);
+
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(3.0, 32, 14, 0, Math.PI * 2, 0, Math.PI / 2), color);
+      dome.position.y = 6.2;
+      dome.scale.y = 0.16;
+      dome.castShadow = true;
+      g.add(dome);
+
+      for (let i = 1; i <= 3; i++) {
+        const b = new THREE.Mesh(new THREE.CylinderGeometry(3.025, 3.025, 0.065, 32), M.frameDark);
+        b.position.y = 1.2 + i * 1.6;
+        g.add(b);
+      }
+      const rail = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.06, 8, 24), M.frame);
+      rail.rotation.x = Math.PI / 2;
+      rail.position.y = 7.3;
+      g.add(rail);
+      const ladder=[];for(const z of [-.38,.38]){const q=new THREE.BoxGeometry(.065,6.5,.065);q.translate(3.10,3.25,z);ladder.push(q);}for(let y=.35;y<6.6;y+=.33){const q=new THREE.BoxGeometry(.065,.045,.8);q.translate(3.1,y,0);ladder.push(q);}g.add(new THREE.Mesh(mergeGeos(ladder),M.frameDark));
+      const walkway=new THREE.Mesh(new THREE.TorusGeometry(2.85,.045,8,64),M.frame);walkway.rotation.x=Math.PI/2;walkway.position.y=6.65;g.add(walkway);
+      g.position.set(x, 0, z);
+      return g;
+    }
+
+    // 布置在镜阵之外（8 环最大半径约 44，厂区一律放在 r≥49 处）
+    saltGroup.add(tank(M.tankHot, -28, -42));
+    saltGroup.add(tank(M.tankCold, -40, -34));
+
+    [[-28, -42], [-40, -34]].forEach(function (p) {
+      const pad = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.7, 0.35, 32), M.concreteDark);
+      pad.position.set(p[0], 0.17, p[1]);
+      pad.receiveShadow = true;
+      saltGroup.add(pad);
+    });
+
+    function run(x, z, mat, y) {
+      const dx = -22 - x, dz = -50 - z;   // 接泵房
+      const len = Math.hypot(dx, dz);
+      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, len, 12), mat);
+      pipe.position.set(x + dx / 2, y, z + dz / 2);
+      pipe.rotation.z = Math.PI / 2;
+      pipe.rotation.y = -Math.atan2(dz, dx);
+      pipe.castShadow = true;
+      saltGroup.add(pipe);
+    }
+    run(-28, -42, M.pipe, 1.1);
+    run(-40, -34, M.pipeCold, 0.8);
+
+    const pump = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.6, 3.2), M.concrete);
+    pump.position.set(-22, 1.3, -50);
+    pump.castShadow = pump.receiveShadow = true;
+    saltGroup.add(pump);
+
+    const hg = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: glowTex, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending
+    }));
+    hg.position.set(-28, 7.8, -42);
+    hg.scale.set(9, 9, 1);
+    saltGroup.add(hg);
+    saltGroup.userData.hotGlow = hg;
+
+    scene.add(saltGroup);
+  })();
+
+  /* ================= 汽轮机房等场区（固定） ================= */
+  (function buildSite() {
+    const hall = new THREE.Mesh(new THREE.BoxGeometry(11, 4.2, 7), M.concrete);
+    hall.position.set(34, 2.1, -40);
+    hall.castShadow = hall.receiveShadow = true;
+    scene.add(hall);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(11.8, 0.5, 7.8), M.concreteDark);
+    roof.position.set(34, 4.45, -40);
+    scene.add(roof);
+    // Dunhuang uses air cooling: A-frame condenser bays with finned radiators.
+    const plant=new THREE.Group();plant.position.set(52,0,-12);scene.add(plant);
+    const fins=texFrom((ctx,w,h)=>{ctx.fillStyle='#747f85';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#b7c0c1';ctx.lineWidth=2;for(let y=0;y<h;y+=6){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}},256,256),radiator=new THREE.MeshStandardMaterial({map:fins,roughness:.5,metalness:.7});
+    for(let i=0;i<6;i++){const z=-10+i*4;for(const x of [-2,2]){const leg=new THREE.Mesh(new THREE.BoxGeometry(.18,4.2,.18),M.frameDark);leg.position.set(x,2.1,z);plant.add(leg);const roof=new THREE.Mesh(new THREE.BoxGeometry(3.3,.12,3.7),radiator);roof.position.set(x*.7,4.9,z);roof.rotation.z=x>0?-.48:.48;plant.add(roof);}const fan=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.14,32),M.panelDark);fan.position.set(0,3.9,z);plant.add(fan);}
+    const roadMat=new THREE.MeshStandardMaterial({color:0x9b896e,roughness:1});for(const [x,z,w,d] of [[34,-40,17,12],[-30,-41,28,24],[51,-11,13,32]]){const pad=new THREE.Mesh(new THREE.BoxGeometry(w,.05,d),roadMat);pad.position.set(x,.012,z);pad.receiveShadow=true;scene.add(pad);}
+    const wallMat=new THREE.MeshStandardMaterial({map:claddingTex,color:0xeceddf,roughness:.75,metalness:.15});hall.material=wallMat;roof.material=new THREE.MeshStandardMaterial({map:claddingTex,color:0x477082,roughness:.5,metalness:.55});
+    for(let i=0;i<5;i++){const win=new THREE.Mesh(new THREE.BoxGeometry(1.25,1.25,.06),new THREE.MeshPhysicalMaterial({color:0x526b75,roughness:.13,metalness:.55,clearcoat:1}));win.position.set(30+i*2,2.8,-36.47);scene.add(win);}
+  })();
+
+  /* ================= 文字标注 ================= */
+  const labelGroup = new THREE.Group();
+  const LBL = {
+    recv: makeLabel('塔顶吸热器', 'rgba(255,255,255,.92)', '#15406f'),
+    hot: makeLabel('热盐罐 565℃', 'rgba(255,244,228,.94)', '#8a4b12'),
+    cold: makeLabel('冷盐罐 290℃', 'rgba(240,246,253,.94)', '#2f5b86'),
+    cooling:makeLabel('空冷凝汽器','rgba(255,255,255,.92)','#15406f'),
+    turbine: makeLabel('汽轮机 · 发电机', 'rgba(255,255,255,.92)', '#15406f')
+  };
+  labelGroup.add(LBL.recv, LBL.hot, LBL.cold, LBL.turbine,LBL.cooling);
+  scene.add(labelGroup);for(const o of Object.values(LBL))o.userData.originalScale=o.scale.clone();
+
+  function updateLabelPositions() {
+    LBL.cooling.position.set(52,8,-12);
+    LBL.recv.position.set(0, RECEIVER_Y + 4.8, 0);
+    LBL.hot.position.set(-28, 9.6, -42);
+    LBL.cold.position.set(-40, 9.6, -34);
+    LBL.turbine.position.set(34, 7.2, -40);
+  }
+
+  /* ================= 状态 ================= */
+  const state = {
+    el: 42, az: 28,
+    rings: 6, dens: 1.0,
+    towerH: 26,
+    beam: false, track: true, demo: false,
+    salt: true, labels: true,
+    power: 0,realistic:true
+  };
+
+  const sunDir = new THREE.Vector3();
+  const tmpV = new THREE.Vector3();
+  const tmpV2 = new THREE.Vector3();
+  const tmpV3 = new THREE.Vector3();
+
+  function updateSun() {
+    const elR = state.el * Math.PI / 180;
+    const azR = state.az * Math.PI / 180;
+    sunDir.set(
+      Math.sin(azR) * Math.cos(elR),
+      Math.sin(elR),
+      Math.cos(azR) * Math.cos(elR)
+    ).normalize();
+    sunBall.position.copy(sunDir).multiplyScalar(260);
+    sunGlow.position.copy(sunBall.position);
+    sunLight.position.copy(sunDir).multiplyScalar(140);
+    sunLight.target.position.set(0, 0, 0);
+    sunLight.intensity = 0.25 + 0.75 * Math.max(0, Math.sin(elR));
+  }
+
+  /* ================= 每帧：追踪 + 光束 ================= */
+  const quat = new THREE.Quaternion();
+
+  function updateHeliostats() {
+    const list = heliostats;
+    const n = list.length;
+    if (!inst || !inst.meshes || n === 0) return;
+    const frame = inst.meshes[3], face = inst.meshes[4], back = inst.meshes[5];
+
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+      const h = list[i];
+      const mx = h.x, my = MIRROR_Y, mz = h.z;
+      const V = tmpV2.copy(h.target).sub(tmpV.set(mx, my, mz)).normalize();
+
+      let nrm;
+      if (state.track) {
+        nrm = tmpV3.copy(sunDir).add(V).normalize();
+        h.intensity = Math.pow(Math.max(0, nrm.dot(sunDir)), 0.6);
+      } else {
+        nrm = h.nFixed;
+        const rr = tmpV3.copy(sunDir).negate().addScaledVector(nrm, 2 * sunDir.dot(nrm));
+        const align = rr.dot(V);
+        h.intensity = Math.max(0, (align - 0.86) / 0.14);
+      }
+      quat.setFromUnitVectors(UP, nrm);
+      sum += h.intensity;
+
+      dummy.position.set(mx, my, mz);
+      dummy.quaternion.copy(quat);
+      dummy.updateMatrix();
+      frame.setMatrixAt(i, dummy.matrix);
+      face.setMatrixAt(i, dummy.matrix);
+      back.setMatrixAt(i, dummy.matrix);
+
+      const p6 = i * 6;
+      const it = h.intensity;
+      if (state.beam && it > 0.02) {
+        beamPos[p6] = mx; beamPos[p6 + 1] = my; beamPos[p6 + 2] = mz;
+        beamPos[p6 + 3] = h.target.x; beamPos[p6 + 4] = h.target.y; beamPos[p6 + 5] = h.target.z;
+        const cR = 0.30 + (1 - it) * 0.62;
+        const cG = 0.16 + (1 - it) * 0.72;
+        const cB = 0.02 + (1 - it) * 0.88;
+        beamCol[p6] = cR + 0.35 * it; beamCol[p6 + 1] = cG + 0.35 * it; beamCol[p6 + 2] = cB + 0.3 * it;
+        beamCol[p6 + 3] = cR; beamCol[p6 + 4] = cG; beamCol[p6 + 5] = cB;
+      } else {
+        beamPos[p6] = 0; beamPos[p6 + 1] = -20; beamPos[p6 + 2] = 0;
+        beamPos[p6 + 3] = 0; beamPos[p6 + 4] = -20; beamPos[p6 + 5] = 0;
+      }
+    }
+    frame.instanceMatrix.needsUpdate = true;
+    face.instanceMatrix.needsUpdate = true;
+    back.instanceMatrix.needsUpdate = true;
+    beamGeo.attributes.position.needsUpdate = true;
+    beamGeo.attributes.color.needsUpdate = true;
+    beamMesh.visible = state.beam;
+
+    let ri = 0;
+    for (let i = 0; i < n; i += RAY_STEP) {
+      const h = list[i];
+      const p6 = ri * 6; ri++;
+      if (state.beam && state.el > 4) {
+        rayPos[p6] = h.x + sunDir.x * 11;
+        rayPos[p6 + 1] = MIRROR_Y + sunDir.y * 11;
+        rayPos[p6 + 2] = h.z + sunDir.z * 11;
+        rayPos[p6 + 3] = h.x; rayPos[p6 + 4] = MIRROR_Y; rayPos[p6 + 5] = h.z;
+        rayCol[p6] = 0.74; rayCol[p6 + 1] = 0.72; rayCol[p6 + 2] = 0.63;
+        rayCol[p6 + 3] = 0.46; rayCol[p6 + 4] = 0.43; rayCol[p6 + 5] = 0.37;
+      } else {
+        rayPos[p6] = 0; rayPos[p6 + 1] = -20; rayPos[p6 + 2] = 0;
+        rayPos[p6 + 3] = 0; rayPos[p6 + 4] = -20; rayPos[p6 + 5] = 0;
+      }
+    }
+    rayGeo.attributes.position.needsUpdate = true;
+    rayGeo.attributes.color.needsUpdate = true;
+    rayMesh.visible = state.beam;
+
+    const eff = Math.max(0, Math.sin(state.el * Math.PI / 180) * 1.35);
+    state.power = Math.min(1, (sum / n) * eff);
+  }
+
+  /* ================= 吸热器热效 / 蒸汽 ================= */
+  let clock0 = performance.now();
+  function updateHeat(dt) {
+    const p = state.power;
+    // Strong incident concentrated sunlight is represented as a surface radiance term.
+    // The black absorber is preserved when aiming misses; this is not white-hot salt.
+    M.receiver.emissive.setRGB(3.8*p,3.2*p,2.4*p);
+    recvGlow.material.opacity = 0.26 * p;
+    const gs = 7 + 5 * p;
+    recvGlow.scale.set(5+3*p,8+4*p,1);
+
+    for (let i = 0; i < STEAM_N; i++) {
+      const s = steams[i];
+      let t = s.userData.t + dt * (0.10 + 0.16 * p);
+      if (t > 1) t -= 1;
+      s.userData.t = t;
+      s.position.set(0.4 + t * 2.6 + Math.sin(t * 9 + i) * 0.5, RECEIVER_Y + 3.2 + t * 9, 0.2 + t * 0.7);
+      const sc = 1.8 + t * 4.6;
+      s.scale.set(sc, sc, 1);
+      s.material.opacity = 0;
+    }
+
+    if (saltGroup.userData.hotGlow) {
+      saltGroup.userData.hotGlow.material.opacity = 0;
+    }
+  }
+
+  /* ================= UI ================= */
+  const el = {
+    elLabel: document.getElementById('elLabel'),
+    azLabel: document.getElementById('azLabel'),
+    ringLabel: document.getElementById('ringLabel'),
+    densLabel: document.getElementById('densLabel'),
+    hLabel: document.getElementById('hLabel'),
+    trackLabel: document.getElementById('trackLabel'),
+    effValue: document.getElementById('effValue'),
+    tempValue: document.getElementById('tempValue'),
+    verdict: document.getElementById('verdict'),
+    toast: document.getElementById('toast'),
+    panel: document.getElementById('panel')
+  };
+
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.toast.classList.remove('show'); }, 1500);
+  }
+
+  function azText(az) {
+    if (az < -45) return '东南 ' + Math.abs(az) + '°';
+    if (az < -6) return '东南偏南 ' + Math.abs(az) + '°';
+    if (az <= 6) return '正南 ' + az + '°';
+    if (az <= 45) return '西南偏南 ' + az + '°';
+    return '西南 ' + az + '°';
+  }
+
+  function updateReadout() {
+    const pct = Math.round(state.power * 100);
+    el.effValue.textContent = pct + '%';
+    el.tempValue.textContent = Math.round(290 + state.power * 275) + ' °C';
+    if (state.power > 0.62) {
+      el.verdict.className = 'verdict good';
+      el.verdict.textContent = '✓ 光束汇聚良好，熔盐被加热，汽轮机并网发电中';
+    } else if (state.power > 0.30) {
+      el.verdict.className = 'verdict';
+      el.verdict.textContent = '部分光束到达吸热器，系统预热中……';
+    } else {
+      el.verdict.className = 'verdict bad';
+      el.verdict.textContent = state.track
+        ? '✗ 太阳太低 / 镜面太少，可用能量不足'
+        : '✗ 镜面未追踪，反射光大多偏离吸热器';
+    }
+  }
+
+  function setFill(input) {
+    const min = parseFloat(input.min), max = parseFloat(input.max), v = parseFloat(input.value);
+    const pct = (v - min) / (max - min) * 100;
+    input.style.background = 'linear-gradient(90deg,var(--brand) 0%,var(--brand) ' + pct +
+      '%,#e2eaf4 ' + pct + '%,#e2eaf4 100%)';
+  }
+
+  const sliderEl = document.getElementById('sliderEl');
+  const sliderAz = document.getElementById('sliderAz');
+  const sliderRing = document.getElementById('sliderRing');
+  const sliderDens = document.getElementById('sliderDens');
+  const sliderH = document.getElementById('sliderH');
+
+  function updateRingLabel() {
+    el.ringLabel.textContent = state.rings + ' 环 · ' + heliostats.length + ' 面';
+  }
+
+  function setElevation(v) {
+    state.el = Math.round(v);
+    el.elLabel.textContent = state.el + '°';
+    setFill(sliderEl);
+    updateSun();
+  }
+  function setAzimuth(v) {
+    state.az = Math.round(v);
+    el.azLabel.textContent = azText(state.az);
+    setFill(sliderAz);
+    updateSun();
+  }
+  function setDensity(v, rebuild) {
+    state.dens = v;
+    el.densLabel.textContent = '×' + v.toFixed(1);
+    setFill(sliderDens);
+    if (rebuild) buildHeliostats();
+  }
+  function setTowerH(v, rebuild) {
+    state.towerH = v;
+    TOWER_H = v;
+    el.hLabel.textContent = (v/26).toFixed(2)+'× · 塔高参考 260 m';
+    setFill(sliderH);
+    if (rebuild) buildTower();
+  }
+
+  sliderEl.addEventListener('input', function () { setElevation(parseFloat(this.value)); });
+  sliderAz.addEventListener('input', function () { setAzimuth(parseFloat(this.value)); });
+  sliderRing.addEventListener('input', function () {
+    state.rings = parseInt(this.value, 10);
+    setFill(sliderRing);
+    buildHeliostats();
+  });
+  sliderDens.addEventListener('input', function () { setDensity(parseInt(this.value, 10) / 100, false); });
+  sliderDens.addEventListener('change', function () { setDensity(parseInt(this.value, 10) / 100, true); });
+  sliderH.addEventListener('input', function () { setTowerH(parseFloat(this.value), true); });
+
+  /* ================= 开关 ================= */
+  const btnBeam = document.getElementById('btnBeam');
+  const btnTrack = document.getElementById('btnTrack');
+  const btnDemo = document.getElementById('btnDemo');
+  const btnSalt = document.getElementById('btnSalt');
+  const btnLabel = document.getElementById('btnLabel');
+
+  btnBeam.addEventListener('click', function () {
+    state.beam = !state.beam;
+    btnBeam.classList.toggle('active', state.beam);
+  });
+  btnTrack.addEventListener('click', function () {
+    state.track = !state.track;
+    btnTrack.classList.toggle('active', state.track);
+    el.trackLabel.textContent = state.track ? '自动追踪' : '固定姿态';
+    toast(state.track ? '镜面自动追踪太阳' : '镜面固定姿态：观察反射光的偏离');
+  });
+  btnDemo.addEventListener('click', function () {
+    state.demo = !state.demo;
+    btnDemo.classList.toggle('active', state.demo);
+    if (state.demo) toast('演示一天：太阳东升西落');
+  });
+  btnSalt.addEventListener('click', function () {
+    state.salt = !state.salt;
+    btnSalt.classList.toggle('active', state.salt);
+    saltGroup.visible = state.salt;
+  });
+  btnLabel.addEventListener('click', function () {
+    state.labels = !state.labels;
+    btnLabel.classList.toggle('active', state.labels);
+    labelGroup.visible = state.labels;
+  });
+
+  const originalSurfaces=[ground.material,M.concrete,M.concreteDark,M.mirror,M.receiver,M.tankHot,M.tankCold].map(m=>({m,map:m.map,bump:m.bumpMap}));
+  document.getElementById('btnMaterial').onclick=function(){state.realistic=!state.realistic;this.classList.toggle('active',state.realistic);for(const a of originalSurfaces){a.m.map=state.realistic?a.map:null;a.m.bumpMap=state.realistic?a.bump:null;a.m.needsUpdate=true;}ground.material.color.set(state.realistic?0xffffff:0xd6d3c8);};
+  /* ================= 相机控制 ================= */
+  const view = {
+    focus:'whole',theta: 0.62, phi: 1.08, dist: 165, distTarget: 165, baseDist: 165,
+    target: new THREE.Vector3(6, 10, -7)
+  };
+
+  function applyCamera() {
+    const v = view;
+    camera.position.set(
+      v.target.x + v.dist / Math.min(1,camera.aspect) * Math.sin(v.phi) * Math.sin(v.theta),
+      v.target.y + v.dist / Math.min(1,camera.aspect) * Math.cos(v.phi),
+      v.target.z + v.dist / Math.min(1,camera.aspect) * Math.sin(v.phi) * Math.cos(v.theta)
+    );
+    camera.lookAt(v.target);
+  }
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  const pointers = new Map();
+  let dragging = false;
+  let dragMode = null;
+  let pinchStart = 0, pinchDist = 0;
+
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 1) {
+      dragMode = (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
+      dragging = true;
+    } else if (pointers.size === 2) {
+      dragMode = 'pinch';
+      dragging = false;
+      const pts = Array.from(pointers.values());
+      pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      pinchStart = view.distTarget;
+    }
+  });
+
+  canvas.addEventListener('pointermove', function (e) {
+    if (!pointers.has(e.pointerId)) return;
+    const prev = pointers.get(e.pointerId);
+    const dx = e.clientX - prev.x;
+    const dy = e.clientY - prev.y;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (dragMode === 'pinch' && pointers.size === 2) {
+      const pts = Array.from(pointers.values());
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (pinchDist > 0) { view.distTarget = clamp(pinchStart * pinchDist / d, 18, 220); view.baseDist = view.distTarget; }
+      return;
+    }
+    if (!dragging) return;
+    if (dragMode === 'pan') {
+      const scale = view.dist * 0.0016;
+      const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0);
+      const up = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1);
+      view.target.addScaledVector(right, -dx * scale);
+      view.target.addScaledVector(up, dy * scale);
+    } else {
+      view.theta -= dx * 0.0058;
+      view.phi = clamp(view.phi - dy * 0.0055, 0.10, 1.55);
+    }
+    e.preventDefault();
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size === 0) { dragging = false; dragMode = null; }
+  }
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', endPointer);
+  canvas.addEventListener('pointerleave', function (e) { if (pointers.size) endPointer(e); });
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    view.distTarget = clamp(view.distTarget * Math.exp(e.deltaY * 0.0011), 18, 220);
+    view.baseDist = view.distTarget;
+  }, { passive: false });
+
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  /* ================= 视角 / 导出 ================= */
+  document.getElementById('btnReset').addEventListener('click', function () {view.focus='whole';
+    view.theta = 0.62; view.phi = 1.08; view.distTarget = 165;
+    view.target.set(6, 10, -7);
+  });
+  document.getElementById('btnFront').addEventListener('click', function () {view.focus='whole';
+    view.theta = 0; view.phi = 1.40; view.distTarget = 135;
+    view.target.set(0, TOWER_H * 0.55 + 2, 0);
+  });
+  document.getElementById('btnTop').addEventListener('click', function () {view.focus='whole';
+    view.theta = 0.02; view.phi = 0.16; view.distTarget = 165;
+    view.target.set(0, 2, 0);
+  });
+  document.getElementById('btnMirror').onclick=()=>{view.focus='mirror';const h=heliostats.find(h=>h.z>10&&h.x>5)||heliostats[0];view.target.set(h.x,MIRROR_Y,h.z);view.theta=.4;view.phi=1.08;view.dist=view.distTarget=13;};
+  document.getElementById('btnReceiver').onclick=()=>{view.focus='receiver';view.target.set(0,RECEIVER_Y,0);view.theta=.72;view.phi=1.20;view.dist=view.distTarget=22;};
+  document.getElementById('btnBrand').onclick=()=>{view.focus='brand';view.target.set(0,.6+TOWER_H*.56,0);view.theta=.62;view.phi=1.50;view.dist=view.distTarget=18;};
+  document.getElementById('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const url = renderer.domElement.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '塔式太阳能电站-' + Date.now() + '.png';
+    a.click();
+    toast('已导出 PNG');
+  });
+
+  document.getElementById('panelClose').addEventListener('click', function () {
+    el.panel.classList.add('collapsed');
+  });
+  document.getElementById('panelOpen').addEventListener('click', function () {
+    el.panel.classList.remove('collapsed');
+  });
+
+  /* ================= 尺寸 ================= */
+  function resize() {
+    const r=document.getElementById('stage').getBoundingClientRect(),w=r.width,h=r.height;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  /* ================= 主循环 ================= */
+  let readoutTick = 0;
+  let lastT = performance.now();
+
+  function tick() {for(const [id,o] of Object.entries(LBL)){o.visible=view.focus==='whole'||view.focus==='receiver'&&id==='recv';o.scale.copy(o.userData.originalScale).multiplyScalar(Math.min(1,view.dist/110));}
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    clock0 = now;
+
+    if (state.demo) {
+      const az = -80 + ((now * 0.008) % 160);
+      const k = 1 - Math.pow(az / 85, 2);
+      const elv = 12 + 58 * Math.max(0, k);
+      setAzimuth(az); setElevation(elv);
+      sliderAz.value = String(Math.round(az));
+      sliderEl.value = String(Math.round(elv));
+    }
+
+    view.dist += (view.distTarget - view.dist) * Math.min(1, dt * 7);
+
+    updateSun();
+    updateHeliostats();
+    updateHeat(dt);
+
+    if (++readoutTick % 12 === 0) updateReadout();
+
+    applyCamera();
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+
+  /* ================= 初始化 ================= */
+  setElevation(42);
+  setAzimuth(28);
+  setDensity(1.0, false);
+  setTowerH(26, false);
+  buildTower();
+  buildHeliostats();
+  updateLabelPositions();
+  updateSun();
+  updateHeliostats();
+  updateHeat(0);
+  updateReadout();
+  resize();
+  if(innerWidth<=800)el.panel.classList.add('collapsed');
+  applyCamera();
+  requestAnimationFrame(tick);
+
+  /* ================= 调试接口 ================= */
+  window.SOLAR_DEBUG = {
+    state: state, view: view,
+    sunDir: function () { return sunDir.toArray().map(function (x) { return +x.toFixed(3); }); },
+    power: function () { return +state.power.toFixed(3); },
+    mirrors: function () { return heliostats.length; },
+    tower: function () { return { h:TOWER_H,receiverY:RECEIVER_Y,receiverRadius:1.58 }; },
+    tracking:()=>{const a=[];for(let i=0;i<heliostats.length;i++){const m=new THREE.Matrix4();inst.meshes[4].getMatrixAt(i,m);a.push(new THREE.Vector3(0,1,0).transformDirection(m).toArray());}return {sun:sunDir.toArray(),normals:a};},targets:()=>heliostats.map(h=>({mirror:[h.x,MIRROR_Y,h.z],target:h.target.toArray()})),materialInfo:()=>({brand:'首航高科',brandCount:towerGroup.children.filter(x=>x.name==='首航高科').length,receiverRadiance:M.receiver.emissive.toArray(),submirrors:35,steamAtTower:false,cooling:'air',realistic:state.realistic,drawCalls:renderer.info.render.calls})
+  };
+})();
+</script>
+</body>
+</html>

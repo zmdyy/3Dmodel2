@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>螺口灯泡的装配与接线 · 3D 交互演示</title>
+<style>
+  :root{
+    --bg:#eef3f9;
+    --ink:#1b2430;
+    --ink2:#5a6879;
+    --line:#dde5ef;
+    --brand:#2f7de1;
+    --brand-soft:#e7f0fd;
+    --shadow:0 10px 34px rgba(28,48,78,.13);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:fixed;inset:0;}
+  #scene{display:block;width:100%;height:100%;}
+
+  .head{
+    position:fixed;left:24px;top:20px;z-index:5;max-width:400px;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:16px;
+    padding:14px 18px;box-shadow:var(--shadow);
+  }
+  .head h1{margin:0 0 5px;font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .head h1 span{font-weight:500;color:var(--ink2);font-size:13px;}
+  .head p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink2);}
+  .head p b{color:#15406f;}
+
+  .panel{
+    position:fixed;right:22px;top:20px;z-index:6;
+    width:308px;
+    background:rgba(255,255,255,.93);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+  }
+  .panel.collapsed{transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;}
+  .panel::-webkit-scrollbar{width:6px;}
+  .panel::-webkit-scrollbar-thumb{background:#cfdae8;border-radius:3px;}
+
+  #panelClose{
+    position:absolute;right:10px;top:10px;
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    cursor:pointer;font-size:14px;line-height:1;padding:0;
+  }
+  #panelClose:hover{background:var(--brand-soft);color:var(--brand);}
+  #panelOpen{
+    position:fixed;right:22px;top:20px;z-index:7;
+    width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    box-shadow:var(--shadow);cursor:pointer;font-size:17px;line-height:1;
+    display:none;
+  }
+  .panel.collapsed ~ #panelOpen{display:block;}
+
+  .grp{margin-bottom:14px;}
+  .grp:first-of-type .lbl{padding-right:32px;}
+  .lbl{
+    font-size:11.5px;font-weight:600;letter-spacing:.6px;
+    color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .lbl b{color:var(--brand);font-size:12.5px;font-weight:700;margin-left:auto;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
+    background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 50%,#e2eaf4 50%,#e2eaf4 100%);
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--brand);box-shadow:0 2px 6px rgba(47,125,225,.35);
+    cursor:grab;
+  }
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.08);}
+
+  .seg{display:flex;gap:6px;}
+  .seg button, .toggles button{
+    flex:1;padding:8px 4px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:10px;cursor:pointer;transition:all .18s ease;
+  }
+  .seg button:hover, .toggles button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .seg button.active, .toggles button.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(47,125,225,.32);}
+  .seg button.danger.active{background:#d9483c;border-color:#d9483c;box-shadow:0 3px 10px rgba(217,72,60,.32);}
+  .toggles{display:flex;gap:6px;flex-wrap:wrap;}
+  .toggles button{min-width:68px;padding:7px 8px;font-size:12px;border-radius:9px;}
+
+  .readout{
+    margin-top:9px;padding:10px 12px;border-radius:12px;
+    background:linear-gradient(180deg,#f6faff,#eef5fd);
+    border:1px solid #e2ecf8;
+  }
+  .rv{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;color:var(--ink2);}
+  .rv + .rv{margin-top:5px;}
+  .rv b{font-size:15px;color:#15406f;font-variant-numeric:tabular-nums;}
+  .rv i{font-style:normal;font-size:11px;color:#8794a6;margin-left:4px;}
+  .rv b.on{color:#c0392b;}
+  .rv b.off{color:#8794a6;}
+
+  .mini{font-size:11px;color:#8794a6;margin-top:7px;line-height:1.5;}
+
+  .tip{
+    padding:11px 12px;border-radius:12px;border:1px solid #e2ecf8;
+    background:linear-gradient(180deg,#f8fbff,#f0f6fe);
+    font-size:11.5px;line-height:1.75;color:var(--ink2);
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .tip b{font-size:12px;color:#15406f;margin-bottom:3px;}
+  .tip i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .tip i.glass{background:#cfe0ec;}
+  .tip i.tung{background:#e0b24a;}
+  .tip i.silver{background:#b2bcc7;}
+  .tip i.brass{background:#d0a24e;}
+  .tip i.white{background:#f0f2f4;border:1px solid #ccd4dd;}
+  .tip i.red{background:#e8372a;}
+  .tip i.blue{background:#2f6fd0;}
+
+  .ans{
+    margin-top:8px;padding:12px 13px;border-radius:12px;
+    border:1px dashed #cfe0b8;background:linear-gradient(180deg,#f7fdf2,#eef9e6);
+    font-size:11.5px;line-height:1.85;color:#3a5c26;display:none;
+  }
+  .ans.show{display:block;}
+  .ans.warn{border-color:#f0b8ae;background:linear-gradient(180deg,#fff7f5,#fdeeea);color:#7a3226;}
+  .ans b{color:#1a7f5a;}
+  .ans.warn b{color:#c0392b;}
+
+  .hint{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:5;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 20px;font-size:12px;color:var(--ink2);
+    box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .hint kbd{
+    background:#eef4fb;border:1px solid #dbe6f4;border-radius:5px;
+    padding:1px 5px;font-size:11px;font-family:inherit;color:#15406f;
+  }
+
+  #toast{
+    position:fixed;left:50%;bottom:74px;transform:translate(-50%,12px);
+    background:#1c2430;color:#fff;font-size:13px;padding:9px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="scene"></canvas></div>
+
+  <div class="head">
+    <h1>螺口灯泡的装配与接线 <span>· 3D 交互演示</span></h1>
+    <p>E27 螺口灯泡拧进灯座后：灯泡的<b>螺纹壳</b>压住灯座的<b>螺纹套</b>，灯泡底部中心的<b>锡点</b>压住灯座中心的<b>弹性触点</b>。家庭电路规定：<b>火线经开关接中心触点，零线接螺纹套</b>。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+    <div class="grp">
+      <div class="lbl">装配（拧入 / 拧出） <b id="fixLabel">100%</b></div>
+      <input id="fixRange" type="range" min="0" max="100" step="1" value="100" />
+      <div class="seg" style="margin-top:8px;">
+        <button id="btnIn">拧 到 底</button>
+        <button id="btnOut">拧 出 来</button>
+      </div>
+      <div class="mini">拧出时一边上升一边旋转；<b>没拧到底就不能通电</b>（触点没接触）</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">透视 · 玻璃泡 <b id="glassLabel">透明 50%</b></div>
+      <input id="glassRange" type="range" min="0" max="100" step="1" value="50" />
+      <div class="lbl" style="margin-top:10px;">透视 · 灯座外壳 <b id="caseLabel">半透明 40%</b></div>
+      <input id="caseRange" type="range" min="0" max="100" step="1" value="40" />
+      <div class="toggles" style="margin-top:8px;">
+        <button id="btnSection">半 剖 切</button>
+        <button id="btnSolidAll">全部实体</button>
+        <button id="btnClearAll">全部透明</button>
+      </div>
+      <div class="mini">透明只作用于玻璃泡与灯座外壳；灯丝、导丝、螺纹、触点始终实体可见</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">电路</div>
+      <div class="seg">
+        <button id="btnPower" class="active">断 开</button>
+        <button id="btnWireOk" class="active">正确接法</button>
+      </div>
+      <div class="seg" style="margin-top:6px;">
+        <button id="btnWireRev" class="danger">火线接螺纹壳（危险）</button>
+      </div>
+      <div class="mini">开关接在<b>火线</b>上；接法切换后导线的火线／零线颜色与电流方向会同步变化</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">读数</div>
+      <div class="readout">
+        <div class="rv"><span>电路状态</span><b id="vPower" class="off">断开</b></div>
+        <div class="rv"><span>灯丝电流 I</span><b id="vAmp">0<i>A</i></b></div>
+        <div class="rv"><span>灯丝电阻 R</span><b id="vOhm">1210<i>Ω</i></b></div>
+        <div class="rv"><span>灯座型号</span><b id="vFix">E27</b></div>
+      </div>
+      <div class="mini">额定 220 V / 40 W 白炽灯：R = U²/P = 1210 Ω，正常工作电流约 0.18 A</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">显示选项</div>
+      <div class="toggles">
+        <button id="btnLabels" class="active">部件标签</button>
+        <button id="btnMarks" class="active">接点标注</button>
+        <button id="btnFlow" class="active">电流方向</button>
+        <button id="btnTip">接线原理</button>
+      </div>
+      <div class="ans" id="tipBox">
+        <b>① 灯泡内部</b>：灯丝是螺旋形的钨丝，两端各接一根导丝。一根导丝焊在<b>螺纹壳</b>的内壁上，另一根穿过玻璃喇叭管焊在底部<b>中心的锡点</b>上——这两处就是灯泡的两个接线端。<br>
+        <b>② 灯座内部</b>：黄铜<b>螺纹套</b>用一片铜条引到底部的零线端子；中心<b>弹性铜片</b>用一根铜线引到底部的火线端子。<br>
+        <b>③ 家庭电路</b>：火线先经过墙上的<b>开关</b>，再接到灯座的中心触点；零线直接接螺纹套。这样开关断开时灯泡两端都不带电，换灯泡时手碰到螺纹壳也不会触电。
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">视角 / 导出</div>
+      <div class="toggles">
+        <button id="btnReset">默认视角</button>
+        <button id="btnBulb">灯泡特写</button>
+        <button id="btnBase">灯座特写</button>
+        <button id="btnUnder">灯头底视</button>
+        <button id="btnShot">导出 PNG</button>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>结构对照</b>
+      <span><i class="glass"></i>透明玻璃＝玻璃泡（可调透明度）</span>
+      <span><i class="tung"></i>金黄色＝灯丝（钨丝螺旋），通电时发亮</span>
+      <span><i class="silver"></i>银色＝螺纹壳 / 导丝 / 中心锡点</span>
+      <span><i class="brass"></i>黄铜色＝灯座螺纹套 / 弹性触点 / 接线端子</span>
+      <span><i class="red"></i>红色导线＝火线 L（经开关）<i class="blue" style="margin-left:8px;"></i>蓝色＝零线 N</span>
+    </div>
+  </div>
+  <button id="panelOpen" title="展开面板">‹</button>
+
+  <div class="hint">拖拽旋转 · 滚轮缩放 · <kbd>Shift</kbd>+拖拽平移 · 拖动滑块拆装灯泡</div>
+  <div id="toast"></div>
+
+  <script src="../shared/vendor/three-r144.min.js"></script>
+  <script>
+/* =========================================================
+   螺口灯泡的装配与接线 · 3D 交互演示
+   ---------------------------------------------------------
+   结构（1 单位 ≈ 1 cm，E27 螺口）：
+     · 灯泡：玻璃泡 + 玻璃喇叭管 + 螺旋灯丝（钨丝）
+             导丝① 从灯丝下端沿轴向下、径向焊在【螺纹壳】内壁
+             导丝② 从灯丝上端绕外侧向下、穿过喇叭管焊在【中心锡点】
+     · 灯座：白瓷外壳 + 黄铜内螺纹套 + 中心弹性触点 + 两个接线端子
+             螺纹套外壁 → 铜条 → 零线端子 N
+             中心触点底 → 铜条 → 火线端子 L
+     · 家庭电路：火线 L 经【开关】→ 灯座中心触点 → 灯泡锡点 →
+                 导丝② → 灯丝 → 导丝① → 螺纹壳 → 螺纹套粗 →
+                 铜条 → 零线端子 N → 零线
+   安全：火线接中心触点、零线接螺纹套 —— 换灯泡时手碰螺纹壳不触电
+   ========================================================= */
+(function () {
+  'use strict';
+
+  if (THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
+
+  /* ================= 渲染器 / 场景 / 相机 ================= */
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.LinearToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.localClippingEnabled = true;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xeef3f9);
+  scene.fog = new THREE.Fog(0xeef3f9, 46, 130);
+
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
+
+  /* ================= 环境贴图 ================= */
+  (function buildEnvironment() {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0.00, '#ffffff');
+    g.addColorStop(0.38, '#f3f7fc');
+    g.addColorStop(0.50, '#e0e8f2');
+    g.addColorStop(0.62, '#bac5d3');
+    g.addColorStop(1.00, '#707b89');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 512);
+    [[26, 70, 34], [92, 132, 22]].forEach(function (p) {
+      const rg = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], p[2]);
+      rg.addColorStop(0, 'rgba(255,255,255,1)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(p[0], p[1], p[2], 0, Math.PI * 2); ctx.fill();
+    });
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const env = pmrem.fromEquirectangular(tex).texture;
+    pmrem.dispose();
+    tex.dispose();
+    scene.environment = env;
+  })();
+
+  /* ================= 灯光 ================= */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3c2d4, 0.34));
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 0.64);
+  keyLight.position.set(10, 18, 12);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -14;
+  keyLight.shadow.camera.right = 14;
+  keyLight.shadow.camera.top = 16;
+  keyLight.shadow.camera.bottom = -8;
+  keyLight.shadow.camera.near = 1;
+  keyLight.shadow.camera.far = 80;
+  keyLight.shadow.bias = -0.0007;
+  keyLight.shadow.radius = 2.4;
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0xdce8ff, 0.17);
+  fillLight.position.set(-12, 9, -10);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.16);
+  rimLight.position.set(-6, 7, 14);
+  scene.add(rimLight);
+
+  /* ================= 地面 / 台面 ================= */
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(44, 72),
+    new THREE.MeshStandardMaterial({ color: 0xdde6f0, roughness: 0.98, metalness: 0.0 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.80;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(44, 44, 0xc0cfe1, 0xd5e0ee);
+  grid.position.y = -0.795;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.5;
+  scene.add(grid);
+
+  const bench = new THREE.Mesh(
+    new THREE.BoxGeometry(22, 0.20, 11),
+    new THREE.MeshStandardMaterial({ color: 0xe8eef6, roughness: 0.74, metalness: 0.02 })
+  );
+  bench.position.set(2.3, -0.70, 0);
+  bench.receiveShadow = true;
+  scene.add(bench);
+
+  /* ================= 关键尺寸 ================= */
+  const DEG = Math.PI / 180;
+
+  /* --- 灯座 --- */
+  const SOCK_BOT = -0.60, SOCK_TOP = 3.00;
+  const SOCK_RO = 2.05, SOCK_RI = 1.62;
+  const SLEEVE_I = 1.50, SLEEVE_O = 1.62;
+  const SLEEVE_Y0 = 0.02, SLEEVE_Y1 = 2.86;
+  const PITCH = 0.19;                 // E27 螺距（1.9 mm）
+  const SOCK_TH_R = 1.45;             // 灯座内螺纹路径半径（牙顶 ≈1.40）
+  const CT_TOP = 0.44;                // 中心触点顶面高度
+
+  const TERM_L = new THREE.Vector3(2.05, 1.25, 0.00);      // 火线端子（接中心触点）
+  const TERM_N = new THREE.Vector3(2.05, -0.15, -2.00);    // 零线端子移到外侧，与火线分开
+
+  /* --- 灯泡 --- */
+  const SN_BOT = 0.44;                // 锡点最低点（＝触点顶面）
+  const SN_R = 0.55;                  // 锡点（焊锡疙瘩）底面半径 —— 2026-09-30 由 0.45 放大
+  const INSUL_R = 1.16;               // 灯头底部绝缘盘半径
+  const SHELL_R = 1.30, SHELL_I = 1.16;
+  const SCR_Y0 = 0.80, SCR_Y1 = 2.86;
+  const BULB_TH_R = 1.29;             // 外螺纹路径半径（牙顶 ≈1.34）
+  const COIL_Y0 = 4.95, COIL_Y1 = 6.65, COIL_R = 0.26, COIL_TURNS = 11.5;
+  const OUT_TRAVEL = 3.40;            // 拧出时的上升行程
+
+  /* --- 家庭电路 --- */
+  const SW_L = new THREE.Vector3(4.72, 2.40, -0.55);
+  const SW_R = new THREE.Vector3(5.28, 2.40, -0.55);
+  const SRC_L = new THREE.Vector3(6.90, 2.40, -0.60);
+  const SRC_N = new THREE.Vector3(6.90, 0.30, -2.20);
+  const R_FIL = 1210, U_MAINS = 220;
+
+  /* ================= 材质 ================= */
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x9ec7e7, roughness: 0.035, metalness: 0.0, envMapIntensity: 1.9,
+    transparent: true, opacity: 0.50, depthWrite: true, side: THREE.DoubleSide
+  });
+  const stemMat = new THREE.MeshStandardMaterial({
+    color: 0xdfeaf3, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.1,
+    transparent: true, opacity: 0.42, depthWrite: true, side: THREE.DoubleSide
+  });
+  const caseMat = new THREE.MeshStandardMaterial({
+    color: 0xe3e9f1, roughness: 0.46, metalness: 0.02, envMapIntensity: 0.55,
+    transparent: true, opacity: 0.40, depthWrite: true, side: THREE.DoubleSide
+  });
+  const M = {
+    shell: new THREE.MeshStandardMaterial({ color: 0xd3d9df, roughness: 0.20, metalness: 1.0, envMapIntensity: 1.15, side: THREE.DoubleSide }),
+    tin: new THREE.MeshStandardMaterial({ color: 0xe4e9ef, roughness: 0.22, metalness: 1.0, envMapIntensity: 1.35, side: THREE.DoubleSide }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xa87f3c, roughness: 0.28, metalness: 0.96, envMapIntensity: 1.05, side: THREE.DoubleSide }),
+    brassSoft: new THREE.MeshStandardMaterial({ color: 0xd9ab55, roughness: 0.30, metalness: 0.94, envMapIntensity: 1.05 }),
+    lead: new THREE.MeshStandardMaterial({ color: 0xb9c1c9, roughness: 0.34, metalness: 0.92, envMapIntensity: 0.95 }),
+    insul: new THREE.MeshStandardMaterial({ color: 0x22242a, roughness: 0.62, metalness: 0.06, envMapIntensity: 0.4, side: THREE.DoubleSide }),
+    ceramic: new THREE.MeshStandardMaterial({ color: 0xe7eaee, roughness: 0.52, metalness: 0.04, envMapIntensity: 0.5 }),
+    screw: new THREE.MeshStandardMaterial({ color: 0xc8ced5, roughness: 0.28, metalness: 1.0, envMapIntensity: 1.0 })
+  };
+
+  /* 剖切专用材质：与内部接线铜条分开，剖切时只剖"外壳/螺纹"，不把走线切断 */
+  const sleeveMat = M.brass.clone();          // 灯座黄铜螺纹套
+  const sockThreadMat = M.brassSoft.clone();   // 灯座内螺纹（螺旋管）
+
+  const wireRed = new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+  const wireBlue = new THREE.MeshStandardMaterial({ color: 0x2f6fd0, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+  const wireGreen = new THREE.MeshStandardMaterial({ color: 0x3f9c4a, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+
+  const filamentMat = new THREE.MeshStandardMaterial({
+    color: 0xd8a83c, emissive: 0xffb340, emissiveIntensity: 0.0,
+    roughness: 0.36, metalness: 0.85, envMapIntensity: 0.9
+  });
+
+  /* ================= 工具 ================= */
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+  function put(parent, geo, mat, pos, rot, noShadow) {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(pos[0], pos[1], pos[2]);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+    if (!noShadow) { m.castShadow = true; m.receiveShadow = true; }
+    parent.add(m);
+    return m;
+  }
+
+  function curveOf(points, closed) {
+    return new THREE.CatmullRomCurve3(points.map(function (p) {
+      return new THREE.Vector3(p[0], p[1], p[2]);
+    }), closed || false, 'catmullrom', 0.5);
+  }
+  function tube(points, radius, seg, radial, closed) {
+    return new THREE.TubeGeometry(curveOf(points, closed), seg || 60, radius, radial || 8, !!closed);
+  }
+  function lathe(pts, seg) {
+    return new THREE.LatheGeometry(pts.map(function (p) { return new THREE.Vector2(p[0], p[1]); }), seg || 72);
+  }
+  const V = function (x, y, z) { return new THREE.Vector3(x, y, z); };
+
+  /* --- 标签（Sprite） --- */
+  function makeLabel(text, color, h) {
+    const fs = 62;
+    const probe = document.createElement('canvas').getContext('2d');
+    probe.font = 'bold ' + fs + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+    const tw = Math.ceil(probe.measureText(text).width) + 48;
+    const cw = Math.max(128, Math.pow(2, Math.ceil(Math.log2(tw))));
+    const c = document.createElement('canvas');
+    c.width = cw; c.height = 128;
+    const x = c.getContext('2d');
+    x.font = 'bold ' + fs + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.lineWidth = 15; x.lineJoin = 'round';
+    x.strokeStyle = 'rgba(255,255,255,0.96)';
+    x.strokeText(text, cw / 2, 66);
+    x.fillStyle = color;
+    x.fillText(text, cw / 2, 66);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = 4;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: tex, transparent: true, depthTest: false, depthWrite: false
+    }));
+    const ratio = cw / 128;
+    sp.scale.set(h * ratio, h, 1);
+    sp.renderOrder = 40;
+    return sp;
+  }
+
+  const labelG = new THREE.Group();     // 部件标签（可开关）
+  const markG = new THREE.Group();      // 接点标注 + 引线（可开关）
+  scene.add(labelG); scene.add(markG);
+
+  function addLabel(text, color, h, pos, group) {
+    const sp = makeLabel(text, color, h);
+    sp.position.set(pos[0], pos[1], pos[2]);
+    (group || labelG).add(sp);
+    return sp;
+  }
+  function addMark(text, color, h, pos, target, group) {
+    const g = group || markG;
+    const sp = makeLabel(text, color, h);
+    sp.position.set(pos[0], pos[1], pos[2]);
+    g.add(sp);
+    const line = put(g, tube([pos, [pos[0] * 0.55 + target[0] * 0.45, pos[1] * 0.55 + target[1] * 0.45, pos[2] * 0.55 + target[2] * 0.45], target], 0.018, 30, 5), M.lead, null, null, true);
+    line.material = M.lead;
+    put(g, new THREE.SphereGeometry(0.075, 12, 10), M.brassSoft, target);
+    return sp;
+  }
+
+  /* =========================================================
+     一、灯座
+     ========================================================= */
+  const gCase = new THREE.Group();          // 灯座外壳（受透明度控制）
+  const gSock = new THREE.Group();          // 灯座内部件
+  scene.add(gCase); scene.add(gSock);
+
+  // 外壳（杯状 + 外翻边）
+  put(gCase, lathe([
+    [0.00, -0.34], [1.62, -0.34], [1.62, 2.98], [2.05, 3.00],
+    [2.18, 2.98], [2.18, 2.58], [2.05, 2.40], [2.05, SOCK_BOT], [0.00, SOCK_BOT]
+  ], 128), caseMat, null, null, true).castShadow = false;
+
+  // 黄铜螺纹套
+  put(gSock, lathe([
+    [SLEEVE_I, SLEEVE_Y0], [SLEEVE_I, SLEEVE_Y1], [SLEEVE_O, SLEEVE_Y1],
+    [SLEEVE_O, SLEEVE_Y0], [SLEEVE_I, SLEEVE_Y0]
+  ], 64), sleeveMat);
+
+  // 套内螺纹（螺旋管）
+  let SOCK_THREAD_MESH = null, BULB_THREAD_MESH = null;
+  (function sockThread() {
+    const y0 = 0.28, y1 = 2.78;
+    const turns = (y1 - y0) / PITCH;
+    const N = Math.round(turns * 16);
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, a = t * turns * Math.PI * 2;
+      pts.push(V(SOCK_TH_R * Math.cos(a), y0 + (y1 - y0) * t, SOCK_TH_R * Math.sin(a)));
+    }
+    SOCK_THREAD_MESH = put(gSock, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N * 2, 0.055, 6, false), sockThreadMat);
+  })();
+
+  // 中心触点：接触圆片和导电立柱，火线直接连接立柱（顶面 = CT_TOP = 0.44）
+  put(gSock, new THREE.CylinderGeometry(0.24, 0.26, 0.76, 24), M.brassSoft, [0, 0.02, 0]);
+  put(gSock, new THREE.CylinderGeometry(0.36, 0.36, 0.09, 28), M.brass, [0, 0.395, 0]);
+
+  // 端子（螺柱 + 六角螺帽 + 彩色绝缘座）
+  function terminal(pos, dx, colorMat, label) {
+    const g = new THREE.Group();
+    g.position.copy(pos);
+    scene.add(g);
+    const rod = put(g, new THREE.CylinderGeometry(0.085, 0.085, 0.36, 14), M.screw,
+      [0, 0, 0], [0, 0, Math.PI / 2]);
+    rod.position.x = 0.06;
+    put(g, new THREE.CylinderGeometry(0.155, 0.155, 0.10, 6), M.screw, [0.34, 0, 0], [0, 0, Math.PI / 2]);
+    put(g, new THREE.CylinderGeometry(0.05, 0.05, 0.42, 10), M.screw, [0.30, 0, 0], [0, 0, Math.PI / 2]);
+    put(g, new THREE.BoxGeometry(0.22, 0.44, 0.44), colorMat, [-0.06, 0, 0]);
+    return g;
+  }
+  terminal(TERM_L, 1, wireRed, 'L');
+  terminal(TERM_N, 1, wireBlue, 'N');
+
+  // 固定在左侧套壁上：常用半剖视角保留这一侧，不留下悬空的接头。
+  // 铜条沿套壁向下，再直接斜向外侧零线端子，避开中心触点的铜条。
+  const NEUTRAL_CONTACT = [-SLEEVE_I, 0.72, 0.00];
+  const NEUTRAL_LINK = [
+    NEUTRAL_CONTACT, [-1.34, 0.38, -0.12], [-1.20, -0.14, -0.50],
+    [-0.12, -0.14, -1.00], [0.96, -0.15, -1.50], [TERM_N.x, TERM_N.y, TERM_N.z]
+  ];
+  put(gSock, tube(NEUTRAL_LINK, 0.062, 120, 7), M.brassSoft);
+  // 银色铆接头伸入套内，便于分辨铜条与套壁的实际连接位置。
+  put(gSock, new THREE.SphereGeometry(0.16, 18, 12), M.screw, NEUTRAL_CONTACT);
+
+  // 灯座内部铜条：中心触点底 → 火线端子 L
+  put(gSock, tube([
+    [0.00, -0.16, 0.00], [0.60, -0.20, 0.00], [1.30, -0.20, 0.00],
+    [1.88, -0.20, 0.00], [1.88, 0.60, 0.00], [1.90, 1.25, 0.00], [2.05, 1.25, 0.00]
+  ], 0.062, 90, 7), M.brassSoft);
+
+  /* =========================================================
+     二、灯泡（整组可平移 / 旋转）
+     ========================================================= */
+  const gBulb = new THREE.Group();
+  scene.add(gBulb);
+
+  const gGlass = new THREE.Group();      // 玻璃件（受透明度控制）
+  const gBulbCore = new THREE.Group();   // 灯泡金属 / 灯丝件
+  gBulb.add(gGlass); gBulb.add(gBulbCore);
+  // 灯泡自身的标签 / 标注：只跟着灯泡【平移】（不跟着旋转 —— 拧出中途灯泡要转 2 圈，
+  // 若挂进 gBulb 里标签会绕轴乱飞）。位置由 applyFix 同步。
+  const bulbLabelG = new THREE.Group();
+  const bulbMarkG = new THREE.Group();
+  scene.add(bulbLabelG); scene.add(bulbMarkG);
+
+  // 玻璃泡
+  put(gGlass, lathe([
+    [0.86, 2.88], [1.10, 2.98], [1.42, 3.14], [1.80, 3.40], [2.20, 3.78],
+    [2.52, 4.28], [2.76, 4.95], [2.90, 5.65], [2.95, 6.30], [2.90, 6.95],
+    [2.72, 7.55], [2.42, 8.10], [2.00, 8.55], [1.40, 8.90], [0.70, 9.10], [0.00, 9.16]
+  ], 64), glassMat, null, null, true).castShadow = false;
+
+  // 玻璃喇叭管（芯柱）：只包住导丝穿过灯头的那一段，出管后导丝裸露可见
+  put(gGlass, lathe([
+    [0.74, 2.82], [0.74, 3.10], [0.82, 3.45], [0.90, 3.72],
+    [0.83, 3.72], [0.76, 3.45], [0.67, 3.10], [0.67, 2.82]
+  ], 40), stemMat, null, null, true).castShadow = false;
+
+  // 螺纹壳（薄壁杯）
+  put(gBulbCore, lathe([
+    [SHELL_I, SCR_Y0], [SHELL_R, SCR_Y0], [SHELL_R, SCR_Y1], [1.14, 2.92],
+    [0.86, 2.98], [0.86, 2.88], [SHELL_I, 2.84], [SHELL_I, SCR_Y0]
+  ], 56), M.shell);
+
+  // 外螺纹
+  (function bulbThread() {
+    const y0 = 0.86, y1 = 2.80;
+    const turns = (y1 - y0) / PITCH;
+    const N = Math.round(turns * 16);
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, a = Math.PI + t * turns * Math.PI * 2;
+      pts.push(V(BULB_TH_R * Math.cos(a), y0 + (y1 - y0) * t, BULB_TH_R * Math.sin(a)));
+    }
+    BULB_THREAD_MESH = put(gBulbCore, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N * 2, 0.05, 6, false), M.shell);
+  })();
+
+  // 底部绝缘（黑色胶木）—— 底面中央做一圈浅凹（0.54），让中心锡点从下方露出来
+  put(gBulbCore, lathe([
+    [0.55, 0.54], [0.66, 0.49], [0.98, 0.49],
+    [INSUL_R, 0.62], [INSUL_R, 0.84], [0.24, 0.84],
+    [0.31, 0.82], [0.50, 0.66], [0.55, 0.54]
+  ], 48), M.insul);
+
+  // 中心锡点（焊锡疙瘩：底面 R0.55，圆顶到 0.88；最低点严格 = SN_BOT = 中心触点顶面）
+  put(gBulbCore, lathe([
+    [0.00, SN_BOT], [SN_R, 0.49], [0.47, 0.66], [0.28, 0.82], [0.00, 0.88]
+  ], 40), M.tin);
+
+  // 导丝①：灯丝下端 → 沿轴向下 → 径向焊在螺纹壳内壁
+  put(gBulbCore, tube([
+    [0.00, 4.95, -0.26], [0.00, 3.60, -0.26], [0.00, 1.90, -0.26],
+    [0.00, 1.55, -0.46], [0.00, 1.55, -1.12]
+  ], 0.045, 80, 7), M.lead);
+  put(gBulbCore, new THREE.SphereGeometry(0.10, 14, 10), M.tin, [0, 1.55, -1.12]);   // 焊点
+
+  // 导丝②直接焊在中心锡点的内侧顶端，转弯位于绝缘盘上方。
+  // 黑色绝缘盘为环形，中心留出锡点，不再让导丝穿过绝缘材料。
+  const TIN_LEAD_POINTS = [
+    [0.00, 0.875, 0.00], [0.00, 1.08, 0.00], [0.00, 1.36, 0.62],
+    [0.00, 3.80, 0.62], [0.00, 6.85, 0.62], [0.00, 7.10, 0.62],
+    [0.00, 7.10, 0.26], [0.00, COIL_Y1, 0.26]
+  ];
+  put(gBulbCore, tube(TIN_LEAD_POINTS, 0.045, 150, 7), M.lead);
+  put(gBulbCore, new THREE.SphereGeometry(0.095, 18, 12), M.tin, TIN_LEAD_POINTS[0]);
+
+  // 螺旋灯丝（钨丝）
+  (function filament() {
+    const N = 148, pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, a = -Math.PI / 2 + Math.PI * 2 * COIL_TURNS * t;
+      pts.push(V(COIL_R * Math.cos(a), COIL_Y0 + (COIL_Y1 - COIL_Y0) * t, COIL_R * Math.sin(a)));
+    }
+    const m = new THREE.Mesh(
+      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 320, 0.032, 6, false), filamentMat);
+    m.castShadow = false;
+    gBulbCore.add(m);
+  })();
+
+  // 灯丝点亮时的小点光源
+  const filLight = new THREE.PointLight(0xffc266, 0, 14, 2);
+  filLight.position.set(0, 5.8, 0);
+  gBulbCore.add(filLight);
+
+  /* =========================================================
+     三、家庭电路（源端子 + 开关 + 导线）
+     ========================================================= */
+  const gMains = new THREE.Group();
+  scene.add(gMains);
+
+  function sourceTerm(pos, colorMat) {
+    const g = new THREE.Group();
+    g.position.copy(pos);
+    gMains.add(g);
+    put(g, new THREE.CylinderGeometry(0.32, 0.32, 0.16, 20), colorMat, [0, -0.16, 0]);
+    put(g, new THREE.CylinderGeometry(0.15, 0.15, 0.50, 14), M.screw, [0, 0.22, 0]);
+    put(g, new THREE.CylinderGeometry(0.24, 0.24, 0.09, 6), M.screw, [0, 0.48, 0]);
+    return g;
+  }
+  const gSrcL = sourceTerm(SRC_L, wireRed);
+  const gSrcN = sourceTerm(SRC_N, wireBlue);
+  const srcBaseL = gSrcL.children[0];      // 火线源端子绝缘座
+  const srcBaseN = gSrcN.children[0];      // 零线源端子绝缘座
+
+  // 开关（闸刀）
+  const gSwitch = new THREE.Group();
+  gMains.add(gSwitch);
+  put(gSwitch, new THREE.BoxGeometry(1.36, 0.30, 0.80), M.ceramic, [5.00, 2.02, -0.55]);
+  put(gSwitch, new THREE.CylinderGeometry(0.11, 0.11, 0.44, 14), M.brassSoft, [SW_L.x, SW_L.y, SW_L.z]);
+  put(gSwitch, new THREE.CylinderGeometry(0.11, 0.11, 0.44, 14), M.brassSoft, [SW_R.x, SW_R.y, SW_R.z]);
+  const gBlade = new THREE.Group();
+  gBlade.position.set(SW_L.x, SW_L.y + 0.24, SW_L.z);
+  gSwitch.add(gBlade);
+  put(gBlade, new THREE.BoxGeometry(0.62, 0.09, 0.16), M.brass, [0.31, 0.03, 0]);
+  put(gBlade, new THREE.CylinderGeometry(0.075, 0.075, 0.20, 12), M.insul, [0.62, 0.10, 0]);
+
+  // 导线
+  const gWire = new THREE.Group();
+  gMains.add(gWire);
+  // 两根外接线分开布置，零线沿外侧近似直线，不再在端子附近回绕。
+  const NEUTRAL_WIRE = [
+    [SRC_N.x, SRC_N.y, SRC_N.z], [6.30, 0.12, -2.16],
+    [4.40, -0.06, -2.07], [2.95, TERM_N.y, TERM_N.z], [2.62, TERM_N.y, TERM_N.z]
+  ];
+  const wireSegs = {
+    red1: put(gWire, tube([[6.90, 2.40, -0.60], [6.20, 2.40, -0.58], [5.62, 2.42, -0.56], [5.28, 2.50, -0.55]], 0.085, 40, 8), wireRed),
+    red2: put(gWire, tube([[4.72, 2.50, -0.55], [4.20, 2.28, -0.44], [3.62, 1.70, -0.18], [3.02, 1.28, -0.01], [2.62, 1.25, 0.00]], 0.085, 90, 8), wireRed),
+    blue: put(gWire, tube(NEUTRAL_WIRE, 0.085, 110, 8), wireBlue)
+  };
+  // 露铜芯
+  put(gWire, new THREE.CylinderGeometry(0.055, 0.055, 0.22, 10), M.brassSoft, [2.72, 1.25, 0], [0, 0, Math.PI / 2]);
+  put(gWire, new THREE.CylinderGeometry(0.055, 0.055, 0.22, 10), M.brassSoft, [2.72, TERM_N.y, TERM_N.z], [0, 0, Math.PI / 2]);
+
+  /* =========================================================
+     四、电流路径与方向箭头
+     ========================================================= */
+  const gFlow = new THREE.Group();
+  scene.add(gFlow);
+  const ARROW_MAT = new THREE.MeshBasicMaterial({ color: 0xe8372a });
+  const ARROW_GEO = new THREE.ConeGeometry(0.085, 0.28, 8);
+  ARROW_GEO.rotateZ(-Math.PI / 2);
+  const X_AXIS = new THREE.Vector3(1, 0, 0);
+  const q = new THREE.Quaternion();
+
+  let flowCurve = null, flowLen = 1, arrowN = 0, arrows = [], flowPts = [];
+  const FLOW_GAP = 1.45;
+
+  function buildFlowPath() {
+    const pts = [];
+    const P = function (x, y, z) { pts.push(V(x, y, z)); };
+    // 火线源端子 → 开关 → 火线 → 灯座 L 端子
+    P(SRC_L.x, SRC_L.y, SRC_L.z);
+    P(5.62, 2.42, -0.56); P(5.28, 2.50, -0.55);
+    P(5.05, 2.62, -0.55); P(4.72, 2.50, -0.55);
+    P(4.20, 2.28, -0.44); P(3.62, 1.70, -0.18); P(3.02, 1.28, -0.01);
+    P(2.62, 1.25, 0.00); P(2.20, 1.25, 0.00);
+    // 灯座内部：L 铜条
+    P(1.90, 1.25, 0.00); P(1.88, 0.60, 0.00); P(1.88, -0.20, 0.00); P(1.30, -0.20, 0.00);
+    P(0.60, -0.20, 0.00); P(0.00, -0.16, 0.00);
+    // 中心触点
+    P(0.00, 0.10, 0.00); P(0.00, 0.44, 0.00);
+    // 锡点 → 导丝②：与真实导丝共用路径，直接从锡点顶端进入导丝。
+    TIN_LEAD_POINTS.slice(0, -1).forEach(function (p) { P(p[0], p[1], p[2]); });
+    // 灯丝螺旋（自顶端向下）
+    for (let i = 0; i <= 46; i++) {
+      const t = 1 - i / 46, a = -Math.PI / 2 + Math.PI * 2 * COIL_TURNS * t;
+      P(COIL_R * Math.cos(a), COIL_Y0 + (COIL_Y1 - COIL_Y0) * t, COIL_R * Math.sin(a));
+    }
+    // 导丝① → 螺纹壳内壁焊点
+    P(0.00, 4.95, -0.26); P(0.00, 3.60, -0.26); P(0.00, 1.90, -0.26);
+    P(0.00, 1.55, -0.46); P(0.00, 1.55, -1.12);
+    // 螺纹壳 → 灯座螺纹套，沿左后侧套壁到固定连接点。
+    P(0.00, 1.20, -1.24); P(0.00, 0.95, -1.30); P(0.00, 0.72, -SLEEVE_I);
+    for (let i = 1; i <= 8; i++) {
+      const a = -Math.PI / 2 - i / 8 * Math.PI / 2;
+      P(SLEEVE_I * Math.cos(a), 0.72, SLEEVE_I * Math.sin(a));
+    }
+    // N 铜条与几何共用控制点，移动连接点时电流不会走旧路线。
+    NEUTRAL_LINK.slice(1).forEach(function (p) { P(p[0], p[1], p[2]); });
+    // 零线 → 零线源端子
+    NEUTRAL_WIRE.slice().reverse().forEach(function (p) { P(p[0], p[1], p[2]); });
+
+    flowPts = pts;
+    flowCurve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.28);
+    flowLen = flowCurve.getLength();
+
+    const n = Math.max(8, Math.round(flowLen / FLOW_GAP));
+    if (n !== arrowN) {
+      arrows.forEach(function (a) { gFlow.remove(a); });
+      arrows = [];
+      for (let i = 0; i < n; i++) {
+        const a = new THREE.Mesh(ARROW_GEO, ARROW_MAT);
+        a.frustumCulled = false;
+        gFlow.add(a);
+        arrows.push(a);
+      }
+      arrowN = n;
+    }
+  }
+  buildFlowPath();
+
+  let travel = 0;
+  function updateFlow(dt) {
+    if (!state.power) return;
+    travel = (travel + dt * 4.2) % flowLen;
+    for (let i = 0; i < arrows.length; i++) {
+      let u = ((state.wiring === 'ok' ? travel : -travel) + (i / arrows.length) * flowLen) % flowLen;
+      if (u < 0) u += flowLen;
+      const uu = clamp(u / flowLen, 0, 1);
+      arrows[i].position.copy(flowCurve.getPointAt(uu));
+      const tan = flowCurve.getTangentAt(uu).normalize();
+      if (state.wiring !== 'ok') tan.negate();
+      q.setFromUnitVectors(X_AXIS, tan);
+      arrows[i].quaternion.copy(q);
+    }
+  }
+
+  /* =========================================================
+     五、标签
+     ========================================================= */
+  addLabel('玻璃泡', '#2f6fa8', 0.50, [3.05, 7.10, 1.30], bulbLabelG);
+  addLabel('螺纹壳（金属）', '#5a6879', 0.46, [3.45, 2.55, 0.45], bulbLabelG);
+  addLabel('灯丝（钨丝）', '#a8632c', 0.46, [-0.10, 6.30, 1.85], bulbLabelG);
+  addLabel('中心锡点', '#5a6879', 0.44, [-2.05, -0.35, 0.95], bulbLabelG);
+  addLabel('黄铜螺纹套', '#a8632c', 0.46, [3.55, -0.50, -2.10]);
+  addLabel('中心弹性触点', '#a8632c', 0.46, [2.40, -1.25, 1.55]);
+  addLabel('火线端子 L', '#c0392b', 0.46, [3.85, 1.80, 0.20]);
+  addLabel('零线端子 N', '#2f6fd0', 0.46, [3.65, -0.80, -2.40]);
+  addLabel('开关（接在火线上）', '#1b2430', 0.46, [5.00, 3.30, -0.55]);
+  addLabel('家庭电路 220 V～', '#1b2430', 0.50, [6.95, 3.40, -0.60]);
+
+  addMark('导丝①→螺纹壳内壁', '#1a7f5a', 0.44, [-3.60, 2.35, -1.30], [0.00, 1.55, -1.12], bulbMarkG);
+  addMark('导丝②→中心锡点', '#1a7f5a', 0.44, [-3.35, -0.20, 1.35], TIN_LEAD_POINTS[0], bulbMarkG);
+  addMark('零线→螺纹套', '#2f6fd0', 0.44, [-3.45, 0.75, -0.30], NEUTRAL_CONTACT);
+
+  /* =========================================================
+     六、状态与供电
+     ========================================================= */
+  const state = {
+    assemble: 1,          // 1 = 拧到底
+    glassOpacity: 0.22,
+    caseOpacity: 0.40,
+    section: false,
+    power: false,
+    wiring: 'ok',         // 'ok' | 'reversed'
+    labels: true,
+    marks: true,
+    flow: true,
+    drag: 'none'
+  };
+
+  const elFixRange = document.getElementById('fixRange');
+  const elFixLabel = document.getElementById('fixLabel');
+  const elGlassRange = document.getElementById('glassRange');
+  const elGlassLabel = document.getElementById('glassLabel');
+  const elCaseRange = document.getElementById('caseRange');
+  const elCaseLabel = document.getElementById('caseLabel');
+  const elToast = document.getElementById('toast');
+  let toastTimer = 0;
+  function toast(msg) {
+    elToast.textContent = msg;
+    elToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { elToast.classList.remove('show'); }, 1800);
+  }
+
+  /* ---- 装配 ---- */
+  function applyFix(t01) {
+    state.assemble = clamp(t01, 0, 1);
+    const k = 1 - state.assemble;
+    gBulb.position.y = k * OUT_TRAVEL;
+    gBulb.rotation.y = k * Math.PI * 4.0;
+    bulbLabelG.position.y = gBulb.position.y;   // 灯泡的标签/标注跟着上移，但不跟着转
+    bulbMarkG.position.y = gBulb.position.y;
+    view.tyTarget = 4.30 + k * 1.72;      // 相机随内容上下自适应
+    elFixRange.value = String(Math.round(state.assemble * 100));
+    elFixLabel.textContent = Math.round(state.assemble * 100) + '%';
+    const seated = state.assemble > 0.985;
+    if (!seated && state.power) { setPower(false); toast('触点没接触，已断开电源'); }
+    updateReadout();
+  }
+
+  /* ---- 供电 ---- */
+  function setPower(on) {
+    const seated = state.assemble > 0.985;
+    state.power = !!on && seated;
+    if (on && !seated) { toast('先把灯泡拧到底，让锡点压住中心触点'); }
+    gFlow.visible = state.power && state.flow;
+    filamentMat.emissiveIntensity = state.power ? 3.2 : 0.0;
+    filamentMat.color.set(state.power ? 0xffe9b0 : 0xd8a83c);
+    filLight.intensity = state.power ? 2.2 : 0;
+    const b = document.getElementById('btnPower');
+    b.textContent = state.power ? '闭 合' : '断 开';
+    b.classList.toggle('active', state.power);
+    updateReadout();
+  }
+
+  function setWiring(mode) {
+    state.wiring = mode;
+    // 接反时两根导线的火线／零线颜色互换（含电源侧端子的绝缘座）
+    wireSegs.red1.material = mode === 'ok' ? wireRed : wireBlue;
+    wireSegs.red2.material = mode === 'ok' ? wireRed : wireBlue;
+    wireSegs.blue.material = mode === 'ok' ? wireBlue : wireRed;
+    srcBaseL.material = mode === 'ok' ? wireRed : wireBlue;
+    srcBaseN.material = mode === 'ok' ? wireBlue : wireRed;
+    document.getElementById('btnWireOk').classList.toggle('active', mode === 'ok');
+    document.getElementById('btnWireRev').classList.toggle('active', mode === 'reversed');
+    const box = document.getElementById('tipBox');
+    if (mode === 'reversed') box.classList.add('show');
+    box.classList.toggle('warn', mode === 'reversed');
+    box.innerHTML = mode === 'ok'
+      ? '<b>① 灯泡内部</b>：灯丝是螺旋钨丝，两端各接一根导丝。导丝① 焊在<b>螺纹壳</b>内壁，导丝② 穿过玻璃喇叭管焊在底部<b>中心锡点</b>——这两处就是灯泡的两个接线端。<br>' +
+        '<b>② 灯座内部</b>：黄铜<b>螺纹套</b>用铜条引到底部的零线端子；中心<b>弹性触点</b>用铜条引到底部的火线端子。<br>' +
+        '<b>③ 家庭电路</b>：火线先经过墙上的<b>开关</b>，再接到灯座中心触点；零线直接接螺纹套。换灯泡时手碰到螺纹壳也不会触电。'
+      : '<b>✗ 危险接法（火线接螺纹套）</b>：现在火线接在螺纹套上，灯泡的<b>螺纹壳带电</b>。<br>' +
+        '换灯泡时手一旦碰到螺纹壳，电流就会通过人体流入大地——<b>触电</b>。<br>' +
+        '<b>正确做法</b>：火线必须接中心触点（它在灯座深处，手指碰不到），零线接螺纹套（换灯泡时即使碰到也没有电压）。';
+    updateReadout();
+  }
+
+  /* ---- 透明与剖切 ---- */
+  function applyGlass(op) {
+    state.glassOpacity = op;
+    const hidden = op <= 0.02;
+    gGlass.visible = !hidden;
+    [glassMat, stemMat].forEach(function (m) {
+      if (m === stemMat) { m.opacity = hidden ? 0 : Math.min(0.42, 0.06 + op); m.transparent = true; m.depthWrite = true; return; }
+      m.opacity = hidden ? 0 : op;
+      m.transparent = !(op >= 0.995);
+      m.depthWrite = true;
+    });
+    elGlassRange.value = String(Math.round(op * 100));
+    elGlassLabel.textContent = hidden ? '已隐藏' : (op >= 0.995 ? '实体 100%' : '透明 ' + Math.round(op * 100) + '%');
+  }
+  function applyCase(op) {
+    state.caseOpacity = op;
+    const hidden = op <= 0.02;
+    gCase.visible = !hidden;
+    caseMat.opacity = hidden ? 0 : op;
+    caseMat.transparent = !(op >= 0.995);
+    caseMat.depthWrite = true;
+    elCaseRange.value = String(Math.round(op * 100));
+    elCaseLabel.textContent = hidden ? '已隐藏' : (op >= 0.995 ? '实体 100%' : '半透明 ' + Math.round(op * 100) + '%');
+  }
+
+  const CLIP = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  // 只剖"外壳/螺纹"这类包在外的件；灯丝、导丝、铜条、触点、导线保持完整，剖了反而看不懂
+  const clipMats = [caseMat, glassMat, stemMat, M.shell, sleeveMat, sockThreadMat];
+  function applySection(on) {
+    state.section = !!on;
+    clipMats.forEach(function (m) {
+      m.clippingPlanes = state.section ? [CLIP] : [];
+      m.needsUpdate = true;
+    });
+    document.getElementById('btnSection').classList.toggle('active', state.section);
+  }
+
+  /* ---- 读数 ---- */
+  function updateReadout() {
+    const el = document.getElementById('vPower');
+    const i = state.power ? U_MAINS / R_FIL : 0;
+    el.textContent = state.power ? '接通' : '断开';
+    el.className = state.power ? 'on' : 'off';
+    document.getElementById('vAmp').innerHTML = i.toFixed(2) + '<i>A</i>';
+    document.getElementById('vOhm').innerHTML = String(R_FIL) + '<i>Ω</i>';
+  }
+
+  /* =========================================================
+     七、相机与交互
+     ========================================================= */
+  const view = {
+    theta: 0.66, phi: 1.16, dist: 21.2, distTarget: 21.2, tyTarget: 4.30,
+    target: new THREE.Vector3(4.30, 4.30, 0)
+  };
+  const DEF = { theta: 0.66, phi: 1.16, dist: 21.2, target: [4.30, 4.30, 0] };
+
+  function applyCamera() {
+    view.dist += (view.distTarget - view.dist) * 0.14;
+    view.target.y += (view.tyTarget - view.target.y) * 0.10;
+    const sp = Math.sin(view.phi), cp = Math.cos(view.phi);
+    if (state.section) {          // 剖切面始终朝向相机，剖开面正对观察者
+      // three.js 裁掉的是平面【负侧】(signedDistance < 0) → 法线必须指向"背离相机"的方向，
+      // 才能剖掉挡在眼前的那一半。法线不取仰角：竖直剖切面才能让高矮不同的件（灯泡/灯座）都被剖掉正好一半。
+      CLIP.normal.set(-Math.sin(view.theta), 0, -Math.cos(view.theta)).normalize();
+      CLIP.constant = 0;
+    }
+    camera.position.set(
+      view.target.x + view.dist * sp * Math.sin(view.theta),
+      view.target.y + view.dist * cp,
+      view.target.z + view.dist * sp * Math.cos(view.theta)
+    );
+    camera.lookAt(view.target);
+  }
+
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  const ndc = new THREE.Vector2();
+  function pointerNDC(e) {
+    const r = canvas.getBoundingClientRect();
+    ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    return ndc;
+  }
+  const ray = new THREE.Raycaster();
+  function hitBulb(e) {
+    ray.setFromCamera(pointerNDC(e), camera);
+    return ray.intersectObject(gBulb, true).length > 0;
+  }
+
+  let drag0 = null;
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture(e.pointerId);
+    if (hitBulb(e)) {
+      state.drag = 'bulb';
+      drag0 = { y: e.clientY, fix: state.assemble };
+      canvas.style.cursor = 'grabbing';
+      return;
+    }
+    state.drag = e.shiftKey ? 'pan' : 'orbit';
+    drag0 = { x: e.clientX, y: e.clientY, theta: view.theta, phi: view.phi, tx: view.target.x, ty: view.target.y };
+  });
+
+  canvas.addEventListener('pointermove', function (e) {
+    if (state.drag === 'none') {
+      canvas.style.cursor = hitBulb(e) ? 'grab' : 'move';
+      return;
+    }
+    if (state.drag === 'bulb') {
+      const d = (e.clientY - drag0.y) / 150;
+      applyFix(clamp(drag0.fix - d, 0, 1));
+      return;
+    }
+    if (state.drag === 'orbit') {
+      view.theta = drag0.theta - (e.clientX - drag0.x) * 0.0075;
+      view.phi = clamp(drag0.phi - (e.clientY - drag0.y) * 0.0062, 0.16, 2.96);
+      return;
+    }
+    if (state.drag === 'pan') {
+      const k = view.dist * 0.0011;
+      view.target.x = drag0.tx - (e.clientX - drag0.x) * k;
+      view.target.y = drag0.ty + (e.clientY - drag0.y) * k;
+    }
+  });
+
+  function endDrag() {
+    state.drag = 'none';
+    canvas.style.cursor = 'move';
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    view.distTarget = clamp(view.distTarget * (1 + Math.sign(e.deltaY) * 0.09), 8, 70);
+  }, { passive: false });
+
+  /* =========================================================
+     八、UI 绑定
+     ========================================================= */
+  elFixRange.addEventListener('input', function () { applyFix(parseFloat(elFixRange.value) / 100); });
+  elGlassRange.addEventListener('input', function () { applyGlass(parseFloat(elGlassRange.value) / 100); });
+  elCaseRange.addEventListener('input', function () { applyCase(parseFloat(elCaseRange.value) / 100); });
+
+  document.getElementById('btnIn').addEventListener('click', function () { applyFix(1); });
+  document.getElementById('btnOut').addEventListener('click', function () { applyFix(0); });
+
+  document.getElementById('btnSolidAll').addEventListener('click', function () { applyGlass(1); applyCase(1); });
+  document.getElementById('btnClearAll').addEventListener('click', function () { applyGlass(0.50); applyCase(0.40); });
+  document.getElementById('btnSection').addEventListener('click', function () { applySection(!state.section); });
+
+  document.getElementById('btnPower').addEventListener('click', function () { setPower(!state.power); });
+  document.getElementById('btnWireOk').addEventListener('click', function () { setWiring('ok'); toast('火线 → 中心触点，零线 → 螺纹套'); });
+  document.getElementById('btnWireRev').addEventListener('click', function () { setWiring('reversed'); toast('危险：螺纹壳带电！'); });
+
+  document.getElementById('btnLabels').addEventListener('click', function () {
+    state.labels = !state.labels;
+    this.classList.toggle('active', state.labels);
+    labelG.visible = state.labels;
+    bulbLabelG.visible = state.labels;
+  });
+  document.getElementById('btnMarks').addEventListener('click', function () {
+    state.marks = !state.marks;
+    this.classList.toggle('active', state.marks);
+    markG.visible = state.marks;
+    bulbMarkG.visible = state.marks;
+  });
+  document.getElementById('btnFlow').addEventListener('click', function () {
+    state.flow = !state.flow;
+    this.classList.toggle('active', state.flow);
+    gFlow.visible = state.power && state.flow;
+  });
+  document.getElementById('btnTip').addEventListener('click', function () {
+    document.getElementById('tipBox').classList.toggle('show');
+  });
+
+  document.getElementById('panelClose').addEventListener('click', function () {
+    document.getElementById('panel').classList.add('collapsed');
+  });
+  document.getElementById('panelOpen').addEventListener('click', function () {
+    document.getElementById('panel').classList.remove('collapsed');
+  });
+
+  function setView(theta, phi, dist, tx, ty, tz) {
+    view.theta = theta; view.phi = phi;
+    view.distTarget = dist; view.dist = dist * 0.92;
+    view.target.set(tx, ty, tz);
+    view.tyTarget = ty;
+  }
+  function showHolder() { gSock.visible = true; }        // 灯座内部件（螺纹套 / 触点 / 铜条）
+  // 地面 + 网格 + 台面（bench 是 22×11 的大板，相机一旦移到它下面就会被挡满画面）
+  function showGround(v) { ground.visible = v; grid.visible = v; bench.visible = v; }
+  document.getElementById('btnReset').addEventListener('click', function () {
+    showHolder(); showGround(true);
+    setView(DEF.theta, DEF.phi, DEF.dist, DEF.target[0], DEF.target[1], DEF.target[2]);
+  });
+  document.getElementById('btnBulb').addEventListener('click', function () {
+    showHolder(); showGround(true);
+    applyFix(1); applySection(true);
+    setView(0.42, 1.30, 14.0, 0.05, 4.70, 0);
+    toast('灯泡内部：看灯丝、两根导丝与焊点');
+  });
+  document.getElementById('btnBase').addEventListener('click', function () {
+    showHolder(); showGround(true);
+    applyFix(0.32); applyCase(0.62); applySection(true);
+    setView(0.88, 0.90, 13.2, 0.60, 1.15, 0);
+    toast('拧出灯泡并剖开：看螺纹套内壁、中心触点与两条铜条的去向');
+  });
+  // 灯头底视：拧出灯泡 + 隐藏整个灯座（外壳与螺纹套），从正下方看底部的两个接线端
+  document.getElementById('btnUnder').addEventListener('click', function () {
+    applyFix(0); applyCase(0); applySection(false);
+    gSock.visible = false;      // 否则从下方会被铜套内壁挡满画面
+    showGround(false);          // 地面在 y=−0.8，会限制相机不能低于它 → 特写机位穿到网格线下面
+    // phi≈166° 几乎正下方仰视（贴着轴，否则视线会被螺纹套外壁挡住）
+    setView(0.55, 2.90, 8.6, 0.00, 4.60, 0);
+    toast('从下方看灯头底部：中心锡点（接火线）与螺纹壳（接零线）');
+  });
+  document.getElementById('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const a = document.createElement('a');
+    a.download = '螺口灯泡装配.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+
+  /* =========================================================
+     九、初始状态与主循环
+     ========================================================= */
+  applyFix(1);
+  applyGlass(0.50);
+  applyCase(0.40);
+  setWiring('ok');
+  setPower(false);
+  resize();
+
+  let last = performance.now();
+  function loop() {
+    requestAnimationFrame(loop);
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    updateFlow(dt);
+    applyCamera();
+    renderer.render(scene, camera);
+  }
+  loop();
+
+  /* =========================================================
+     十、调试钩子
+     ========================================================= */
+  window.__dbg = {
+    view: view,
+    state: state,
+    tri: function () { return renderer.info.render.triangles; },
+    info: function () {
+      return {
+        assemble: state.assemble,
+        bulbY: gBulb.position.y,
+        bulbRotY: gBulb.rotation.y,
+        glassOpacity: glassMat.opacity,
+        glassTransparent: glassMat.transparent,
+        glassDepthWrite: glassMat.depthWrite,
+        glassVisible: gGlass.visible,
+        sockVisible: gSock.visible,
+        caseOpacity: caseMat.opacity,
+        caseTransparent: caseMat.transparent,
+        caseDepthWrite: caseMat.depthWrite,
+        caseVisible: gCase.visible,
+        section: state.section,
+        clipped: (clipMats[0].clippingPlanes || []).length,
+        clippedMats: clipMats.filter(function (m) { return (m.clippingPlanes || []).length > 0; }).length,
+        clipMatsTotal: clipMats.length,
+        power: state.power,
+        wiring: state.wiring,
+        wireTopColor: wireSegs.red2.material.color.getHexString(),
+        wireBotColor: wireSegs.blue.material.color.getHexString(),
+        filamentEmissive: filamentMat.emissiveIntensity,
+        arrowCount: arrows.length,
+        flowLen: flowLen,
+        flowVisible: gFlow.visible,
+        labelsVisible: labelG.visible,
+        marksVisible: markG.visible,
+        ammeter: state.power ? U_MAINS / R_FIL : 0,
+        contactGap: (SN_BOT + gBulb.position.y) - CT_TOP,
+        filY: COIL_Y0 + gBulb.position.y
+      };
+    },
+    setFix: function (p) { applyFix(p / 100); },
+    setPower: setPower,
+    setWiring: setWiring,
+    setSection: applySection,
+    setGlass: applyGlass,
+    threads: function () { return { sock: SOCK_THREAD_MESH, bulb: BULB_THREAD_MESH }; },
+    setCase: applyCase,
+    flowTangent: function (u) {
+      const t = flowCurve.getTangentAt(clamp(u, 0, 1)).normalize();
+      if (state.wiring !== 'ok') t.negate();
+      return { x: +t.x.toFixed(4), y: +t.y.toFixed(4), z: +t.z.toFixed(4) };
+    },
+    /* 找最接近给定坐标的路径控制点索引 */
+    flowIndexNear: function (x, y, z) {
+      let best = 0, bd = 1e9;
+      for (let i = 0; i < flowPts.length; i++) {
+        const p = flowPts[i];
+        const d = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z);
+        if (d < bd) { bd = d; best = i; }
+      }
+      return best;
+    },
+    /* 该控制点处的电流切向（已计入正接／反接） */
+    flowTangentIdx: function (i) {
+      const t = clamp(i / (flowPts.length - 1), 0.0005, 0.9995);
+      const v = flowCurve.getTangent(t).normalize();
+      if (state.wiring !== 'ok') v.negate();
+      return { x: +v.x.toFixed(4), y: +v.y.toFixed(4), z: +v.z.toFixed(4) };
+    },
+    flowAt: function (x, y, z) { return this.flowTangentIdx(this.flowIndexNear(x, y, z)); },
+    /* 几何关系自检（教学正确性） */
+    dims: function () {
+      const bulbTooth = BULB_TH_R + 0.05;
+      const sockTooth = SOCK_TH_R - 0.055;
+      const sleeveInner = SLEEVE_I;
+      return {
+        bulbTooth: +bulbTooth.toFixed(3),
+        sleeveInner: sleeveInner,
+        sockTooth: +sockTooth.toFixed(3),
+        toothClearance: +(sleeveInner - bulbTooth).toFixed(3),
+        meshGap: +(sockTooth - bulbTooth).toFixed(3),
+        tinBottom: +(SN_BOT + gBulb.position.y).toFixed(3),
+        contactTop: CT_TOP,
+        tinR: SN_R,
+        insulR: INSUL_R,
+        tinFrac: +(SN_R / INSUL_R).toFixed(3),
+        screwTopY: +(SCR_Y1 + gBulb.position.y).toFixed(3),
+        sockTopY: SOCK_TOP,
+        shellOut: SHELL_R,
+        stemInner: 0.67,
+        lead1Z: -0.26,
+        lead2Z: 0.62,
+        coilR: COIL_R,
+        coilSpan: +(COIL_Y1 - COIL_Y0).toFixed(3)
+      };
+    },
+    filScreen: function () {
+      const p = new THREE.Vector3(0, COIL_Y0 + gBulb.position.y + 0.85, 0).project(camera);
+      return [(p.x * 0.5 + 0.5) * window.innerWidth, (-p.y * 0.5 + 0.5) * window.innerHeight];
+    },
+    tinLead: function () { return { points: TIN_LEAD_POINTS.map(function (p) { return p.slice(); }), insulationTop: 0.84, openingRadius: 0.24 }; },
+    neutralContact: function () {
+      const p = new THREE.Vector3().fromArray(NEUTRAL_CONTACT);
+      return { position: NEUTRAL_CONTACT.slice(), sleeveRadius: SLEEVE_I,
+        clipDistance: CLIP.distanceToPoint(p), link: NEUTRAL_LINK.map(function (v) { return v.slice(); }),
+        terminal: TERM_N.toArray(), liveTerminal: TERM_L.toArray(), wire: NEUTRAL_WIRE.map(function (v) { return v.slice(); }) };
+    },
+    clipNormal: function () { return [CLIP.normal.x, CLIP.normal.y, CLIP.normal.z, CLIP.constant]; }
+  };
+})();
+
+</script>
+</body>
+</html>

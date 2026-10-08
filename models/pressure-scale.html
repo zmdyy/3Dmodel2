@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>压力电子秤 · 3D交互演示</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:system-ui,"Microsoft YaHei",sans-serif;color:#173244;background:#edf3f6}body{overflow:hidden}
+header{height:78px;background:#fff;border-bottom:1px solid #d8e3e9;display:flex;align-items:center;justify-content:space-between;padding:14px 22px;gap:18px}
+header h1{font-size:25px;margin:0;font-weight:800;letter-spacing:.02em}header p{margin:5px 0 0;color:#607987;font-size:14px}.badge{padding:8px 14px;border:1px solid #cfe0e7;border-radius:22px;color:#3c6a78;background:#f7fbfc;white-space:nowrap}
+main{height:calc(100vh - 78px);display:grid;grid-template-columns:minmax(0,1fr) 365px;min-height:600px}
+#stage{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 10%,#f8fcfe 0,#eaf3f7 58%,#d8e5eb 100%)}
+canvas{display:block;width:100%;height:100%;touch-action:none}.toolbar{position:absolute;left:14px;top:14px;display:flex;gap:7px;flex-wrap:wrap;z-index:5}.toolbar button,.minirow button,.preset button,.panelbtn{border:1px solid #cbdbe3;background:#fffffff2;color:#244557;border-radius:9px;padding:9px 12px;font:inherit;cursor:pointer;box-shadow:0 1px 2px #1732440d}.toolbar button:hover,.minirow button:hover,.preset button:hover,.panelbtn:hover{background:#eef6f9}.toolbar button.active,.minirow button.active{background:#dff1f5;border-color:#58a2b2;color:#0b6070}
+#labels{position:absolute;inset:0;pointer-events:none;z-index:3}.label3d{position:absolute;transform:translate(-50%,-50%);padding:3px 7px;border-radius:6px;background:#fffffff0;box-shadow:0 1px 5px #17324422;color:#18394b;font-weight:700;font-size:13px;white-space:nowrap}.label3d.terminal{font-size:12px;border:1px solid #dbe7ec}.label3d.wire{background:#fff7eb;color:#a45a12;border:1px solid #f0cfab;border-radius:50%;min-width:25px;height:25px;display:flex;align-items:center;justify-content:center;padding:0}.label3d.force{background:#fff2e8;color:#bd4d1e;border:1px solid #f3b994}
+.hint{position:absolute;left:14px;bottom:14px;z-index:4;background:#ffffffdd;border:1px solid #d9e5ea;padding:9px 12px;border-radius:8px;color:#526d7b;font-size:13px}.cornernote{position:absolute;right:14px;bottom:14px;z-index:4;background:#183949dc;color:white;padding:8px 11px;border-radius:8px;font-size:12px}
+#fallback{display:none;position:absolute;left:25%;right:25%;top:35%;padding:20px;border-radius:10px;background:#fff;border:1px solid #d8e3e9;z-index:10}
+aside{background:#fff;border-left:1px solid #d8e3e9;overflow:auto;padding:18px 18px 28px}.state{border-radius:11px;padding:13px 14px;background:#e8f4ef;margin-bottom:12px;line-height:1.45}.state.open{background:#edf1f4}.state.warn{background:#fff1e8}.state strong{font-size:20px;display:block;margin-bottom:3px}.primary{width:100%;border:0;border-radius:10px;background:#176d80;color:#fff;font-size:17px;font-weight:750;padding:12px;cursor:pointer}.primary:hover{background:#0f5e70}.minirow{display:flex;gap:7px;margin:8px 0 4px}.minirow button{flex:1;padding:9px 7px;font-size:13px}.section{margin-top:18px}.section h2{font-size:17px;margin:0 0 10px}.rangehead{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:14px}.rangehead b{font-size:18px;color:#0f6475}input[type=range]{width:100%;accent-color:#17748a;margin:10px 0}.preset{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.preset button{padding:7px 4px;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{border:1px solid #dce7ec;background:#f8fbfc;border-radius:9px;padding:9px}.metric span{display:block;color:#6d818d;font-size:12px}.metric b{display:block;font-size:18px;margin-top:3px}.metric small{display:block;margin-top:2px;color:#70838e}.meterok{color:#166f59}.meterlimit{color:#b56a13}.meterover{color:#c63d32}.check{display:flex;align-items:center;gap:8px;margin:9px 0;font-size:14px}.check input{accent-color:#16758a}.note{color:#5b727f;line-height:1.65;font-size:13px}.rulebox{border:1px solid #d9e6eb;border-radius:10px;padding:10px;background:#f8fbfc;font-size:12px;line-height:1.55}.wirelist{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}.wirelist div{white-space:nowrap}.wirelist b{display:inline-flex;width:21px;height:21px;border-radius:50%;align-items:center;justify-content:center;background:#fff0df;color:#9c5a1a;margin-right:5px}.answer details{border:1px solid #dce6ea;border-radius:10px;background:#fbfcfd;padding:9px 10px}.answer summary{cursor:pointer;font-weight:750}.answer ol{padding-left:21px;margin:9px 0 0;line-height:1.65;font-size:13px}.schematic{display:none;margin-top:9px;border:1px solid #dce6ea;border-radius:10px;padding:8px;background:#fafcfd}.schematic.show{display:block}.schematic svg{width:100%;height:auto}.small{font-size:11px;color:#788b95;line-height:1.55}
+@media(max-width:900px){body{overflow:auto}header{height:auto;align-items:flex-start}.badge{display:none}main{display:block;height:auto}.toolbar{max-width:calc(100% - 28px)}#stage{height:64vh;min-height:460px}aside{border-left:0;border-top:1px solid #d8e3e9}header h1{font-size:21px}}
+</style>
+</head>
+<body>
+<header><div><h1>压力电子秤 · 3D 实物接线</h1><p>6 V 电源 · R₀=6 Ω · A表 0~0.6 A · V表 0~3 V · 七根导线按固定端子连接</p></div><div class="badge">敏感电阻与自动控制 · 标准案例</div></header>
+<main>
+<section id="stage">
+  <div id="labels"></div>
+  <div class="toolbar">
+    <button id="home">默认视角</button><button id="top">俯视接线</button><button id="sensorView">近看传感器</button><button id="meterView">近看仪表</button><button id="export">导出 PNG</button><button id="full">全屏</button>
+  </div>
+  <div class="hint">拖动旋转 · 滚轮缩放 · 双指缩放 · 点击开关可直接断开/闭合</div>
+  <div class="cornernote">橙色导线只表示接线；红色箭头才表示约定电流方向</div>
+  <div id="fallback">当前浏览器无法启用 WebGL，请使用支持 WebGL 的 Chrome 或 Edge。</div>
+</section>
+<aside>
+  <div id="state" class="state"></div>
+  <button id="switchBtn" class="primary">断开开关</button>
+  <div class="minirow"><button id="reset">重置</button><button id="transparentBtn" class="active">透明观察：开</button><button id="diagramBtn">电路图</button></div>
+  <div id="diagram" class="schematic">
+    <svg viewBox="0 0 330 210" aria-label="标准电路图">
+      <g fill="none" stroke="#244557" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M35 45H110 M137 45H190 M214 45H272V165H35V45"/>
+        <path d="M110 45l20 -12"/><circle cx="110" cy="45" r="3" fill="#244557"/><circle cx="137" cy="45" r="3" fill="#244557"/>
+        <path d="M190 45h8m0 0 4-7 8 14 8-14 8 14 8-7h4"/>
+        <circle cx="272" cy="90" r="18"/><path d="M272 72v36" opacity=".0"/>
+        <path d="M150 165h10m8-11v22m12-17v12m10-6h16"/>
+        <path d="M35 165h72m32 0h11"/>
+        <path d="M214 45v-25h58v25"/><circle cx="243" cy="20" r="17"/>
+      </g>
+      <g font-size="14" fill="#244557" font-family="Microsoft YaHei, sans-serif">
+        <text x="91" y="72">S</text><text x="199" y="72">R₀</text><text x="266" y="95" text-anchor="middle">A</text><text x="243" y="25" text-anchor="middle">V</text><text x="167" y="199" text-anchor="middle">电源 6 V</text><text x="64" y="151">R（压敏）</text><text x="206" y="18">P</text><text x="278" y="18">Q</text>
+      </g>
+    </svg>
+    <div class="small">主回路：E+ → S → R₀ → A → R → E−；V表只跨接 R₀ 的 P、Q 两端。</div>
+  </div>
+
+  <div class="section"><div class="rangehead"><span>压力 F</span><b id="forceText">0 N</b></div><input id="force" type="range" min="0" max="1000" step="10" value="0"><div class="preset"><button data-f="0">0 N</button><button data-f="200">200 N</button><button data-f="300">300 N</button><button data-f="600">600 N</button><button data-f="800">800 N</button><button data-f="1000">1000 N</button></div><div class="small">表中间压力按分段线性插值，仅作为教学近似。机构形变为便于观察而放大。</div></div>
+
+  <div class="section"><h2>实时计算</h2><div class="grid"><div class="metric"><span>压敏电阻 R</span><b id="rText">24.0 Ω</b><small id="interpText">题表节点</small></div><div class="metric"><span>电流 I</span><b id="iText">0.000 A</b><small id="aState"></small></div><div class="metric"><span>R₀两端 U₀</span><b id="vText">0.00 V</b><small id="vState"></small></div><div class="metric"><span>量程限制</span><b id="limitText">600 N</b><small>V表先达到上限</small></div></div></div>
+
+  <div class="section"><h2>观察选项</h2><label class="check"><input id="flow" type="checkbox" checked>显示主回路电流箭头</label><label class="check"><input id="names" type="checkbox" checked>显示元件、端子和导线编号</label><label class="check"><input id="loadPath" type="checkbox" checked>透明时显示载荷传递路径</label></div>
+
+  <div class="section"><h2>七根导线</h2><div class="rulebox wirelist"><div><b>1</b>E+ → S1</div><div><b>5</b>R1 → E−</div><div><b>2</b>S2 → P</div><div><b>6</b>P → V3</div><div><b>3</b>Q → A0.6</div><div><b>7</b>Q → V−</div><div><b>4</b>A− → R2</div><div>A3、V15 留空</div></div></div>
+
+  <div class="section answer"><details><summary>题目核对</summary><ol><li>0 N 时 R=24 Ω，闭合后 I=0.20 A，故电压表 U₀=1.20 V；电子秤的“0”刻度应标在电压表 1.2 V 位置。</li><li>V表 3 V 量程要求 I≤0.50 A，比A表 0.6 A 更严格，因此最大安全压力为 600 N。</li><li>若把 6 V 电源更换为 <b>4.5 V 电源</b>，1000 N 时 R=3 Ω，I=4.5/(3+6)=0.50 A，U₀=3.00 V，两表均不超量程。</li></ol></details></div>
+  <p class="small">教学简化：忽略电源内阻、导线电阻和电流表内阻，电压表视为理想表。电压表支路无电流箭头。</p>
+</aside>
+</main>
+<script src="../shared/vendor/three-r144.min.js"></script>
+<script src="../shared/current-flow-style.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), stage=$('stage'), labelsRoot=$('labels');
+if(!window.THREE){$('fallback').style.display='block';return;}
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xeaf3f7);
+const camera=new THREE.PerspectiveCamera(34,1,.1,100);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputEncoding=THREE.sRGBEncoding; stage.prepend(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x60717a,1.45)); const key=new THREE.DirectionalLight(0xffffff,1.55);key.position.set(9,16,12);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-18;key.shadow.camera.right=18;key.shadow.camera.top=16;key.shadow.camera.bottom=-16;scene.add(key);
+const fill=new THREE.DirectionalLight(0xb8d9ea,.45);fill.position.set(-12,7,-9);scene.add(fill);
+const floorMat=new THREE.MeshStandardMaterial({color:0xf7fbfc,roughness:.9,metalness:0}); const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,21),floorMat);floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;floor.position.y=-.02;scene.add(floor);
+const border=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(30,.12,21)),new THREE.LineBasicMaterial({color:0xcbdbe2}));border.position.y=-.06;scene.add(border);
+
+const mats={
+ dark:new THREE.MeshStandardMaterial({color:0x2f4d5b,roughness:.55,metalness:.25}),
+ metal:new THREE.MeshStandardMaterial({color:0xaabac2,roughness:.25,metalness:.7}),
+ silver:new THREE.MeshStandardMaterial({color:0xd9e3e8,roughness:.22,metalness:.8}),
+ base:new THREE.MeshStandardMaterial({color:0xe8eef1,roughness:.75}),
+ green:new THREE.MeshStandardMaterial({color:0x4da47f,roughness:.65}),
+ gold:new THREE.MeshStandardMaterial({color:0xc69b4d,roughness:.35,metalness:.7}),
+ copper:new THREE.MeshStandardMaterial({color:0xc9762f,roughness:.42,metalness:.35}),
+ black:new THREE.MeshStandardMaterial({color:0x303c42,roughness:.62}),
+ red:new THREE.MeshStandardMaterial({color:0xc93d35,roughness:.5}),
+ white:new THREE.MeshStandardMaterial({color:0xfafcfc,roughness:.8}),
+ sensor:new THREE.MeshStandardMaterial({color:0x263d49,roughness:.58}),
+ spring:new THREE.MeshStandardMaterial({color:0xaa6926,roughness:.35,metalness:.65}),
+ load:new THREE.MeshStandardMaterial({color:0x7e929d,roughness:.38,metalness:.55}),
+ glass:new THREE.MeshPhysicalMaterial({color:0xbfe4ef,transparent:true,opacity:.18,roughness:.12,metalness:0,transmission:.2,side:THREE.DoubleSide,depthWrite:false})
+};
+function mesh(g,m,cast=true,receive=true){const o=new THREE.Mesh(g,m);o.castShadow=cast;o.receiveShadow=receive;return o}
+function box(w,h,d,m){return mesh(new THREE.BoxGeometry(w,h,d),m)}
+function cyl(r,h,m,seg=32){return mesh(new THREE.CylinderGeometry(r,r,h,seg),m)}
+function textTexture(text,opts={}){const c=document.createElement('canvas');c.width=512;c.height=160;const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.fillStyle=opts.bg||'rgba(255,255,255,.92)';x.fillRect(0,0,c.width,c.height);x.fillStyle=opts.color||'#173244';x.textAlign='center';x.textBaseline='middle';x.font=`${opts.weight||700} ${opts.size||58}px Microsoft YaHei, sans-serif`;x.fillText(text,256,80);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t}
+function plaque(text,w=2.4,h=.65,opts={}){const p=mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:textTexture(text,opts),transparent:true}),false,false);return p}
+function makeTerminal(parent,name,x,y,z,color='red',radius=.17){const g=new THREE.Group();g.position.set(x,y,z);const base=cyl(radius*1.5,.10,mats.metal);base.rotation.x=Math.PI/2;base.position.z=.01;g.add(base);const plastic=cyl(radius,.32,color==='red'?mats.red:mats.dark);plastic.rotation.x=Math.PI/2;plastic.position.z=.12;g.add(plastic);const cap=cyl(radius*.58,.12,mats.silver);cap.rotation.x=Math.PI/2;cap.position.z=.31;g.add(cap);const anchor=new THREE.Object3D();anchor.name=name;anchor.position.set(0,0,.38);g.add(anchor);parent.add(g);return anchor}
+function wireTube(points,r=.06,material=mats.copper){const curve=new THREE.CatmullRomCurve3(points,false,'catmullrom',.14);const obj=mesh(new THREE.TubeGeometry(curve,Math.max(24,points.length*18),r,10,false),material);obj.castShadow=true;scene.add(obj);return {curve,obj}}
+function lineTube(a,b,r=.045,material=mats.dark){const d=new THREE.Vector3().subVectors(b,a),len=d.length(),mid=new THREE.Vector3().addVectors(a,b).multiplyScalar(.5);const o=mesh(new THREE.CylinderGeometry(r,r,len,10),material);o.position.copy(mid);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());return o}
+function addLabel(text,target,cls=''){const e=document.createElement('div');e.className='label3d '+cls;e.textContent=text;labelsRoot.appendChild(e);const rec={e,target};labelRecords.push(rec);return rec}
+const labelRecords=[];
+
+// Battery
+const battery=new THREE.Group();battery.position.set(-7.0,0,4.2);scene.add(battery);const bbody=box(3.1,1.65,1.7,new THREE.MeshStandardMaterial({color:0x8298a5,roughness:.55}));bbody.position.y=.83;battery.add(bbody);const bface=plaque('电源 6 V',2.75,.58,{size:55});bface.position.set(0,.92,.856);battery.add(bface);const bTop=box(3.1,.25,1.7,new THREE.MeshStandardMaterial({color:0xb8c8cf,roughness:.48}));bTop.position.y=1.76;battery.add(bTop);const Eplus=makeTerminal(battery,'E+',-1.05,1.95,.28,'red',.15);const Eminus=makeTerminal(battery,'E−',1.05,1.95,.28,'black',.15);addLabel('E+',Eplus,'terminal');addLabel('E−',Eminus,'terminal');const batName=new THREE.Object3D();batName.position.set(0,2.45,0);battery.add(batName);addLabel('电源 6 V',batName);
+
+// Switch
+const sw=new THREE.Group();sw.position.set(-2.55,0,4.55);scene.add(sw);const swbase=box(3.2,.24,1.8,mats.base);swbase.position.y=.13;sw.add(swbase);const S1=makeTerminal(sw,'S1',-.95,.42,.36,'black',.13);const S2=makeTerminal(sw,'S2',.95,.42,.36,'black',.13);addLabel('S1',S1,'terminal');addLabel('S2',S2,'terminal');const pivot=new THREE.Group();pivot.position.set(-.95,.72,.36);sw.add(pivot);const lever=box(2.0,.10,.18,mats.gold);lever.position.x=1.0;pivot.add(lever);const leverTip=cyl(.15,.20,mats.gold);leverTip.rotation.x=Math.PI/2;leverTip.position.set(1.95,0,0);pivot.add(leverTip);const swName=new THREE.Object3D();swName.position.set(0,1.55,0);sw.add(swName);addLabel('开关 S',swName);
+
+// Fixed resistor R0 vertical
+const r0=new THREE.Group();r0.position.set(2.45,0,4.35);scene.add(r0);const r0base=box(1.7,.22,1.6,mats.base);r0base.position.y=.12;r0.add(r0base);const body=cyl(.34,1.55,new THREE.MeshStandardMaterial({color:0xe7e3d6,roughness:.68}));body.position.y=1.55;r0.add(body);for(const [y,c] of [[1.12,0xc36536],[1.52,0xb55b35],[1.92,0xc36536]]){const band=cyl(.35,.14,new THREE.MeshStandardMaterial({color:c,roughness:.55}));band.position.y=y;r0.add(band)}const P=makeTerminal(r0,'P',0,.38,.48,'black',.13);const Q=makeTerminal(r0,'Q',0,2.75,.18,'black',.13);addLabel('P',P,'terminal');addLabel('Q',Q,'terminal');const r0n=new THREE.Object3D();r0n.position.set(0,3.35,0);r0.add(r0n);addLabel('定值电阻 R₀=6 Ω',r0n);
+
+// Scale / pressure sensor
+const scale=new THREE.Group();scale.position.set(-5.0,0,-1.55);scene.add(scale);const sbase=box(4.5,.28,2.7,new THREE.MeshStandardMaterial({color:0xdce8ed,roughness:.72}));sbase.position.y=.14;scale.add(sbase);const R1=makeTerminal(scale,'R1',-1.55,.52,1.03,'black',.13);const R2=makeTerminal(scale,'R2',1.55,.52,1.03,'black',.13);addLabel('R1',R1,'terminal');addLabel('R2',R2,'terminal');
+// transparent chamber
+const glassParts=[];function addGlass(o){glassParts.push(o);scale.add(o)}
+const gL=box(.10,3.55,2.25,mats.glass);gL.position.set(-1.9,2.18,0);addGlass(gL);const gR=box(.10,3.55,2.25,mats.glass);gR.position.set(1.9,2.18,0);addGlass(gR);const gBack=box(3.8,3.55,.08,mats.glass);gBack.position.set(0,2.18,-1.08);addGlass(gBack);
+// guides
+for(const x of [-1.55,1.55]){const guide=cyl(.09,3.35,mats.silver,20);guide.position.set(x,2.0,0);scale.add(guide)}
+const sensorSheet=box(1.25,.14,.72,mats.sensor);sensorSheet.position.set(0,.61,0);scale.add(sensorSheet);const sensorPlate=box(1.65,.18,.95,mats.load);sensorPlate.position.set(0,.86,0);scale.add(sensorPlate);
+const electrodeL=new THREE.Object3D();electrodeL.position.set(-.58,.61,.38);scale.add(electrodeL);const electrodeR=new THREE.Object3D();electrodeR.position.set(.58,.61,.38);scale.add(electrodeR);
+// internal leads, visually blue/grey, isolated
+const innerMat=new THREE.MeshStandardMaterial({color:0x54768a,roughness:.5,metalness:.25});scale.updateMatrixWorld(true);let inner1=lineTube(new THREE.Vector3(-1.55,.52,1.03),new THREE.Vector3(-.58,.61,.38),.035,innerMat);scale.add(inner1);let inner2=lineTube(new THREE.Vector3(1.55,.52,1.03),new THREE.Vector3(.58,.61,.38),.035,innerMat);scale.add(inner2);
+let springMesh=null;function makeSpring(topY){if(springMesh){scale.remove(springMesh);springMesh.geometry.dispose()}const pts=[];const y0=1.00,y1=topY,turns=7;for(let i=0;i<=180;i++){const a=i/180*Math.PI*2*turns;pts.push(new THREE.Vector3(Math.cos(a)*.46,y0+(y1-y0)*i/180,Math.sin(a)*.46))}springMesh=mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),260,.07,10,false),mats.spring);scale.add(springMesh)}
+const shaftLower=cyl(.16,1.0,mats.silver);shaftLower.position.y=3.05;scale.add(shaftLower);const moving=new THREE.Group();scale.add(moving);const plate=mesh(new THREE.CylinderGeometry(1.9,1.9,.25,56),new THREE.MeshStandardMaterial({color:0xcbd9df,roughness:.38,metalness:.34}));plate.position.y=4.1;moving.add(plate);const rim=mesh(new THREE.TorusGeometry(1.9,.08,10,56),mats.metal);rim.rotation.x=Math.PI/2;rim.position.y=4.02;moving.add(rim);const load=cyl(.55,1.05,mats.load);load.position.y=4.78;moving.add(load);const cap=cyl(.36,.45,mats.silver);cap.position.y=5.52;moving.add(cap);const movingStem=cyl(.18,1.45,mats.silver);movingStem.position.y=3.15;moving.add(movingStem);const pressurePad=box(1.42,.18,.84,mats.load);pressurePad.position.y=1.18;moving.add(pressurePad);const scaleName=new THREE.Object3D();scaleName.position.set(0,5.95,0);scale.add(scaleName);addLabel('称重平台 / 压力传感器',scaleName);const forceAnchor=new THREE.Object3D();forceAnchor.position.set(0,5.12,.15);moving.add(forceAnchor);const forceLabel=addLabel('F = 0 N',forceAnchor,'force');
+// load path arrows (cylinders), show only in transparent mode
+const loadPathGroup=new THREE.Group();scale.add(loadPathGroup);const pathMat=new THREE.MeshBasicMaterial({color:0xe75b2b,transparent:true,opacity:.65});for(const y of [3.65,2.95,2.25,1.55]){const c=cyl(.045,.48,pathMat,10);c.position.set(.72,y,.55);loadPathGroup.add(c);const cone=mesh(new THREE.ConeGeometry(.13,.28,12),pathMat,false,false);cone.position.set(.72,y-.34,.55);loadPathGroup.add(cone)}
+
+function drawMeter(canvas,type,value,over,title){const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#f9fbfb';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#7e969f';ctx.lineWidth=24;roundRect(ctx,28,28,w-56,h-56,35);ctx.stroke();ctx.fillStyle='#18394b';ctx.textAlign='center';ctx.font='700 56px Microsoft YaHei';ctx.fillText(title,w/2,78);const cx=w/2,cy=h*.69,rad=w*.31;const a0=Math.PI*1.17,a1=Math.PI*1.83;ctx.strokeStyle='#26495c';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,rad,a0,a1);ctx.stroke();const max=type==='A'?.6:3, topMax=type==='A'?3:15;for(let i=0;i<=30;i++){const t=i/30,a=a0+(a1-a0)*t;const major=i%10===0,mid=i%5===0;const r1=rad-(major?35:mid?26:18),r2=rad;ctx.lineWidth=major?5:3;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);ctx.lineTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);ctx.stroke();if(major){ctx.font='32px Microsoft YaHei';ctx.fillText((topMax*t).toFixed(0),cx+Math.cos(a)*(rad+42),cy+Math.sin(a)*(rad+42)+10);ctx.font='28px Microsoft YaHei';ctx.fillText((max*t).toFixed(type==='A'?1:0),cx+Math.cos(a)*(rad-62),cy+Math.sin(a)*(rad-62)+10)}}ctx.font='700 58px Microsoft YaHei';ctx.fillText(type,cx,cy-25);ctx.font='28px Microsoft YaHei';ctx.fillText(type==='A'?'0~0.6 A':'0~3 V',cx,cy+25);const frac=Math.max(0,Math.min(1,value/max)),a=a0+(a1-a0)*frac;ctx.strokeStyle=over?'#c33b31':'#233f4f';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*(rad-38),cy+Math.sin(a)*(rad-38));ctx.stroke();ctx.fillStyle='#6f858f';ctx.beginPath();ctx.arc(cx,cy,15,0,Math.PI*2);ctx.fill();if(over){ctx.fillStyle='#c33b31';ctx.font='700 34px Microsoft YaHei';ctx.fillText('超量程',cx,h-38)}}
+function roundRect(ctx,x,y,w,h,r){const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath()}
+function makeMeter(type,pos,title){const g=new THREE.Group();g.position.copy(pos);scene.add(g);const base=box(3.6,.36,1.55,new THREE.MeshStandardMaterial({color:0x6e8591,roughness:.55}));base.position.y=.18;g.add(base);const stand=box(3.35,.32,1.30,mats.green);stand.position.set(0,.46,.05);g.add(stand);const caseBox=box(3.75,2.65,.65,new THREE.MeshStandardMaterial({color:0x879ca6,roughness:.45,metalness:.18}));caseBox.position.set(0,2.0,-.18);g.add(caseBox);const canvas=document.createElement('canvas');canvas.width=900;canvas.height=600;const tex=new THREE.CanvasTexture(canvas);tex.encoding=THREE.sRGBEncoding;const face=mesh(new THREE.PlaneGeometry(3.35,2.22),new THREE.MeshBasicMaterial({map:tex}),false,false);face.position.set(0,2.03,.165);g.add(face);const termMinus=makeTerminal(g,type+'−',-1.05,.72,.58,'black',.13);const termLow=makeTerminal(g,type+(type==='A'?'0.6':'3'),0,.72,.58,'red',.13);const termHigh=makeTerminal(g,type+(type==='A'?'3':'15'),1.05,.72,.58,'red',.13);addLabel(type+'−',termMinus,'terminal');addLabel(type==='A'?'A0.6':'V3',termLow,'terminal');addLabel(type==='A'?'A3（空）':'V15（空）',termHigh,'terminal');const name=new THREE.Object3D();name.position.set(0,3.65,0);g.add(name);addLabel(title,name);const obj={g,canvas,tex,termMinus,termLow,termHigh,update(v,o){drawMeter(canvas,type,v,o,title);tex.needsUpdate=true}};obj.update(0,false);return obj}
+const ammeter=makeMeter('A',new THREE.Vector3(2.2,0,-3.85),'电流表 A');const voltmeter=makeMeter('V',new THREE.Vector3(6.65,0,1.35),'电压表 V');
+
+scene.updateMatrixWorld(true);
+function wp(o){return o.getWorldPosition(new THREE.Vector3())}
+// wires: start/end exact at terminal anchors, paths intentionally separated
+const wireDefs={
+  1:{a:Eplus,b:S1,pts:[wp(Eplus),new THREE.Vector3(-8.2,.34,5.45),new THREE.Vector3(-4.55,.34,5.45),wp(S1)]},
+  2:{a:S2,b:P,pts:[wp(S2),new THREE.Vector3(-.65,.32,5.35),new THREE.Vector3(1.8,.32,5.35),wp(P)]},
+  3:{a:Q,b:ammeter.termLow,pts:[wp(Q),new THREE.Vector3(2.25,2.1,2.75),new THREE.Vector3(2.15,.45,-1.0),wp(ammeter.termLow)]},
+  4:{a:ammeter.termMinus,b:R2,pts:[wp(ammeter.termMinus),new THREE.Vector3(.75,.34,-3.0),new THREE.Vector3(-2.8,.34,-3.05),wp(R2)]},
+  5:{a:R1,b:Eminus,pts:[wp(R1),new THREE.Vector3(-8.5,.34,-.55),new THREE.Vector3(-8.55,.34,3.65),wp(Eminus)]},
+  6:{a:P,b:voltmeter.termLow,pts:[wp(P),new THREE.Vector3(3.7,.26,5.2),new THREE.Vector3(7.6,.26,5.2),new THREE.Vector3(7.75,.26,2.25),wp(voltmeter.termLow)]},
+  7:{a:Q,b:voltmeter.termMinus,pts:[wp(Q),new THREE.Vector3(4.6,.42,3.45),new THREE.Vector3(5.25,.42,2.55),wp(voltmeter.termMinus)]}
+};
+const wires={},wireMidTargets={};for(const k of Object.keys(wireDefs)){const rec=wireTube(wireDefs[k].pts,.07);wires[k]=rec;wireMidTargets[k]=new THREE.Object3D();wireMidTargets[k].position.copy(rec.curve.getPointAt(.5));scene.add(wireMidTargets[k]);addLabel(k,wireMidTargets[k],'wire')}
+
+// current arrows on wires 1-5 only
+const flowGroup=new THREE.Group();scene.add(flowGroup);const flowStyle=window.CurrentFlowStyle||{count:26,speed:3,color:0xe8372a,radius:.062,height:.2,radialSegments:8,allocateCounts:(ls,t)=>ls.map(()=>Math.max(1,Math.floor(t/ls.length)))};const flowGeo=flowStyle.createGeometry?flowStyle.createGeometry(THREE):(g=>{g.rotateZ(-Math.PI/2);return g})(new THREE.ConeGeometry(.062,.2,8));const flowMat=flowStyle.createMaterial?flowStyle.createMaterial(THREE):new THREE.MeshBasicMaterial({color:0xe8372a});const mainKeys=['1','2','3','4','5'],lengths=mainKeys.map(k=>wires[k].curve.getLength()),counts=flowStyle.allocateCounts?flowStyle.allocateCounts(lengths,flowStyle.count||26):[5,5,5,5,6];const arrows=[];mainKeys.forEach((k,ki)=>{for(let i=0;i<counts[ki];i++){const o=new THREE.Mesh(flowGeo,flowMat);o.userData={key:k,phase:i/counts[ki]};flowGroup.add(o);arrows.push(o)}});
+
+let switchClosed=true,transparentOn=true,force=0,showNames=true;const dataF=[0,200,300,600,800,1000],dataR=[24,14,12,6,4,3];
+function resistance(F){for(let i=0;i<dataF.length;i++)if(F===dataF[i])return {r:dataR[i],node:true};for(let i=0;i<dataF.length-1;i++)if(F>dataF[i]&&F<dataF[i+1]){const t=(F-dataF[i])/(dataF[i+1]-dataF[i]);return {r:dataR[i]+(dataR[i+1]-dataR[i])*t,node:false}}return {r:F<=0?24:3,node:true}}
+function updateSpringAndLoad(){const ratio=force/1000,dy=.62*ratio;moving.position.y=-dy;const topY=1.92-dy;makeSpring(topY);sensorSheet.scale.y=1-.22*ratio;forceLabel.e.textContent=`F = ${force} N`;loadPathGroup.visible=transparentOn&&$('loadPath').checked}
+function updateSwitch(){pivot.rotation.z=switchClosed?0:.42}
+function meterClass(el,state){el.className=state}
+function updatePhysics(){const rr=resistance(force),R=rr.r;const Icalc=6/(R+6),Vcalc=6*Icalc;const I=switchClosed?Icalc:0,V=switchClosed?Vcalc:0;const aOver=switchClosed&&Icalc>.6000001,vOver=switchClosed&&Vcalc>3.000001;ammeter.update(Math.min(I,.6),aOver);voltmeter.update(Math.min(V,3),vOver);$('forceText').textContent=force+' N';$('rText').textContent=R.toFixed(2).replace(/\.00$/,'')+' Ω';$('interpText').textContent=rr.node?'题表节点':'分段线性插值';$('iText').textContent=I.toFixed(3)+' A';$('vText').textContent=V.toFixed(2)+' V';const aState=$('aState'),vState=$('vState');if(!switchClosed){aState.textContent='开关断开：0 A';vState.textContent='开关断开：0 V';meterClass(aState,'meterok');meterClass(vState,'meterok')}else{aState.textContent=aOver?'A表超量程':Math.abs(I-.6)<1e-6?'A表达到上限':'A表量程内';vState.textContent=vOver?'V表超量程':Math.abs(V-3)<1e-6?'V表达到上限':'V表量程内';meterClass(aState,aOver?'meterover':Math.abs(I-.6)<1e-6?'meterlimit':'meterok');meterClass(vState,vOver?'meterover':Math.abs(V-3)<1e-6?'meterlimit':'meterok')}
+const state=$('state');if(!switchClosed){state.className='state open';state.innerHTML='<strong>开关断开</strong><span>A = 0 A · V = 0 V；可继续改变压力观察机构。</span>'}else if(aOver||vOver){state.className='state warn';state.innerHTML=`<strong>闭合 · ${vOver&&aOver?'两表超量程':vOver?'电压表超量程':'电流表超量程'}</strong><span>实际计算：I=${Icalc.toFixed(3)} A，U₀=${Vcalc.toFixed(2)} V；指针只停在机械上限。</span>`}else{state.className='state';state.innerHTML=`<strong>闭合 · 安全范围</strong><span>I=${Icalc.toFixed(3)} A · U₀=${Vcalc.toFixed(2)} V</span>`}
+$('switchBtn').textContent=switchClosed?'断开开关':'闭合开关';flowGroup.visible=switchClosed&&$('flow').checked;updateSpringAndLoad();updateSwitch();window.pressureScaleState={force,R,Icalc,Vcalc,switchClosed,aOver,vOver}}
+function setTransparent(v){transparentOn=v;for(const g of glassParts){g.material.opacity=v?.18:.72;g.material.transparent=true;g.material.depthWrite=!v} $('transparentBtn').textContent='透明观察：'+(v?'开':'关');$('transparentBtn').classList.toggle('active',v);updateSpringAndLoad()}
+
+$('switchBtn').onclick=()=>{switchClosed=!switchClosed;updatePhysics()};$('force').oninput=e=>{force=+e.target.value;updatePhysics()};document.querySelectorAll('.preset button').forEach(b=>b.onclick=()=>{force=+b.dataset.f;$('force').value=force;updatePhysics()});$('reset').onclick=()=>{force=0;switchClosed=true;$('force').value=0;setTransparent(true);$('flow').checked=true;$('names').checked=true;$('loadPath').checked=true;labelsRoot.style.display='block';viewHome();updatePhysics()};$('transparentBtn').onclick=()=>setTransparent(!transparentOn);$('flow').onchange=()=>flowGroup.visible=switchClosed&&$('flow').checked;$('names').onchange=()=>{showNames=$('names').checked;labelsRoot.style.display=showNames?'block':'none'};$('loadPath').onchange=()=>updateSpringAndLoad();$('diagramBtn').onclick=()=>{$('diagram').classList.toggle('show')};
+
+let theta=.58,phi=.84,distance=25,target=new THREE.Vector3(-.25,1.8,.55);function view(t,p,d,targ){theta=t;phi=p;distance=d;target.copy(targ)}function viewHome(){view(.58,.84,25,new THREE.Vector3(-.2,1.8,.7))}$('home').onclick=viewHome;$('top').onclick=()=>view(.04,.13,27,new THREE.Vector3(-.5,.45,.7));$('sensorView').onclick=()=>view(.42,.83,10,new THREE.Vector3(-5,2.25,-1.55));$('meterView').onclick=()=>view(.18,.74,12,new THREE.Vector3(4.5,1.8,-.8));$('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
+$('export').onclick=()=>{renderer.render(scene,camera);const src=renderer.domElement,out=document.createElement('canvas');out.width=src.width;out.height=src.height;const ctx=out.getContext('2d');ctx.drawImage(src,0,0);const st=window.pressureScaleState||{};const w=out.width,h=out.height,scale=out.width/stage.clientWidth;ctx.fillStyle='rgba(255,255,255,.9)';ctx.strokeStyle='rgba(33,67,83,.25)';ctx.lineWidth=1*scale;ctx.beginPath();roundRect(ctx,18*scale,18*scale,390*scale,92*scale,10*scale);ctx.fill();ctx.stroke();ctx.fillStyle='#173244';ctx.font=`700 ${17*scale}px Microsoft YaHei`;ctx.textAlign='left';ctx.fillText(`压力电子秤 · ${switchClosed?'闭合':'断开'}`,32*scale,47*scale);ctx.font=`${14*scale}px Microsoft YaHei`;ctx.fillText(`F=${force} N   R=${st.R?.toFixed?.(2)??''} Ω   I=${switchClosed?st.Icalc?.toFixed?.(3):'0.000'} A   U₀=${switchClosed?st.Vcalc?.toFixed?.(2):'0.00'} V`,32*scale,76*scale);ctx.fillText('七根导线按 E+/S1/S2/P/Q/A/V/R1/R2 固定端子连接',32*scale,98*scale);const a=document.createElement('a');a.href=out.toDataURL('image/png');a.download=`pressure-scale-${force}N.png`;a.click()};
+
+// click the physical switch
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null,moved=0;const touches=new Map(),canvas=renderer.domElement;canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);touches.set(e.pointerId,[e.clientX,e.clientY]);down=[e.clientX,e.clientY];moved=0});canvas.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;const prev=touches.get(e.pointerId);touches.set(e.pointerId,[e.clientX,e.clientY]);const dx=e.clientX-prev[0],dy=e.clientY-prev[1];moved+=Math.abs(dx)+Math.abs(dy);if(touches.size===2){const a=[...touches.values()];const d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);if(!canvas._pinch)canvas._pinch=d;else{distance=Math.max(7,Math.min(42,distance*canvas._pinch/d));canvas._pinch=d}}else{theta-=dx*.006;phi=Math.max(.08,Math.min(1.45,phi-dy*.006))}});canvas.addEventListener('pointerup',e=>{touches.delete(e.pointerId);canvas._pinch=0;if(moved<7&&down){const r=canvas.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mouse,camera);if(ray.intersectObjects(sw.children,true).length)$('switchBtn').click()}down=null});canvas.addEventListener('pointercancel',e=>{touches.delete(e.pointerId);canvas._pinch=0});canvas.addEventListener('wheel',e=>{e.preventDefault();distance=Math.max(7,Math.min(42,distance*Math.exp(e.deltaY*.001)))},{passive:false});
+function resize(){renderer.setSize(stage.clientWidth,stage.clientHeight,false);camera.aspect=stage.clientWidth/stage.clientHeight;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(stage);resize();
+function animate(ms){requestAnimationFrame(animate);const t=ms/1000;camera.position.set(target.x+distance*Math.sin(phi)*Math.sin(theta),target.y+distance*Math.cos(phi),target.z+distance*Math.sin(phi)*Math.cos(theta));camera.lookAt(target);const speed=(flowStyle.speed||3)*.055;for(const o of arrows){const c=wires[o.userData.key].curve,f=(t*speed+o.userData.phase)%1,p=c.getPointAt(f),tan=c.getTangentAt(f).normalize();o.position.copy(p);o.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),tan)}flowGroup.visible=switchClosed&&$('flow').checked;for(const rec of labelRecords){const p=rec.target.getWorldPosition(new THREE.Vector3()).project(camera);rec.e.style.left=(p.x*.5+.5)*stage.clientWidth+'px';rec.e.style.top=(-p.y*.5+.5)*stage.clientHeight+'px';rec.e.style.visibility=(p.z>-1&&p.z<1)?'visible':'hidden'}renderer.render(scene,camera)}
+setTransparent(true);updatePhysics();viewHome();requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>

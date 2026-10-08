@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>压水堆核能发电全过程 · 工程剖面交互图</title>
+<style>
+:root{--ink:#172033;--muted:#657389;--line:#d9e4ef;--primary:#d95745;--steam:#e7a04b;--cool:#3e88d3;--power:#43a477}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,#f7faff,#edf3f9);font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--ink)}
+.app{display:grid;grid-template-columns:390px 1fr;gap:18px;min-height:100vh;padding:18px}
+.panel,.stage{background:rgba(255,255,255,.95);border:1px solid rgba(217,228,239,.98);border-radius:24px;box-shadow:0 16px 46px rgba(26,44,76,.12);backdrop-filter:blur(12px)}
+.panel{padding:18px;display:flex;flex-direction:column;gap:14px;overflow:auto;max-height:calc(100vh - 36px)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:#eef4ff;color:#315f9d;font-size:12px;font-weight:800;letter-spacing:.05em}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:#3977d2;box-shadow:0 0 0 5px rgba(57,119,210,.13)}
+h1{margin:0;font-size:27px;line-height:1.18}.lead{margin:0;color:var(--muted);font-size:13px;line-height:1.78}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:760;color:#35445c}.value{color:#56677e}
+input[type=range]{width:100%;accent-color:#d35d48}
+.seg,.tools{display:flex;gap:8px;flex-wrap:wrap}
+button,.externalLink{border:1px solid var(--line);background:#fff;color:#43536b;border-radius:12px;padding:9px 12px;font:inherit;font-size:12.2px;font-weight:780;cursor:pointer;transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+button:hover,.externalLink:hover{border-color:#91b4da;box-shadow:0 5px 14px rgba(49,95,159,.10)}
+button.active{background:#315f9f;color:#fff;border-color:#315f9f}
+.externalLink{background:#eef6ff;color:#225d9c;border-color:#bfd6ee}
+.externalLink::after{content:'↗';font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{border:1px solid var(--line);border-radius:14px;background:#f8fbfe;padding:9px}.tile b{display:block;font-size:10.5px;color:#77859b;margin-bottom:4px}.tile span{display:block;font-size:15px;font-weight:800;color:#20324d}
+.desc{border-top:1px dashed #d9e4ef;padding-top:12px;display:grid;gap:8px}.desc h2{margin:0;font-size:16px}.desc p{margin:0;color:#56657a;font-size:13px;line-height:1.72}
+.tip{display:grid;gap:6px}.tip span{display:flex;gap:8px;align-items:flex-start;color:#5e6b80;font-size:12.1px;line-height:1.55}.dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex:0 0 10px}.p{background:#d95745}.s{background:#e7a04b}.c{background:#3e88d3}.e{background:#43a477}
+.stage{position:relative;overflow:hidden;min-height:720px}.wrap{position:absolute;inset:0;padding:10px}svg{width:100%;height:100%;display:block}
+.hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:4;background:rgba(255,255,255,.93);border:1px solid #d9e4ef;border-radius:999px;padding:8px 14px;color:#617087;font-size:12px;box-shadow:0 6px 18px rgba(26,45,80,.08)}
+@media(max-width:1120px){.app{grid-template-columns:1fr}.panel{order:2;max-height:none}.stage{min-height:70vh}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="panel">
+  <span class="eyebrow"><i></i> PHYSICS · PWR POWER PLANT</span>
+  <div>
+    <h1>核能发电全过程</h1>
+    <p class="lead">以典型压水堆（PWR）为框架重绘：反应堆中的核裂变释放能量，一回路把热量送到蒸汽发生器；二回路蒸汽推动汽轮机与发电机；做功后的蒸汽进入冷凝器，再由给水系统送回蒸汽发生器。第三条冷却水回路把废热带走。</p>
+  </div>
+
+  <div>
+    <div class="row"><label for="powerRange">反应堆功率</label><span class="value" id="powerValue">70%</span></div>
+    <input id="powerRange" type="range" min="15" max="100" value="70">
+  </div>
+
+  <div class="seg" id="stepSeg">
+    <button data-step="0" class="active">总览</button>
+    <button data-step="1">核裂变</button>
+    <button data-step="2">一回路传热</button>
+    <button data-step="3">蒸汽发生</button>
+    <button data-step="4">汽轮机</button>
+    <button data-step="5">发电机</button>
+    <button data-step="6">冷凝与回水</button>
+  </div>
+
+  <div class="tools">
+    <button id="btnFlow" class="active">动态流动</button>
+    <button id="btnEnergy" class="active">能量转化</button>
+    <button id="btnLabels" class="active">工程标注</button>
+    <button id="btnPause">暂停</button>
+    <button id="btnReset">恢复总览</button>
+    <a class="externalLink" href="https://3d.energyencyclopedia.com/npp-pwr/generator" target="_blank" rel="noopener noreferrer" title="打开 Energy Encyclopedia 的核电站专业 3D 模型">专业3D细节</a>
+  </div>
+
+  <div class="stats">
+    <div class="tile"><b>控制棒</b><span id="rodValue">中等插入</span></div>
+    <div class="tile"><b>一回路状态</b><span>高压液态水</span></div>
+    <div class="tile"><b>汽轮机转速</b><span id="rpmValue">2100 r/min</span></div>
+    <div class="tile"><b>发电输出</b><span id="outValue">70%</span></div>
+  </div>
+
+  <div class="desc">
+    <h2 id="descTitle">总览</h2>
+    <p id="descText">核裂变先产生热；一回路把热量送到蒸汽发生器但自身不沸腾；二回路产生蒸汽推动汽轮机和发电机；蒸汽最终在冷凝器中凝结，再被泵送回蒸汽发生器。三条回路彼此承担不同任务。</p>
+    <div class="tip">
+      <span><i class="dot p"></i>红色＝一回路高温高压水：反应堆 → 蒸汽发生器 → 主泵 → 反应堆。</span>
+      <span><i class="dot s"></i>橙色＝二回路蒸汽/给水：蒸汽发生器 → 汽轮机 → 冷凝器 → 给水泵 → 蒸汽发生器。</span>
+      <span><i class="dot c"></i>蓝色＝循环冷却水：只穿过冷凝器管束，带走废热。</span>
+      <span><i class="dot e"></i>绿色＝电能：发电机输出交流电，经变压器升压后进入输电网。</span>
+    </div>
+  </div>
+</aside>
+
+<main class="stage">
+<div class="wrap">
+<svg id="viz" viewBox="0 0 1560 900" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9fbfe"/><stop offset="100%" stop-color="#edf3f9"/></linearGradient>
+  <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7a8793"/><stop offset="22%" stop-color="#eef2f5"/><stop offset="45%" stop-color="#b9c4cd"/><stop offset="70%" stop-color="#f7f9fa"/><stop offset="100%" stop-color="#6f7c88"/></linearGradient>
+  <linearGradient id="darkSteel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2d3540"/><stop offset="45%" stop-color="#7a8794"/><stop offset="100%" stop-color="#252c35"/></linearGradient>
+  <linearGradient id="copper" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7b3d1a"/><stop offset="25%" stop-color="#e79a48"/><stop offset="55%" stop-color="#a95a26"/><stop offset="82%" stop-color="#f0b35e"/><stop offset="100%" stop-color="#6d3215"/></linearGradient>
+  <linearGradient id="waterHot" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#b83d34"/><stop offset="45%" stop-color="#ef725a"/><stop offset="100%" stop-color="#a83431"/></linearGradient>
+  <linearGradient id="steam" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#d07c2d"/><stop offset="50%" stop-color="#f5b865"/><stop offset="100%" stop-color="#c66a24"/></linearGradient>
+  <linearGradient id="waterCool" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#2869aa"/><stop offset="50%" stop-color="#56a7ee"/><stop offset="100%" stop-color="#235f9d"/></linearGradient>
+  <radialGradient id="coreGlow"><stop offset="0%" stop-color="#ffd85b" stop-opacity=".95"/><stop offset="55%" stop-color="#ff8c3e" stop-opacity=".55"/><stop offset="100%" stop-color="#e64b35" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#243f68" flood-opacity=".13"/></filter>
+  <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+
+<rect width="1560" height="900" rx="26" fill="url(#bg)"/>
+<path d="M30 820 H1530" stroke="#cdd9e5" stroke-width="2"/>
+
+<!-- CONTAINMENT -->
+<g id="containment" filter="url(#shadow)">
+  <path d="M70 708 V258 C70 120 164 58 314 58 C464 58 558 120 558 258 V708 Z" fill="#e9edf1" stroke="#6e7c89" stroke-width="4"/>
+  <path d="M91 708 V270 C91 151 175 82 314 82 C453 82 537 151 537 270 V708 Z" fill="#f8fafb" stroke="#b3bec8" stroke-width="2"/>
+  <path d="M70 708 H558" stroke="#6e7c89" stroke-width="5"/>
+  <text x="314" y="104" text-anchor="middle" font-size="24" font-weight="800" fill="#34495f">安全壳 / 反应堆厂房</text>
+</g>
+
+<!-- REACTOR VESSEL CUTAWAY -->
+<g id="reactor" filter="url(#shadow)">
+  <path d="M145 284 Q145 248 178 228 H246 Q279 248 279 284 V592 Q279 625 246 646 H178 Q145 625 145 592 Z" fill="url(#steel)" stroke="#53606d" stroke-width="3"/>
+  <path d="M159 292 Q159 270 184 255 H240 Q265 270 265 292 V585 Q265 608 240 621 H184 Q159 608 159 585 Z" fill="#dce9f3" stroke="#8d9aa7"/>
+  <rect x="174" y="394" width="76" height="182" rx="10" fill="#526b84" opacity=".88"/>
+  <g id="fuelAssemblies" fill="#70879a">
+    <rect x="182" y="408" width="7" height="150"/><rect x="193" y="408" width="7" height="150"/><rect x="204" y="408" width="7" height="150"/>
+    <rect x="215" y="408" width="7" height="150"/><rect x="226" y="408" width="7" height="150"/><rect x="237" y="408" width="7" height="150"/>
+  </g>
+  <rect x="166" y="380" width="92" height="206" rx="20" fill="url(#coreGlow)" opacity=".35"/>
+  <g id="controlRods" fill="#232d37">
+    <rect id="cr1" x="186" y="260" width="6" height="174" rx="3"/><rect id="cr2" x="204" y="260" width="6" height="174" rx="3"/>
+    <rect id="cr3" x="222" y="260" width="6" height="174" rx="3"/><rect id="cr4" x="240" y="260" width="6" height="174" rx="3"/>
+  </g>
+  <g fill="#495663"><rect x="177" y="204" width="80" height="24" rx="9"/><rect x="187" y="182" width="60" height="24" rx="8"/></g>
+  <text x="212" y="678" text-anchor="middle" font-size="20" font-weight="800" fill="#34495f">反应堆压力容器</text>
+</g>
+
+<!-- fission inset -->
+<g id="fissionInset" transform="translate(94 716)">
+  <rect x="0" y="0" width="300" height="112" rx="18" fill="#fff" stroke="#d8e3ee"/>
+  <text x="18" y="26" font-size="15" font-weight="800" fill="#4c5e73">链式裂变放大示意</text>
+  <circle cx="76" cy="68" r="19" fill="#7b8fa4"/><text x="76" y="73" text-anchor="middle" font-size="12" fill="#fff">U-235</text>
+  <circle id="incomingN" cx="32" cy="68" r="5" fill="#ffd254"/>
+  <path d="M101 68 H128" stroke="#8090a0" stroke-width="2"/>
+  <circle cx="154" cy="54" r="14" fill="#e27b4d"/><circle cx="154" cy="82" r="12" fill="#5f9bcc"/>
+  <g id="fissionNeutrons" fill="#ffd254"><circle cx="189" cy="52" r="5"/><circle cx="201" cy="70" r="5"/><circle cx="187" cy="88" r="5"/></g>
+  <path d="M208 52 C237 40 246 32 278 28 M216 70 C246 70 260 70 284 70 M205 88 C236 96 252 99 282 103" fill="none" stroke="#e6ba42" stroke-width="2" stroke-dasharray="4 4"/>
+</g>
+
+<!-- STEAM GENERATOR CUTAWAY -->
+<g id="steamGen" filter="url(#shadow)">
+  <path d="M354 250 Q354 224 380 208 H456 Q482 224 482 250 V560 Q482 589 456 604 H380 Q354 589 354 560 Z" fill="url(#steel)" stroke="#596774" stroke-width="3"/>
+  <path d="M370 260 Q370 244 390 234 H446 Q466 244 466 260 V548 Q466 566 446 576 H390 Q370 566 370 548 Z" fill="#edf3f7" stroke="#9ba8b4"/>
+  <!-- U tubes -->
+  <g fill="none" stroke="#c44b3e" stroke-width="4">
+    <path d="M385 485 V345 Q385 313 417 313 Q449 313 449 345 V485"/>
+    <path d="M394 485 V352 Q394 322 417 322 Q440 322 440 352 V485"/>
+    <path d="M403 485 V360 Q403 332 417 332 Q431 332 431 360 V485"/>
+  </g>
+  <line x1="379" y1="294" x2="458" y2="294" stroke="#b5c1cb" stroke-width="2"/>
+  <g id="steamBubbles" fill="#f4b35e" opacity=".8">
+    <circle cx="388" cy="278" r="5"/><circle cx="414" cy="266" r="7"/><circle cx="442" cy="280" r="4"/><circle cx="427" cy="250" r="5"/>
+  </g>
+  <text x="418" y="634" text-anchor="middle" font-size="20" font-weight="800" fill="#34495f">蒸汽发生器</text>
+  <text x="418" y="658" text-anchor="middle" font-size="13" fill="#63768b">一、二回路隔着管壁换热</text>
+</g>
+
+<!-- PRESSURIZER -->
+<g id="pressurizer" filter="url(#shadow)">
+  <path d="M300 228 Q300 208 319 196 H338 Q357 208 357 228 V390 Q357 411 338 423 H319 Q300 411 300 390 Z" fill="url(#steel)" stroke="#596774" stroke-width="3"/>
+  <path d="M311 285 H346 V395 Q346 403 338 410 H319 Q311 403 311 395 Z" fill="#d85a49" opacity=".72"/>
+  <path d="M311 285 H346" stroke="#eff3f5" stroke-width="3"/>
+  <text x="328" y="448" text-anchor="middle" font-size="16" font-weight="800" fill="#4c5e72">稳压器</text>
+</g>
+
+<!-- PRIMARY LOOP -->
+<g id="primaryLoop" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path id="hotLeg" d="M279 337 C310 337 323 337 354 337" stroke="url(#waterHot)" stroke-width="17"/>
+  <path id="coldLeg" d="M354 506 C325 506 313 506 290 506 C272 506 268 523 268 542" stroke="url(#waterHot)" stroke-width="17"/>
+  <path d="M328 390 V423" stroke="#c64d42" stroke-width="9"/>
+</g>
+<g id="primaryPump" transform="translate(292 523)" filter="url(#shadow)">
+  <circle cx="0" cy="0" r="24" fill="url(#steel)" stroke="#5b6874" stroke-width="3"/>
+  <path d="M-8 -11 L14 0 L-8 11 Z" fill="#596978"/>
+</g>
+
+<!-- TURBINE HALL -->
+<g id="turbineHall">
+  <rect x="590" y="104" width="616" height="604" rx="28" fill="#ffffff" stroke="#d8e3ed" stroke-width="2"/>
+  <text x="620" y="142" font-size="23" font-weight="800" fill="#34495f">汽轮机厂房</text>
+</g>
+
+<!-- MAIN STEAM LINE -->
+<path id="mainSteam" d="M482 270 C540 270 555 240 618 240 H690" fill="none" stroke="url(#steam)" stroke-width="16" stroke-linecap="round"/>
+
+<!-- TURBINE cutaway -->
+<g id="turbine" filter="url(#shadow)">
+  <path d="M686 205 H978 Q1002 205 1017 226 V392 Q1002 413 978 413 H686 Q662 413 647 392 V226 Q662 205 686 205 Z" fill="url(#steel)" stroke="#586672" stroke-width="3"/>
+  <line x1="665" y1="309" x2="1000" y2="309" stroke="#5b6876" stroke-width="12"/>
+  <!-- HP section -->
+  <g id="hpBlades" fill="#657687">
+    <path d="M705 250 L730 300 L705 309 L681 300 Z"/><path d="M748 244 L770 299 L748 309 L726 299 Z"/>
+    <path d="M790 238 L810 299 L790 309 L770 299 Z"/>
+  </g>
+  <!-- LP section -->
+  <g id="lpBlades" fill="#788998">
+    <path d="M842 226 L868 296 L842 309 L817 296 Z"/><path d="M887 218 L915 295 L887 309 L860 295 Z"/>
+    <path d="M934 211 L966 294 L934 309 L905 294 Z"/>
+  </g>
+  <!-- lower half mirrored -->
+  <use href="#hpBlades" transform="translate(0 618) scale(1 -1)"/>
+  <use href="#lpBlades" transform="translate(0 618) scale(1 -1)"/>
+  <text x="742" y="448" text-anchor="middle" font-size="18" font-weight="800" fill="#405269">高压级</text>
+  <text x="895" y="448" text-anchor="middle" font-size="18" font-weight="800" fill="#405269">低压级</text>
+</g>
+
+<!-- GENERATOR detailed -->
+<a href="https://3d.energyencyclopedia.com/npp-pwr/generator" target="_blank" rel="noopener noreferrer">
+<g id="generator" filter="url(#shadow)" style="cursor:pointer">
+  <rect x="1028" y="230" width="158" height="158" rx="40" fill="url(#steel)" stroke="#566573" stroke-width="3"/>
+  <ellipse cx="1107" cy="309" rx="58" ry="58" fill="#394652"/>
+  <ellipse cx="1107" cy="309" rx="46" ry="46" fill="none" stroke="url(#copper)" stroke-width="12" stroke-dasharray="11 7"/>
+  <rect id="genRotor" x="1069" y="293" width="76" height="32" rx="16" fill="#6e7d8b"/>
+  <rect x="1098" y="283" width="18" height="52" rx="7" fill="#d1a24f"/>
+  <line x1="1017" y1="309" x2="1028" y2="309" stroke="#586775" stroke-width="12"/>
+  <text x="1107" y="422" text-anchor="middle" font-size="20" font-weight="800" fill="#34495f">同步发电机</text>
+  <text x="1107" y="445" text-anchor="middle" font-size="13" fill="#63768b">转子旋转 → 定子线圈产生交流电</text>
+  <g transform="translate(1036 456)">
+    <rect x="0" y="0" width="142" height="34" rx="17" fill="#225d9c" opacity=".94"/>
+    <text x="71" y="22" text-anchor="middle" font-size="14" font-weight="800" fill="#ffffff">打开专业3D ↗</text>
+  </g>
+</g>
+</a>
+
+<!-- TRANSFORMER + GRID -->
+<g id="transformer" filter="url(#shadow)">
+  <rect x="1226" y="260" width="104" height="98" rx="16" fill="#e7edf2" stroke="#657585" stroke-width="3"/>
+  <g fill="none" stroke="#b66a32" stroke-width="7"><path d="M1247 279 V337 M1263 279 V337 M1293 279 V337 M1309 279 V337"/></g>
+  <rect x="1272" y="274" width="12" height="69" fill="#5f6d7c"/>
+  <text x="1278" y="389" text-anchor="middle" font-size="18" font-weight="800" fill="#34495f">升压变压器</text>
+</g>
+<path id="electricLine" d="M1186 309 H1226 M1330 309 H1458" fill="none" stroke="#43a477" stroke-width="9" stroke-linecap="round"/>
+<g id="gridTower" transform="translate(1455 245)" stroke="#526273" fill="none">
+  <path d="M0 160 L32 0 L64 160 M12 110 H52 M18 78 H46 M24 46 H40 M-20 40 H84 M-8 72 H72" stroke-width="4"/>
+  <path d="M-20 40 H84 M-8 72 H72" stroke-width="3"/>
+</g>
+<text x="1452" y="437" text-anchor="middle" font-size="18" font-weight="800" fill="#377d5d">输电网</text>
+
+<!-- CONDENSER -->
+<g id="condenser" filter="url(#shadow)">
+  <rect x="744" y="500" width="332" height="148" rx="24" fill="#e9eff4" stroke="#677686" stroke-width="3"/>
+  <rect x="765" y="527" width="290" height="94" rx="12" fill="#d9e7f2" stroke="#8798a8"/>
+  <g stroke="#3e88d3" stroke-width="4">
+    <path d="M780 545 H1040 M780 558 H1040 M780 571 H1040 M780 584 H1040 M780 597 H1040"/>
+  </g>
+  <g id="condensateDrops" fill="#e7a04b" opacity=".8"><circle cx="814" cy="518" r="5"/><circle cx="875" cy="520" r="4"/><circle cx="941" cy="519" r="5"/><circle cx="1002" cy="518" r="4"/></g>
+  <text x="910" y="681" text-anchor="middle" font-size="20" font-weight="800" fill="#34495f">表面式冷凝器</text>
+  <text x="910" y="704" text-anchor="middle" font-size="13" fill="#63768b">蒸汽在管外凝结，冷却水在管内流动</text>
+</g>
+<path id="exhaustSteam" d="M967 392 C967 444 954 465 934 500" fill="none" stroke="url(#steam)" stroke-width="17" stroke-linecap="round"/>
+
+<!-- FEEDWATER -->
+<g id="feedPump" transform="translate(650 590)" filter="url(#shadow)">
+  <circle r="26" fill="url(#steel)" stroke="#596876" stroke-width="3"/><path d="M-9 -12 L15 0 L-9 12 Z" fill="#596978"/>
+</g>
+<path id="feedWater" d="M744 604 C716 604 694 604 676 590 C650 570 624 555 594 555 C546 555 520 540 482 520" fill="none" stroke="url(#steam)" stroke-width="12" stroke-linecap="round"/>
+
+<!-- COOLING WATER LOOP + TOWER -->
+<path id="coolIn" d="M1076 557 C1138 557 1156 590 1180 618 C1203 646 1229 654 1260 654" fill="none" stroke="url(#waterCool)" stroke-width="13" stroke-linecap="round"/>
+<path id="coolBack" d="M1260 728 C1198 728 1174 704 1147 670 C1125 643 1109 603 1076 595" fill="none" stroke="url(#waterCool)" stroke-width="13" stroke-linecap="round"/>
+<g id="coolTower" filter="url(#shadow)">
+  <path d="M1282 492 C1256 546 1257 661 1288 756 H1412 C1443 661 1444 546 1418 492 C1391 529 1309 529 1282 492 Z" fill="#d6dde3" stroke="#748291" stroke-width="3"/>
+  <ellipse cx="1350" cy="492" rx="68" ry="17" fill="#c7d0d8"/>
+  <g id="vapor" fill="#ffffff" opacity=".78">
+    <ellipse cx="1325" cy="457" rx="42" ry="25"/><ellipse cx="1365" cy="442" rx="50" ry="31"/><ellipse cx="1341" cy="411" rx="38" ry="24"/>
+  </g>
+  <text x="1350" y="790" text-anchor="middle" font-size="20" font-weight="800" fill="#34495f">冷却塔</text>
+</g>
+
+<!-- ENERGY CHAIN -->
+<g id="energyChain">
+  <rect x="610" y="735" width="560" height="76" rx="20" fill="#ffffff" stroke="#d8e3ee"/>
+  <text x="638" y="764" font-size="14" fill="#75849a">能量转化</text>
+  <g font-size="20" font-weight="800">
+    <text x="650" y="793" fill="#8f4134">核能</text><text x="718" y="793" fill="#8190a0">→</text>
+    <text x="754" y="793" fill="#c1772f">内能</text><text x="824" y="793" fill="#8190a0">→</text>
+    <text x="860" y="793" fill="#51677e">机械能</text><text x="955" y="793" fill="#8190a0">→</text>
+    <text x="992" y="793" fill="#398463">电能</text>
+  </g>
+</g>
+
+<!-- animated path particles -->
+<g id="flowParticles"></g>
+<g id="labels" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <text x="284" y="319" font-size="14" fill="#a84538">热段</text><text x="283" y="493" font-size="14" fill="#a84538">冷段</text>
+  <text x="510" y="249" font-size="14" fill="#bb6f2c">主蒸汽</text><text x="516" y="537" font-size="14" fill="#bb6f2c">给水</text>
+  <text x="1194" y="638" font-size="14" fill="#3278ba">循环冷却水</text>
+</g>
+</svg>
+<div class="hint">工程剖面示意：红＝一回路 · 橙＝二回路 · 蓝＝冷却水 · 绿＝电能</div>
+</div>
+</main>
+</div>
+
+<script>
+(() => {
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const state={power:.70,step:0,showFlow:true,showEnergy:true,showLabels:true,paused:false,t:0};
+const desc={
+0:['总览','反应堆产生热；一回路把热量送到蒸汽发生器；二回路蒸汽推动汽轮机和发电机；做功后的蒸汽在冷凝器中变回水。冷却水回路只负责把废热带走。'],
+1:['核裂变','中子被铀-235原子核吸收后，原子核分裂成两个较小的裂变产物，同时释放能量和新的中子。新的中子继续引发裂变，形成受控链式反应；控制棒用于吸收中子、调节功率。'],
+2:['一回路传热','PWR一回路保持很高压力，使水即使在很高温度下也不沸腾。热段把堆芯热量带到蒸汽发生器，冷却后的水再由主泵送回反应堆。'],
+3:['蒸汽发生','一回路水流过蒸汽发生器管内；二回路水位于管外。两种水不混合，只通过金属管壁换热，二回路水被加热并形成蒸汽。'],
+4:['汽轮机','高温高压蒸汽先进入高压级，再进入体积更大的低压级，不断膨胀并推动叶片旋转，把蒸汽的内能转化为转轴的机械能。'],
+5:['发电机','汽轮机与发电机共轴。发电机转子旋转，使定子线圈中的磁通量周期变化，产生交流电；电能经升压变压器后送入输电网。页面中的“同步发电机”可直接点击，打开 Energy Encyclopedia 的专业 3D 细节模型。'],
+6:['冷凝与回水','汽轮机排汽进入冷凝器。循环冷却水在许多管束内部流动，把蒸汽的热量带走；蒸汽在管外凝结成水，再由凝结水和给水系统送回蒸汽发生器。']
+};
+const ui={
+  power:document.getElementById('powerRange'),powerValue:document.getElementById('powerValue'),rodValue:document.getElementById('rodValue'),
+  rpmValue:document.getElementById('rpmValue'),outValue:document.getElementById('outValue'),descTitle:document.getElementById('descTitle'),descText:document.getElementById('descText')
+};
+
+const zoneMap={
+  1:['reactor','fissionInset'],2:['reactor','steamGen','primaryLoop','primaryPump','pressurizer'],
+  3:['steamGen','mainSteam'],4:['turbine','mainSteam','exhaustSteam'],5:['generator','transformer','gridTower','electricOut'],
+  6:['condenser','coolTower','feedPump','feedWater','coolingPipes']
+};
+
+function dimAll(){
+  ['reactor','fissionInset','steamGen','pressurizer','primaryLoop','primaryPump','turbine','generator','transformer','gridTower','condenser','coolTower','feedPump','energyChain'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.opacity='.30';
+  });
+  ['mainSteam','exhaustSteam','feedWater','coolIn','coolBack','electricLine'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.opacity='.25'});
+}
+function undim(ids){
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.style.opacity='1'});
+}
+function applyStep(){
+  document.querySelectorAll('#stepSeg button').forEach(b=>b.classList.toggle('active',+b.dataset.step===state.step));
+  ui.descTitle.textContent=desc[state.step][0];ui.descText.textContent=desc[state.step][1];
+  if(state.step===0){
+    ['reactor','fissionInset','steamGen','pressurizer','primaryLoop','primaryPump','turbine','generator','transformer','gridTower','condenser','coolTower','feedPump','energyChain','mainSteam','exhaustSteam','feedWater','coolIn','coolBack','electricLine'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.opacity='1'});
+  }else{
+    dimAll();undim(zoneMap[state.step]||[]);
+    if(state.step===2){undim(['hotLeg','coldLeg'])}
+    if(state.step===5){undim(['electricLine'])}
+    if(state.step===6){undim(['exhaustSteam','feedWater','coolIn','coolBack'])}
+  }
+}
+document.getElementById('stepSeg').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;state.step=+b.dataset.step;applyStep()});
+
+function applyPower(v){
+  state.power=v;ui.powerValue.textContent=Math.round(v*100)+'%';ui.outValue.textContent=Math.round(v*100)+'%';
+  ui.rpmValue.textContent=Math.round(3000*v)+' r/min';
+  const h=72+(1-v)*84;
+  ['cr1','cr2','cr3','cr4'].forEach(id=>document.getElementById(id).setAttribute('height',h.toFixed(1)));
+  ui.rodValue.textContent=v>.80?'浅插入':v>.45?'中等插入':'较深插入';
+}
+ui.power.addEventListener('input',e=>applyPower(+e.target.value/100));applyPower(.70);
+
+document.getElementById('btnFlow').addEventListener('click',function(){state.showFlow=!state.showFlow;this.classList.toggle('active',state.showFlow)});
+document.getElementById('btnEnergy').addEventListener('click',function(){state.showEnergy=!state.showEnergy;this.classList.toggle('active',state.showEnergy);document.getElementById('energyChain').style.display=state.showEnergy?'block':'none'});
+document.getElementById('btnLabels').addEventListener('click',function(){state.showLabels=!state.showLabels;this.classList.toggle('active',state.showLabels);document.getElementById('labels').style.display=state.showLabels?'block':'none'});
+document.getElementById('btnPause').addEventListener('click',function(){state.paused=!state.paused;this.classList.toggle('active',state.paused);this.textContent=state.paused?'继续':'暂停'});
+document.getElementById('btnReset').addEventListener('click',()=>{state.step=0;applyStep();applyPower(.70);ui.power.value=70});
+
+const defs=[
+  {id:'hotLeg',color:'#ef725a',n:5,dir:1,steps:[0,2]},
+  {id:'coldLeg',color:'#ef725a',n:5,dir:-1,steps:[0,2]},
+  {id:'mainSteam',color:'#f2b15e',n:9,dir:1,steps:[0,3,4]},
+  {id:'exhaustSteam',color:'#e9a251',n:5,dir:1,steps:[0,4,6]},
+  {id:'feedWater',color:'#e9a251',n:9,dir:-1,steps:[0,3,6]},
+  {id:'coolIn',color:'#55a6ea',n:6,dir:1,steps:[0,6]},
+  {id:'coolBack',color:'#55a6ea',n:6,dir:-1,steps:[0,6]},
+  {id:'electricLine',color:'#49b17d',n:7,dir:1,steps:[0,5]}
+];
+const pg=document.getElementById('flowParticles'),particles=[];
+defs.forEach(d=>{
+  const path=document.getElementById(d.id);if(!path)return;
+  for(let i=0;i<d.n;i++){
+    const c=document.createElementNS(NS,'circle');c.setAttribute('r',d.id==='electricLine'?'5':'4.5');c.setAttribute('fill',d.color);c.setAttribute('filter','url(#glow)');pg.appendChild(c);
+    particles.push({el:c,path,phase:i/d.n,dir:d.dir,steps:d.steps});
+  }
+});
+function updateParticles(){
+  particles.forEach(p=>{
+    const active=state.showFlow&&p.steps.includes(state.step);p.el.style.display=active?'block':'none';if(!active)return;
+    const len=p.path.getTotalLength();let u=(p.phase+state.t*(.055+.11*state.power)*p.dir)%1;if(u<0)u+=1;
+    const pt=p.path.getPointAtLength(len*u);p.el.setAttribute('cx',pt.x);p.el.setAttribute('cy',pt.y);
+  });
+}
+
+const fissionInset=document.getElementById('fissionInset'),incomingN=document.getElementById('incomingN'),fissionNs=[...document.querySelectorAll('#fissionNeutrons circle')];
+function updateFission(){
+  const p=(state.t*.75*state.power)%1;
+  incomingN.setAttribute('cx',(32+43*p).toFixed(1));
+  incomingN.setAttribute('opacity',p<.92?'1':'0');
+  fissionNs.forEach((n,i)=>{
+    const q=Math.max(0,(p-.35)/.65);
+    const base=[[189,52],[201,70],[187,88]][i];
+    n.setAttribute('cx',(base[0]+q*(18+i*4)).toFixed(1));n.setAttribute('cy',(base[1]+(i-1)*q*8).toFixed(1));
+    n.setAttribute('opacity',p>.35?'1':'0');
+  });
+  fissionInset.style.opacity=(state.step===0||state.step===1)?'1':'.30';
+}
+
+const turbine=document.getElementById('turbine'),genRotor=document.getElementById('genRotor'),vapor=document.getElementById('vapor');
+function updateMachines(){
+  const deg=state.t*210*state.power;
+  document.getElementById('hpBlades').setAttribute('transform','rotate('+deg+' 790 309)');
+  document.getElementById('lpBlades').setAttribute('transform','rotate('+(deg*.92)+' 895 309)');
+  genRotor.setAttribute('transform','rotate('+(deg*1.2)+' 1107 309)');
+  vapor.setAttribute('transform','translate(0 '+(-5*Math.sin(state.t*1.7))+')');
+  document.querySelectorAll('#steamBubbles circle').forEach((b,i)=>b.setAttribute('transform','translate(0 '+(-8*Math.sin(state.t*2+i))+')'));
+  document.querySelectorAll('#condensateDrops circle').forEach((b,i)=>b.setAttribute('transform','translate(0 '+(4*Math.sin(state.t*2.2+i))+')'));
+}
+
+applyStep();
+let last=performance.now();
+function tick(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;if(!state.paused)state.t+=dt;
+  updateParticles();updateFission();updateMachines();requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>油量测量装置 · 3D 交互演示</title>
+<style>
+  :root{
+    --bg:#eef3f9;
+    --ink:#1b2430;
+    --ink2:#5a6879;
+    --line:#dde5ef;
+    --brand:#2f7de1;
+    --brand-soft:#e7f0fd;
+    --shadow:0 10px 34px rgba(28,48,78,.13);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:fixed;inset:0;}
+  #scene{display:block;width:100%;height:100%;}
+
+  .head{
+    position:fixed;left:24px;top:20px;z-index:5;max-width:392px;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:16px;
+    padding:14px 18px;box-shadow:var(--shadow);
+  }
+  .head h1{margin:0 0 5px;font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .head h1 span{font-weight:500;color:var(--ink2);font-size:13px;}
+  .head p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink2);}
+  .head p b{color:#15406f;}
+
+  .panel{
+    position:fixed;right:22px;top:20px;z-index:6;
+    width:300px;
+    background:rgba(255,255,255,.93);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+  }
+  .panel.collapsed{transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;}
+  .panel::-webkit-scrollbar{width:6px;}
+  .panel::-webkit-scrollbar-thumb{background:#cfdae8;border-radius:3px;}
+
+  #panelClose{
+    position:absolute;right:10px;top:10px;
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    cursor:pointer;font-size:14px;line-height:1;padding:0;
+  }
+  #panelClose:hover{background:var(--brand-soft);color:var(--brand);}
+  #panelOpen{
+    position:fixed;right:22px;top:20px;z-index:7;
+    width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    box-shadow:var(--shadow);cursor:pointer;font-size:17px;line-height:1;
+    display:none;
+  }
+  .panel.collapsed ~ #panelOpen{display:block;}
+
+  .grp{margin-bottom:14px;}
+  .grp:first-of-type .lbl{padding-right:32px;}
+  .lbl{
+    font-size:11.5px;font-weight:600;letter-spacing:.6px;
+    color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .lbl b{color:var(--brand);font-size:12.5px;font-weight:700;margin-left:auto;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
+    background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 50%,#e2eaf4 50%,#e2eaf4 100%);
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--brand);box-shadow:0 2px 6px rgba(47,125,225,.35);
+    cursor:grab;
+  }
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.08);}
+
+  .seg{display:flex;gap:6px;}
+  .seg button, .toggles button{
+    flex:1;padding:8px 4px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:10px;cursor:pointer;transition:all .18s ease;
+  }
+  .seg button:hover, .toggles button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .seg button.active, .toggles button.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(47,125,225,.32);}
+  .toggles{display:flex;gap:6px;flex-wrap:wrap;}
+  .toggles button{min-width:68px;padding:7px 8px;font-size:12px;border-radius:9px;}
+
+  .readout{
+    margin-top:9px;padding:10px 12px;border-radius:12px;
+    background:linear-gradient(180deg,#f6faff,#eef5fd);
+    border:1px solid #e2ecf8;
+  }
+  .rv{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;color:var(--ink2);}
+  .rv + .rv{margin-top:5px;}
+  .rv b{font-size:15px;color:#15406f;font-variant-numeric:tabular-nums;}
+  .rv i{font-style:normal;font-size:11px;color:#8794a6;margin-left:4px;}
+  .rv b.up{color:#c0392b;}
+  .rv b.dn{color:#1a7f5a;}
+
+  .mini{font-size:11px;color:#8794a6;margin-top:7px;line-height:1.5;}
+
+  .chain{
+    padding:11px 12px;border-radius:12px;border:1px solid #e2ecf8;
+    background:linear-gradient(180deg,#f8fbff,#f0f6fe);
+    font-size:11.5px;line-height:1.9;color:var(--ink2);
+  }
+  .chain b{color:#15406f;}
+  .chain .k{color:#c0392b;font-weight:700;}
+  .chain .g{color:#1a7f5a;font-weight:700;}
+
+  .tip{
+    padding:11px 12px;border-radius:12px;border:1px solid #e2ecf8;
+    background:linear-gradient(180deg,#f8fbff,#f0f6fe);
+    font-size:11.5px;line-height:1.75;color:var(--ink2);
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .tip b{font-size:12px;color:#15406f;margin-bottom:3px;}
+  .tip i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .tip i.amber{background:#e0a63c;}
+  .tip i.silver{background:#b2bcc7;}
+  .tip i.gray{background:#4a5460;}
+  .tip i.red{background:#e8372a;}
+  .tip i.dark{background:#2b2420;}
+
+  .ans{
+    margin-top:8px;padding:12px 13px;border-radius:12px;
+    border:1px dashed #f0b8ae;background:linear-gradient(180deg,#fff7f5,#fdeeea);
+    font-size:12px;line-height:1.8;color:#7a3226;display:none;
+  }
+  .ans.show{display:block;}
+  .ans b{color:#c0392b;}
+
+  .hint{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:5;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 20px;font-size:12px;color:var(--ink2);
+    box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .hint kbd{
+    background:#eef4fb;border:1px solid #dbe6f4;border-radius:5px;
+    padding:1px 5px;font-size:11px;font-family:inherit;color:#15406f;
+  }
+
+  #toast{
+    position:fixed;left:50%;bottom:74px;transform:translate(-50%,12px);
+    background:#1c2430;color:#fff;font-size:13px;padding:9px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="scene"></canvas></div>
+
+  <div class="head">
+    <h1>油量测量装置 <span>· 3D 交互演示</span></h1>
+    <p>图 16.4-12：<b>浮子</b>随油面升降，通过<b>滑杆</b>（绕固定轴 O 转动）带动滑动变阻器的<b>滑片</b>，改变接入电路的电阻，<b>电流表的示数</b>就对应油箱里的油量。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+    <div class="grp">
+      <div class="lbl">油箱里的油量 <b id="oilLabel">30.0 L</b></div>
+      <input id="oilRange" type="range" min="0" max="50" step="0.5" value="30" />
+      <div class="seg" style="margin-top:8px;">
+        <button id="btnFill">加 油</button>
+        <button id="btnDrain">放 油</button>
+      </div>
+      <div class="mini">也可以直接用鼠标<b>上下拖动</b> 3D 里的<b>浮子</b>或<b>滑杆</b>；点油箱上的<b>阀门</b>可放油</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">油箱透视 <b id="tankLabel">半透明 18%</b></div>
+      <input id="tankRange" type="range" min="0" max="100" step="1" value="18" />
+      <div class="toggles" style="margin-top:8px;">
+        <button id="btnGlass" class="active">半透明</button>
+        <button id="btnSolid">不透明</button>
+        <button id="btnHide">隐 藏</button>
+      </div>
+      <div class="mini">透明度只作用于玻璃油箱，油面、浮子、滑杆不受影响</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">读数</div>
+      <div class="readout">
+        <div class="rv"><span>油面高度（箱底起）</span><b id="vLevel">8.4<i>cm</i></b></div>
+        <div class="rv"><span>接入电阻 R</span><b id="vOhm">8.45<i>Ω</i></b></div>
+        <div class="rv"><span>电路电流 I</span><b id="vAmp">0.223<i>A</i></b></div>
+        <div class="rv"><span>滑杆转角（滑片绕 O）</span><b id="vPsi">−3.3<i>°</i></b></div>
+      </div>
+      <div class="mini">电源 3 V（两节干电池）· R₀ = 5 Ω 保护电路 · 变阻器总阻 20 Ω · 电流表量程 0.6 A</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">推理链（跟着油量变化）</div>
+      <div class="chain" id="chain">
+        <div>油量 <b id="c1">30.0 L</b></div>
+        <div>油面高度 <b id="c2">8.4 cm</b> <span id="c2a"></span></div>
+        <div>浮子高度 <b id="c3">1.74 cm</b> <span id="c3a"></span></div>
+        <div>滑杆绕 O 转动：左端 <span id="c4a"></span>／右端（滑片）<span id="c5a"></span></div>
+        <div>接入电阻 R <b id="c6">8.45 Ω</b> <span id="c6a"></span></div>
+        <div>电流 I <b id="c7">0.223 A</b> <span id="c7a"></span></div>
+        <div>电流表示数 <b id="c8">0.223 A</b> <span id="c8a"></span></div>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">显示选项</div>
+      <div class="toggles">
+        <button id="btnLabels" class="active">部件标签</button>
+        <button id="btnFlow" class="active">电流方向</button>
+        <button id="btnAns">显示结论</button>
+      </div>
+      <div class="ans" id="ansBox">
+        <b>结论：电流表的示数越大，表示油箱中的油量越多。</b><br>
+        理由：油面上升 → 浮子上浮 → 滑杆左端上翘、右端（滑片）下滑 → 变阻器接入电路的电阻丝变短、电阻变小 → 电路总电阻变小 → 电流变大 → 电流表示数变大。所以电流表示数大＝油量多。
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">视角 / 导出</div>
+      <div class="toggles">
+        <button id="btnReset">默认视角</button>
+        <button id="btnFront">正视图</button>
+        <button id="btnTop">俯视图</button>
+        <button id="btnShot">导出 PNG</button>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>结构对照</b>
+      <span><i class="amber"></i>黄色液体＝油，油面随油量升降</span>
+      <span><i class="silver"></i>银色浮子＝浮在油面上，随油面上下</span>
+      <span><i class="dark"></i>水平长条＝滑杆，绕固定轴 O 转动（左端接浮子）</span>
+      <span><i class="gray"></i>灰色弧形＝滑动变阻器 R，绕线在弧形骨架内侧</span>
+      <span><i class="red"></i>红色箭头＝电流方向（从电源正极流出）</span>
+    </div>
+  </div>
+  <button id="panelOpen" title="展开面板">‹</button>
+
+  <div class="hint">拖拽旋转 · 滚轮缩放 · <kbd>Shift</kbd>+拖拽平移 · 上下拖动浮子／滑杆改变油量</div>
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.144.0/build/three.min.js"></script>
+  <script src="../shared/current-flow-style.js"></script>
+  <script>
+/* =========================================================
+   图 16.4-12 油量测量装置 · 3D 交互演示
+   ---------------------------------------------------------
+   结构（1 单位 ≈ 1 cm）：
+     · 玻璃油箱 + 油（油面高度可变）+ 放油阀门
+     · 浮子：浮在油面上，随油面升降
+     · 滑杆：水平长条，绕固定轴 O 转动；左端（-X）经浮杆接浮子，
+             右端（+X）带滑片压在变阻器弧上
+     · 滑动变阻器 R：绕固定轴 O 的圆弧（弧心＝O），
+             电阻丝绕在弧形骨架内侧 —— 滑片绕 O 转始终贴着它
+     · 电路：电源 3V → 电流表 → R₀ → 固定轴 O → 滑杆 → 滑片 →
+             弧的下端 → 电源负极（串联回路）
+   结论：电流表示数越大 → 油量越多（滑片上移 → 接入电阻变大 → 电流变小）
+   ========================================================= */
+(function () {
+  'use strict';
+
+  if (THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
+
+  /* ================= 渲染器 / 场景 / 相机 ================= */
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.LinearToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xeef3f9);
+  scene.fog = new THREE.Fog(0xeef3f9, 34, 100);
+
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
+
+  /* ================= 环境贴图 ================= */
+  (function buildEnvironment() {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0.00, '#ffffff');
+    g.addColorStop(0.38, '#f3f7fc');
+    g.addColorStop(0.50, '#e0e8f2');
+    g.addColorStop(0.62, '#bac5d3');
+    g.addColorStop(1.00, '#707b89');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 512);
+    [[26, 70, 34], [92, 132, 22]].forEach(function (p) {
+      const rg = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], p[2]);
+      rg.addColorStop(0, 'rgba(255,255,255,1)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(p[0], p[1], p[2], 0, Math.PI * 2); ctx.fill();
+    });
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const env = pmrem.fromEquirectangular(tex).texture;
+    pmrem.dispose();
+    tex.dispose();
+    scene.environment = env;
+  })();
+
+  /* ================= 灯光 ================= */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3c2d4, 0.32));
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 0.66);
+  keyLight.position.set(9, 16, 11);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -13;
+  keyLight.shadow.camera.right = 13;
+  keyLight.shadow.camera.top = 13;
+  keyLight.shadow.camera.bottom = -13;
+  keyLight.shadow.camera.near = 1;
+  keyLight.shadow.camera.far = 70;
+  keyLight.shadow.bias = -0.0007;
+  keyLight.shadow.radius = 2.4;
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0xdce8ff, 0.16);
+  fillLight.position.set(-11, 8, -9);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.15);
+  rimLight.position.set(-5, 6, 13);
+  scene.add(rimLight);
+
+  /* ================= 地面 / 实验台 ================= */
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(40, 72),
+    new THREE.MeshStandardMaterial({ color: 0xdde6f0, roughness: 0.98, metalness: 0.0 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.14;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(40, 40, 0xc0cfe1, 0xd5e0ee);
+  grid.position.y = -0.135;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.5;
+  scene.add(grid);
+
+  // 实验台板
+  const bench = new THREE.Mesh(
+    new THREE.BoxGeometry(15.6, 0.16, 4.4),
+    new THREE.MeshStandardMaterial({ color: 0xe8eef6, roughness: 0.72, metalness: 0.02 })
+  );
+  bench.position.set(2.35, -0.08, 0);
+  bench.receiveShadow = true;
+  bench.castShadow = false;
+  scene.add(bench);
+
+  /* ================= 关键尺寸 ================= */
+  const DEG = Math.PI / 180;
+
+  const TANK_CX = -2.00, TANK_R = 2.80, TANK_WALL = 0.10;
+  const TANK_FLOOR = 0.00;                 // 箱底（外）
+  const TANK_IN_FLOOR = 0.20;              // 箱内底
+  const TANK_TOP = 2.88;
+  const OIL_R = TANK_R - TANK_WALL;        // 2.70
+  const OIL_MIN = 0.62, OIL_MAX = 2.66;    // 油面高度范围
+  const V_MAX = 50;                        // 油量满量程（L，示意）
+
+  const FLOAT_R = 0.34, FLOAT_DIP = 0.10;  // 浮子半径 / 浸没深度
+  const ROD_LEN = 1.30;                    // 浮杆长度（浮子顶 → 滑杆铰点）
+
+  const PIVOT_X = 1.50, PIVOT_Y = 3.18;    // 固定轴 O
+  const ARM = 3.60;                        // 滑杆半长
+  const PHI_LIMIT = 21 * DEG;              // 变阻弧半角
+
+  const ARC_R0 = 3.60, ARC_R1 = 3.88, ARC_W = 0.22;   // 弧形骨架
+  const ARC_RM = (ARC_R0 + ARC_R1) / 2;
+  const WIRE_R = 0.036, WIRE_MAJOR = 0.15;            // 绕线
+  const TURNS = 24;
+  const CONTACT_R = 3.52;                             // 滑片触点半径（压在绕线内侧）
+
+  const R0_VAL = 5, R_TOTAL = 20, U_SUPPLY = 3.0, I_FS = 0.6;
+
+  const AMM_X = 8.60, AMM_Y = 2.60, AMM_W = 2.10, AMM_H = 1.90, AMM_D = 0.76;
+  const DIAL_R = 0.85;
+  const BAT_X0 = 3.85, BAT_X1 = 6.85, BAT_Y0 = 0.02, BAT_Y1 = 0.66, BAT_Z = 0.62;
+
+  const TOP_Y = 5.50;                      // 顶部导线高度
+  const R0_X = 5.60, R0_LEN = 1.80;        // 定值电阻
+
+  /* ================= 材质 ================= */
+  const M = {
+    metal: new THREE.MeshStandardMaterial({ color: 0xc3ccd6, roughness: 0.24, metalness: 1.0, envMapIntensity: 1.0 }),
+    metalSoft: new THREE.MeshStandardMaterial({ color: 0xb2bcc7, roughness: 0.32, metalness: 0.95, envMapIntensity: 0.95 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xd0a24e, roughness: 0.28, metalness: 0.95, envMapIntensity: 1.0 }),
+    copper: new THREE.MeshStandardMaterial({ color: 0xc07635, roughness: 0.30, metalness: 0.88, envMapIntensity: 1.0 }),
+    frame: new THREE.MeshStandardMaterial({ color: 0x4a5460, roughness: 0.74, metalness: 0.06, envMapIntensity: 0.35 }),
+    insul: new THREE.MeshStandardMaterial({ color: 0xdadfe6, roughness: 0.62, metalness: 0.03, envMapIntensity: 0.5 }),
+    dark: new THREE.MeshStandardMaterial({ color: 0x2b2f36, roughness: 0.55, metalness: 0.15, envMapIntensity: 0.6 }),
+    wireJacket: new THREE.MeshStandardMaterial({ color: 0x22303c, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 }),
+    caseBox: new THREE.MeshStandardMaterial({ color: 0x2d3742, roughness: 0.5, metalness: 0.1, envMapIntensity: 0.6 })
+  };
+
+  // 玻璃油箱（可调透明）
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0xcfe2ee, roughness: 0.06, metalness: 0.0, envMapIntensity: 1.1,
+    transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide
+  });
+  // 油
+  const oilMat = new THREE.MeshStandardMaterial({
+    color: 0xdfa536, roughness: 0.30, metalness: 0.02, envMapIntensity: 0.8,
+    transparent: true, opacity: 0.86
+  });
+  const oilTopMat = new THREE.MeshStandardMaterial({
+    color: 0xf2c65a, roughness: 0.10, metalness: 0.10, envMapIntensity: 1.1,
+    transparent: true, opacity: 0.96
+  });
+  const glowMat = new THREE.MeshStandardMaterial({
+    color: 0xffb648, emissive: 0xff7a18, emissiveIntensity: 0.85,
+    roughness: 0.4, metalness: 0.2
+  });
+
+  /* ================= 工具 ================= */
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+  function put(parent, geo, mat, pos, rot, noShadow) {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(pos[0], pos[1], pos[2]);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+    if (!noShadow) { m.castShadow = true; m.receiveShadow = true; }
+    parent.add(m);
+    return m;
+  }
+
+  function tube(points, radius, seg, radial) {
+    const curve = new THREE.CatmullRomCurve3(points.map(function (p) {
+      return new THREE.Vector3(p[0], p[1], p[2]);
+    }));
+    return new THREE.TubeGeometry(curve, seg || 60, radius, radial || 8, false);
+  }
+  const V3 = function (p) { return new THREE.Vector3(p[0], p[1], p[2]); };
+  const V = function (x, y, z) { return new THREE.Vector3(x, y, z); };
+
+  /* ================= 标签 ================= */
+  function makeLabel(text, color, h) {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.font = 'bold 76px "Microsoft YaHei","PingFang SC",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 13;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+    ctx.strokeText(text, 256, 68);
+    ctx.fillStyle = color;
+    ctx.fillText(text, 256, 68);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = 4;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: tex, transparent: true, depthTest: false, depthWrite: false
+    }));
+    sp.scale.set(h * 4, h, 1);
+    sp.renderOrder = 20;
+    return sp;
+  }
+  const labelG = new THREE.Group();        // 外部部件标签
+  scene.add(labelG);
+  const labelIn = new THREE.Group();       // 油箱内部部件标签（油箱不透明时收起）
+  scene.add(labelIn);
+  function addLabel(text, color, h, pos, inside, parent) {
+    const sp = makeLabel(text, color, h);
+    sp.position.set(pos[0], pos[1], pos[2]);
+    (parent || (inside ? labelIn : labelG)).add(sp);
+    return sp;
+  }
+
+  /* ================= 1. 油箱 + 油 + 阀门 ================= */
+  const gTank = new THREE.Group();
+  scene.add(gTank);
+  const gGlass = new THREE.Group();        // 只有它受透明度控制
+  gTank.add(gGlass);
+
+  // 侧壁
+  const glassWall = put(gGlass, new THREE.CylinderGeometry(TANK_R, TANK_R, TANK_TOP - TANK_FLOOR, 72, 1, true),
+    glassMat, [TANK_CX, (TANK_TOP + TANK_FLOOR) / 2, 0], null, true);
+  glassWall.renderOrder = 6;
+  glassWall.castShadow = false;
+  // 箱底
+  const glassFloor = put(gGlass, new THREE.CylinderGeometry(TANK_R, TANK_R * 0.97, TANK_IN_FLOOR, 72),
+    glassMat, [TANK_CX, TANK_IN_FLOOR / 2, 0], null, true);
+  glassFloor.renderOrder = 6;
+  // 上口卷边
+  const rim = put(gGlass, new THREE.TorusGeometry(TANK_R, 0.055, 8, 72),
+    new THREE.MeshStandardMaterial({
+      color: 0xaebecb, roughness: 0.25, metalness: 0.85, envMapIntensity: 1.0,
+      transparent: true, opacity: 1, depthWrite: false
+    }), [TANK_CX, TANK_TOP, 0], [Math.PI / 2, 0, 0], true);
+  rim.renderOrder = 6;
+
+  // 油
+  const oilBody = put(gTank, new THREE.CylinderGeometry(1, 1, 1, 72), oilMat, [TANK_CX, 1, 0], null, true);
+  oilBody.renderOrder = 3;
+  const oilTop = put(gTank, new THREE.CircleGeometry(1, 72), oilTopMat, [TANK_CX, 1, 0], [-Math.PI / 2, 0, 0], true);
+  oilTop.renderOrder = 4;
+
+  // 放油阀门（可点击）
+  const gValve = new THREE.Group();
+  gTank.add(gValve);
+  (function buildValve() {
+    const vx = TANK_CX + TANK_R - 0.06, vy = 0.98;
+    put(gValve, new THREE.CylinderGeometry(0.17, 0.17, 0.42, 20), M.brass, [vx + 0.21, vy, 0], [0, 0, Math.PI / 2]);
+    put(gValve, new THREE.CylinderGeometry(0.20, 0.20, 0.10, 20), M.brass, [vx + 0.02, vy, 0], [0, 0, Math.PI / 2]);
+    put(gValve, new THREE.CylinderGeometry(0.13, 0.13, 0.34, 20), M.brass, [vx + 0.50, vy - 0.20, 0]);
+    put(gValve, new THREE.CylinderGeometry(0.14, 0.11, 0.10, 20), M.brass, [vx + 0.50, vy - 0.40, 0]);
+    put(gValve, new THREE.CylinderGeometry(0.05, 0.05, 0.30, 12), M.metal, [vx + 0.21, vy + 0.28, 0]);
+    put(gValve, new THREE.BoxGeometry(0.44, 0.07, 0.11), M.metal, [vx + 0.21, vy + 0.44, 0]);
+    put(gValve, new THREE.BoxGeometry(0.11, 0.07, 0.34), M.metal, [vx + 0.21, vy + 0.44, 0]);
+  })();
+
+  /* ================= 2. 浮子 + 浮杆 ================= */
+  const gFloat = new THREE.Group();
+  scene.add(gFloat);
+  put(gFloat, new THREE.SphereGeometry(FLOAT_R, 28, 20), M.metalSoft, [0, 0, 0]);
+  put(gFloat, new THREE.SphereGeometry(FLOAT_R * 0.97, 28, 20),
+    new THREE.MeshStandardMaterial({ color: 0xe0e7ee, roughness: 0.42, metalness: 0.35, envMapIntensity: 1.0 }),
+    [0, -0.02, 0]);
+  put(gFloat, new THREE.CylinderGeometry(0.075, 0.075, 0.10, 16), M.metalSoft, [0, FLOAT_R - 0.04, 0]);
+
+  const gRod = new THREE.Group();
+  scene.add(gRod);
+  const rodMesh = put(gRod, new THREE.CylinderGeometry(0.035, 0.035, 1, 12), M.metal, [0, 0, 0]);
+
+  /* ================= 3. 固定轴立柱 ================= */
+  const gPost = new THREE.Group();
+  scene.add(gPost);
+  put(gPost, new THREE.CylinderGeometry(0.15, 0.17, 2.90, 24), M.insul, [PIVOT_X, 0.02 + 1.45, 0]);   // 绝缘柱
+  put(gPost, new THREE.CylinderGeometry(0.34, 0.36, 0.10, 24), M.insul, [PIVOT_X, 0.05, 0]);         // 底座
+  put(gPost, new THREE.CylinderGeometry(0.055, 0.055, 1.05, 16), M.brass, [PIVOT_X, 2.92 + 0.525, 0]); // 黄铜端子杆
+
+  /* ================= 4. 滑杆（绕 O 转）+ 滑片 ================= */
+  const gLever = new THREE.Group();
+  gLever.position.set(PIVOT_X, PIVOT_Y, 0);
+  scene.add(gLever);
+
+  // 杆身
+  put(gLever, new THREE.BoxGeometry(ARM * 2 - 0.06, 0.16, 0.22), M.metalSoft, [-0.03, 0, 0]);
+  // 轴套
+  put(gLever, new THREE.CylinderGeometry(0.19, 0.19, 0.40, 24), M.metal, [0, 0, 0], [Math.PI / 2, 0, 0]);
+  // 左端铰点圆环（照片/教材里的空心小圆）
+  put(gLever, new THREE.TorusGeometry(0.10, 0.035, 8, 20), M.metalSoft, [-ARM, 0, 0]);
+  // 右端滑片（铜滑块 + 触点）
+  put(gLever, new THREE.BoxGeometry(0.34, 0.22, 0.32), M.brass, [CONTACT_R - 0.18, 0, 0]);
+  put(gLever, new THREE.CylinderGeometry(0.075, 0.075, 0.34, 16), M.copper, [CONTACT_R, 0, 0], [Math.PI / 2, 0, 0]);
+  // 滑片压簧片（视觉上像“压住”电阻丝）
+  put(gLever, new THREE.BoxGeometry(0.16, 0.10, 0.36), M.metal, [CONTACT_R - 0.02, 0.10, 0]);
+
+  /* ================= 5. 滑动变阻器（绕 O 的圆弧） ================= */
+  const gArc = new THREE.Group();
+  scene.add(gArc);
+
+  (function buildArcBoard() {
+    const shape = new THREE.Shape();
+    shape.absarc(0, 0, ARC_R1, -PHI_LIMIT, PHI_LIMIT, false);
+    shape.absarc(0, 0, ARC_R0, PHI_LIMIT, -PHI_LIMIT, true);
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: ARC_W, bevelEnabled: false, curveSegments: 72 });
+    geo.translate(0, 0, -ARC_W / 2);
+    const m = new THREE.Mesh(geo, M.frame);
+    m.position.set(PIVOT_X, PIVOT_Y, 0);
+    m.castShadow = true; m.receiveShadow = true;
+    gArc.add(m);
+    // 两端绝缘端块
+    [-1, 1].forEach(function (s) {
+      const a = s * PHI_LIMIT;
+      put(gArc, new THREE.BoxGeometry(0.42, 0.30, ARC_W + 0.06), M.dark,
+        [PIVOT_X + ARC_RM * Math.cos(a), PIVOT_Y + ARC_RM * Math.sin(a), 0], [0, 0, a]);
+    });
+  })();
+
+  // 绕线（InstancedMesh）+ 通电高亮层
+  const coilGeo = new THREE.TorusGeometry(WIRE_MAJOR, WIRE_R, 6, 16);
+  const coil = new THREE.InstancedMesh(coilGeo, M.copper, TURNS);
+  coil.castShadow = true; coil.receiveShadow = true;
+  gArc.add(coil);
+  const coilGlowGeo = new THREE.TorusGeometry(WIRE_MAJOR, WIRE_R * 1.55, 6, 16);
+  const coilGlow = new THREE.InstancedMesh(coilGlowGeo, glowMat, TURNS);
+  coilGlow.frustumCulled = false;
+  gArc.add(coilGlow);
+
+  const turnAngles = [];
+  (function layoutCoil() {
+    const mtx = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const Z = new THREE.Vector3(0, 0, 1);
+    const one = new THREE.Vector3(1, 1, 1);
+    for (let i = 0; i < TURNS; i++) {
+      const t = TURNS > 1 ? i / (TURNS - 1) : 0;
+      const a = -PHI_LIMIT + t * 2 * PHI_LIMIT;
+      turnAngles.push(a);
+      const p = V(PIVOT_X + ARC_RM * Math.cos(a), PIVOT_Y + ARC_RM * Math.sin(a), 0);
+      const tan = V(-Math.sin(a), Math.cos(a), 0);       // 环向切向
+      q.setFromUnitVectors(Z, tan);
+      mtx.compose(p, q, one);
+      coil.setMatrixAt(i, mtx);
+    }
+    coil.instanceMatrix.needsUpdate = true;
+  })();
+
+  // 下端接线柱（弧的下端接电源负极）
+  const ARC_BOT = { x: PIVOT_X + ARC_RM * Math.cos(-PHI_LIMIT), y: PIVOT_Y + ARC_RM * Math.sin(-PHI_LIMIT) };
+  put(gArc, new THREE.CylinderGeometry(0.075, 0.075, 0.60, 16), M.brass, [ARC_BOT.x, ARC_BOT.y - 0.26, 0]);
+  put(gArc, new THREE.CylinderGeometry(0.095, 0.095, 0.10, 16), M.copper, [ARC_BOT.x, ARC_BOT.y - 0.58, 0]);
+
+  /* ================= 6. 电路：R₀ / 电流表 / 电源 / 导线 ================= */
+  const gCircuit = new THREE.Group();
+  scene.add(gCircuit);
+
+  /* ---- 定值电阻 R₀（顶部的瓷管绕线电阻） ---- */
+  put(gCircuit, new THREE.CylinderGeometry(0.19, 0.19, R0_LEN, 24), new THREE.MeshStandardMaterial({
+    color: 0xd9cfbb, roughness: 0.55, metalness: 0.02, envMapIntensity: 0.6
+  }), [R0_X, TOP_Y, 0], [0, 0, Math.PI / 2]);
+  put(gCircuit, new THREE.CylinderGeometry(0.11, 0.11, 0.34, 20), M.brass, [R0_X - R0_LEN / 2 - 0.16, TOP_Y, 0], [0, 0, Math.PI / 2]);
+  put(gCircuit, new THREE.CylinderGeometry(0.11, 0.11, 0.34, 20), M.brass, [R0_X + R0_LEN / 2 + 0.16, TOP_Y, 0], [0, 0, Math.PI / 2]);
+  (function r0Wind() {
+    for (let i = 0; i < 18; i++) {
+      const t = i / 17;
+      put(gCircuit, new THREE.TorusGeometry(0.185, 0.022, 6, 14), M.copper,
+        [R0_X - R0_LEN / 2 + t * R0_LEN, TOP_Y, 0], [0, Math.PI / 2, 0]);
+    }
+  })();
+
+  /* ---- 电流表 ---- */
+  const gAmm = new THREE.Group();
+  scene.add(gAmm);
+  put(gAmm, new THREE.BoxGeometry(AMM_W, AMM_H, AMM_D), M.caseBox, [AMM_X, AMM_Y, 0]);
+  put(gAmm, new THREE.BoxGeometry(AMM_W + 0.06, AMM_H + 0.06, 0.04), M.dark, [AMM_X, AMM_Y, -AMM_D / 2 - 0.02]);
+  // 表盘（Canvas 贴图）
+  const dialCanvas = document.createElement('canvas');
+  dialCanvas.width = dialCanvas.height = 512;
+  const dialTex = new THREE.CanvasTexture(dialCanvas);
+  dialTex.encoding = THREE.sRGBEncoding;
+  dialTex.anisotropy = 4;
+  const dialPivotPx = { x: 256, y: 330 };   // 表盘指针轴（画布像素）
+  const PX_PER_CM = 256 / DIAL_R;
+  const dialMesh = put(gAmm, new THREE.CircleGeometry(DIAL_R, 64),
+    new THREE.MeshStandardMaterial({ map: dialTex, roughness: 0.42, metalness: 0.02, envMapIntensity: 0.55 }),
+    [AMM_X, AMM_Y, AMM_D / 2 + 0.008], null, true);
+  // 表盘边框
+  put(gAmm, new THREE.TorusGeometry(DIAL_R + 0.02, 0.035, 8, 56), M.metal, [AMM_X, AMM_Y, AMM_D / 2 + 0.01]);
+  // 指针
+  const gNeedle = new THREE.Group();
+  gAmm.add(gNeedle);
+  const needlePivotY = AMM_Y + (256 - dialPivotPx.y) / PX_PER_CM;   // 画布 y 向下
+  gNeedle.position.set(AMM_X, needlePivotY, AMM_D / 2 + 0.05);
+  put(gNeedle, new THREE.BoxGeometry(0.028, 0.60, 0.018), new THREE.MeshStandardMaterial({
+    color: 0xc0392b, roughness: 0.45, metalness: 0.1, envMapIntensity: 0.6
+  }), [0, 0.28, 0]);
+  put(gNeedle, new THREE.CylinderGeometry(0.055, 0.055, 0.04, 18), M.metal, [0, 0, 0], [Math.PI / 2, 0, 0]);
+  // 接线柱（背面上下）
+  put(gAmm, new THREE.CylinderGeometry(0.07, 0.07, 0.20, 14), M.brass, [AMM_X, AMM_Y + AMM_H / 2 + 0.10, -0.18]);
+  put(gAmm, new THREE.CylinderGeometry(0.07, 0.07, 0.20, 14), M.brass, [AMM_X, AMM_Y - AMM_H / 2 - 0.10, -0.18]);
+
+  /* ---- 电源（两节干电池） ---- */
+  const gBat = new THREE.Group();
+  scene.add(gBat);
+  put(gBat, new THREE.BoxGeometry(BAT_X1 - BAT_X0, BAT_Y1 - BAT_Y0, BAT_Z * 2),
+    new THREE.MeshStandardMaterial({ color: 0xf0f3f7, roughness: 0.62, metalness: 0.03, envMapIntensity: 0.6 }),
+    [(BAT_X0 + BAT_X1) / 2, (BAT_Y0 + BAT_Y1) / 2, 0], null, false);
+  put(gBat, new THREE.BoxGeometry(BAT_X1 - BAT_X0 - 0.16, 0.05, BAT_Z * 2 - 0.16),
+    new THREE.MeshStandardMaterial({ color: 0xdfe5ec, roughness: 0.7, metalness: 0.02 }),
+    [(BAT_X0 + BAT_X1) / 2, BAT_Y1 + 0.02, 0], null, true);
+  (function cells() {
+    const cellMat = new THREE.MeshStandardMaterial({ color: 0x1f6fb2, roughness: 0.42, metalness: 0.25, envMapIntensity: 0.8 });
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xc9ced6, roughness: 0.25, metalness: 0.9, envMapIntensity: 1.0 });
+    for (let i = 0; i < 2; i++) {
+      const cx = (BAT_X0 + BAT_X1) / 2 + (i === 0 ? -0.76 : 0.76);
+      const cy = (BAT_Y0 + BAT_Y1) / 2 + 0.16;
+      put(gBat, new THREE.CylinderGeometry(0.20, 0.20, 1.40, 24), cellMat, [cx, cy, 0.10], [0, 0, Math.PI / 2], true);
+      put(gBat, new THREE.CylinderGeometry(0.20, 0.20, 0.06, 24), capMat, [cx - 0.72, cy, 0.10], [0, 0, Math.PI / 2], true);
+      put(gBat, new THREE.CylinderGeometry(0.20, 0.20, 0.06, 24), capMat, [cx + 0.72, cy, 0.10], [0, 0, Math.PI / 2], true);
+    }
+  })();
+  // 电池组正负接线柱（左 − 右 +）
+  put(gBat, new THREE.CylinderGeometry(0.08, 0.08, 0.26, 16), M.brass, [BAT_X0 + 0.10, BAT_Y1 + 0.14, 0]);
+  put(gBat, new THREE.CylinderGeometry(0.08, 0.08, 0.26, 16), M.brass, [BAT_X1 - 0.10, BAT_Y1 + 0.14, 0]);
+  put(gBat, new THREE.TorusGeometry(0.10, 0.022, 6, 16), M.copper, [BAT_X0 + 0.10, BAT_Y1 + 0.30, 0]);
+  put(gBat, new THREE.TorusGeometry(0.10, 0.022, 6, 16), M.copper, [BAT_X1 - 0.10, BAT_Y1 + 0.30, 0]);
+
+  /* ---- 导线 ---- */
+  const BAT_NEG = [BAT_X0 + 0.10, BAT_Y1 + 0.30, 0];
+  const BAT_POS = [BAT_X1 - 0.10, BAT_Y1 + 0.30, 0];
+  const AMM_BOT = [AMM_X, AMM_Y - AMM_H / 2 - 0.22, -0.18];
+  const AMM_TOP = [AMM_X, AMM_Y + AMM_H / 2 + 0.22, -0.18];
+  const POST_TOP = [PIVOT_X, 3.97, 0];
+  const R0_L = [R0_X - R0_LEN / 2 - 0.34, TOP_Y, 0];
+  const R0_R = [R0_X + R0_LEN / 2 + 0.34, TOP_Y, 0];
+
+  put(gCircuit, tube([BAT_POS, [BAT_POS[0], 1.06, 0], [AMM_X, 1.06, 0], AMM_BOT], 0.035, 60, 8), M.wireJacket);
+  put(gCircuit, tube([AMM_TOP, [AMM_X, TOP_Y - 0.06, 0], R0_R], 0.035, 60, 8), M.wireJacket);
+  put(gCircuit, tube([R0_L, [2.60, TOP_Y - 0.10, 0], [PIVOT_X, TOP_Y, 0], POST_TOP], 0.035, 80, 8), M.wireJacket);
+  put(gCircuit, tube([[ARC_BOT.x, ARC_BOT.y - 0.58, 0], [ARC_BOT.x, 0.96, 0],
+    [4.60, 0.96, 0], BAT_NEG], 0.035, 70, 8), M.wireJacket);
+
+  /* ================= 7. 电流箭头 ================= */
+  const gFlow = new THREE.Group();
+  scene.add(gFlow);
+  const FLOW_STYLE = window.CurrentFlowStyle;
+  const FLOW_N = FLOW_STYLE.count, FLOW_SPEED = FLOW_STYLE.speed;
+  const arrowMat = FLOW_STYLE.createMaterial(THREE);
+  const arrowGeo = FLOW_STYLE.createGeometry(THREE);
+  const arrows = [];
+  for (let i = 0; i < FLOW_N; i++) { arrows.push(new THREE.Mesh(arrowGeo, arrowMat)); gFlow.add(arrows[i]); }
+
+  let flowCurve = null, flowLen = 1;
+  const X_AXIS = FLOW_STYLE.createAxis(THREE);
+
+  function buildFlowPath() {
+    const phi = state.phi;
+    const pts = [];
+    const P = function (x, y, z) { pts.push(V(x, y, z === undefined ? 0 : z)); };
+    // 电源 + → 电流表下端（表内一段被表壳遮住）
+    P(BAT_POS[0], BAT_POS[1]); P(BAT_POS[0], 1.06); P(AMM_X, 1.06); P(AMM_X, 1.22);
+    P(AMM_X, AMM_Y - AMM_H / 2); P(AMM_X, AMM_Y + AMM_H / 2);
+    // 电流表上端 → 右上 → R₀ → 左上 → 立柱端子
+    P(AMM_X, TOP_Y - 0.06); P(R0_R[0], TOP_Y); P(R0_X + 0.30, TOP_Y); P(R0_X, TOP_Y); P(R0_X - 0.30, TOP_Y);
+    P(R0_L[0], TOP_Y); P(2.60, TOP_Y - 0.10); P(PIVOT_X, TOP_Y); P(PIVOT_X, 3.60);
+    // 固定轴 → 滑杆 → 滑片
+    P(PIVOT_X, PIVOT_Y + 0.02, 0.06);
+    const rx = 1.05;
+    for (let i = 1; i <= 6; i++) {
+      const r = rx + (CONTACT_R - rx) * (i / 6);
+      P(PIVOT_X + r * Math.cos(phi), PIVOT_Y + r * Math.sin(phi), 0.16);
+    }
+    // 电阻弧：滑片 → 弧下端（沿绕线内表面）
+    const MSTEP = 16;
+    for (let i = 0; i <= MSTEP; i++) {
+      const a = phi + (-PHI_LIMIT - phi) * (i / MSTEP);
+      P(PIVOT_X + CONTACT_R * Math.cos(a), PIVOT_Y + CONTACT_R * Math.sin(a), 0);
+    }
+    // 弧下端 → 电源 −（电池盒内部一段被遮住）
+    P(ARC_BOT.x, ARC_BOT.y - 0.58); P(ARC_BOT.x, 0.96); P(4.60, 0.96);
+    P(BAT_NEG[0], 0.96); P(BAT_NEG[0], 0.34); P(BAT_POS[0], 0.34); P(BAT_POS[0], 0.66);
+    flowCurve = new THREE.CatmullRomCurve3(pts, true);
+    flowLen = flowCurve.getLength();
+  }
+
+  function updateFlow(t) {
+    if (!flowCurve) return;
+    const q = new THREE.Quaternion();
+    for (let i = 0; i < FLOW_N; i++) {
+      const u = ((i / FLOW_N) + t * FLOW_SPEED / flowLen) % 1;
+      const uu = u < 0 ? u + 1 : u;
+      arrows[i].position.copy(flowCurve.getPointAt(uu));
+      q.setFromUnitVectors(X_AXIS, flowCurve.getTangentAt(uu).normalize());
+      arrows[i].quaternion.copy(q);
+    }
+  }
+
+  /* ================= 8. 标签 ================= */
+  addLabel('油箱', '#3c4756', 0.52, [TANK_CX - TANK_R - 0.20, 1.35, 0.9]);
+  addLabel('油', '#a8632c', 0.52, [TANK_CX + 0.35, 1.05, 1.7], true);
+  addLabel('固定轴 O', '#3c4756', 0.50, [PIVOT_X - 0.92, PIVOT_Y - 0.62, 0.85]);
+  addLabel('滑动变阻器 R', '#3c4756', 0.50, [PIVOT_X + 5.05, PIVOT_Y + 0.05, 0.6]);
+  addLabel('定值电阻 R₀', '#3c4756', 0.50, [R0_X, TOP_Y + 0.62, 0]);
+  addLabel('电流表 A', '#15406f', 0.50, [AMM_X + 0.95, AMM_Y - 1.28, 0.5]);
+  addLabel('电源 3V', '#15406f', 0.50, [(BAT_X0 + BAT_X1) / 2, BAT_Y0 - 0.42, 1.0]);
+  addLabel('放油阀', '#a8632c', 0.44, [TANK_CX + TANK_R + 0.85, 0.55, 0.6]);
+  const floatLabel = addLabel('浮子', '#3c4756', 0.48, [0, -0.02, 0.85], true, gFloat);
+  addLabel('滑杆', '#3c4756', 0.48, [-1.40, 0.52, 0], false, gLever);
+  addLabel('滑片', '#3c4756', 0.48, [CONTACT_R - 0.30, 0.62, 0], false, gLever);
+
+  /* ================= 9. 表盘绘制 ================= */
+  function needleAngleForVolume(v) {                 // 返回指针相对竖直方向的偏角（°），右偏为正
+    return -50 + 100 * (currentAtVolume(v) / I_FS);
+  }
+  function levelForVolume(v) { return OIL_MIN + (v / V_MAX) * (OIL_MAX - OIL_MIN); }
+  function phiForLevel(y) { return Math.asin(clamp((PIVOT_Y - (y + ROD_LEN + FLOAT_R - FLOAT_DIP)) / ARM, -0.999, 0.999)); }
+  function currentForPhi(phi) {
+    const frac = clamp((phi + PHI_LIMIT) / (2 * PHI_LIMIT), 0, 1);
+    return U_SUPPLY / (R0_VAL + R_TOTAL * frac);
+  }
+  function currentAtVolume(v) { return currentForPhi(phiForLevel(levelForVolume(v))); }
+
+  (function drawDial() {
+    const x = dialCanvas.getContext('2d');
+    const CX = dialPivotPx.x, CY = dialPivotPx.y;
+    const A_R = 215, L_R = 254, A_HALF = 50;
+    const ang = function (deg) { return deg * DEG; };
+    const pos = function (deg, r) { const a = ang(deg); return [CX + r * Math.sin(a), CY - r * Math.cos(a)]; };
+
+    x.clearRect(0, 0, 512, 512);
+    x.fillStyle = '#fbfcfe';
+    x.beginPath(); x.arc(256, 256, 252, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = '#c4ced9'; x.lineWidth = 6; x.stroke();
+
+    // 油量刻度（外圈，非线性，按电流换算）—— 标签交错半径，避免低油量端挤在一起
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    let li = 0;
+    for (let v = 0; v <= 50; v += 5) {
+      const d = needleAngleForVolume(v);
+      const major = (v % 10 === 0);
+      const p1 = pos(d, L_R), p2 = pos(d, L_R - (major ? 17 : 10));
+      x.strokeStyle = '#c0392b'; x.lineWidth = major ? 4 : 2.4;
+      x.beginPath(); x.moveTo(p1[0], p1[1]); x.lineTo(p2[0], p2[1]); x.stroke();
+      if (major) {
+        const rr = L_R + 22 + (li % 2) * 21;
+        const pt = pos(d, rr);
+        // 引出线
+        const pl = pos(d, L_R + 4), ple = pos(d, rr - 11);
+        x.strokeStyle = '#e0a6a0'; x.lineWidth = 1.6;
+        x.beginPath(); x.moveTo(pl[0], pl[1]); x.lineTo(ple[0], ple[1]); x.stroke();
+        x.fillStyle = '#c0392b';
+        x.font = 'bold 24px "Microsoft YaHei",sans-serif';
+        x.fillText(String(v), pt[0], pt[1]);
+        li++;
+      }
+    }
+    // 电流刻度（内圈，0~0.6 A 线性）
+    for (let i = 0; i <= 60; i++) {
+      const val = i * 0.01;
+      const d = -A_HALF + 100 * (val / I_FS);
+      const major = (i % 10 === 0), mid = (i % 5 === 0);
+      const p1 = pos(d, A_R), p2 = pos(d, A_R - (major ? 20 : (mid ? 13 : 7)));
+      x.strokeStyle = '#2b3540'; x.lineWidth = major ? 4.2 : (mid ? 2.6 : 1.6);
+      x.beginPath(); x.moveTo(p1[0], p1[1]); x.lineTo(p2[0], p2[1]); x.stroke();
+      if (major) {
+        const pt = pos(d, A_R - 46);
+        x.fillStyle = '#2b3540';
+        x.font = 'bold 25px "Segoe UI",sans-serif';
+        x.fillText((val).toFixed(1), pt[0], pt[1]);
+      }
+    }
+    // 量程弧
+    x.strokeStyle = '#93a1b0'; x.lineWidth = 3;
+    x.beginPath();
+    let p = pos(-A_HALF, A_R + 14);
+    x.moveTo(p[0], p[1]);
+    for (let d = -A_HALF; d <= A_HALF; d += 2) { p = pos(d, A_R + 14); x.lineTo(p[0], p[1]); }
+    x.stroke();
+
+    // 单位标注
+    x.fillStyle = '#2b3540';
+    x.font = 'bold 30px "Segoe UI",sans-serif';
+    x.fillText('A', CX - 118, CY - 132);
+    x.fillStyle = '#c0392b';
+    x.font = 'bold 24px "Microsoft YaHei",sans-serif';
+    x.fillText('油量/L', CX + 118, CY - 132);
+
+    // 指针轴心
+    x.fillStyle = '#4a5460';
+    x.beginPath(); x.arc(CX, CY, 13, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#fbfcfe';
+    x.beginPath(); x.arc(CX, CY, 5, 0, Math.PI * 2); x.fill();
+
+    // 铭牌
+    x.fillStyle = '#8794a6';
+    x.font = '18px "Microsoft YaHei",sans-serif';
+    x.fillText('0 ~ 0.6 A ／ 刻度盘可改标为油量', CX, CY + 96);
+    dialTex.needsUpdate = true;
+  })();
+
+  /* ================= 10. 状态与联动 ================= */
+  const state = {
+    oilL: 30,                 // 油量 L
+    yOil: levelForVolume(30), // 油面高度 cm
+    phi: 0, R: 0, I: 0,
+    tankOpacity: 0.18, dragTarget: 30, dragging: 'none',
+    showLabels: true, showFlow: true,
+    prevOilL: 0, dirSign: 1
+  };
+
+  const elOilRange = document.getElementById('oilRange');
+  const elOilLabel = document.getElementById('oilLabel');
+  const elTankRange = document.getElementById('tankRange');
+  const elTankLabel = document.getElementById('tankLabel');
+  const elLevel = document.getElementById('vLevel');
+  const elOhm = document.getElementById('vOhm');
+  const elAmp = document.getElementById('vAmp');
+  const elPsi = document.getElementById('vPsi');
+
+  function applyTank(op) {
+    state.tankOpacity = op;
+    const hidden = op <= 0.02;
+    const solid = !hidden && op >= 0.995;
+    gGlass.visible = !hidden;
+    [glassMat, rim.material].forEach(function (m) {
+      m.opacity = hidden ? 0 : op;
+      m.transparent = !solid;
+      m.depthWrite = solid;
+    });
+    elTankRange.value = String(Math.round(op * 100));
+    elTankLabel.textContent = hidden ? '已隐藏' : (op >= 0.995 ? '不透明 100%' : '半透明 ' + Math.round(op * 100) + '%');
+    document.getElementById('btnSolid').classList.toggle('active', op >= 0.995);
+    document.getElementById('btnGlass').classList.toggle('active', !hidden && op < 0.995);
+    document.getElementById('btnHide').classList.toggle('active', hidden);
+    applyLabels();
+  }
+
+  function applyLabels() {
+    const solid = state.tankOpacity >= 0.995;
+    labelG.visible = state.showLabels;
+    labelIn.visible = state.showLabels && !solid;
+    floatLabel.visible = state.showLabels && !solid;
+  }
+
+  // 核心联动：油面高度 → 浮子 → 滑杆转角 → 滑片 → 电阻 → 电流
+  function applyState() {
+    const y = clamp(state.yOil, OIL_MIN, OIL_MAX);
+    state.yOil = y;
+    state.oilL = V_MAX * (y - OIL_MIN) / (OIL_MAX - OIL_MIN);
+
+    const Ay = y + ROD_LEN + FLOAT_R - FLOAT_DIP;         // 滑杆左端高度
+    const phi = Math.asin(clamp((PIVOT_Y - Ay) / ARM, -0.999, 0.999));
+    state.phi = phi;
+    const Ax = PIVOT_X - ARM * Math.cos(phi);
+
+    // 滑杆
+    gLever.rotation.z = phi;
+    // 浮子
+    gFloat.position.set(Ax, y - FLOAT_DIP, 0);
+    // 浮杆（浮子顶 → 滑杆左端铰点）
+    const rodTop = Ay, rodBot = y - FLOAT_DIP + FLOAT_R;
+    rodMesh.position.set(Ax, (rodTop + rodBot) / 2, 0);
+    rodMesh.scale.y = Math.max(0.05, rodTop - rodBot);
+    // 油
+    const h = Math.max(0.02, y - TANK_IN_FLOOR);
+    oilBody.scale.set(OIL_R, h, OIL_R);
+    oilBody.position.set(TANK_CX, TANK_IN_FLOOR + h / 2, 0);
+    oilTop.scale.set(OIL_R, OIL_R, 1);
+    oilTop.position.set(TANK_CX, y, 0);
+
+    // 电路
+    const frac = clamp((phi + PHI_LIMIT) / (2 * PHI_LIMIT), 0, 1);
+    state.R = R_TOTAL * frac;
+    state.I = U_SUPPLY / (R0_VAL + state.R);
+    const nd = -50 + 100 * (state.I / I_FS);
+    gNeedle.rotation.z = -nd * DEG;
+
+    // 绕线通电高亮（滑片下方那段）
+    const mtx = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const Z = new THREE.Vector3(0, 0, 1);
+    const one = new THREE.Vector3(1, 1, 1);
+    const oneG = new THREE.Vector3(1, 1, 1);
+    const dead = new THREE.Vector3(0, -999, 0);
+    let live = 0;
+    for (let i = 0; i < TURNS; i++) {
+      const a = turnAngles[i];
+      const on = a <= phi + 1e-6;
+      if (on) live++;
+      const p = on ? V(PIVOT_X + ARC_RM * Math.cos(a), PIVOT_Y + ARC_RM * Math.sin(a), 0) : dead;
+      const tan = V(-Math.sin(a), Math.cos(a), 0);
+      q.setFromUnitVectors(Z, tan);
+      mtx.compose(p, q, one);
+      coilGlow.setMatrixAt(i, mtx);
+    }
+    coilGlow.instanceMatrix.needsUpdate = true;
+
+    // 电流路径
+    buildFlowPath();
+
+    // 读数
+    const psiDeg = phi / DEG;
+    elOilLabel.textContent = state.oilL.toFixed(1) + ' L';
+    elOilRange.value = String(Math.round(state.oilL * 2) / 2);
+    elLevel.innerHTML = (y - TANK_IN_FLOOR).toFixed(1) + '<i>cm</i>';
+    elOhm.innerHTML = state.R.toFixed(2) + '<i>Ω</i>';
+    elAmp.innerHTML = state.I.toFixed(3) + '<i>A</i>';
+    elPsi.innerHTML = (psiDeg >= 0 ? '+' : '−') + Math.abs(psiDeg).toFixed(1) + '<i>°</i>';
+
+    // 推理链：按油量的“变化方向”给箭头
+    const dOil = state.oilL - state.prevOilL;
+    if (Math.abs(dOil) > 0.015) state.dirSign = dOil > 0 ? 1 : -1;
+    state.prevOilL = state.oilL;
+    const sign = state.dirSign;
+    updateChain(sign);
+
+    elOhm.className = sign > 0 ? 'dn' : 'up';
+    elAmp.className = sign > 0 ? 'up' : 'dn';
+  }
+
+  function updateChain(sign) {
+    const up = '↑', dn = '↓', flat = '＝';
+    const oil = sign > 0 ? up : (sign < 0 ? dn : flat);
+    const cls = sign > 0 ? 'k' : 'g';
+    const setArrow = function (id, txt) {
+      const el = document.getElementById(id);
+      el.textContent = txt;
+      el.className = cls;
+    };
+    document.getElementById('c1').textContent = state.oilL.toFixed(1) + ' L';
+    document.getElementById('c2').textContent = (state.yOil - TANK_IN_FLOOR).toFixed(1) + ' cm';
+    document.getElementById('c3').textContent = (state.yOil - FLOAT_DIP).toFixed(2) + ' cm';
+    setArrow('c2a', oil);
+    setArrow('c3a', oil);
+    setArrow('c4a', sign >= 0 ? up : dn);      // 油多 → 浮子高 → 左端上翘
+    setArrow('c5a', sign > 0 ? dn : (sign < 0 ? up : flat));
+    document.getElementById('c6').textContent = state.R.toFixed(2) + ' Ω';
+    setArrow('c6a', sign > 0 ? dn : (sign < 0 ? up : flat));
+    document.getElementById('c7').textContent = state.I.toFixed(3) + ' A';
+    document.getElementById('c8').textContent = state.I.toFixed(3) + ' A';
+    setArrow('c7a', sign > 0 ? up : (sign < 0 ? dn : flat));
+    setArrow('c8a', sign > 0 ? up : (sign < 0 ? dn : flat));
+  }
+
+  function _applyLevelL(v) {                 // 内部：只改油面（加油/放油动画用）
+    state.yOil = levelForVolume(clamp(v, 0, V_MAX));
+    applyState();
+  }
+  function setOilL(v) {                      // 对外：直接定位（不触发动画）
+    _applyLevelL(v);
+    state.dragTarget = state.oilL;
+  }
+  function setOilLevel(y) {
+    state.yOil = clamp(y, OIL_MIN, OIL_MAX);
+    applyState();
+    state.dragTarget = state.oilL;
+  }
+
+  /* ================= 11. 相机控制 ================= */
+  const view = {
+    theta: 0.58, phi: 1.15, dist: 20.2, distTarget: 20.2,
+    target: new THREE.Vector3(3.35, 2.60, 0)
+  };
+  const DEF = { theta: 0.58, phi: 1.15, dist: 20.2, target: [3.35, 2.60, 0] };
+
+  function applyCamera() {
+    const sp = Math.sin(view.phi), cp = Math.cos(view.phi);
+    camera.position.set(
+      view.target.x + view.dist * sp * Math.sin(view.theta),
+      view.target.y + view.dist * cp,
+      view.target.z + view.dist * sp * Math.cos(view.theta)
+    );
+    camera.lookAt(view.target);
+  }
+
+  /* ================= 12. 鼠标交互 ================= */
+  const raycaster = new THREE.Raycaster();
+  const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  const hitPt = new THREE.Vector3();
+  let dragCam = null, dragMode = null, dragBaseY = 0, dragStartY = 0;
+
+  function pointerNDC(e) {
+    const r = canvas.getBoundingClientRect();
+    return new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1
+    );
+  }
+  function hitObject(e, obj) {
+    raycaster.setFromCamera(pointerNDC(e), camera);
+    return raycaster.intersectObject(obj, true).length > 0;
+  }
+  function planeY(e) {
+    raycaster.setFromCamera(pointerNDC(e), camera);
+    return raycaster.ray.intersectPlane(planeZ, hitPt) ? hitPt.y : null;
+  }
+
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture(e.pointerId);
+    if (hitObject(e, gFloat)) {
+      state.dragging = 'float'; dragMode = 'float';
+      dragStartY = e.clientY; dragBaseY = state.yOil;
+    } else if (hitObject(e, gLever)) {
+      state.dragging = 'lever';
+      raycaster.setFromCamera(pointerNDC(e), camera);
+      const h = raycaster.intersectObject(gLever, true)[0];
+      dragMode = (h && h.point.x > PIVOT_X) ? 'leverR' : 'leverL';
+      dragStartY = e.clientY; dragBaseY = state.yOil;
+    } else if (hitObject(e, gValve)) {
+      state.dragging = 'valve'; state.dragTarget = 0;
+      toast('已打开放油阀 —— 放油中');
+    } else {
+      state.dragging = 'cam';
+      dragCam = { x: e.clientX, y: e.clientY, theta: view.theta, phi: view.phi, shift: e.shiftKey };
+    }
+    canvas.style.cursor = 'grabbing';
+  });
+
+  canvas.addEventListener('pointermove', function (e) {
+    const d = state.dragging;
+    if (d === 'float' || d === 'lever' || d === 'valve') {
+      if (d === 'valve') return;
+      const y = planeY(e);
+      if (y === null) return;
+      if (d === 'float') setOilLevel(y + FLOAT_DIP);
+      else if (d === 'leverL') setOilLevel(y - ROD_LEN - FLOAT_R + FLOAT_DIP);
+      else setOilLevel(2 * PIVOT_Y - y - ROD_LEN - FLOAT_R + FLOAT_DIP);
+      state.dragTarget = state.oilL;
+      return;
+    }
+    if (d === 'cam' && dragCam) {
+      const dx = e.clientX - dragCam.x, dy = e.clientY - dragCam.y;
+      if (dragCam.shift) {
+        const s = view.dist * 0.0016;
+        view.target.x -= (dx * Math.cos(view.theta) - dy * Math.sin(view.theta)) * s * 1.2;
+        view.target.z += (dx * Math.sin(view.theta) + dy * Math.cos(view.theta)) * s * 1.2;
+      } else {
+        view.theta = dragCam.theta - dx * 0.007;
+        view.phi = clamp(dragCam.phi - dy * 0.006, 0.16, Math.PI / 2 - 0.02);
+      }
+      return;
+    }
+    const over = hitObject(e, gFloat) || hitObject(e, gLever) || hitObject(e, gValve);
+    canvas.style.cursor = over ? 'grab' : 'move';
+  });
+
+  function endDrag() {
+    if (state.dragging !== 'none') { state.dragging = 'none'; dragCam = null; canvas.style.cursor = 'move'; }
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    view.distTarget = clamp(view.distTarget * (1 + Math.sign(e.deltaY) * 0.09), 6, 46);
+  }, { passive: false });
+
+  /* ================= 13. UI 绑定 ================= */
+  elOilRange.addEventListener('input', function () {
+    state.dragTarget = parseFloat(elOilRange.value);
+    setOilL(state.dragTarget);
+  });
+  elTankRange.addEventListener('input', function () { applyTank(parseFloat(elTankRange.value) / 100); });
+  document.getElementById('btnFill').addEventListener('click', function () { state.dragTarget = V_MAX; toast('正在加油…'); });
+  document.getElementById('btnDrain').addEventListener('click', function () { state.dragTarget = 0; toast('正在放油…'); });
+  document.getElementById('btnSolid').addEventListener('click', function () { applyTank(1); });
+  document.getElementById('btnGlass').addEventListener('click', function () { applyTank(0.18); });
+  document.getElementById('btnHide').addEventListener('click', function () { applyTank(0); });
+
+  document.getElementById('btnLabels').addEventListener('click', function () {
+    state.showLabels = !state.showLabels;
+    this.classList.toggle('active', state.showLabels);
+    applyLabels();
+  });
+  document.getElementById('btnFlow').addEventListener('click', function () {
+    state.showFlow = !state.showFlow;
+    this.classList.toggle('active', state.showFlow);
+    gFlow.visible = state.showFlow;
+  });
+  document.getElementById('btnAns').addEventListener('click', function () {
+    const on = document.getElementById('ansBox').classList.toggle('show');
+    this.classList.toggle('active', on);
+  });
+
+  function setView(theta, phi, dist, tx, ty, tz) {
+    view.theta = theta; view.phi = phi;
+    view.distTarget = dist; view.dist = dist;
+    view.target.set(tx, ty, tz);
+  }
+  document.getElementById('btnReset').addEventListener('click', function () {
+    setView(DEF.theta, DEF.phi, DEF.dist, DEF.target[0], DEF.target[1], DEF.target[2]);
+  });
+  document.getElementById('btnFront').addEventListener('click', function () { setView(0, 1.52, 19.2, 3.10, 2.65, 0); });
+  document.getElementById('btnTop').addEventListener('click', function () { setView(0.001, 0.30, 18.0, 3.10, 2.20, 0); });
+  document.getElementById('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const a = document.createElement('a');
+    a.download = '油量测量装置.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    toast('已导出 PNG');
+  });
+  document.getElementById('panelClose').addEventListener('click', function () {
+    document.getElementById('panel').classList.add('collapsed');
+  });
+  document.getElementById('panelOpen').addEventListener('click', function () {
+    document.getElementById('panel').classList.remove('collapsed');
+  });
+
+  let toastTimer = null;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1600);
+  }
+
+  /* ================= 14. 渲染循环 ================= */
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let clockT = 0, prev = performance.now();
+  function tick() {
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - prev) / 1000);
+    prev = now;
+    clockT += dt;
+
+    // 加油 / 放油 动画
+    const diff = state.dragTarget - state.oilL;
+    if (Math.abs(diff) > 0.02 && (state.dragging === 'valve' || state.dragging === 'none')) {
+      _applyLevelL(state.oilL + Math.sign(diff) * Math.min(Math.abs(diff), 14 * dt));
+    }
+
+    if (state.showFlow) updateFlow(clockT);
+    view.dist += (view.distTarget - view.dist) * 0.16;
+    applyCamera();
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+
+  applyState();
+  applyTank(0.18);
+  tick();
+
+  /* ================= 15. 调试钩子 ================= */
+  window.__dbg = {
+    state: state, view: view,
+    tri: function () { return renderer.info.render.triangles; },
+    screenOf: function (x, y, z) {
+      const v = new THREE.Vector3(x, y, z).project(camera);
+      return [Math.round((v.x + 1) / 2 * window.innerWidth), Math.round((1 - v.y) / 2 * window.innerHeight)];
+    },
+    floatScreen: function () { return this.screenOf(gFloat.position.x, gFloat.position.y, 0); },
+    leverScreen: function (r) {
+      const rr = r === undefined ? 2.6 : r;
+      return this.screenOf(PIVOT_X + rr * Math.cos(state.phi), PIVOT_Y + rr * Math.sin(state.phi), 0);
+    },
+    valveScreen: function () { return this.screenOf(TANK_CX + TANK_R + 0.4, 0.98, 0); },
+    flowLength: function () { return flowLen; },
+    flowPointAt: function (u) { const p = flowCurve.getPointAt(((u % 1) + 1) % 1); return [+p.x.toFixed(4), +p.y.toFixed(4), +p.z.toFixed(4)]; },
+    flowTangentAt: function (u) {
+      const t = flowCurve.getTangentAt(((u % 1) + 1) % 1).normalize();
+      return [+t.x.toFixed(4), +t.y.toFixed(4), +t.z.toFixed(4)];
+    },
+    needleAngleForVolume: needleAngleForVolume,
+    currentAtVolume: currentAtVolume,
+    levelForVolume: levelForVolume,
+    setOilL: setOilL,
+    setOilLevel: setOilLevel,
+    setTank: applyTank,
+    info: function () {
+      const frac = (state.phi + PHI_LIMIT) / (2 * PHI_LIMIT);
+      return {
+        oilL: +state.oilL.toFixed(3),
+        yOil: +state.yOil.toFixed(3),
+        levelCm: +(state.yOil - TANK_IN_FLOOR).toFixed(3),
+        floatY: +(state.yOil - FLOAT_DIP).toFixed(3),
+        phiDeg: +(state.phi / DEG).toFixed(3),
+        leverZdeg: +(gLever.rotation.z / DEG).toFixed(3),
+        armR: ARM,
+        contactR: CONTACT_R,
+        wireInnerR: +(ARC_RM - WIRE_MAJOR - WIRE_R).toFixed(3),
+        frac: +frac.toFixed(4),
+        R: +state.R.toFixed(3),
+        I: +state.I.toFixed(4),
+        needleDeg: +(-gNeedle.rotation.z / DEG).toFixed(2),
+        AMMpivotY: +needlePivotY.toFixed(3),
+        liveTurns: turnAngles.filter(function (a) { return a <= state.phi + 1e-6; }).length,
+        turns: TURNS,
+        tankOpacity: +state.tankOpacity.toFixed(3),
+        tankVisible: gGlass.visible,
+        tankTransparent: glassMat.transparent,
+        flowVisible: gFlow.visible,
+        labelVisible: labelG.visible,
+        labelInVisible: labelIn.visible,
+        arrowCount: arrows.length,
+        flowLen: +flowLen.toFixed(3),
+        oilMeshTop: +(oilBody.position.y + oilBody.scale.y / 2).toFixed(3),
+        leverTipWorld: (function () {
+          const p = V(CONTACT_R, 0, 0).applyMatrix4(gLever.matrixWorld);
+          return [+p.x.toFixed(3), +p.y.toFixed(3), +p.z.toFixed(3)];
+        })(),
+        floatWorld: [+gFloat.position.x.toFixed(3), +gFloat.position.y.toFixed(3), 0]
+      };
+    }
+  };
+})();
+
+</script>
+</body>
+</html>

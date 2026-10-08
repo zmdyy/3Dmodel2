@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>水位自动报警器 · 3D 交互演示</title>
+<style>
+  :root{
+    --bg:#eef3f9;
+    --ink:#1b2430;
+    --ink2:#5a6879;
+    --line:#dde5ef;
+    --brand:#2f7de1;
+    --brand-soft:#e7f0fd;
+    --shadow:0 10px 34px rgba(28,48,78,.13);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:fixed;inset:0;}
+  #scene{display:block;width:100%;height:100%;}
+
+  .head{
+    position:fixed;left:24px;top:20px;z-index:5;max-width:430px;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:16px;
+    padding:14px 18px;box-shadow:var(--shadow);
+  }
+  .head h1{margin:0 0 5px;font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .head h1 span{font-weight:500;color:var(--ink2);font-size:13px;}
+  .head p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink2);}
+  .head p b{color:#15406f;}
+
+  .panel{
+    position:fixed;right:22px;top:20px;z-index:6;
+    width:312px;
+    background:rgba(255,255,255,.93);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+  }
+  .panel.collapsed{transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;}
+  .panel::-webkit-scrollbar{width:6px;}
+  .panel::-webkit-scrollbar-thumb{background:#cfdae8;border-radius:3px;}
+
+  #panelClose{
+    position:absolute;right:10px;top:10px;
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    cursor:pointer;font-size:14px;line-height:1;padding:0;
+  }
+  #panelClose:hover{background:var(--brand-soft);color:var(--brand);}
+  #panelOpen{
+    position:fixed;right:22px;top:20px;z-index:7;
+    width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    box-shadow:var(--shadow);cursor:pointer;font-size:17px;line-height:1;
+    display:none;
+  }
+  .panel.collapsed ~ #panelOpen{display:block;}
+
+  .grp{margin-bottom:14px;}
+  .grp:first-of-type .lbl{padding-right:32px;}
+  .lbl{
+    font-size:11.5px;font-weight:600;letter-spacing:.6px;
+    color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .lbl b{color:var(--brand);font-size:12.5px;font-weight:700;margin-left:auto;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
+    background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 50%,#e2eaf4 50%,#e2eaf4 100%);
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--brand);box-shadow:0 2px 6px rgba(47,125,225,.35);
+    cursor:grab;
+  }
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.08);}
+
+  .seg{display:flex;gap:6px;}
+  .seg button, .toggles button{
+    flex:1;padding:8px 4px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:10px;cursor:pointer;transition:all .18s ease;
+  }
+  .seg button:hover, .toggles button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .seg button.active, .toggles button.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(47,125,225,.32);}
+  .seg button.green.active{background:#2f9c4a;border-color:#2f9c4a;box-shadow:0 3px 10px rgba(47,156,74,.32);}
+  .seg button.danger.active{background:#d9483c;border-color:#d9483c;box-shadow:0 3px 10px rgba(217,72,60,.32);}
+  .toggles{display:flex;gap:6px;flex-wrap:wrap;}
+  .toggles button{min-width:68px;padding:7px 8px;font-size:12px;border-radius:9px;}
+
+  .readout{
+    margin-top:9px;padding:10px 12px;border-radius:12px;
+    background:linear-gradient(180deg,#f6faff,#eef5fd);
+    border:1px solid #e2ecf8;
+  }
+  .rv{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;color:var(--ink2);}
+  .rv + .rv{margin-top:5px;}
+  .rv b{font-size:14px;color:#15406f;font-variant-numeric:tabular-nums;}
+  .rv i{font-style:normal;font-size:11px;color:#8794a6;margin-left:4px;}
+  .rv b.on{color:#c0392b;}
+  .rv b.off{color:#1a7f5a;}
+
+  .mini{font-size:11px;color:#8794a6;margin-top:7px;line-height:1.5;}
+
+  .tip{
+    padding:11px 12px;border-radius:12px;border:1px solid #e2ecf8;
+    background:linear-gradient(180deg,#f8fbff,#f0f6fe);
+    font-size:11.5px;line-height:1.75;color:var(--ink2);
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .tip b{font-size:12px;color:#15406f;margin-bottom:3px;}
+  .tip i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .tip i.copper{background:#b87333;}
+  .tip i.silver{background:#b2bcc7;}
+  .tip i.water{background:#3f9fd8;}
+  .tip i.brown{background:#6b5a48;}
+  .tip i.green{background:#3f9c4a;}
+  .tip i.red{background:#e8372a;}
+  .tip i.blue{background:#2f6fd0;}
+
+  .ans{
+    margin-top:8px;padding:12px 13px;border-radius:12px;
+    border:1px dashed #cfe0b8;background:linear-gradient(180deg,#f7fdf2,#eef9e6);
+    font-size:11.5px;line-height:1.85;color:#3a5c26;display:none;
+  }
+  .ans.show{display:block;}
+  .ans b{color:#1a7f5a;}
+
+  .hint{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:5;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 20px;font-size:12px;color:var(--ink2);
+    box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .hint kbd{
+    background:#eef4fb;border:1px solid #dbe6f4;border-radius:5px;
+    padding:1px 5px;font-size:11px;font-family:inherit;color:#15406f;
+  }
+
+  #toast{
+    position:fixed;left:50%;bottom:74px;transform:translate(-50%,12px);
+    background:#1c2430;color:#fff;font-size:13px;padding:9px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;max-width:70vw;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="scene"></canvas></div>
+
+  <div class="head">
+    <h1>水位自动报警器 <span>· 电磁继电器 · 3D 交互演示</span></h1>
+    <p>水箱里的<b>金属块 A、B</b> 就是控制电路的<b>开关</b>：水位不到 A 时两块被空气隔开，电磁铁<b>无磁性</b>；水位到达 A 后<b>水</b>把 A、B 接通，电磁铁<b>吸下衔铁</b>，动触点换到下端，<b>红灯亮</b>报警。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+    <div class="grp">
+      <div class="lbl">水位 <b id="levelLabel">30%</b></div>
+      <input id="levelRange" type="range" min="0" max="100" step="1" value="30" />
+      <div class="seg" style="margin-top:8px;">
+        <button id="btnLow" class="green">水位低于 A</button>
+        <button id="btnHigh" class="danger">水位到达 A</button>
+      </div>
+      <div class="seg" style="margin-top:6px;">
+        <button id="btnAuto">自 动 演 示</button>
+      </div>
+      <div class="mini">也可以直接<b>在水箱上按住上下拖动</b>来升降水位</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">透视 · 水箱外壳 <b id="tankLabel">透明 28%</b></div>
+      <input id="tankRange" type="range" min="0" max="100" step="1" value="28" />
+      <div class="mini">透明只作用于水箱外壳；水、金属块 A／B 与导线始终可见</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">读数</div>
+      <div class="readout">
+        <div class="rv"><span>水面高度</span><b id="vWater">0<i>cm</i></b></div>
+        <div class="rv"><span>水面是否到达 A</span><b id="vReach" class="off">未到 A</b></div>
+        <div class="rv"><span>控制电路</span><b id="vCtrl" class="off">断开</b></div>
+        <div class="rv"><span>电磁铁</span><b id="vMag" class="off">无磁性</b></div>
+        <div class="rv"><span>动触点接在</span><b id="vContact" class="off">上静触点</b></div>
+        <div class="rv"><span>信号灯</span><b id="vLamp" class="off">绿灯亮</b></div>
+      </div>
+      <div class="mini">A 底面 5.60 cm；水面 1.00 ~ 7.10 cm，约 <b>76%</b> 处越过 A</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">显示选项</div>
+      <div class="toggles">
+        <button id="btnLabels" class="active">部件标签</button>
+        <button id="btnFlow" class="active">电流方向</button>
+        <button id="btnTip">工作原理</button>
+      </div>
+      <div class="ans" id="tipBox">
+        <b>① 水位没到 A（绿灯亮）</b>：A、B 之间隔着空气 → 控制电路<b>断开</b> → 电磁铁<b>无磁性</b> → 复位弹簧把衔铁顶起 → 动触点压在<b>上静触点</b>上 → <b>绿灯</b>支路接通。<br>
+        <b>② 水位到达 A（红灯亮）</b>：水把 A、B 接通（普通的水是导体）→ 控制电路<b>接通</b> → 电磁铁<b>有磁性</b>，吸下衔铁，弹簧被压缩 → 动触点换到<b>下静触点</b> → <b>红灯</b>支路接通，绿灯熄灭。<br>
+        <b>③ 继电器的作用</b>：用<b>低电压、小电流</b>的控制电路（水里那一路）去控制<b>高电压、大电流</b>的工作电路（红绿灯），实现<b>自动控制</b>与<b>安全隔离</b>。
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">视角 / 导出</div>
+      <div class="toggles">
+        <button id="btnReset">全景</button>
+        <button id="btnTank">水箱</button>
+        <button id="btnRelay">继电器</button>
+        <button id="btnContact">触点</button>
+        <button id="btnLamp">信号灯</button>
+        <button id="btnFront">正视图</button>
+        <button id="btnShot">导出 PNG</button>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>结构对照</b>
+      <span><i class="water"></i>蓝色半透明＝水（导体，水位可调）</span>
+      <span><i class="copper"></i>紫铜色＝金属块 A / B、线圈、触点、软铜辫</span>
+      <span><i class="silver"></i>银色＝铁芯、复位弹簧、接线柱</span>
+      <span><i class="brown"></i>褐色＝继电器胶木底板</span>
+      <span><i class="red"></i>红色导线＝正极回路<i class="blue" style="margin-left:8px;"></i>蓝色＝负极回路</span>
+      <span><i class="green"></i>绿色导线＝绿灯支路</span>
+    </div>
+  </div>
+  <button id="panelOpen" title="展开面板">‹</button>
+
+  <div class="hint">拖拽旋转 · 滚轮缩放 · <kbd>Shift</kbd>+拖拽平移 · 在<b>水箱</b>上上下拖动可升降水位</div>
+  <div id="toast"></div>
+
+  <script src="../shared/vendor/three-r144.min.js"></script>
+  <script>
+/* =========================================================
+   水位自动报警器 · 3D 交互演示（沪科版 九物 20.3 图 20.3-8）
+   ---------------------------------------------------------
+   装置 = 水箱（金属块 A 上 / B 下）+ 电磁继电器 + 工作电路（绿/红灯）
+   ① 控制电路：电源＋ → 导线 → 金属块 A →【水】→ 金属块 B → 导线
+                → 电磁铁线圈 → 导线 → 电源－
+      （水位没到 A：A、B 之间被空气隔开 → 控制电路断路）
+   ② 工作电路：电源＋ → 软铜辫 → 衔铁 → 动触点
+                → 上静触点 → 绿灯 → 电源－
+                → 下静触点 → 红灯 → 电源－
+   ③ 继电器动作：线圈断电 → 压簧把衔铁顶起 → 动触点贴上静触点 → 绿灯亮
+                线圈通电 → 电磁铁吸下衔铁 → 动触点贴下静触点 → 红灯亮
+   单位：1 单位 ≈ 1 cm
+   ========================================================= */
+(function () {
+  'use strict';
+
+  if (THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
+
+  /* ================= 渲染器 / 场景 / 相机 ================= */
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.LinearToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xeef3f9);
+  scene.fog = new THREE.Fog(0xeef3f9, 52, 150);
+
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
+
+  /* ================= 环境贴图 ================= */
+  (function buildEnvironment() {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0.00, '#ffffff');
+    g.addColorStop(0.38, '#f3f7fc');
+    g.addColorStop(0.50, '#e0e8f2');
+    g.addColorStop(0.62, '#bac5d3');
+    g.addColorStop(1.00, '#707b89');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 512);
+    [[26, 70, 34], [92, 132, 22]].forEach(function (p) {
+      const rg = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], p[2]);
+      rg.addColorStop(0, 'rgba(255,255,255,1)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(p[0], p[1], p[2], 0, Math.PI * 2); ctx.fill();
+    });
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const env = pmrem.fromEquirectangular(tex).texture;
+    pmrem.dispose();
+    tex.dispose();
+    scene.environment = env;
+  })();
+
+  /* ================= 灯光 ================= */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb3c2d4, 0.34));
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 0.62);
+  keyLight.position.set(6, 22, 16);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -26;
+  keyLight.shadow.camera.right = 26;
+  keyLight.shadow.camera.top = 20;
+  keyLight.shadow.camera.bottom = -10;
+  keyLight.shadow.camera.near = 1;
+  keyLight.shadow.camera.far = 90;
+  keyLight.shadow.bias = -0.0008;
+  keyLight.shadow.radius = 2.4;
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0xdce8ff, 0.18);
+  fillLight.position.set(-16, 10, -12);
+  scene.add(fillLight);
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.14);
+  rimLight.position.set(-8, 8, 18);
+  scene.add(rimLight);
+
+  /* ================= 地面 / 实验台 ================= */
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(60, 72),
+    new THREE.MeshStandardMaterial({ color: 0xdde6f0, roughness: 0.98, metalness: 0.0 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.02;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(60, 60, 0xc0cfe1, 0xd5e0ee);
+  grid.position.y = -0.015;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.45;
+  scene.add(grid);
+
+  const bench = new THREE.Mesh(
+    new THREE.BoxGeometry(42, 0.55, 15),
+    new THREE.MeshStandardMaterial({ color: 0xe8eef6, roughness: 0.74, metalness: 0.02 })
+  );
+  bench.position.set(-2.0, -0.30, 0);
+  bench.receiveShadow = true;
+  scene.add(bench);
+
+  /* ================= 关键尺寸（1 ≈ 1 cm） ================= */
+  /* --- 水箱 --- */
+  const TK = { x0: -18.20, x1: -12.20, z0: -2.80, z1: 2.80, y0: 0.00, y1: 7.40, t: 0.16 };
+  const TKCX = (TK.x0 + TK.x1) / 2;
+  const WATER_MIN = 1.00, WATER_MAX = 7.10;         // 水面高度范围
+  const A_BOT = 5.60, A_H = 1.50, A_S = 1.55;       // 金属块 A：底面 5.60
+  const A_POS = [-16.60, A_BOT + A_H / 2, -0.95];
+  const B_TOP = 1.75, B_H = 1.35, B_S = 1.55;       // 金属块 B：顶面 1.75（始终浸没）
+  const B_POS = [-14.10, B_TOP - B_H / 2, 0.95];
+  const BAR_Y = 7.62;                                // 水箱顶部横梁（吊 A、走线）
+  const BUS_Y = 8.30;                                // 架空走线高度
+
+  /* --- 继电器 --- */
+  const BASE = { x0: -6.20, x1: 6.00, z0: -2.50, z1: 2.50, y1: 0.70 };
+  const HINGE = [-4.40, 3.30, 0];                    // 衔铁铰链（支点）
+  const CORE_X = -1.50, CORE_R = 0.40, CORE_Y0 = 0.70, CORE_Y1 = 2.75;
+  const COIL_Y0 = 0.95, COIL_Y1 = 2.55, COIL_RI = 0.46, COIL_RO = 1.02;
+  const SPR_X = 0.90, SPR_R = 0.36, SPR_Y0 = 0.72;
+  const BEAM_TIP_L = 7.80;                           // 铰链 → 梁端（局部 x）
+  const CONTACT_L = 8.40;                            // 铰链 → 动触点中心（局部 x）→ 世界 x = 4.00
+  const MOV_Y_REST = 3.02, MOV_Y_PULL = 2.40;        // 动触点中心：释放位 / 吸合位
+  const MOV_H = 0.18;
+  const UP_BOSS_Y = 3.19, DN_BOSS_Y = 2.23;          // 上/下静触点凸台中心（接触面 3.11 / 2.31）
+  const POST_X = 5.40, ARM_UP_Y = 3.30, ARM_DN_Y = 2.10;
+  const PULL_ANG = (MOV_Y_REST - MOV_Y_PULL) / CONTACT_L;   // 衔铁被吸下的转角（rad）
+  const T_A = [-2.60, 0.70, 2.05];                   // 线圈端子（接电源－）
+  const T_B = [-4.60, 0.70, 2.05];                   // 线圈端子（接金属块 B）
+  const T_COM = [-5.60, 0.70, -1.90];                // 动触点公共端（接工作电源＋）
+  const T_UP = [5.90, 0.70, -1.40];                  // 上静触点端子（→绿灯）
+  const T_R = [5.90, 0.70, 1.40];                    // 下静触点端子（→红灯）
+
+  /* --- 电源 --- */
+  const CPWR_C = [-10.00, 1.15, 0];                  // 控制电路电源
+  const CPWR_P = [-10.90, 2.20, -0.70];              // ＋
+  const CPWR_N = [-9.10, 2.20, 0.70];                // －
+  const WPWR_C = [8.30, 1.15, -4.10];                // 工作电路电源（放在最后排，压缩横向跨度）
+  const WPWR_P = [7.50, 2.20, -4.70];
+  const WPWR_N = [9.10, 2.20, -3.50];
+
+  /* --- 信号灯 --- */
+  const LAMP_G = [9.90, 6.10, -1.10];                // 绿灯灯座底面
+  const LAMP_R = [10.10, 2.80, 1.10];                // 红灯灯座底面
+  const BULB_R = 0.72;
+
+  /* ================= 材质 ================= */
+  const tankMat = new THREE.MeshStandardMaterial({
+    color: 0xa9c8dd, roughness: 0.16, metalness: 0.0, envMapIntensity: 1.15,
+    transparent: true, opacity: 0.34, depthWrite: true, side: THREE.DoubleSide
+  });
+  const waterMat = new THREE.MeshStandardMaterial({
+    color: 0x2f92cf, roughness: 0.44, metalness: 0.0, envMapIntensity: 0.45,
+    transparent: true, opacity: 0.40, depthWrite: true, side: THREE.FrontSide
+  });
+  const surfMat = new THREE.MeshStandardMaterial({
+    color: 0x8fd4f5, roughness: 0.30, metalness: 0.02, envMapIntensity: 0.70,
+    transparent: true, opacity: 0.88, depthWrite: false, side: THREE.DoubleSide
+  });
+  const M = {
+    copper: new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.30, metalness: 0.94, envMapIntensity: 1.05 }),
+    block: new THREE.MeshStandardMaterial({ color: 0xd98b2b, roughness: 0.45, metalness: 0.40, envMapIntensity: 0.85 }),
+    copperSoft: new THREE.MeshStandardMaterial({ color: 0xd9a05a, roughness: 0.32, metalness: 0.92, envMapIntensity: 1.05 }),
+    silver: new THREE.MeshStandardMaterial({ color: 0xc6ccd3, roughness: 0.24, metalness: 1.0, envMapIntensity: 1.1 }),
+    iron: new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 0.42, metalness: 0.88, envMapIntensity: 0.85 }),
+    bakelite: new THREE.MeshStandardMaterial({ color: 0x2b2e35, roughness: 0.60, metalness: 0.06, envMapIntensity: 0.45 }),
+    plate: new THREE.MeshStandardMaterial({ color: 0x6b5a48, roughness: 0.72, metalness: 0.04, envMapIntensity: 0.35 }),
+    plastic: new THREE.MeshStandardMaterial({ color: 0xe6ebf1, roughness: 0.50, metalness: 0.03, envMapIntensity: 0.5 }),
+    screw: new THREE.MeshStandardMaterial({ color: 0xc8ced5, roughness: 0.28, metalness: 1.0, envMapIntensity: 1.0 }),
+    lead: new THREE.MeshStandardMaterial({ color: 0xb9c1c9, roughness: 0.34, metalness: 0.92, envMapIntensity: 0.95 })
+  };
+  const wireRed = new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+  const wireBlue = new THREE.MeshStandardMaterial({ color: 0x2f6fd0, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+  const wireGreen = new THREE.MeshStandardMaterial({ color: 0x3f9c4a, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+  const wireYellow = new THREE.MeshStandardMaterial({ color: 0xd8a12a, roughness: 0.52, metalness: 0.06, envMapIntensity: 0.5 });
+
+  /* 电磁铁铁芯：通电时泛黄绿光表示"有磁性" */
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: 0x9aa3ad, roughness: 0.40, metalness: 0.88, envMapIntensity: 0.85,
+    emissive: 0x2f7de1, emissiveIntensity: 0.0
+  });
+
+  /* ================= 工具 ================= */
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function put(parent, geo, mat, pos, rot, noShadow) {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(pos[0], pos[1], pos[2]);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+    if (!noShadow) { m.castShadow = true; m.receiveShadow = true; }
+    parent.add(m);
+    return m;
+  }
+  function curveOf(points, closed) {
+    return new THREE.CatmullRomCurve3(points.map(function (p) {
+      return new THREE.Vector3(p[0], p[1], p[2]);
+    }), closed || false, 'catmullrom', 0.5);
+  }
+  function tube(points, radius, seg, radial, closed) {
+    return new THREE.TubeGeometry(curveOf(points, closed), seg || 60, radius, radial || 8, !!closed);
+  }
+  function lathe(pts, seg) {
+    return new THREE.LatheGeometry(pts.map(function (p) { return new THREE.Vector2(p[0], p[1]); }), seg || 64);
+  }
+  const V = function (x, y, z) { return new THREE.Vector3(x, y, z); };
+
+  /* 螺旋线（弹簧 / 线圈 / 灯丝）。cz = 螺旋轴在 z 方向的偏心量：
+     灯泡的灯丝轴不在 z=0 上，必须传 cz，否则灯丝会跑到玻璃泡外面去。 */
+  function helixPts(x, y0, y1, r, turns, n, phase, cz) {
+    const p = [], N = n || Math.round(turns * 18), z0 = cz || 0;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, a = (phase || 0) + t * turns * Math.PI * 2;
+      p.push(V(r * Math.cos(a) + (x || 0), y0 + (y1 - y0) * t, r * Math.sin(a) + z0));
+    }
+    return p;
+  }
+
+  /* --- 标签 --- */
+  function makeLabel(text, color, h) {
+    const fs = 62;
+    const probe = document.createElement('canvas').getContext('2d');
+    probe.font = 'bold ' + fs + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+    const tw = Math.ceil(probe.measureText(text).width) + 48;
+    const cw = Math.max(128, Math.pow(2, Math.ceil(Math.log2(tw))));
+    const c = document.createElement('canvas');
+    c.width = cw; c.height = 128;
+    const x = c.getContext('2d');
+    x.font = 'bold ' + fs + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.lineWidth = 15; x.lineJoin = 'round';
+    x.strokeStyle = 'rgba(255,255,255,0.96)';
+    x.strokeText(text, cw / 2, 66);
+    x.fillStyle = color;
+    x.fillText(text, cw / 2, 66);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = 4;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false }));
+    sp.scale.set(h * (cw / 128), h, 1);
+    sp.renderOrder = 40;
+    return sp;
+  }
+  const labelG = new THREE.Group();
+  scene.add(labelG);
+  function addLabel(text, color, h, pos) {
+    const sp = makeLabel(text, color, h);
+    sp.position.set(pos[0], pos[1], pos[2]);
+    labelG.add(sp);
+    return sp;
+  }
+
+  /* =========================================================
+     一、水箱（透明外壳 + 水 + 金属块 A / B）
+     ========================================================= */
+  const gTank = new THREE.Group();
+  scene.add(gTank);
+  const gTankShell = new THREE.Group();     // 受透明度控制
+  gTank.add(gTankShell);
+
+  const TW = TK.x1 - TK.x0, TD = TK.z1 - TK.z0;
+  /* 四面侧壁 + 底板（薄板，透明） */
+  const wallY0 = 0.00, wallY1 = TK.y1;
+  put(gTankShell, new THREE.BoxGeometry(TW, wallY1 - wallY0, TK.t), tankMat, [TKCX, (wallY0 + wallY1) / 2, TK.z0 + TK.t / 2], null, true).castShadow = false;
+  put(gTankShell, new THREE.BoxGeometry(TW, wallY1 - wallY0, TK.t), tankMat, [TKCX, (wallY0 + wallY1) / 2, TK.z1 - TK.t / 2], null, true).castShadow = false;
+  put(gTankShell, new THREE.BoxGeometry(TK.t, wallY1 - wallY0, TD - 2 * TK.t), tankMat, [TK.x0 + TK.t / 2, (wallY0 + wallY1) / 2, 0], null, true).castShadow = false;
+  put(gTankShell, new THREE.BoxGeometry(TK.t, wallY1 - wallY0, TD - 2 * TK.t), tankMat, [TK.x1 - TK.t / 2, (wallY0 + wallY1) / 2, 0], null, true).castShadow = false;
+  put(gTankShell, new THREE.BoxGeometry(TW, 0.18, TD), tankMat, [TKCX, 0.09, 0], null, true).castShadow = false;
+  /* 顶部加强框（不透明，白色塑料） */
+  [[TK.z0 + 0.09, TD], [TK.z1 - 0.09, TD]].forEach(function (p) {
+    put(gTank, new THREE.BoxGeometry(TW, 0.22, 0.18), M.plastic, [TKCX, TK.y1 - 0.11, p[0]]);
+  });
+  [TK.x0 + 0.09, TK.x1 - 0.09].forEach(function (x) {
+    put(gTank, new THREE.BoxGeometry(0.18, 0.22, TD), M.plastic, [x, TK.y1 - 0.11, 0]);
+  });
+  /* 顶部横梁（吊住金属块 A 的绝缘杆） */
+  put(gTank, new THREE.BoxGeometry(TW, 0.16, 0.30), M.plastic, [TKCX, BAR_Y, A_POS[2]]);
+
+  /* 水（Mesh，随水位改变高度与位置） */
+  const waterMesh = put(gTank, new THREE.BoxGeometry(1, 1, 1), waterMat, [0, 0, 0], null, true);
+  waterMesh.castShadow = false; waterMesh.receiveShadow = false;
+  const waterSurf = put(gTank, new THREE.BoxGeometry(1, 1, 1), surfMat, [0, 0, 0], null, true);
+  waterSurf.castShadow = false; waterSurf.receiveShadow = false;
+  const WATER_IN_X0 = TK.x0 + TK.t, WATER_IN_X1 = TK.x1 - TK.t;
+  const WATER_IN_Z0 = TK.z0 + TK.t, WATER_IN_Z1 = TK.z1 - TK.t;
+  const WATER_W = WATER_IN_X1 - WATER_IN_X0, WATER_D = WATER_IN_Z1 - WATER_IN_Z0;
+  let yWater = WATER_MIN;
+  function applyWater(y) {
+    yWater = clamp(y, WATER_MIN, WATER_MAX);
+    const h = yWater - 0.18;
+    waterMesh.scale.set(WATER_W, h, WATER_D);
+    waterMesh.position.set(TKCX, 0.18 + h / 2, 0);
+    waterSurf.scale.set(WATER_W, 0.10, WATER_D);
+    waterSurf.position.set(TKCX, yWater - 0.05, 0);
+  }
+  applyWater(WATER_MIN);
+
+  /* 金属块 A（上方，靠绝缘吊杆挂住） */
+  put(gTank, new THREE.BoxGeometry(A_S, A_H, A_S), M.block, A_POS);
+  put(gTank, new THREE.CylinderGeometry(0.10, 0.10, BAR_Y - (A_POS[1] + A_H / 2), 12), M.plastic,
+    [A_POS[0], (BAR_Y + A_POS[1] + A_H / 2) / 2, A_POS[2]]);
+
+  /* 金属块 B（底部，坐在绝缘小台上，始终浸没） */
+  put(gTank, new THREE.BoxGeometry(0.90, 0.45, 0.90), M.plastic, [B_POS[0], 0.32, B_POS[2]]);
+  put(gTank, new THREE.BoxGeometry(B_S, B_H, B_S), M.block, B_POS);
+  /* B 的绝缘引线杆（从 B 顶一直伸出水面到顶部横梁） */
+  put(gTank, new THREE.CylinderGeometry(0.09, 0.09, BAR_Y - B_TOP, 12), M.plastic,
+    [B_POS[0], (BAR_Y + B_TOP) / 2, B_POS[2]]);
+
+  /* A、B 的引出线（箱内段：贴着吊杆 / 引线杆） */
+  put(gTank, tube([[A_POS[0], A_POS[1] + A_H / 2 - 0.05, A_POS[2] + 0.16],
+    [A_POS[0], A_POS[1] + A_H / 2 + 0.30, A_POS[2] + 0.22],
+    [A_POS[0], BAR_Y - 0.05, A_POS[2] + 0.22]], 0.055, 30, 6), wireRed);
+  put(gTank, tube([[B_POS[0], B_TOP - 0.05, B_POS[2] + 0.16],
+    [B_POS[0], B_TOP + 0.30, B_POS[2] + 0.22],
+    [B_POS[0], BAR_Y - 0.05, B_POS[2] + 0.22]], 0.055, 30, 6), wireBlue);
+
+  /* =========================================================
+     二、电磁继电器
+     ========================================================= */
+  const gRelay = new THREE.Group();
+  scene.add(gRelay);
+
+  /* 胶木底板 */
+  const BASE_CX = (BASE.x0 + BASE.x1) / 2, BASE_W = BASE.x1 - BASE.x0, BASE_D = BASE.z1 - BASE.z0;
+  put(gRelay, new THREE.BoxGeometry(BASE_W, BASE.y1, BASE_D), M.plate, [BASE_CX, BASE.y1 / 2, 0]);
+  /* 四角小垫脚 */
+  [[BASE.x0 + 0.45, BASE.z0 + 0.45], [BASE.x1 - 0.45, BASE.z0 + 0.45],
+   [BASE.x0 + 0.45, BASE.z1 - 0.45], [BASE.x1 - 0.45, BASE.z1 - 0.45]].forEach(function (p) {
+    put(gRelay, new THREE.CylinderGeometry(0.22, 0.24, 0.16, 14), M.bakelite, [p[0], 0.05, p[1]]);
+  });
+
+  /* --- 铰链支架（衔铁绕它摆动） --- */
+  [-0.62, 0.62].forEach(function (z) {
+    put(gRelay, new THREE.BoxGeometry(0.28, HINGE[1] - BASE.y1, 0.24), M.bakelite,
+      [HINGE[0], (HINGE[1] + BASE.y1) / 2, z]);
+  });
+  put(gRelay, new THREE.CylinderGeometry(0.15, 0.15, 1.60, 16), M.screw,
+    [HINGE[0], HINGE[1], 0], [Math.PI / 2, 0, 0]);
+
+  /* --- 电磁铁：铁芯 + 线圈 --- */
+  put(gRelay, new THREE.CylinderGeometry(0.62, 0.66, 0.20, 24), M.iron, [CORE_X, BASE.y1 + 0.02, 0]);
+  put(gRelay, new THREE.CylinderGeometry(CORE_R, CORE_R, CORE_Y1 - CORE_Y0, 28), coreMat,
+    [CORE_X, (CORE_Y0 + CORE_Y1) / 2, 0]);
+  /* 线圈骨架（胶木法兰） */
+  [COIL_Y0 - 0.06, COIL_Y1 + 0.06].forEach(function (y) {
+    put(gRelay, new THREE.CylinderGeometry(COIL_RO + 0.05, COIL_RO + 0.05, 0.10, 32), M.bakelite, [CORE_X, y, 0]);
+  });
+  let COIL_MESH = null;
+  COIL_MESH = put(gRelay, new THREE.TubeGeometry(
+    new THREE.CatmullRomCurve3(helixPts(CORE_X, COIL_Y0, COIL_Y1, (COIL_RI + COIL_RO) / 2, 14)),
+    Math.round(14 * 24), 0.058, 7, false), M.copperSoft);
+
+  /* --- 复位压簧（断电时把衔铁顶起；衔铁被吸下时弹簧被压缩） --- */
+  const gSpring = new THREE.Group();
+  gRelay.add(gSpring);
+  let springMesh = null, springLast = -1;
+  function buildSpring(len) {
+    if (Math.abs(len - springLast) < 0.008) return;
+    springLast = len;
+    if (springMesh) { gSpring.remove(springMesh); springMesh.geometry.dispose(); }
+    const N = Math.round(9 * 20);
+    const p = helixPts(SPR_X, SPR_Y0, SPR_Y0 + len, SPR_R, 9, N);
+    springMesh = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), N * 2, 0.062, 6, false), M.silver);
+    springMesh.castShadow = true;
+    gSpring.add(springMesh);
+  }
+
+  /* --- 衔铁（横梁）＋动触点：整组绕铰链转动 --- */
+  const gArm = new THREE.Group();
+  gArm.position.set(HINGE[0], HINGE[1], HINGE[2]);
+  gRelay.add(gArm);
+  put(gArm, new THREE.BoxGeometry(BEAM_TIP_L + 0.20, 0.45, 0.90), M.iron, [BEAM_TIP_L / 2 - 0.05, 0, 0]);
+  /* 动触点引片（铜） */
+  put(gArm, tube([[BEAM_TIP_L - 0.15, -0.10, 0], [BEAM_TIP_L + 0.30, -0.24, 0], [CONTACT_L, -0.28, 0]], 0.10, 30, 7), M.copperSoft);
+  /* 动触点（上下两面都是接触面） */
+  const movContact = put(gArm, new THREE.BoxGeometry(0.70, MOV_H, 0.80), M.silver, [CONTACT_L, -0.28, 0]);
+
+  /* --- 软铜辫：底板公共端 → 衔铁（随衔铁摆动实时重建） --- */
+  const gBraid = new THREE.Group();
+  gRelay.add(gBraid);
+  let braidMesh = null, braidLast = -1;
+  function buildBraid(ang) {
+    if (Math.abs(ang - braidLast) < 0.002) return;
+    braidLast = ang;
+    if (braidMesh) { gBraid.remove(braidMesh); braidMesh.geometry.dispose(); }
+    const ax = HINGE[0] + 0.40 * Math.cos(ang) + 0.26 * Math.sin(ang);
+    const ay = HINGE[1] + 0.40 * Math.sin(ang) - 0.26 * Math.cos(ang);
+    /* 从 COM 端子**竖直向上**再折向铰链，全程在底板左侧、不跨过线圈与弹簧 */
+    braidMesh = new THREE.Mesh(tube([
+      [T_COM[0], T_COM[1] + 0.42, T_COM[2]],
+      [T_COM[0] - 0.10, 2.05, T_COM[2] + 0.14],
+      [T_COM[0] + 0.16, 2.90, T_COM[2] + 0.82],
+      [HINGE[0] - 0.58, 3.02, -0.58],
+      [ax, ay, -0.12]
+    ], 0.085, 60, 7), M.copperSoft);
+    gBraid.add(braidMesh);
+  }
+
+  /* --- 静触点支架：绝缘立柱 + 上/下铜臂 + 触点凸台 --- */
+  put(gRelay, new THREE.CylinderGeometry(0.28, 0.30, 3.95 - BASE.y1, 20), M.bakelite,
+    [POST_X, (3.95 + BASE.y1) / 2, 0]);
+  put(gRelay, new THREE.BoxGeometry(1.55, 0.10, 0.34), M.copperSoft, [4.68, ARM_UP_Y, 0]);
+  put(gRelay, new THREE.BoxGeometry(1.55, 0.10, 0.34), M.copperSoft, [4.68, ARM_DN_Y, 0]);
+  const CONTACT_X = CONTACT_L + HINGE[0];    // 动触点中心的世界 x = 4.00
+  const upBoss = put(gRelay, new THREE.CylinderGeometry(0.22, 0.22, 0.16, 20), M.copper, [CONTACT_X, UP_BOSS_Y, 0]);
+  const dnBoss = put(gRelay, new THREE.CylinderGeometry(0.22, 0.22, 0.16, 20), M.copper, [CONTACT_X, DN_BOSS_Y, 0]);
+
+  /* 立柱内的两条下行铜线（上臂→T_UP，下臂→T_R） */
+  put(gRelay, tube([[POST_X, ARM_UP_Y, 0], [POST_X, ARM_UP_Y - 0.35, -0.34],
+    [POST_X, 1.10, -0.55], [T_UP[0] - 0.30, 0.86, -1.10], [T_UP[0], 0.82, T_UP[2]]], 0.062, 60, 7), M.copperSoft);
+  put(gRelay, tube([[POST_X, ARM_DN_Y, 0], [POST_X, ARM_DN_Y - 0.35, 0.34],
+    [POST_X, 1.00, 0.55], [T_R[0] - 0.30, 0.86, 1.10], [T_R[0], 0.82, T_R[2]]], 0.062, 60, 7), M.copperSoft);
+
+  /* --- 线圈的两根引出线（黄）：下端贴台面直出到近端子 T_A；
+         上端翻过线圈左上方，落到远端子 T_B —— 两根线不交叉 --- */
+  put(gRelay, tube([[CORE_X - COIL_RI, COIL_Y0 + 0.02, 0.62],
+    [-2.35, 0.92, 0.85], [-2.62, 0.84, 1.30], [-2.60, 0.82, 1.75],
+    [T_A[0], 0.82, T_A[2]]], 0.062, 70, 7), wireYellow);
+  put(gRelay, tube([[CORE_X - COIL_RI, COIL_Y1 - 0.02, 0.62],
+    [-2.55, 2.62, 0.95], [-3.60, 2.70, 1.35], [-4.85, 2.60, 1.55],
+    [-5.18, 1.55, 1.80], [-5.18, 0.90, 2.00], [T_B[0], 0.82, T_B[2]]], 0.062, 90, 7), wireYellow);
+
+  /* --- 底板接线柱 --- */
+  function terminal(pos, colorMat) {
+    const g = new THREE.Group();
+    g.position.set(pos[0], pos[1], pos[2]);
+    gRelay.add(g);
+    put(g, new THREE.BoxGeometry(0.34, 0.34, 0.34), colorMat, [0, 0.06, 0]);
+    put(g, new THREE.CylinderGeometry(0.09, 0.09, 0.46, 14), M.screw, [0, 0.34, 0]);
+    put(g, new THREE.CylinderGeometry(0.16, 0.16, 0.10, 6), M.screw, [0, 0.58, 0]);
+    return g;
+  }
+  terminal(T_A, wireBlue);
+  terminal(T_B, wireBlue);
+  terminal(T_COM, wireRed);
+  terminal(T_UP, wireGreen);
+  terminal(T_R, wireRed);
+
+  /* =========================================================
+     三、两组电源
+     ========================================================= */
+  const gPowers = [];
+  function makePower(center, w, label) {
+    const g = new THREE.Group();
+    scene.add(g);
+    gPowers.push(g);
+    put(g, new THREE.BoxGeometry(w, 2.10, 2.40), M.bakelite, [center[0], 1.15, center[2]]);
+    put(g, new THREE.BoxGeometry(w * 0.96, 0.12, 2.28), M.plastic, [center[0], 2.18, center[2]]);
+    put(g, new THREE.BoxGeometry(w * 0.62, 0.62, 0.06), M.plastic, [center[0], 1.30, 1.24]);
+    return g;
+  }
+  makePower(CPWR_C, 4.20);
+  makePower(WPWR_C, 3.20);
+  /* 工作电源的外壳包围盒（x 半宽 1.60、y 0.10~2.24、z 半深 1.20）——
+     外接线一律不许扎进这个盒子里，CDP 会拿它做"不穿模"实测 */
+  const WPWR_AABB = {
+    x0: WPWR_C[0] - 0.06 - 1.60, x1: WPWR_C[0] + 0.06 + 1.60,
+    y0: 0.10 - 0.06, y1: 2.24 + 0.06,
+    z0: WPWR_C[2] - 0.06 - 1.20, z1: WPWR_C[2] + 0.06 + 1.20
+  };
+
+  function sourceTerm(pos, colorMat) {
+    const g = new THREE.Group();
+    g.position.set(pos[0], pos[1], pos[2]);
+    scene.add(g);
+    put(g, new THREE.CylinderGeometry(0.30, 0.30, 0.14, 20), colorMat, [0, -0.12, 0]);
+    put(g, new THREE.CylinderGeometry(0.13, 0.13, 0.46, 14), M.screw, [0, 0.22, 0]);
+    put(g, new THREE.CylinderGeometry(0.22, 0.22, 0.08, 6), M.screw, [0, 0.46, 0]);
+    return g;
+  }
+  sourceTerm(CPWR_P, wireRed);
+  sourceTerm(CPWR_N, wireBlue);
+  sourceTerm(WPWR_P, wireRed);
+  sourceTerm(WPWR_N, wireBlue);
+
+  /* =========================================================
+     四、信号灯（绿灯 / 红灯）
+     ========================================================= */
+  /* 灯泡点亮时的光晕（加色混合 Sprite） */
+  function makeGlow(hex, size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const x = c.getContext('2d');
+    const rg = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+    const col = '#' + ('000000' + hex.toString(16)).slice(-6);
+    rg.addColorStop(0.00, col);
+    rg.addColorStop(0.35, col + '99');
+    rg.addColorStop(1.00, col + '00');
+    x.fillStyle = rg; x.fillRect(0, 0, 128, 128);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0
+    }));
+    sp.scale.set(size, size, 1);
+    return sp;
+  }
+
+  function makeLamp(base, glassColor, litColor) {
+    const g = new THREE.Group();
+    scene.add(g);
+    /* 灯座支架（立柱＋底盘）：信号灯不能悬空 */
+    if (base[1] > 0.40) {
+      put(g, new THREE.BoxGeometry(0.64, base[1] - 0.26, 0.64), M.plastic,
+        [base[0], 0.26 + (base[1] - 0.26) / 2, base[2]]);
+      put(g, new THREE.CylinderGeometry(0.86, 0.96, 0.26, 26), M.bakelite, [base[0], 0.13, base[2]]);
+    }
+    /* 灯座 */
+    put(g, new THREE.CylinderGeometry(0.55, 0.60, 0.55, 28), M.bakelite, [base[0], base[1] + 0.28, base[2]]);
+    put(g, new THREE.CylinderGeometry(0.62, 0.62, 0.10, 28), M.plastic, [base[0], base[1] + 0.02, base[2]]);
+    /* 灯头（螺纹） */
+    put(g, new THREE.CylinderGeometry(0.40, 0.42, 0.38, 24), M.silver, [base[0], base[1] + 0.74, base[2]]);
+    /* 玻璃泡 */
+    const gm = new THREE.MeshStandardMaterial({
+      color: glassColor, roughness: 0.10, metalness: 0.0, envMapIntensity: 1.6,
+      transparent: true, opacity: 0.55, depthWrite: true, side: THREE.DoubleSide,
+      emissive: litColor, emissiveIntensity: 0.0
+    });
+    const cy = base[1] + 0.95 + BULB_R * 0.72;
+    const bulb = put(g, new THREE.SphereGeometry(BULB_R, 32, 24), gm, [base[0], cy, base[2]], null, true);
+    bulb.castShadow = false;
+    /* 灯丝（螺旋弹簧状，整段都在玻璃泡内；两端各接一根立柱下到灯头） */
+    const fm = new THREE.MeshStandardMaterial({
+      color: 0xd8a83c, roughness: 0.36, metalness: 0.85, envMapIntensity: 0.9,
+      emissive: litColor, emissiveIntensity: 0.0
+    });
+    const postBot = base[1] + 0.86, postTop = cy - 0.24;
+    const postLen = postTop - postBot;
+    [-0.16, 0.16].forEach(function (dx) {
+      put(g, new THREE.CylinderGeometry(0.035, 0.035, postLen, 8), M.lead,
+        [base[0] + dx, (postBot + postTop) / 2, base[2]], null, true);
+    });
+    const fPts = [[base[0] + 0.16, postTop, base[2]]];
+    helixPts(base[0], cy - 0.24, cy + 0.30, 0.15, 4.5, 120, 0, base[2]).forEach(function (v) {
+      fPts.push([v.x, v.y, v.z]);
+    });
+    fPts.push([base[0] - 0.16, postTop, base[2]]);
+    put(g, tube(fPts, 0.028, 170, 6), fm, null, null, true);
+    const pl = new THREE.PointLight(litColor, 0, 12, 2);
+    pl.position.set(base[0], cy, base[2]);
+    g.add(pl);
+    const glow = makeGlow(litColor, 4.2);
+    glow.position.set(base[0], cy, base[2]);
+    g.add(glow);
+    return { group: g, glass: gm, filament: fm, light: pl, glow: glow, centerY: cy, base: base };
+  }
+  const lampG = makeLamp(LAMP_G, 0x7fd08f, 0x35d35a);
+  const lampR = makeLamp(LAMP_R, 0xe08a86, 0xff4530);
+
+  /* =========================================================
+     五、外接线
+     ========================================================= */
+  const gWire = new THREE.Group();
+  scene.add(gWire);
+  const A_TOPW = [A_POS[0], BAR_Y + 0.12, A_POS[2] + 0.22];
+  const B_TOPW = [B_POS[0], BAR_Y + 0.12, B_POS[2] + 0.22];
+
+  /* 控制回路：电源＋ →（架空）→ 金属块 A */
+  put(gWire, tube([A_TOPW, [A_POS[0], BUS_Y, A_POS[2] + 0.22], [CPWR_P[0], BUS_Y, CPWR_P[2]],
+    [CPWR_P[0] - 0.05, 3.20, CPWR_P[2] - 0.05], [CPWR_P[0], 2.70, CPWR_P[2]]], 0.085, 90, 8), wireRed);
+  /* 控制回路：金属块 B →（架空）→ 继电器 T_B 端子 */
+  put(gWire, tube([B_TOPW, [B_POS[0], BUS_Y + 0.50, B_POS[2] + 0.22], [T_B[0], BUS_Y + 0.50, T_B[2]],
+    [T_B[0], 2.40, T_B[2]], [T_B[0], 1.20, T_B[2]]], 0.085, 90, 8), wireBlue);
+  /* 控制回路：继电器 T_A 端子 → 沿底板【前外侧走廊】→ 电源－（不再压在台面上） */
+  put(gWire, tube([[T_A[0], 1.05, T_A[2]], [-3.30, 1.15, 2.72], [-5.30, 1.15, 2.98],
+    [-7.10, 1.35, 2.55], [-8.45, 1.80, 1.45], [CPWR_N[0], 2.70, CPWR_N[2]]], 0.085, 110, 8), wireBlue);
+
+  /* 工作回路：电源＋ → 先从电源【上方架空】跨过（不得扎进电源外壳）→ 后外侧走廊 → 继电器 COM 端子 */
+  put(gWire, tube([[WPWR_P[0], 2.70, WPWR_P[2]], [WPWR_P[0], 3.62, WPWR_P[2]],
+    [6.30, 3.50, -3.55], [4.60, 3.20, -3.10], [0.80, 2.10, -3.05],
+    [-2.60, 1.35, -3.00], [-4.90, 1.10, -2.80], [T_COM[0], 1.05, -2.45],
+    [T_COM[0], 1.20, -2.05], [T_COM[0], 1.28, T_COM[2]]], 0.085, 130, 8), wireRed);
+  /* 工作回路：T_UP → 绿灯（先贴着底板右后侧升到高处，再从红灯上方掠过，不穿红灯玻璃） */
+  put(gWire, tube([[T_UP[0], 1.20, T_UP[2]], [5.95, 3.30, -2.30], [6.05, 5.70, -2.72],
+    [7.40, 7.00, -2.42], [9.20, 7.05, -1.60], [LAMP_G[0] - 0.30, LAMP_G[1] + 0.10, LAMP_G[2]]], 0.085, 120, 8), wireGreen);
+  /* 工作回路：绿灯 → 电源－（沿最右侧折回，绕开红灯） */
+  put(gWire, tube([[LAMP_G[0] + 0.34, LAMP_G[1] + 0.20, LAMP_G[2] + 0.20], [11.10, 6.60, -1.30],
+    [11.70, 5.20, -2.60], [11.30, 2.90, -3.30], [WPWR_N[0], 2.70, WPWR_N[2]]], 0.085, 90, 8), wireBlue);
+  /* 工作回路：T_R → 红灯 */
+  put(gWire, tube([[T_R[0], 1.20, T_R[2]], [7.30, 1.90, 1.35], [8.60, 2.45, 1.10],
+    [LAMP_R[0] - 0.30, LAMP_R[1] + 0.10, LAMP_R[2]]], 0.085, 70, 8), wireRed);
+  /* 工作回路：红灯 → 电源－ */
+  put(gWire, tube([[LAMP_R[0] + 0.34, LAMP_R[1] + 0.20, LAMP_R[2] + 0.20], [11.40, 3.30, 0.30],
+    [11.00, 2.60, -1.80], [WPWR_N[0], 2.70, WPWR_N[2]]], 0.085, 70, 8), wireBlue);
+
+  /* =========================================================
+     六、电流路径与流动箭头
+     ========================================================= */
+  const ARROW_GEO = new THREE.ConeGeometry(0.085, 0.30, 8);
+  ARROW_GEO.rotateZ(-Math.PI / 2);
+  const X_AXIS = new THREE.Vector3(1, 0, 0);
+  const q = new THREE.Quaternion();
+  const FLOW_GAP = 1.55;
+
+  function Flow(colorHex) {
+    this.g = new THREE.Group();
+    scene.add(this.g);
+    this.mat = new THREE.MeshBasicMaterial({ color: colorHex });
+    this.curve = null; this.len = 1; this.arrows = []; this.travel = 0; this.pts = [];
+  }
+  Flow.prototype.set = function (pts) {
+    this.pts = pts;
+    this.curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.25);
+    this.len = this.curve.getLength();
+    const n = Math.max(6, Math.round(this.len / FLOW_GAP));
+    while (this.arrows.length > n) this.g.remove(this.arrows.pop());
+    while (this.arrows.length < n) {
+      const a = new THREE.Mesh(ARROW_GEO, this.mat);
+      a.frustumCulled = false;
+      this.g.add(a);
+      this.arrows.push(a);
+    }
+  };
+  Flow.prototype.update = function (dt) {
+    if (!this.g.visible || !this.curve) return;
+    this.travel = (this.travel + dt * 4.4) % this.len;
+    for (let i = 0; i < this.arrows.length; i++) {
+      let u = (this.travel + (i / this.arrows.length) * this.len) % this.len;
+      if (u < 0) u += this.len;
+      this.arrows[i].position.copy(this.curve.getPointAt(clamp(u / this.len, 0, 1)));
+      q.setFromUnitVectors(X_AXIS, this.curve.getTangentAt(clamp(u / this.len, 0, 1)).normalize());
+      this.arrows[i].quaternion.copy(q);
+    }
+  };
+  const flowCtrl = new Flow(0xe8372a);    // 控制电路
+  const flowWork = new Flow(0xe8372a);    // 工作电路
+
+  /* 衔铁局部坐标 → 世界坐标（绕铰链转 ang） */
+  function armPt(lx, ly, ang) {
+    return [HINGE[0] + lx * Math.cos(ang) - ly * Math.sin(ang),
+            HINGE[1] + lx * Math.sin(ang) + ly * Math.cos(ang), 0];
+  }
+
+  /* --- 控制电路：电源＋ → A → 水 → B → 线圈 → 电源－ --- */
+  (function buildCtrl() {
+    const p = [];
+    const P = function (x, y, z) { p.push(V(x, y, z)); };
+    P(CPWR_P[0], 2.70, CPWR_P[2]);
+    P(CPWR_P[0], 4.60, CPWR_P[2]); P(CPWR_P[0], BUS_Y, CPWR_P[2]);
+    P(A_POS[0], BUS_Y, A_POS[2] + 0.22);
+    P(A_POS[0], BAR_Y + 0.12, A_POS[2] + 0.22); P(A_POS[0], A_POS[1] + A_H / 2, A_POS[2]);
+    P(A_POS[0], A_POS[1], A_POS[2]); P(A_POS[0], A_BOT, A_POS[2]);
+    /* 水中导电段：A 底面 → B 顶面 */
+    P(A_POS[0] - 0.05, 4.90, A_POS[2] + 0.10);
+    P(-15.80, 3.90, 0.10); P(-15.00, 2.90, 0.55); P(B_POS[0], B_TOP + 0.20, B_POS[2]);
+    P(B_POS[0], B_POS[1], B_POS[2]); P(B_POS[0], B_TOP - 0.05, B_POS[2] + 0.22);
+    P(B_POS[0], BAR_Y + 0.12, B_POS[2] + 0.22); P(B_POS[0], BUS_Y + 0.50, B_POS[2] + 0.22);
+    P(T_B[0], BUS_Y + 0.50, T_B[2]); P(T_B[0], 2.40, T_B[2]); P(T_B[0], 1.20, T_B[2]);
+    P(T_B[0], 0.82, T_B[2]);
+    /* 线圈上引出线（T_B → 线圈上端） */
+    P(-5.18, 0.90, 2.00); P(-5.18, 1.55, 1.80); P(-4.85, 2.60, 1.55);
+    P(-3.60, 2.70, 1.35); P(-2.55, 2.62, 0.95); P(CORE_X - COIL_RI, COIL_Y1 - 0.02, 0.62);
+    /* 线圈（自上而下一匝一匝绕下来） */
+    helixPts(CORE_X, COIL_Y1 - 0.05, COIL_Y0 + 0.05, (COIL_RI + COIL_RO) / 2, 14, 100).forEach(function (v) { p.push(v); });
+    P(CORE_X - COIL_RI, COIL_Y0 + 0.02, 0.62);
+    /* 线圈下引出线（线圈下端 → T_A） */
+    P(-2.35, 0.92, 0.85); P(-2.62, 0.84, 1.30); P(-2.60, 0.82, 1.75); P(T_A[0], 0.82, T_A[2]);
+    /* T_A → 沿底板前外侧 → 电源－ */
+    P(T_A[0], 1.05, T_A[2]); P(-3.30, 1.15, 2.72); P(-5.30, 1.15, 2.98);
+    P(-7.10, 1.35, 2.55); P(-8.45, 1.80, 1.45); P(CPWR_N[0], 2.70, CPWR_N[2]);
+    flowCtrl.set(p);
+  })();
+
+  /* --- 工作电路：随衔铁位置重建（绿灯支路 / 红灯支路） --- */
+  let workMode = 'green', workAng = -999;
+  function buildWork(ang, mode) {
+    const p = [];
+    const P = function (x, y, z) { p.push(V(x, y, z)); };
+    P(WPWR_P[0], 2.70, WPWR_P[2]); P(WPWR_P[0], 3.62, WPWR_P[2]);
+    P(6.30, 3.50, -3.55); P(4.60, 3.20, -3.10); P(0.80, 2.10, -3.05);
+    P(-2.60, 1.35, -3.00); P(-4.90, 1.10, -2.80); P(T_COM[0], 1.05, -2.45); P(T_COM[0], 1.28, T_COM[2]);
+    P(T_COM[0], T_COM[1] + 0.42, T_COM[2]);
+    P(T_COM[0] - 0.10, 2.05, T_COM[2] + 0.14); P(T_COM[0] + 0.16, 2.90, T_COM[2] + 0.82);
+    P(HINGE[0] - 0.58, 3.02, -0.58);
+    const ab = armPt(0.40, -0.26, ang); P(ab[0], ab[1], ab[2]);
+    /* 沿衔铁横梁 → 动触点引片 → 动触点 */
+    const a0 = armPt(1.20, -0.20, ang);
+    P(a0[0], a0[1], a0[2]);
+    const a1 = armPt(3.60, -0.10, ang); P(a1[0], a1[1], a1[2]);
+    const a2 = armPt(BEAM_TIP_L - 0.15, -0.10, ang); P(a2[0], a2[1], a2[2]);
+    const a3 = armPt(CONTACT_L, -0.28, ang); P(a3[0], a3[1], a3[2]);
+    /* 动触点 → 静触点 → 铜臂 → 立柱 → 端子 */
+    if (mode === 'green') {
+      P(CONTACT_X, MOV_Y_REST - MOV_H / 2 + 0.001, 0);
+      P(CONTACT_X, UP_BOSS_Y, 0); P(4.68, ARM_UP_Y, 0); P(POST_X, ARM_UP_Y, 0);
+      P(POST_X, ARM_UP_Y - 0.35, -0.34); P(POST_X, 1.10, -0.55);
+      P(T_UP[0] - 0.30, 0.86, -1.10); P(T_UP[0], 0.82, T_UP[2]); P(T_UP[0], 1.20, T_UP[2]);
+      P(5.95, 3.30, -2.30); P(6.05, 5.70, -2.72); P(7.40, 7.00, -2.42); P(9.20, 7.05, -1.60);
+      P(LAMP_G[0] - 0.30, LAMP_G[1] + 0.10, LAMP_G[2]);
+      /* 灯泡内部：中心柱 → 立柱 → 灯丝 → 立柱 → 出线 */
+      P(LAMP_G[0], LAMP_G[1] + 0.52, LAMP_G[2]);
+      P(LAMP_G[0] + 0.16, LAMP_G[1] + 0.94, LAMP_G[2]);
+      helixPts(LAMP_G[0], lampG.centerY - 0.24, lampG.centerY + 0.30, 0.15, 4.5, 72, 0, LAMP_G[2])
+        .forEach(function (v, i) { if (i % 2 === 0) p.push(v); });
+      P(LAMP_G[0] - 0.16, LAMP_G[1] + 0.94, LAMP_G[2]);
+      P(LAMP_G[0] + 0.34, LAMP_G[1] + 0.30, LAMP_G[2] + 0.20);
+      P(LAMP_G[0] + 0.34, LAMP_G[1] + 0.20, LAMP_G[2] + 0.20);
+      P(11.10, 6.60, -1.30); P(11.70, 5.20, -2.60); P(11.30, 2.90, -3.30);
+      P(WPWR_N[0], 2.70, WPWR_N[2]);
+    } else {
+      P(CONTACT_X, MOV_Y_PULL + MOV_H / 2 - 0.001, 0);
+      P(CONTACT_X, DN_BOSS_Y, 0); P(4.68, ARM_DN_Y, 0); P(POST_X, ARM_DN_Y, 0);
+      P(POST_X, ARM_DN_Y - 0.35, 0.34); P(POST_X, 1.00, 0.55);
+      P(T_R[0] - 0.30, 0.86, 1.10); P(T_R[0], 0.82, T_R[2]); P(T_R[0], 1.20, T_R[2]);
+      P(7.30, 1.90, 1.35); P(8.60, 2.45, 1.10);
+      P(LAMP_R[0] - 0.30, LAMP_R[1] + 0.10, LAMP_R[2]);
+      P(LAMP_R[0], LAMP_R[1] + 0.52, LAMP_R[2]);
+      P(LAMP_R[0] + 0.16, LAMP_R[1] + 0.94, LAMP_R[2]);
+      helixPts(LAMP_R[0], lampR.centerY - 0.24, lampR.centerY + 0.30, 0.15, 4.5, 72, 0, LAMP_R[2])
+        .forEach(function (v, i) { if (i % 2 === 0) p.push(v); });
+      P(LAMP_R[0] - 0.16, LAMP_R[1] + 0.94, LAMP_R[2]);
+      P(LAMP_R[0] + 0.34, LAMP_R[1] + 0.30, LAMP_R[2] + 0.20);
+      P(LAMP_R[0] + 0.34, LAMP_R[1] + 0.20, LAMP_R[2] + 0.20);
+      P(11.40, 3.30, 0.30); P(11.00, 2.60, -1.80);
+      P(WPWR_N[0], 2.70, WPWR_N[2]);
+    }
+    flowWork.set(p);
+    workMode = mode; workAng = ang;
+  }
+
+  /* =========================================================
+     七、标签
+     ========================================================= */
+  addLabel('水箱', '#2f6fa8', 0.70, [TKCX, 8.80, 0]);
+  addLabel('金属块 A', '#a8632c', 0.66, [-19.40, 6.60, -0.95]);
+  addLabel('金属块 B', '#a8632c', 0.66, [-12.60, 1.20, 1.40]);
+  addLabel('水（导体）', '#2f6fa8', 0.60, [TKCX + 0.4, 0.60, 3.50]);
+  addLabel('电磁继电器', '#1b2430', 0.76, [-0.90, 5.40, 0]);
+  addLabel('电磁铁（铁芯＋线圈）', '#a8632c', 0.60, [-4.10, 1.55, -1.90]);
+  addLabel('复位弹簧', '#5a6879', 0.60, [1.90, 1.45, 2.00]);
+  addLabel('衔铁', '#5a6879', 0.60, [-2.20, 4.35, 0.30]);
+  addLabel('动触点', '#a8632c', 0.56, [2.90, 4.15, 1.30]);
+  addLabel('上静触点', '#1a7f5a', 0.56, [6.90, 4.20, 0]);
+  addLabel('下静触点', '#1a7f5a', 0.56, [6.90, 1.30, 0]);
+  addLabel('绿灯', '#1a7f5a', 0.66, [LAMP_G[0], 9.10, LAMP_G[2]]);
+  addLabel('红灯', '#c0392b', 0.66, [LAMP_R[0], 5.60, LAMP_R[2]]);
+  addLabel('电源（控制电路）', '#1b2430', 0.62, [-10.00, 3.60, 0]);
+  addLabel('电源（工作电路）', '#1b2430', 0.62, [8.60, 2.62, -3.55]);
+
+  /* 电磁铁吸力提示（通电时出现） */
+  const pullArrow = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.60, 12), new THREE.MeshBasicMaterial({ color: 0xe8372a }));
+  pullArrow.position.set(CORE_X, 4.15, 0);
+  pullArrow.rotation.z = Math.PI;
+  scene.add(pullArrow);
+
+  /* =========================================================
+     八、状态与动作
+     ========================================================= */
+  const state = {
+    level: 30,          // 水位 0~100
+    pull: 0,            // 衔铁吸合量 0（释放）~1（吸合）
+    tankOpacity: 0.28,
+    labels: true,
+    flow: true,
+    auto: false,
+    autoT: 0,
+    drag: 'none'
+  };
+
+  const elLevel = document.getElementById('levelRange');
+  const elLevelLabel = document.getElementById('levelLabel');
+  const elTank = document.getElementById('tankRange');
+  const elTankLabel = document.getElementById('tankLabel');
+  const elToast = document.getElementById('toast');
+  let toastTimer = 0;
+  function toast(msg) {
+    elToast.textContent = msg;
+    elToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { elToast.classList.remove('show'); }, 2000);
+  }
+
+  function conduct() { return yWater >= A_BOT - 1e-6; }
+
+  function applyLevel(p) {
+    state.level = clamp(p, 0, 100);
+    applyWater(WATER_MIN + state.level / 100 * (WATER_MAX - WATER_MIN));
+    elLevel.value = String(Math.round(state.level));
+    elLevelLabel.textContent = Math.round(state.level) + '%';
+    updateReadout();
+  }
+
+  /* 衔铁位置 → 弹簧 / 软铜辫 / 动触点 / 工作电流路径 */
+  let lastPull = -1;
+  function applyPull(k) {
+    state.pull = clamp(k, 0, 1);
+    const ang = -PULL_ANG * state.pull;
+    gArm.rotation.z = ang;
+    /* 弹簧上端跟着衔铁底面走：衔铁越往下，弹簧被压得越短 */
+    buildSpring(clamp((HINGE[1] - 0.225 + (SPR_X - HINGE[0]) * Math.sin(ang)) - SPR_Y0, 0.6, 4));
+    buildBraid(ang);
+    const mode = state.pull > 0.5 ? 'red' : 'green';
+    if (mode !== workMode || Math.abs(ang - workAng) > 0.002) buildWork(ang, mode);
+    /* 灯 */
+    const gOn = state.pull < 0.5, rOn = state.pull >= 0.5;
+    lampG.glass.emissiveIntensity = gOn ? 2.1 : 0;
+    lampG.filament.emissiveIntensity = gOn ? 3.0 : 0;
+    lampG.light.intensity = gOn ? 2.2 : 0;
+    lampG.glow.material.opacity = gOn ? 0.68 : 0;
+    lampR.glass.emissiveIntensity = rOn ? 2.1 : 0;
+    lampR.filament.emissiveIntensity = rOn ? 3.0 : 0;
+    lampR.light.intensity = rOn ? 2.2 : 0;
+    lampR.glow.material.opacity = rOn ? 0.68 : 0;
+    /* 电磁铁磁性 */
+    const mag = conduct();
+    coreMat.emissiveIntensity = mag ? 0.9 : 0;
+    pullArrow.visible = mag && state.flow;
+    /* 水导电时微微发亮 */
+    waterMat.emissive.setHex(0x2f9fd8);
+    waterMat.emissiveIntensity = mag ? 0.28 : 0;
+    lastPull = state.pull;
+  }
+
+  function applyTank(op) {
+    state.tankOpacity = op;
+    const hidden = op <= 0.02;
+    gTankShell.visible = !hidden;
+    tankMat.opacity = hidden ? 0 : op;
+    tankMat.transparent = !(op >= 0.995);
+    tankMat.depthWrite = true;
+    elTank.value = String(Math.round(op * 100));
+    elTankLabel.textContent = hidden ? '已隐藏' : (op >= 0.995 ? '实体 100%' : '透明 ' + Math.round(op * 100) + '%');
+  }
+
+  function updateReadout() {
+    const cond = conduct();
+    document.getElementById('vWater').innerHTML = yWater.toFixed(2) + '<i>cm</i>';
+    const elA = document.getElementById('vReach');
+    elA.textContent = cond ? '已到达 A' : '未到 A';
+    elA.className = cond ? 'on' : 'off';
+    const elC = document.getElementById('vCtrl');
+    elC.textContent = cond ? '接通' : '断开';
+    elC.className = cond ? 'on' : 'off';
+    const elM = document.getElementById('vMag');
+    elM.textContent = cond ? '有磁性' : '无磁性';
+    elM.className = cond ? 'on' : 'off';
+    const elK = document.getElementById('vContact');
+    elK.textContent = cond ? '下静触点' : '上静触点';
+    elK.className = cond ? 'on' : 'off';
+    const elL = document.getElementById('vLamp');
+    elL.textContent = cond ? '红灯亮' : '绿灯亮';
+    elL.className = cond ? 'on' : 'off';
+  }
+
+  /* =========================================================
+     九、相机与鼠标交互
+     ========================================================= */
+  const view = { theta: 0.40, phi: 1.26, dist: 33, distTarget: 33, tyTarget: 4.30, target: new THREE.Vector3(-4.60, 4.30, -0.60) };
+  const DEF = { theta: 0.40, phi: 1.26, dist: 33, target: [-4.60, 4.30, -0.60] };
+
+  function placeCam() {
+    const sp = Math.sin(view.phi), cp = Math.cos(view.phi);
+    camera.position.set(
+      view.target.x + view.dist * sp * Math.sin(view.theta),
+      view.target.y + view.dist * cp,
+      view.target.z + view.dist * sp * Math.cos(view.theta)
+    );
+    camera.lookAt(view.target);
+    camera.updateMatrixWorld();
+  }
+  function applyCamera() {
+    view.dist += (view.distTarget - view.dist) * 0.14;
+    view.target.y += (view.tyTarget - view.target.y) * 0.10;
+    placeCam();
+  }
+
+  /* ---------- 自动取景：把整套装置正好放进「面板左侧」那块可用区 ---------- */
+  let fitBox = null;
+  function contentBox() {
+    if (fitBox) return fitBox;
+    const b = new THREE.Box3();
+    [gTank, gRelay, gWire, lampG.group, lampR.group].forEach(function (o) { b.expandByObject(o); });
+    gPowers.forEach(function (o) { b.expandByObject(o); });
+    fitBox = b;
+    return b;
+  }
+  const _q = new THREE.Vector3();
+  function screenBBox(corners) {
+    const w = window.innerWidth, h = window.innerHeight;
+    let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+    for (let i = 0; i < corners.length; i++) {
+      _q.copy(corners[i]).project(camera);
+      const sx = (_q.x * 0.5 + 0.5) * w, sy = (-_q.y * 0.5 + 0.5) * h;
+      if (sx < minx) minx = sx; if (sx > maxx) maxx = sx;
+      if (sy < miny) miny = sy; if (sy > maxy) maxy = sy;
+    }
+    return { cx: (minx + maxx) / 2, cy: (miny + maxy) / 2, sw: maxx - minx, sh: maxy - miny };
+  }
+  function fitView() {
+    const box = contentBox();
+    const c = box.getCenter(new THREE.Vector3());
+    const corners = [];
+    for (let i = 0; i < 8; i++) corners.push(new THREE.Vector3(
+      (i & 1) ? box.max.x : box.min.x,
+      (i & 2) ? box.max.y : box.min.y,
+      (i & 4) ? box.max.z : box.min.z));
+    const w = window.innerWidth, h = window.innerHeight;
+    const panel = Math.min(334, w * 0.30);
+    const ax0 = 26, ax1 = w - panel - 26, ay0 = 18, ay1 = h - 62;
+    const MAR = 0.94;          // 留一点边距，别贴边
+    const aw = Math.max(140, (ax1 - ax0) * MAR), ah = Math.max(140, (ay1 - ay0) * MAR);
+    const wantCX = (ax0 + ax1) / 2, wantCY = (ay0 + ay1) / 2;
+    const base = c.clone();
+    let b = null;
+    for (let pass = 0; pass < 2; pass++) {
+      view.target.copy(base);
+      view.dist = clamp(isFinite(view.dist) ? view.dist : 40, 10, 120);
+      for (let it = 0; it < 4; it++) {
+        placeCam();
+        b = screenBBox(corners);
+        view.dist = clamp(view.dist * Math.max(b.sw / aw, b.sh / ah), 6, 160);
+      }
+      placeCam();
+      b = screenBBox(corners);
+      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+      const probe = function (v) {
+        view.target.copy(base).add(v); placeCam();
+        return screenBBox(corners);
+      };
+      /* 相机随 target 一起平移，target 往 +right/+up 走 δ，画面上的内容就反向移动 δ·(px/世界单位) */
+      const br = probe(right), bu = probe(up);
+      const dR = br.cx - b.cx, dU = bu.cy - b.cy;
+      if (Math.abs(dR) > 1e-6) base.addScaledVector(right, (wantCX - b.cx) / dR);
+      if (Math.abs(dU) > 1e-6) base.addScaledVector(up, (wantCY - b.cy) / dU);
+    }
+    view.target.copy(base);
+    view.tyTarget = base.y;
+    view.distTarget = view.dist;
+    placeCam();
+    lastFit = screenBBox(corners);
+    lastFit.dist = +view.dist.toFixed(2);
+    lastFit.target = [+base.x.toFixed(2), +base.y.toFixed(2), +base.z.toFixed(2)];
+    lastFit.avail = [ax0, ax1, ay0, ay1];
+    return lastFit;
+  }
+  let lastFit = null;
+  /* 右侧 312px 控制面板会挡住画面，用 setViewOffset 把「实际画面中心」左移到面板左边，
+     这样无论窗口多宽，装置都正好居中在没被面板遮住的那块区域里 */
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    const pad = Math.min(360, Math.max(0, w - 720));
+    renderer.setSize(w, h, false);
+    camera.aspect = (w + pad) / h;
+    camera.setViewOffset(w + pad, h, pad, 0, w, h);
+    camera.updateProjectionMatrix();
+    if (fitBox) fitView();
+  }
+  window.addEventListener('resize', resize);
+
+  const ndc = new THREE.Vector2();
+  const ray = new THREE.Raycaster();
+  function hitTank(e) {
+    const r = canvas.getBoundingClientRect();
+    ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    ray.setFromCamera(ndc, camera);
+    return ray.intersectObject(gTank, true).length > 0;
+  }
+  let drag0 = null;
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture(e.pointerId);
+    if (hitTank(e)) {
+      state.drag = 'water';
+      drag0 = { y: e.clientY, lv: state.level };
+      canvas.style.cursor = 'ns-resize';
+      return;
+    }
+    state.drag = e.shiftKey ? 'pan' : 'orbit';
+    drag0 = { x: e.clientX, y: e.clientY, theta: view.theta, phi: view.phi, tx: view.target.x, ty: view.target.y };
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (state.drag === 'none') { canvas.style.cursor = hitTank(e) ? 'ns-resize' : 'move'; return; }
+    if (state.drag === 'water') {
+      applyLevel(drag0.lv - (e.clientY - drag0.y) / 2.2);
+      return;
+    }
+    if (state.drag === 'orbit') {
+      view.theta = drag0.theta - (e.clientX - drag0.x) * 0.0075;
+      view.phi = clamp(drag0.phi - (e.clientY - drag0.y) * 0.0062, 0.16, 2.96);
+      return;
+    }
+    if (state.drag === 'pan') {
+      const k = view.dist * 0.0011;
+      view.target.x = drag0.tx - (e.clientX - drag0.x) * k;
+      view.tyTarget = drag0.ty + (e.clientY - drag0.y) * k;
+    }
+  });
+  function endDrag() { state.drag = 'none'; canvas.style.cursor = 'move'; }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    view.distTarget = clamp(view.distTarget * (1 + Math.sign(e.deltaY) * 0.09), 8, 90);
+  }, { passive: false });
+
+  /* =========================================================
+     十、UI 绑定
+     ========================================================= */
+  elLevel.addEventListener('input', function () { state.auto = false; document.getElementById('btnAuto').classList.remove('active'); applyLevel(parseFloat(elLevel.value)); });
+  elTank.addEventListener('input', function () { applyTank(parseFloat(elTank.value) / 100); });
+
+  document.getElementById('btnLow').addEventListener('click', function () {
+    state.auto = false; document.getElementById('btnAuto').classList.remove('active'); applyLevel(40); toast('水位低于 A：A、B 被空气隔开 → 控制电路断开');
+  });
+  document.getElementById('btnHigh').addEventListener('click', function () {
+    state.auto = false; document.getElementById('btnAuto').classList.remove('active'); applyLevel(92); toast('水位到达 A：水把 A、B 接通 → 电磁铁吸下衔铁');
+  });
+  document.getElementById('btnAuto').addEventListener('click', function () {
+    state.auto = !state.auto;
+    this.classList.toggle('active', state.auto);
+    if (state.auto) { state.autoT = 0; toast('自动演示：水位上升 → 红灯报警 → 水位下降 → 绿灯'); }
+  });
+
+  document.getElementById('btnLabels').addEventListener('click', function () {
+    state.labels = !state.labels;
+    this.classList.toggle('active', state.labels);
+    labelG.visible = state.labels;
+  });
+  document.getElementById('btnFlow').addEventListener('click', function () {
+    state.flow = !state.flow;
+    this.classList.toggle('active', state.flow);
+  });
+  document.getElementById('btnTip').addEventListener('click', function () {
+    document.getElementById('tipBox').classList.toggle('show');
+  });
+
+  function setView(theta, phi, dist, tx, ty, tz) {
+    view.theta = theta; view.phi = phi;
+    view.distTarget = dist; view.dist = dist * 0.94;
+    view.target.set(tx, ty, tz);
+    view.tyTarget = ty;
+  }
+  const VIEWS = {
+    btnTank: [0.42, 0.96, 17, -15.2, 3.50, 0, '水箱：看 A、B 与水面的位置'],
+    btnRelay: [0.52, 1.02, 13, 0.30, 3.00, 0, '继电器：电磁铁、衔铁、弹簧、触点'],
+    btnContact: [0.14, 1.40, 7.4, 4.60, 3.00, 0, '触点：动触点夹在上、下静触点之间'],
+    btnLamp: [0.72, 1.18, 19, 9.60, 5.00, -1.60, '工作电路：绿灯 / 红灯 与电源'],
+    btnFront: [0.0, 1.5708, 34, -4.60, 4.30, -0.60, '正视图（对照课本插图）']
+  };
+  Object.keys(VIEWS).forEach(function (id) {
+    const v = VIEWS[id];
+    document.getElementById(id).addEventListener('click', function () {
+      setView(v[0], v[1], v[2], v[3], v[4], v[5]);
+      toast(v[6]);
+    });
+  });
+  document.getElementById('btnReset').addEventListener('click', function () {
+    view.theta = 0.40; view.phi = 1.26;
+    fitView();
+    view.dist = view.distTarget * 0.94;
+    toast('全景（自动取景：装置正好铺满可用画面）');
+  });
+
+  document.getElementById('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const a = document.createElement('a');
+    a.download = '水位自动报警器.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+  document.getElementById('panelClose').addEventListener('click', function () {
+    document.getElementById('panel').classList.add('collapsed');
+  });
+  document.getElementById('panelOpen').addEventListener('click', function () {
+    document.getElementById('panel').classList.remove('collapsed');
+  });
+
+  /* =========================================================
+     十一、初始状态与主循环
+     ========================================================= */
+  applyLevel(30);
+  applyTank(0.28);
+  applyPull(0);
+  buildWork(0, 'green');
+  resize();
+  fitView();
+  view.dist = view.distTarget * 0.94;
+
+  let last = performance.now();
+  function loop() {
+    requestAnimationFrame(loop);
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+
+    if (state.auto) {
+      state.autoT += dt;
+      applyLevel(50 + 45 * Math.sin(Math.PI * 2 * state.autoT / 12 - Math.PI / 2));
+    }
+    const target = conduct() ? 1 : 0;
+    const p = state.pull + (target - state.pull) * Math.min(1, dt * 7);
+    if (Math.abs(p - state.pull) > 1e-4) applyPull(p);
+    else if (state.pull !== lastPull) applyPull(state.pull);
+
+    flowCtrl.g.visible = state.flow && conduct();
+    flowWork.g.visible = state.flow;
+    flowCtrl.update(dt);
+    flowWork.update(dt);
+
+    applyCamera();
+    renderer.render(scene, camera);
+  }
+  loop();
+
+  /* =========================================================
+     十二、调试钩子
+     ========================================================= */
+  window.__dbg = {
+    view: view,
+    state: state,
+    tri: function () { return renderer.info.render.triangles; },
+    info: function () {
+      const ang = -PULL_ANG * state.pull;
+      const movY = HINGE[1] + CONTACT_L * Math.sin(ang) - 0.28 * Math.cos(ang);
+      return {
+        level: +state.level.toFixed(2),
+        yWater: +yWater.toFixed(3),
+        aBot: A_BOT, bTop: B_TOP,
+        reachA: conduct(),
+        pull: +state.pull.toFixed(4),
+        angDeg: +(ang * 180 / Math.PI).toFixed(3),
+        movY: +movY.toFixed(3),
+        gapUp: +((UP_BOSS_Y - 0.08) - (movY + MOV_H / 2)).toFixed(3),
+        gapDn: +((movY - MOV_H / 2) - (DN_BOSS_Y + 0.08)).toFixed(3),
+        coreGap: +((HINGE[1] - 0.225 + (CORE_X - HINGE[0]) * Math.sin(ang)) - CORE_Y1).toFixed(3),
+        conduct: conduct(),
+        green: state.pull < 0.5,
+        red: state.pull >= 0.5,
+        lampG: lampG.glass.emissiveIntensity,
+        lampR: lampR.glass.emissiveIntensity,
+        coreMag: +coreMat.emissiveIntensity.toFixed(2),
+        workMode: workMode,
+        ctrlArrows: flowCtrl.arrows.length,
+        workArrows: flowWork.arrows.length,
+        ctrlLen: +flowCtrl.len.toFixed(2),
+        workLen: +flowWork.len.toFixed(2),
+        ctrlVisible: flowCtrl.g.visible,
+        workVisible: flowWork.g.visible,
+        springLen: +springLast.toFixed(3),
+        tankOpacity: +tankMat.opacity.toFixed(3),
+        labelsVisible: labelG.visible,
+        auto: state.auto
+      };
+    },
+    cam: camera,
+    setView: function (th, ph, d, tx, ty, tz) { setView(th, ph, d, tx, ty, tz); },
+    fit: function () { return lastFit; },
+    refit: function () { return fitView(); },
+    setLevel: function (p) { state.auto = false; applyLevel(p); },
+    setPull: function (k) { applyPull(k); },
+    settle: function () { applyPull(conduct() ? 1 : 0); },
+    setTank: applyTank,
+    toggleAuto: function () { document.getElementById('btnAuto').click(); },
+    /* 路径上某点附近的电流方向（用于断言方向，不靠肉眼看图） */
+    flowAt: function (which, x, y, z) {
+      const f = which === 'ctrl' ? flowCtrl : flowWork;
+      let best = 0, bd = 1e9;
+      for (let i = 0; i < f.pts.length; i++) {
+        const p = f.pts[i];
+        const d = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z);
+        if (d < bd) { bd = d; best = i; }
+      }
+      const u = clamp(best / (f.pts.length - 1), 0.0005, 0.9995);
+      const t = f.curve.getTangent(u).normalize();
+      return { idx: best, x: +t.x.toFixed(4), y: +t.y.toFixed(4), z: +t.z.toFixed(4) };
+    },
+    /* 真实几何自检：动触点与上/下静触点的世界坐标、同轴度与真实间隙 */
+    geom: function () {
+      const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+      movContact.getWorldPosition(a); upBoss.getWorldPosition(b); dnBoss.getWorldPosition(c);
+      const r3 = function (v) { return [+v.x.toFixed(3), +v.y.toFixed(3), +v.z.toFixed(3)]; };
+      return {
+        mov: r3(a), up: r3(b), dn: r3(c),
+        dxUp: +(a.x - b.x).toFixed(3), dxDn: +(a.x - c.x).toFixed(3), dzUp: +(a.z - b.z).toFixed(3),
+        gapUp: +((b.y - 0.08) - (a.y + MOV_H / 2)).toFixed(3),
+        gapDn: +((a.y - MOV_H / 2) - (c.y + 0.08)).toFixed(3)
+      };
+    },
+    dims: function () {
+      return {
+        aBot: A_BOT, bTop: B_TOP, waterMin: WATER_MIN, waterMax: WATER_MAX,
+        triggerLevel: +((A_BOT - WATER_MIN) / (WATER_MAX - WATER_MIN) * 100).toFixed(2),
+        contactX: CONTACT_X, pullAngDeg: +(PULL_ANG * 180 / Math.PI).toFixed(3),
+        travel: +(MOV_Y_REST - MOV_Y_PULL).toFixed(3),
+        upFace: +(UP_BOSS_Y - 0.08).toFixed(3), dnFace: +(DN_BOSS_Y + 0.08).toFixed(3)
+      };
+    },
+    /* 真实几何自检：逐顶点检查所有外接线有没有扎进"工作电路电源"的外壳里。
+       解析式路径能自圆其说，但管体的实际顶点才是真相 —— 上一版红线就是
+       按解析式看没问题、实际从电源顶盖扎了进去。 */
+    clearance: function () {
+      scene.updateMatrixWorld(true);
+      const A = WPWR_AABB, s = 0.02, v = new THREE.Vector3();
+      let hits = 0, worst = 0, total = 0, worstWire = '';
+      gWire.traverse(function (o) {
+        if (!o.isMesh || !o.geometry.attributes.position) return;
+        const pa = o.geometry.attributes.position;
+        for (let i = 0; i < pa.count; i++) {
+          v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld);
+          total++;
+          if (v.x > A.x0 + s && v.x < A.x1 - s && v.y > A.y0 + s && v.y < A.y1 - s &&
+            v.z > A.z0 + s && v.z < A.z1 - s) {
+            hits++;
+            const d = Math.min(v.x - A.x0, A.x1 - v.x, v.y - A.y0, A.y1 - v.y, v.z - A.z0, A.z1 - v.z);
+            if (d > worst) { worst = d; worstWire = '#' + o.material.color.getHexString(); }
+          }
+        }
+      });
+      return {
+        hits: hits, total: total, worst: +worst.toFixed(3), worstWire: worstWire,
+        box: [+A.x0.toFixed(2), +A.y0.toFixed(2), +A.z0.toFixed(2), +A.x1.toFixed(2), +A.y1.toFixed(2), +A.z1.toFixed(2)]
+      };
+    },
+    /* 红色工作回路引线沿途高度采样：跨过电源上方时必须全程高于电源顶面 */
+    redFeedTop: function () {
+      scene.updateMatrixWorld(true);
+      const v = new THREE.Vector3();
+      let minY = 1e9, at = null, overlapping = 0;
+      gWire.children.forEach(function (o) {
+        if (!o.isMesh || o.material !== wireRed || !o.geometry.attributes.position) return;
+        const pa = o.geometry.attributes.position;
+        for (let i = 0; i < pa.count; i++) {
+          v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld);
+          if (v.x >= WPWR_AABB.x0 && v.x <= WPWR_AABB.x1 &&
+            v.z >= WPWR_AABB.z0 && v.z <= WPWR_AABB.z1) {
+            overlapping++;
+            if (v.y < minY) { minY = v.y; at = [+v.x.toFixed(2), +v.y.toFixed(2), +v.z.toFixed(2)]; }
+          }
+        }
+      });
+      return { n: overlapping, minY: overlapping ? +minY.toFixed(3) : null, at: at, topY: 2.24 };
+    }
+  };
+})();
+
+</script>
+</body>
+</html>

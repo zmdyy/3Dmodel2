@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>滑动变阻器 · 3D 交互演示</title>
+<style>
+  :root{
+    --bg:#eef3f9;
+    --ink:#1b2430;
+    --ink2:#5a6879;
+    --line:#dde5ef;
+    --brand:#2f7de1;
+    --brand-soft:#e7f0fd;
+    --red:#d93a2b;
+    --shadow:0 10px 34px rgba(28,48,78,.13);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:fixed;inset:0;}
+  #scene{display:block;width:100%;height:100%;}
+
+  .head{
+    position:fixed;left:24px;top:20px;z-index:5;max-width:420px;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:16px;
+    padding:14px 18px;box-shadow:var(--shadow);
+  }
+  .head h1{margin:0 0 5px;font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .head h1 span{font-weight:500;color:var(--ink2);font-size:13px;}
+  .head p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink2);}
+
+  .panel{
+    position:fixed;right:22px;top:20px;z-index:6;
+    width:292px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+  }
+  .panel.collapsed{transform:translateX(calc(100% + 30px));opacity:0;pointer-events:none;}
+  .panel::-webkit-scrollbar{width:6px;}
+  .panel::-webkit-scrollbar-thumb{background:#cfdae8;border-radius:3px;}
+
+  #panelClose{
+    position:absolute;right:10px;top:10px;
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    cursor:pointer;font-size:14px;line-height:1;padding:0;
+  }
+  #panelClose:hover{background:var(--brand-soft);color:var(--brand);}
+  #panelOpen{
+    position:fixed;right:22px;top:20px;z-index:7;
+    width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    box-shadow:var(--shadow);cursor:pointer;font-size:17px;line-height:1;
+    display:none;
+  }
+  .panel.collapsed ~ #panelOpen{display:block;}
+
+  .grp{margin-bottom:14px;}
+  .grp:first-of-type .lbl{padding-right:32px;}
+  .lbl{
+    font-size:11.5px;font-weight:600;letter-spacing:.6px;
+    color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .lbl b{color:var(--brand);font-size:12.5px;font-weight:700;margin-left:auto;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;
+    background:linear-gradient(90deg,var(--brand) 0%,var(--brand) 50%,#e2eaf4 50%,#e2eaf4 100%);
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--brand);box-shadow:0 2px 6px rgba(47,125,225,.35);
+    cursor:grab;
+  }
+  input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.08);}
+
+  .seg{display:flex;gap:6px;}
+  .seg button{
+    flex:1;padding:8px 4px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:10px;cursor:pointer;transition:all .18s ease;
+  }
+  .seg button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .seg button.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(47,125,225,.32);}
+  .seg button.warn.active{background:var(--red);border-color:var(--red);box-shadow:0 3px 10px rgba(217,58,43,.32);}
+
+  .toggles{display:flex;gap:6px;flex-wrap:wrap;}
+  .toggles button{
+    flex:1;min-width:72px;padding:7px 8px;font-size:12px;font-weight:600;
+    border:1px solid var(--line);background:#fff;color:var(--ink2);
+    border-radius:9px;cursor:pointer;transition:all .18s ease;
+  }
+  .toggles button:hover{border-color:#bfd4ee;color:var(--brand);}
+  .toggles button.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+
+  .readout{
+    margin-top:9px;padding:10px 12px;border-radius:12px;
+    background:linear-gradient(180deg,#f6faff,#eef5fd);
+    border:1px solid #e2ecf8;
+  }
+  .rv{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;color:var(--ink2);}
+  .rv + .rv{margin-top:5px;}
+  .rv b{font-size:15px;color:#15406f;font-variant-numeric:tabular-nums;}
+  .verdict{
+    margin-top:8px;padding-top:8px;border-top:1px dashed #d6e3f3;
+    font-size:11.5px;line-height:1.5;color:var(--ink2);
+  }
+  .verdict.good{color:#1d7a4c;}
+  .verdict.bad{color:var(--red);}
+
+  .mini{font-size:11px;color:#8794a6;margin-top:7px;line-height:1.5;}
+
+  .tip{
+    padding:11px 12px;border-radius:12px;border:1px solid #e2ecf8;
+    background:linear-gradient(180deg,#f8fbff,#f0f6fe);
+    font-size:11.5px;line-height:1.75;color:var(--ink2);
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .tip b{font-size:12px;color:#15406f;margin-bottom:3px;}
+  .tip i{
+    display:inline-block;width:9px;height:9px;border-radius:50%;
+    margin-right:6px;vertical-align:middle;
+  }
+  .tip i.blue{background:#2f7de1;}
+  .tip i.gray{background:#9aa8b8;}
+  .tip i.amber{background:#e08c2a;}
+  .tip i.red{background:#e62a1d;}
+  .tip .ok{color:#1d7a4c;font-weight:600;}
+  .tip .bad{color:var(--red);font-weight:600;}
+  .tip em{font-style:normal;font-family:ui-monospace,Menlo,Consolas,monospace;color:#15406f;}
+
+  .hint{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:5;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:8px 20px;font-size:12px;color:var(--ink2);
+    box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .hint kbd{
+    background:#eef4fb;border:1px solid #dbe6f4;border-radius:5px;
+    padding:1px 5px;font-size:11px;font-family:inherit;color:#15406f;
+  }
+
+  #toast{
+    position:fixed;left:50%;bottom:74px;transform:translate(-50%,12px);
+    background:#1c2430;color:#fff;font-size:13px;padding:9px 18px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+  /* 原理图与模型各有独立区域，避免遮住导线和滑片。 */
+  #stage{right:352px;bottom:264px;}
+  .head{max-width:550px;padding:10px 15px;}
+  .head p{display:none;}
+  .head h1{margin:0;}
+  .schematic-card{position:fixed;left:22px;right:352px;bottom:20px;height:230px;
+    z-index:5;background:#fff;border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);padding:12px 18px;}
+  .schematic-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:17px;font-weight:700;}
+  #schematicRoute{color:#c0392b;font-size:17px;}
+  #schematicSvg{display:block;width:100%;height:180px;touch-action:none;user-select:none;}
+  #schematicSvg .conductor{fill:none;stroke:#272a30;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+  #schematicSvg text{font:700 27px Georgia,'Times New Roman',serif;fill:#20242b;}
+  #schematicSvg .port{fill:white;stroke:#272a30;stroke-width:3;}
+  #schematicSvg .port.connected{stroke:#e8372a;stroke-width:4;}
+  #schematicSvg .external{stroke:#9ca6b4;stroke-width:3;fill:none;}
+  #schematicSvg .path-current{fill:none;stroke:#e8372a;stroke-width:5;opacity:.45;stroke-linejoin:round;stroke-linecap:round;}
+  #schematicSvg .current-arrow{fill:#e8372a;stroke:white;stroke-width:.65;}
+  #schematicCurrent,#schematicArrows{pointer-events:none;}
+  #schematicSlider{cursor:ew-resize;}
+  .hint{bottom:264px;padding:5px 12px;font-size:11px;left:calc((100% - 352px)/2);}
+  body.controls-hidden #stage,body.controls-hidden .schematic-card{right:22px;}
+  body.controls-hidden .hint{left:50%;}
+  @media(max-height:780px){#stage{bottom:240px;}.schematic-card{height:206px;}#schematicSvg{height:158px;}.hint{bottom:240px;}}
+  @media(max-width:900px){#stage,.schematic-card{right:300px;}.panel{width:260px;right:18px;padding:12px;}.hint{left:calc((100% - 300px)/2);}}
+  @media(max-width:680px){#stage,body.controls-hidden #stage{right:0;bottom:222px;}
+    .schematic-card,body.controls-hidden .schematic-card{left:10px;right:10px;bottom:10px;height:202px;padding:10px;}
+    #schematicSvg{height:154px;}.schematic-heading,#schematicRoute{font-size:14px;}
+    .head{left:10px;top:10px;max-width:calc(100% - 64px);}.head p{display:none;}
+    .panel{top:58px;right:10px;width:240px;max-height:calc(100vh - 284px);}
+    #panelOpen{right:10px;top:12px;}.hint{display:none;}}
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="scene"></canvas></div>
+  <section class="schematic-card" aria-label="滑动变阻器同步原理图">
+    <div class="schematic-heading"><span>原理图 · 滑片 P 可拖动</span><span id="schematicRoute" aria-live="polite">A → P → C</span></div>
+    <svg id="schematicSvg" viewBox="0 0 600 220" role="img" aria-labelledby="schematicTitle schematicDesc">
+      <title id="schematicTitle">滑动变阻器原理图</title>
+      <desc id="schematicDesc">上方为滑杆 C、D，下方为电阻丝 A、B，箭头 P 指向滑片接触点。红色表示实际电流路径。</desc>
+      <path class="external" d="M28 27 L75 55 M525 55 L572 27 M28 193 L75 165 M525 165 L572 193"/>
+      <path class="conductor" d="M75 55 H525 M75 165 H135 M465 165 H525"/>
+      <path id="schematicResistance" class="conductor"/>
+      <g id="schematicSlider">
+        <path id="schematicStem" class="conductor"/>
+        <path id="schematicTip" fill="#272a30"/>
+        <text id="schematicPLabel">P</text>
+        <rect id="schematicSliderHit" fill="transparent" width="44" height="133" y="40"/>
+      </g>
+      <path id="schematicCurrent" class="path-current"/>
+      <g id="schematicArrows"/>
+      <circle id="schematicPortA" class="port" cx="75" cy="165" r="11"/>
+      <circle id="schematicPortB" class="port" cx="525" cy="165" r="11"/>
+      <circle id="schematicPortC" class="port" cx="75" cy="55" r="11"/>
+      <circle id="schematicPortD" class="port" cx="525" cy="55" r="11"/>
+      <text x="42" y="172">A</text><text x="544" y="172">B</text>
+      <text x="42" y="63">C</text><text x="544" y="63">D</text>
+    </svg>
+  </section>
+
+  <div class="head">
+    <h1>滑动变阻器 <span>· 3D 交互演示</span></h1>
+    <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+    <div class="grp">
+      <div class="lbl">滑片 P 位置 <b id="posLabel">居中</b></div>
+      <input id="sliderP" type="range" min="0" max="1000" step="1" value="500" />
+      <div class="mini">也可以直接用鼠标拖动 3D 里的滑片 P</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">爆炸视图 <b id="exLabel">装配态</b></div>
+      <input id="explode" type="range" min="0" max="100" step="1" value="0" />
+      <div class="toggles" style="margin-top:8px;">
+        <button id="btnAssemble">装 配</button>
+        <button id="btnExplode">分 解</button>
+      </div>
+      <div class="mini">装配顺序（由内向外）：瓷管 → 电阻丝密绕 → 滑杆穿两支座 → 滑片套上滑杆、触片压住电阻丝</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">接入接线柱</div>
+      <div class="seg" id="wireSeg">
+        <button data-wire="AC" class="active">A + C</button>
+        <button data-wire="BC">B + C</button>
+        <button data-wire="AB" class="warn">A + B</button>
+        <button data-wire="CD" class="warn">C + D</button>
+      </div>
+      <div class="readout">
+        <div class="rv"><span>接入电阻</span><b id="ohmValue">—</b></div>
+        <div class="rv"><span>接入丝长</span><b id="lenValue">—</b></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">电流方向 <b id="dirLabel">A → C</b></div>
+      <div class="seg" id="dirSeg">
+        <button data-dir="1" class="active">正 接</button>
+        <button data-dir="-1">反 接</button>
+      </div>
+      <div class="mini">接入的两个接线柱上各引出一根导线；小红箭头只沿实际导电路径流动，并始终指向电流方向。点「正接 / 反接」可切换方向。</div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">显示选项</div>
+      <div class="toggles">
+        <button id="btnFlow" class="active">电流箭头</button>
+        <button id="btnMarks" class="active">接线柱标记</button>
+        <button id="btnAxis" class="active">装配轴线</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="lbl">视角 / 导出</div>
+      <div class="toggles">
+        <button id="btnReset">默认视角</button>
+        <button id="btnFront">正视图</button>
+        <button id="btnTop">俯视图</button>
+        <button id="btnShot">导出 PNG</button>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>接线原理</b>
+      <span><i class="blue"></i>A、B＝电阻丝两端（下接线柱，柱身向盒外微倾）</span>
+      <span><i class="gray"></i>C、D＝滑杆两端（上接线柱，等电位）</span>
+      <span><i class="amber"></i>滑片 P 末端压在电阻丝表面的窄裸金属接触线上</span>
+      <span><i class="red"></i>红色箭头＝电流方向；外接导线、电阻丝、滑片和横梁保持近似一致的视觉密度</span>
+      <span class="ok">✓ 一上一下：滑片移动 → 阻值连续变化</span>
+      <span class="bad">✗ A+B：全部丝接入，滑片失效</span>
+      <span class="bad">✗ C+D：只有滑杆，近似短路</span>
+    </div>
+  </div>
+  <button id="panelOpen" title="展开面板">‹</button>
+
+  <div class="hint">拖拽旋转 · 滚轮缩放 · <kbd>Shift</kbd>+拖拽平移 · 直接拖动滑片 P</div>
+  <div id="toast"></div>
+
+  <script src="../shared/vendor/three-r144.min.js"></script>
+  <script src="../shared/current-flow-style.js"></script>
+  <script>
+/* =========================================================
+   滑动变阻器（J2354 型）· 3D 交互演示
+   ---------------------------------------------------------
+   结构（按实物装配关系建模）：
+     · 瓷管：骨架基准件，两端套白瓷套与金属箍
+     · A / B：瓷管两端金属箍上的下接线柱，螺栓水平朝前（正对使用者），
+               末端为滚花绝缘接线帽，拧松帽口即可夹线
+     · 电阻丝：密绕在瓷管中段，两端分别绕接到 A、B 的金属箍
+     · 滑杆：穿过左右支架的轴座，两端装 C / D 上接线柱（等电位）
+     · 滑片 P：轴套套在滑杆上可滑动，触片向下压紧在电阻丝表面
+               —— 滑杆与电阻丝经此连通
+   电流路径：接线柱 → 电阻丝（沿绕线一匝一匝螺旋前行）→ 滑片触片
+             → 滑杆 → 另一接线柱
+   接入方式：一上一下（A+C / B+C）才能变阻；A+B 全阻不变、C+D 近似短路
+   ========================================================= */
+(function () {
+  'use strict';
+
+  /* ================= 渲染器 / 场景 / 相机 ================= */
+  if (THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
+
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.08;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xeef3f9);
+  scene.fog = new THREE.Fog(0xeef3f9, 56, 130);
+
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
+
+  /* ================= 环境贴图 ================= */
+  (function buildEnvironment() {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0.00, '#ffffff');
+    g.addColorStop(0.38, '#f3f7fc');
+    g.addColorStop(0.50, '#e0e8f2');
+    g.addColorStop(0.62, '#bac5d3');
+    g.addColorStop(1.00, '#707b89');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 512);
+    [[26, 70, 34], [92, 132, 22]].forEach(function (p) {
+      const rg = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], p[2]);
+      rg.addColorStop(0, 'rgba(255,255,255,1)');
+      rg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(p[0], p[1], p[2], 0, Math.PI * 2); ctx.fill();
+    });
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const env = pmrem.fromEquirectangular(tex).texture;
+    pmrem.dispose();
+    tex.dispose();
+    scene.environment = env;
+  })();
+
+  /* ================= 灯光 ================= */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8fa0b0, 0.46));
+
+  const keyLight = new THREE.DirectionalLight(0xfffbf5, 1.02);
+  keyLight.position.set(11, 18, 12);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -15;
+  keyLight.shadow.camera.right = 15;
+  keyLight.shadow.camera.top = 15;
+  keyLight.shadow.camera.bottom = -15;
+  keyLight.shadow.camera.near = 1;
+  keyLight.shadow.camera.far = 70;
+  keyLight.shadow.bias = -0.0006;
+  keyLight.shadow.radius = 2.4;
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0xd9e8ff, 0.30);
+  fillLight.position.set(-12, 10, -9);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.34);
+  rimLight.position.set(-7, 8, 16);
+  scene.add(rimLight);
+
+  const warmBounce = new THREE.DirectionalLight(0xffddc2, 0.16);
+  warmBounce.position.set(4, 3, -12);
+  scene.add(warmBounce);
+
+  /* ================= 地面 ================= */
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(48, 72),
+    new THREE.MeshStandardMaterial({ color: 0xdce4ec, roughness: 0.82, metalness: 0.06, envMapIntensity: 0.32 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.02;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(48, 48, 0xc0cfe1, 0xd5e0ee);
+  grid.position.y = -0.015;
+  grid.material.transparent = true;
+  grid.material.opacity = 0.5;
+  scene.add(grid);
+
+  (function contactShadow() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 126);
+    g.addColorStop(0.00, 'rgba(38,58,88,0.36)');
+    g.addColorStop(0.45, 'rgba(38,58,88,0.20)');
+    g.addColorStop(0.72, 'rgba(38,58,88,0.07)');
+    g.addColorStop(1.00, 'rgba(38,58,88,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 256, 256);
+    const tex = new THREE.CanvasTexture(c);
+    const blob = new THREE.Mesh(
+      new THREE.PlaneGeometry(24, 12),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+    );
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 0.008;
+    blob.renderOrder = -1;
+    scene.add(blob);
+  })();
+
+  /* ================= 关键尺寸（1 单位 ≈ 1 cm） ================= */
+  const CORE_Y = 3.25;            // 瓷管轴线高度
+  const CORE_R = 1.26;            // 瓷管半径
+  const CORE_HL = 5.50;           // 瓷管半长
+
+  const SLEEVE_R = 1.325;         // 白瓷套半径
+  const SLEEVE_X = 4.95;          // 白瓷套中心 x
+  const SLEEVE_H = 0.72;
+
+  const BAND_R = 1.395;           // 金属箍半径
+  const BAND_X = 4.72;            // 金属箍中心 x
+  const BAND_W = 0.62;
+
+  const TERM_X = 4.72;            // A / B 接线柱 x
+
+  const WIRE_R = 0.088;           // 电阻丝半径
+  const COIL_R = CORE_R + WIRE_R; // 线圈中心线半径 = 1.348
+  const COIL_X0 = -4.45, COIL_X1 = 4.45;
+  const COIL_L = COIL_X1 - COIL_X0;   // 8.90
+  const WIRE_OUT = COIL_R + WIRE_R;   // 线圈外半径 = 1.436
+
+  const BAR_Y = 5.95;             // 滑杆轴线高度
+  const BAR_R = 0.17;
+  const BAR_HL = 7.40;
+  const NUT_X = 6.90;             // C / D 接线柱中心
+
+  const BRK_X = 5.85;             // 支架中心
+  const BRK_W = 1.42;             // 支架厚度（Z）
+  const BRK_TOP = 7.45;
+
+  const SLD_MIN = -4.10, SLD_MAX = 4.10;  // 滑片行程
+  const R_TOTAL = 20;                     // 电阻丝总阻值 Ω
+
+  /* ================= 材质 ================= */
+  const M = {
+    // 铸造支架：深灰金属、较高粗糙度，避免“浅蓝塑料”感
+    bracket: new THREE.MeshStandardMaterial({ color: 0x59636d, roughness: 0.48, metalness: 0.72, envMapIntensity: 0.86 }),
+    bracketDark: new THREE.MeshStandardMaterial({ color: 0x424b54, roughness: 0.52, metalness: 0.76, envMapIntensity: 0.82 }),
+    // 瓷管：暖白、低金属度，表面略有釉面反射
+    ceramic: new THREE.MeshPhysicalMaterial({ color: 0xf1eee6, roughness: 0.36, metalness: 0.0, clearcoat: 0.18, clearcoatRoughness: 0.34, envMapIntensity: 0.52 }),
+    ceramicMatte: new THREE.MeshStandardMaterial({ color: 0xe4e0d7, roughness: 0.60, metalness: 0.0, envMapIntensity: 0.38 }),
+    // 钢件 / 镀层
+    metal: new THREE.MeshStandardMaterial({ color: 0xc7cdd2, roughness: 0.20, metalness: 1.0, envMapIntensity: 1.22 }),
+    metalSoft: new THREE.MeshStandardMaterial({ color: 0xaeb6bd, roughness: 0.30, metalness: 0.92, envMapIntensity: 1.06 }),
+    // 漆包电阻丝：橙棕色漆膜，保留轻微金属底色与清漆高光
+    wire: new THREE.MeshPhysicalMaterial({ color: 0xa95b2b, roughness: 0.27, metalness: 0.22, clearcoat: 0.52, clearcoatRoughness: 0.22, envMapIntensity: 0.92 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xb8873f, roughness: 0.24, metalness: 0.92, envMapIntensity: 1.12 }),
+    red: new THREE.MeshPhysicalMaterial({ color: 0xc83c2f, roughness: 0.34, metalness: 0.0, clearcoat: 0.30, clearcoatRoughness: 0.24, envMapIntensity: 0.55 }),
+    redDark: new THREE.MeshPhysicalMaterial({ color: 0x9f2f25, roughness: 0.40, metalness: 0.0, clearcoat: 0.22, clearcoatRoughness: 0.30, envMapIntensity: 0.48 }),
+    // 滑块手柄改为深色工程塑料
+    handle: new THREE.MeshPhysicalMaterial({ color: 0x23282e, roughness: 0.42, metalness: 0.0, clearcoat: 0.20, clearcoatRoughness: 0.28, envMapIntensity: 0.48 }),
+    mark: new THREE.MeshStandardMaterial({ color: 0x5d6873, roughness: 0.56, metalness: 0.18, envMapIntensity: 0.52 }),
+    insul: new THREE.MeshPhysicalMaterial({ color: 0x20252b, roughness: 0.52, metalness: 0.0, clearcoat: 0.18, clearcoatRoughness: 0.34, envMapIntensity: 0.42 }),
+    insulOrange: new THREE.MeshPhysicalMaterial({ color: 0xc64f22, roughness: 0.40, metalness: 0.0, clearcoat: 0.34, clearcoatRoughness: 0.28, envMapIntensity: 0.55 }),
+    // 被滑片磨去绝缘层的裸金属点
+    contactMetal: new THREE.MeshStandardMaterial({ color: 0xd5d8da, roughness: 0.16, metalness: 1.0, envMapIntensity: 1.30 })
+  };
+  const glowMat = new THREE.MeshBasicMaterial({ color: 0xff7a1f, transparent: true, opacity: 0.85 });
+  const axisMat = new THREE.MeshBasicMaterial({ color: 0x4f8ee0, transparent: true, opacity: 0.0 });
+
+  /* ================= 工具 ================= */
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+  function put(parent, geo, mat, pos, rot) {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(pos[0], pos[1], pos[2]);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  }
+
+  function extrudeZ(shape, depth) {
+    const g = new THREE.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: false, curveSegments: 14 });
+    g.translate(0, 0, -depth / 2);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  function tube(points, radius, seg) {
+    const curve = new THREE.CatmullRomCurve3(points.map(function (p) { return new THREE.Vector3(p[0], p[1], p[2]); }));
+    return new THREE.TubeGeometry(curve, seg || 48, radius, 10, false);
+  }
+
+  /* ================= 标签（Sprite） ================= */
+  function makeLabel(text, color, scale) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.font = 'bold 92px Georgia,"Times New Roman",serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 14;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.96)';
+    ctx.strokeText(text, 64, 66);
+    ctx.fillStyle = color;
+    ctx.fillText(text, 64, 66);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.anisotropy = 4;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: tex, transparent: true, depthTest: false, depthWrite: false
+    }));
+    sp.scale.set(scale, scale, 1);
+    sp.renderOrder = 20;
+    return sp;
+  }
+
+  const labelG = new THREE.Group();
+  scene.add(labelG);
+
+  /* ================= 0. 装配轴线（爆炸方向提示） ================= */
+  const axleGroup = new THREE.Group();
+  axleGroup.visible = false;
+  scene.add(axleGroup);
+
+  function axle(p0, p1, r) {
+    const d = new THREE.Vector3(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
+    const len = d.length();
+    const g = new THREE.CylinderGeometry(r || 0.035, r || 0.035, len, 8);
+    const m = new THREE.Mesh(g, axisMat);
+    m.position.set((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, (p0[2] + p1[2]) / 2);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+    axleGroup.add(m);
+    return m;
+  }
+  axle([0, CORE_Y - 2.4, 0], [0, CORE_Y + 7.4, 0]);        // 竖直：瓷管 → 滑杆 → 滑片
+  axle([-BRK_X - 0.4, 3.3, 0], [-BRK_X - 3.6, 3.3, 0]);    // 左支架外移方向
+  axle([BRK_X + 0.4, 3.3, 0], [BRK_X + 3.6, 3.3, 0]);      // 右支架外移方向
+
+  /* ================= 1. 瓷管组（基准件，不参与爆炸平移） ================= */
+  const gCore = new THREE.Group();
+  scene.add(gCore);
+
+  // 瓷管主体
+  put(gCore, new THREE.CylinderGeometry(CORE_R, CORE_R, CORE_HL * 2, 52, 1),
+    M.ceramic, [0, CORE_Y, 0], [0, 0, Math.PI / 2]);
+  // 内部实心（避免透视看到背面内壁）
+  put(gCore, new THREE.CylinderGeometry(CORE_R - 0.06, CORE_R - 0.06, CORE_HL * 2 - 0.05, 40, 1),
+    M.ceramicMatte, [0, CORE_Y, 0], [0, 0, Math.PI / 2]);
+
+  // 两端白瓷套（略粗）
+  [1, -1].forEach(function (s) {
+    put(gCore, new THREE.CylinderGeometry(SLEEVE_R, SLEEVE_R, SLEEVE_H, 44, 1),
+      M.ceramic, [s * SLEEVE_X, CORE_Y, 0], [0, 0, Math.PI / 2]);
+  });
+
+  // 端面封盖
+  [1, -1].forEach(function (s) {
+    put(gCore, new THREE.CylinderGeometry(SLEEVE_R - 0.02, SLEEVE_R - 0.06, 0.16, 40, 1),
+      M.ceramicMatte, [s * (CORE_HL + 0.05), CORE_Y, 0], [0, 0, Math.PI / 2]);
+  });
+
+  // 端部金属箍（A / B 接线柱的基座，同时是电阻丝端头）
+  const bandMatA = new THREE.MeshStandardMaterial({ color: 0xb9c3ce, roughness: 0.30, metalness: 0.95, envMapIntensity: 0.95 });
+  const bandMatB = new THREE.MeshStandardMaterial({ color: 0xb9c3ce, roughness: 0.30, metalness: 0.95, envMapIntensity: 0.95 });
+  put(gCore, new THREE.CylinderGeometry(BAND_R, BAND_R, BAND_W, 44, 1), bandMatA,
+    [-BAND_X, CORE_Y, 0], [0, 0, Math.PI / 2]);
+  put(gCore, new THREE.CylinderGeometry(BAND_R, BAND_R, BAND_W, 44, 1), bandMatB,
+    [BAND_X, CORE_Y, 0], [0, 0, Math.PI / 2]);
+
+  /* ---- A / B 接线柱：螺栓水平朝前（正对使用者），末端为滚花绝缘接线帽 ---- */
+  const TERM_MOUNT_ANG = 0.62;            // 安装点在截面内的位置：低于前水平线 ≈ 35°
+  const TERM_AXIS = Math.PI / 2 + 0.09;   // 柱身轴线：局部 +Y → 世界 (0,−0.09,+0.996)，基本水平朝前、略低
+  const TERM_SINK = 0.32;                 // 底座沉入金属箍的深度
+  const TERM_H = 1.44;                    // 从底座到帽口的长度
+
+  // 柱身轴线方向（世界）
+  function termAxis() {
+    return [0, Math.cos(TERM_AXIS), Math.sin(TERM_AXIS)];
+  }
+
+  // 底座原点：金属箍表面沿轴线往里沉 TERM_SINK
+  function termBase(sign) {
+    const sa = Math.sin(TERM_MOUNT_ANG), ca = Math.cos(TERM_MOUNT_ANG);
+    const ax = termAxis();
+    return {
+      x: sign * TERM_X,
+      y: CORE_Y - BAND_R * sa - TERM_SINK * ax[1],
+      z: BAND_R * ca - TERM_SINK * ax[2]
+    };
+  }
+
+  // 接线点（帽口中心）：底座沿轴线向前伸出 TERM_H
+  function terminalTop(sign) {
+    const b = termBase(sign);
+    const ax = termAxis();
+    return [
+      b.x,
+      b.y + TERM_H * ax[1],
+      b.z + TERM_H * ax[2]
+    ];
+  }
+
+  const termRingA = new THREE.Mesh(new THREE.TorusGeometry(0.475, 0.065, 10, 28), glowMat);
+  const termRingB = new THREE.Mesh(new THREE.TorusGeometry(0.475, 0.065, 10, 28), glowMat);
+  termRingA.visible = termRingB.visible = false;
+
+  const termGroups = [];
+  function terminal(sign, ring) {
+    const b = termBase(sign);
+    const g = new THREE.Group();
+    g.position.set(b.x, b.y, b.z);
+    g.rotation.x = TERM_AXIS;              // 绕瓷管轴线旋转 90°：柱身由竖直转为水平朝前
+    gCore.add(g);
+    termGroups.push(g);
+
+    // 箍上的凸台底座
+    put(g, new THREE.CylinderGeometry(0.44, 0.56, 0.34, 28, 1), M.metalSoft, [0, 0.15, 0]);
+    // 黄铜螺杆
+    put(g, new THREE.CylinderGeometry(0.155, 0.155, 1.22, 18, 1), M.brass, [0, 0.62, 0]);
+    // 滚花绝缘接线帽（拧松后从帽口插入导线）
+    put(g, new THREE.CylinderGeometry(0.40, 0.45, 0.76, 16, 1), M.insul, [0, 1.02, 0]);
+    // 帽身滚花棱
+    [0.78, 1.02, 1.26].forEach(function (y) {
+      put(g, new THREE.TorusGeometry(0.428, 0.036, 8, 22), M.insul, [0, y, 0], [Math.PI / 2, 0, 0]);
+    });
+    // 帽口：铜垫圈 + 中心接线孔（正对使用者）
+    put(g, new THREE.CylinderGeometry(0.355, 0.355, 0.07, 22, 1), M.brass, [0, 1.42, 0]);
+    put(g, new THREE.CylinderGeometry(0.125, 0.125, 0.12, 14, 1), M.mark, [0, 1.44, 0]);
+
+    ring.position.set(0, 1.02, 0);
+    ring.rotation.x = Math.PI / 2;         // 环面垂直于柱身轴线（局部 +Y）
+    g.add(ring);
+    return g;
+  }
+  terminal(-1, termRingA);
+  terminal(1, termRingB);
+
+  // 电阻丝端头绕接到金属箍（保证"丝的两端 → A / B"可见）
+  [1, -1].forEach(function (s) {
+    put(gCore, tube([
+      [s * (COIL_X1 + 0.10), CORE_Y + 0.02, WIRE_OUT * 0.16],
+      [s * (COIL_X1 + 0.22), CORE_Y + WIRE_OUT * 0.62, WIRE_OUT * 0.60],
+      [s * (BAND_X - BAND_W / 2 - 0.02), CORE_Y + BAND_R, 0.10]
+    ], 0.085, 40), M.wire, [0, 0, 0]);
+  });
+
+  // A / B 标签（瓷管组内 → 不爆炸）
+  ['A', 'B'].forEach(function (t, i) {
+    const s = i === 0 ? -1 : 1;
+    const sp = makeLabel(t, '#1b2430', 1.55);
+    sp.position.set(s * 5.05, CORE_Y - 1.95, 0);
+    gCore.add(sp);
+  });
+
+  /* ================= 2. 电阻丝线圈（爆炸：向上抬起） ================= */
+  const gCoil = new THREE.Group();
+  scene.add(gCoil);
+
+  const TURNS = 48;
+  const ringGeo = new THREE.TorusGeometry(COIL_R, WIRE_R, 8, 44);
+  ringGeo.rotateY(Math.PI / 2);
+  const coil = new THREE.InstancedMesh(ringGeo, M.wire, TURNS);
+  coil.castShadow = true;
+  coil.receiveShadow = true;
+  const _m4 = new THREE.Matrix4();
+  const coilXs = [];
+  for (let i = 0; i < TURNS; i++) {
+    const x = COIL_X0 + (i + 0.5) * (COIL_L / TURNS);
+    coilXs.push(x);
+    _m4.makeTranslation(x, CORE_Y, 0);
+    coil.setMatrixAt(i, _m4);
+  }
+  coil.instanceMatrix.needsUpdate = true;
+  gCoil.add(coil);
+
+  // 有效电阻段只做轻微暖色提亮，不再把整片线圈染成亮黄。
+  const hotGeo = new THREE.TorusGeometry(COIL_R + 0.006, WIRE_R * 1.035, 8, 44);
+  hotGeo.rotateY(Math.PI / 2);
+  const coilHot = new THREE.InstancedMesh(hotGeo, new THREE.MeshStandardMaterial({
+    color: 0xc98549, emissive: 0x3d1306, emissiveIntensity: 0.20,
+    roughness: 0.30, metalness: 0.74, envMapIntensity: 0.92,
+    transparent: true, opacity: 0.42
+  }), TURNS);
+  for (let i = 0; i < TURNS; i++) coilHot.setMatrixAt(i, _m4.makeTranslation(0, -999, 0));
+  coilHot.instanceMatrix.needsUpdate = true;
+  coilHot.frustumCulled = false;
+  gCoil.add(coilHot);
+
+  // 滑片移动轨迹处的绝缘漆被磨去：不是一大片裸露，而是每一匝前表面
+  // 只有一个很窄的金属接触点。相邻匝的这些点视觉上连成一条细直线，
+  // 但几何上彼此不相连，避免错误暗示相邻电阻丝被短接。
+  const contactSpotGeo = new THREE.CylinderGeometry(WIRE_R * 1.025, WIRE_R * 1.025, 0.145, 10, 1);
+  const contactSpots = new THREE.InstancedMesh(contactSpotGeo, M.contactMetal, TURNS);
+  contactSpots.castShadow = true;
+  contactSpots.receiveShadow = true;
+  for (let i = 0; i < TURNS; i++) {
+    _m4.makeTranslation(coilXs[i], CORE_Y, WIRE_OUT + 0.010);
+    contactSpots.setMatrixAt(i, _m4);
+  }
+  contactSpots.instanceMatrix.needsUpdate = true;
+  gCoil.add(contactSpots);
+
+  /* ================= 3. 滑杆组（爆炸：向上抬起） ================= */
+  const gBar = new THREE.Group();
+  scene.add(gBar);
+
+  const barMat = new THREE.MeshStandardMaterial({ color: 0xbec5ca, roughness: 0.19, metalness: 1.0, envMapIntensity: 1.22 });
+  put(gBar, new THREE.CylinderGeometry(BAR_R, BAR_R, BAR_HL * 2, 26, 1), barMat,
+    [0, BAR_Y, 0], [0, 0, Math.PI / 2]);
+
+  // C / D 接线柱螺母各自独立材质，便于高亮成"通电色"
+  const nutMatD = new THREE.MeshStandardMaterial({ color: 0xabb3ba, roughness: 0.27, metalness: 0.96, envMapIntensity: 1.08 });
+  const nutMatC = new THREE.MeshStandardMaterial({ color: 0xabb3ba, roughness: 0.27, metalness: 0.96, envMapIntensity: 1.08 });
+
+  [1, -1].forEach(function (s, i) {
+    const nm = i === 0 ? nutMatD : nutMatC;
+    put(gBar, new THREE.CylinderGeometry(0.185, 0.185, 0.30, 20, 1), M.metalSoft,
+      [s * (NUT_X - 0.55), BAR_Y, 0], [0, 0, Math.PI / 2]);
+    put(gBar, new THREE.CylinderGeometry(0.375, 0.375, 0.72, 26, 1), nm,
+      [s * NUT_X, BAR_Y, 0], [0, 0, Math.PI / 2]);
+    put(gBar, new THREE.CylinderGeometry(0.42, 0.42, 0.14, 26, 1), nm,
+      [s * (NUT_X + 0.40), BAR_Y, 0], [0, 0, Math.PI / 2]);
+    // 杆端橙色滚花绝缘接线帽（实物特征：帽口朝外，拧松即可夹线）
+    put(gBar, new THREE.CylinderGeometry(0.40, 0.44, 0.62, 16, 1), M.insulOrange,
+      [s * (NUT_X + 0.78), BAR_Y, 0], [0, 0, Math.PI / 2]);
+    put(gBar, new THREE.CylinderGeometry(0.345, 0.345, 0.08, 20, 1), M.brass,
+      [s * (NUT_X + 1.11), BAR_Y, 0], [0, 0, Math.PI / 2]);
+
+    const sp = makeLabel(i === 0 ? 'D' : 'C', '#1b2430', 1.55);
+    sp.position.set(s * 7.55, BAR_Y + 0.95, 0);
+    gBar.add(sp);
+  });
+
+  /* ================= 4. 滑片 P 组（沿滑杆滑动 + 爆炸抬升） ================= */
+  const gSlider = new THREE.Group();
+  scene.add(gSlider);
+
+  // 轴套（套在滑杆上）
+  put(gSlider, new THREE.CylinderGeometry(0.30, 0.30, 1.02, 24, 1), M.metalSoft,
+    [0, 0, 0], [0, 0, Math.PI / 2]);
+
+  // 手柄（正面轮廓挤出，骑在滑杆上方）
+  (function handle() {
+    const s = new THREE.Shape();
+    s.moveTo(-0.775, 0.0);
+    s.lineTo(0.775, 0.0);
+    s.lineTo(0.715, 0.50);
+    s.quadraticCurveTo(0.675, 0.80, 0.515, 0.80);
+    s.lineTo(-0.515, 0.80);
+    s.quadraticCurveTo(-0.675, 0.80, -0.715, 0.50);
+    s.closePath();
+    put(gSlider, extrudeZ(s, 1.30), M.handle, [0, 0.19, 0]);
+  })();
+
+  // 触片：从手柄下缘斜向前下，再竖直贴住电阻丝表面（下端压在电阻丝上即可，不再有弯钩）
+  (function contact() {
+    const s = new THREE.Shape();
+    s.moveTo(0.30, 0.34);
+    s.lineTo(1.48, 0.08);
+    s.lineTo(1.48, -2.68);
+    s.lineTo(1.30, -2.68);
+    s.lineTo(1.30, -0.10);
+    s.lineTo(0.30, 0.16);
+    s.closePath();
+    const g = new THREE.ExtrudeGeometry(s, { depth: 0.46, bevelEnabled: false, curveSegments: 10 });
+    g.translate(0, 0, -0.23);
+    g.rotateY(-Math.PI / 2);          // shape 的 u→世界 z，
+    const g2 = new THREE.Group();
+    // 旋转后厚度方向变为 x；重新居中到滑片中心
+    const mesh = new THREE.Mesh(g, M.metalSoft);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    g2.add(mesh);
+    gSlider.add(g2);
+  })();
+
+  // 滑片真正与窄裸金属线接触的压头；装配态时正好落在 z=WIRE_OUT 的接触线上。
+  put(gSlider, new THREE.BoxGeometry(0.34, 0.12, 0.14), M.contactMetal,
+    [0, CORE_Y - BAR_Y + 0.045, WIRE_OUT + 0.018]);
+
+  // 两侧弹性压片
+  [1, -1].forEach(function (s) {
+    put(gSlider, tube([
+      [s * 0.47, 0.20, 0.95],
+      [s * 0.52, -0.60, 1.20],
+      [s * 0.54, -1.30, 1.26]
+    ], 0.045, 24), M.metalSoft, [0, 0, 0]);
+  });
+
+  // P 标签（跟随滑片）
+  const labelP = makeLabel('P', '#1b2430', 1.55);
+  labelP.position.set(0, 1.95, 0);
+  gSlider.add(labelP);
+
+  /* ================= 5. 左右支架（爆炸：向两侧外移） ================= */
+  function bracketShape() {
+    const s = new THREE.Shape();
+    s.moveTo(-0.34, BRK_TOP);
+    s.lineTo(0.34, BRK_TOP);
+    s.lineTo(0.34, 2.30);
+    s.lineTo(1.32, 0.36);
+    s.lineTo(0.98, 0.00);
+    s.lineTo(0.36, 0.00);
+    s.lineTo(0.36, 0.62);
+    s.lineTo(0.00, 1.55);
+    s.lineTo(-0.36, 0.62);
+    s.lineTo(-0.36, 0.00);
+    s.lineTo(-0.98, 0.00);
+    s.lineTo(-1.32, 0.36);
+    s.lineTo(-0.34, 2.30);
+    s.closePath();
+    return s;
+  }
+  const bracketGeo = extrudeZ(bracketShape(), BRK_W);
+
+  const gBrackets = [];
+  [-1, 1].forEach(function (s) {
+    const g = new THREE.Group();
+    g.position.x = s * BRK_X;
+    scene.add(g);
+    gBrackets.push({ g: g, dir: s });
+
+    put(g, bracketGeo, M.bracket, [0, 0, 0]);                                  // 立板 + 双腿
+    put(g, new THREE.BoxGeometry(1.30, 0.30, 1.62), M.bracketDark, [0, 0.15, 0]);   // 底脚
+    put(g, new THREE.CylinderGeometry(0.70, 0.70, BRK_W + 0.16, 30, 1), M.bracketDark,
+      [0, BAR_Y, 0], [Math.PI / 2, 0, 0]);                                     // 轴座
+    put(g, new THREE.CylinderGeometry(0.235, 0.235, BRK_W + 0.26, 22, 1), M.metalSoft,
+      [0, BAR_Y, 0], [Math.PI / 2, 0, 0]);                                     // 轴套（承滑杆）
+  });
+
+  /* ================= 6. 外接导线 + 电流方向箭头 ================= */
+  const LEAD_R = 0.074;
+  const leadMat = new THREE.MeshStandardMaterial({
+    color: 0x3b424e, roughness: 0.66, metalness: 0.05, envMapIntensity: 0.45
+  });
+  const FLOW_STYLE = window.CurrentFlowStyle;
+  const arrowMat = FLOW_STYLE.createMaterial(THREE);
+  const arrowGeo = FLOW_STYLE.createGeometry(THREE);
+  const FLOW_AXIS = FLOW_STYLE.createAxis(THREE);
+  const FLOW_SPEED = FLOW_STYLE.speed;       // 与油量测量装置统一
+  let travel = 0;
+
+  function curveOf(pts) {
+    return new THREE.CatmullRomCurve3(pts.map(function (p) {
+      return new THREE.Vector3(p[0], p[1], p[2]);
+    }));
+  }
+
+  // 下接线柱 A / B：从帽口（正对使用者）接出一小段线头（约 3 cm），朝前下方自然垂下
+  function leadPointsTerminal(sign) {
+    const t = terminalTop(sign);
+    const s = sign;
+    return [
+      [t[0], t[1], t[2]],
+      [t[0] + s * 0.24, t[1] - 0.34, t[2] + 0.62],
+      [t[0] + s * 0.60, t[1] - 0.92, t[2] + 1.06],
+      [t[0] + s * 1.02, t[1] - 1.62, t[2] + 1.32]
+    ];
+  }
+
+  // 上接线柱 C / D（杆端接线帽）：同样只接一小段线头，朝前下方垂下
+  function leadPointsNut(sign) {
+    const s = sign;
+    return [
+      [s * (NUT_X + 1.14), BAR_Y, 0],
+      [s * (NUT_X + 1.34), BAR_Y - 0.62, 0.66],
+      [s * (NUT_X + 1.66), BAR_Y - 1.60, 1.44],
+      [s * (NUT_X + 2.14), BAR_Y - 2.45, 2.42]
+    ];
+  }
+
+  function makeFlow(opts) {
+    const g = new THREE.Group();
+    opts.parent.add(g);
+    return {
+      id: opts.id, group: g, parent: opts.parent,
+      curve: null, a: new THREE.Vector3(), b: new THREE.Vector3(),
+      length: 1, displayLength: 1, spacing: opts.spacing || 1.8,
+      sign: 1, on: true, arrows: []
+    };
+  }
+
+  // 每一段的箭头数量由整条有效通路统一分配。
+  // 总数固定为油量测量装置的 26 个，再按各段弧长比例分配。
+  function syncArrows(f) {
+    const want = Math.max(0, Math.round(f.want == null ? 0 : f.want));
+    while (f.arrows.length > want) {
+      const m = f.arrows.pop();
+      f.group.remove(m);
+    }
+    while (f.arrows.length < want) {
+      const m = new THREE.Mesh(arrowGeo, arrowMat);
+      m.castShadow = false;
+      m.receiveShadow = false;
+      f.group.add(m);
+      f.arrows.push(m);
+    }
+  }
+
+  function makeLeadFlow(id, parent, pts, spacing) {
+    const f = makeFlow({ id: id, parent: parent, spacing: spacing });
+    f.curve = curveOf(pts);
+    f.length = f.curve.getLength();
+    f.displayLength = f.length;
+    f.surfaceRadius = LEAD_R;
+    const lead = new THREE.Mesh(new THREE.TubeGeometry(f.curve, 72, LEAD_R, 10, false), leadMat);
+    lead.castShadow = true;
+    lead.receiveShadow = true;
+    f.group.add(lead);
+    // 出线端封帽
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(LEAD_R * 1.1, 14, 10), leadMat);
+    cap.position.copy(f.curve.getPointAt(1));
+    f.group.add(cap);
+    syncArrows(f);
+    return f;
+  }
+
+  const fLeadA = makeLeadFlow('leadA', gCore, leadPointsTerminal(-1), 2.0);
+  const fLeadB = makeLeadFlow('leadB', gCore, leadPointsTerminal(1), 2.0);
+  const fLeadC = makeLeadFlow('leadC', gBar, leadPointsNut(-1), 2.0);
+  const fLeadD = makeLeadFlow('leadD', gBar, leadPointsNut(1), 2.0);
+
+  const fCoil = makeFlow({ id: 'coil', parent: gCoil, spacing: 1.7 });
+  const fBar = makeFlow({ id: 'bar', parent: gBar, spacing: 1.7 });
+  const fSld = makeFlow({ id: 'sld', parent: gSlider, spacing: 1.6 });   // 滑片触片 → 滑杆
+
+  const FLOW_ALL = [fLeadA, fLeadB, fLeadC, fLeadD, fCoil, fBar, fSld];
+
+  function rebalanceFlowArrows() {
+    const active = FLOW_ALL.filter(function (f) { return f.on && f.length > 0.001; });
+
+    // 关键：视觉密度按画面中的“可见长度”分配，而不是按真实电阻丝螺旋弧长。
+    // 否则螺旋线圈会占走几乎全部箭头，导致横梁和外接导线只剩 1~2 个。
+    const counts = FLOW_STYLE.allocateCounts(
+      active.map(function (f) { return Math.max(0.001, f.displayLength || f.length); }),
+      FLOW_STYLE.count
+    );
+
+    FLOW_ALL.forEach(function (f) { f.want = 0; });
+    active.forEach(function (f, i) {
+      let n = counts[i];
+      // 外接导线至少保留 3 个箭头，保证学生能看出导线中也有电流。
+      if (f.id.indexOf('lead') === 0) n = Math.max(3, n);
+      f.want = n;
+    });
+    FLOW_ALL.forEach(syncArrows);
+  }
+
+  const BAR_SEG_Y = BAR_Y + 0.30;              // 箭头浮在滑杆上方
+
+  /* ---- 电阻丝段：电流沿绕线一匝一匝螺旋前进 ---- */
+  const COIL_PITCH = COIL_L / TURNS;           // 相邻两匝间距
+  const HELIX_R = WIRE_OUT + 0.26;             // 箭头贴着电阻丝外表面绕行
+
+  // 取样：x 由 xa 走到 xb，同时绕瓷管轴线旋转（相位以瓷管左端上方为 0）
+  function helixPoints(xa, xb) {
+    const steps = Math.max(24, Math.round(Math.abs(xb - xa) / COIL_PITCH * 12));
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = xa + (xb - xa) * t;
+      const ang = (x - COIL_X0) / COIL_PITCH * Math.PI * 2;
+      pts.push([x, CORE_Y + Math.cos(ang) * HELIX_R, Math.sin(ang) * HELIX_R]);
+    }
+    return pts;
+  }
+
+  function setFlowCurve(f, key, pts, arrowCount) {
+    if (f._key === key) return;
+    f._key = key;
+    f.curve = curveOf(pts);
+    f.length = Math.max(0.001, f.curve.getLength());
+    f.displayLength = f.length;
+    f.want = arrowCount;
+    syncArrows(f);
+  }
+
+  function setFlowHelix(f, xa, xb) {
+    const turns = Math.abs(xb - xa) / COIL_PITCH;
+    // 数量最终由 rebalanceFlowArrows() 按整条有效路径统一分配；
+    // 这里先保证曲线被建立。
+    const want = turns < 0.5 ? 0 : 1;
+    setFlowCurve(f, 'h' + xa.toFixed(2) + '|' + xb.toFixed(2), helixPoints(xa, xb), want);
+    // 视觉密度只按电阻丝在画面中的左右跨度计算，不按绕线真实弧长计算。
+    f.displayLength = Math.max(0.45, Math.abs(xb - xa));
+  }
+
+  // 滑片段：从电阻丝表面（触片压住的那点）沿触片向上接到滑杆（滑片局部坐标固定）
+  setFlowCurve(fSld, 'sld', [
+    [0, CORE_Y - BAR_Y + 0.045, WIRE_OUT + 0.018],
+    [0, -1.30, 1.31],
+    [0, -0.02, 0.30]
+  ], 2);
+  fSld.displayLength = 2.4;
+
+  function setFlowLine(f, ax, ay, az, bx, by, bz) {
+    f.curve = null;
+    f._key = null;
+    f.want = undefined;
+    f.a.set(ax, ay, az);
+    f.b.set(bx, by, bz);
+    f.length = Math.max(0.001, f.a.distanceTo(f.b));
+    f.displayLength = f.length;
+    syncArrows(f);
+  }
+
+  const _fp = new THREE.Vector3(), _ft = new THREE.Vector3();
+  function flowPoint(f, u) {
+    if (f.curve) return f.curve.getPointAt(u, _fp);
+    return _fp.copy(f.a).lerp(f.b, u);
+  }
+  function flowTangent(f, u) {
+    if (f.curve) return f.curve.getTangentAt(u, _ft).normalize();
+    return _ft.subVectors(f.b, f.a).normalize();
+  }
+
+  /* ================= 状态 ================= */
+  const state = {
+    p: 0,               // 滑片位置（目标）
+    pShown: 0,          // 平滑显示值
+    explode: 0,         // 目标爆炸量 0~1
+    explodeShown: 0,
+    wire: 'AC',
+    dir: 1,             // 电流方向：+1 正接（前 → 后），−1 反接
+    showFlow: true,     // 电流箭头 / 外接导线
+    showMarks: true,
+    showAxis: true,
+    dragging: false
+  };
+
+  /* ================= 同步原理图 ================= */
+  const schematicSvg = document.getElementById('schematicSvg');
+  const schematicPath = document.getElementById('schematicCurrent');
+  const schematicArrows = document.getElementById('schematicArrows');
+  const schematicNodes = [];
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  let schematicKey = '', schematicLength = 1, schematicPhase = 0;
+  function diagramWaveY(x) { return 165 - 9 * Math.sin((x - 135) / 330 * Math.PI * 14); }
+  function diagramWave(a, b) {
+    const n = Math.max(1, Math.ceil(Math.abs(b - a) * 1.5)), pts = [];
+    for (let i = 0; i <= n; i++) {
+      const x = a + (b - a) * i / n;
+      pts.push([x, diagramWaveY(x)]);
+    }
+    return pts;
+  }
+  function diagramPath(points) { return points.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join(' '); }
+  document.getElementById('schematicResistance').setAttribute('d', diagramPath(diagramWave(135, 465)));
+  for (let i = 0; i < 9; i++) {
+    const arrow = document.createElementNS(SVG_NS, 'path');
+    arrow.setAttribute('d', 'M-7 -4.7 L7 0 L-7 4.7 Z');
+    arrow.setAttribute('class', 'current-arrow');
+    schematicArrows.appendChild(arrow);schematicNodes.push(arrow);
+  }
+  function updateSchematic(dt) {
+    const fraction = clamp((state.pShown - COIL_X0) / COIL_L, 0, 1);
+    const px = 135 + fraction * 330, py = diagramWaveY(px);
+    const key = [px.toFixed(3), state.wire, state.dir, state.showFlow].join('|');
+    if (key !== schematicKey) {
+      schematicKey = key;
+      document.getElementById('schematicStem').setAttribute('d', 'M'+px+' 55 V'+(py-13));
+      document.getElementById('schematicTip').setAttribute('d', 'M'+(px-11)+' '+(py-23)+' L'+px+' '+(py-2)+' L'+(px+11)+' '+(py-23)+' Z');
+      const label = document.getElementById('schematicPLabel');label.setAttribute('x', px+18);label.setAttribute('y', 118);
+      document.getElementById('schematicSliderHit').setAttribute('x', px-22);
+      let points, route;
+      switch(state.wire) {
+        case 'BC': points = [[572,193],[525,165],[465,165]].concat(diagramWave(465,px),[[px,55],[75,55],[28,27]]);route=['B','P','C'];break;
+        case 'AB': points = [[28,193],[75,165],[135,165]].concat(diagramWave(135,465),[[525,165],[572,193]]);route=['A','B'];break;
+        case 'CD': points = [[28,27],[75,55],[525,55],[572,27]];route=['C','D'];break;
+        default: points = [[28,193],[75,165],[135,165]].concat(diagramWave(135,px),[[px,55],[75,55],[28,27]]);route=['A','P','C'];
+      }
+      if (state.dir < 0) { points.reverse();route.reverse(); }
+      schematicPath.setAttribute('d', diagramPath(points));
+      schematicPath.dataset.connection = state.wire;schematicPath.dataset.direction = String(state.dir);
+      schematicPath.dataset.sliderFraction = fraction.toFixed(5);
+      schematicLength = Math.max(1, schematicPath.getTotalLength());
+      document.getElementById('schematicRoute').textContent = route.join(' → ');
+      document.getElementById('schematicRoute').style.color = state.showFlow ? '#c0392b' : '#5a6879';
+      ['A','B','C','D'].forEach(function (port) { document.getElementById('schematicPort'+port).classList.toggle('connected', state.wire.indexOf(port)>=0); });
+      schematicPath.style.display = state.showFlow ? '' : 'none';
+      schematicArrows.style.display = state.showFlow ? '' : 'none';
+    }
+    schematicPhase = (schematicPhase + dt * 65) % schematicLength;
+    if (state.showFlow) schematicNodes.forEach(function (arrow, i) {
+      const d = (schematicPhase + i / schematicNodes.length * schematicLength) % schematicLength;
+      const p = schematicPath.getPointAtLength(d), a = schematicPath.getPointAtLength(Math.max(0,d-1)), b = schematicPath.getPointAtLength(Math.min(schematicLength,d+1));
+      arrow.setAttribute('transform','translate('+p.x+' '+p.y+') rotate('+(Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI)+')');
+    });
+  }
+  // 原理图滑片与 3D 滑片使用同一个位置状态。
+  let schematicDragging = false;
+  function moveSchematicSlider(e) {
+    const point = schematicSvg.createSVGPoint();point.x=e.clientX;point.y=e.clientY;
+    const p = point.matrixTransform(schematicSvg.getScreenCTM().inverse());
+    setSliderP(COIL_X0 + clamp((p.x-135)/330,0,1)*COIL_L);
+  }
+  document.getElementById('schematicSlider').addEventListener('pointerdown', function (e) {
+    e.preventDefault();schematicDragging=true;schematicSvg.setPointerCapture(e.pointerId);moveSchematicSlider(e);
+  });
+  schematicSvg.addEventListener('pointermove', function(e){if(schematicDragging)moveSchematicSlider(e);});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(function(type){schematicSvg.addEventListener(type,function(){schematicDragging=false;});});
+
+  /* ================= 爆炸位移 ================= */
+  const EX = {
+    coil: 1.80,
+    bar: 3.05,
+    slider: 5.35,
+    bracket: 3.30
+  };
+
+  function applyExplode(t) {
+    gCoil.position.y = EX.coil * t;
+    gBar.position.y = EX.bar * t;
+    gSlider.position.y = BAR_Y + EX.slider * t;   // 滑片组内部以滑杆轴线为原点
+    gBrackets.forEach(function (b) {
+      b.g.position.x = b.dir * BRK_X + b.dir * EX.bracket * t;
+    });
+    axleGroup.visible = state.showAxis && t > 0.02;
+    axisMat.opacity = 0.55 * t;
+  }
+
+  /* ================= 电阻丝高亮 & 接线逻辑 ================= */
+  const el = {
+    posLabel: document.getElementById('posLabel'),
+    sliderP: document.getElementById('sliderP'),
+    exLabel: document.getElementById('exLabel'),
+    explode: document.getElementById('explode'),
+    ohm: document.getElementById('ohmValue'),
+    len: document.getElementById('lenValue'),
+    verdict: document.getElementById('verdict'),
+    dirLabel: document.getElementById('dirLabel'),
+    toast: document.getElementById('toast'),
+    panel: document.getElementById('panel')
+  };
+
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.toast.classList.remove('show'); }, 1500);
+  }
+
+  function updateCoilGlow() {
+    const p = state.pShown;
+    for (let i = 0; i < TURNS; i++) {
+      const x = coilXs[i];
+      let hot = false;
+      switch (state.wire) {
+        case 'AC': hot = x <= p; break;
+        case 'BC': hot = x >= p; break;
+        case 'AB': hot = true; break;
+        case 'CD': hot = false; break;
+      }
+      _m4.makeTranslation(hot ? x : 0, hot ? CORE_Y : -999, 0);
+      coilHot.setMatrixAt(i, _m4);
+    }
+    coilHot.instanceMatrix.needsUpdate = true;
+  }
+
+  function updateCircuit() {
+    const x0 = COIL_X0, x1 = COIL_X1;
+    const p = clamp(state.pShown, x0, x1);
+    let len = 0, ok = true, msg = '';
+
+    switch (state.wire) {
+      case 'AC':
+        len = p - x0;
+        msg = '✓ 一上一下：接入 A 端到滑片 P 之间的一段电阻丝，滑片右移 → 接入变长 → 阻值变大';
+        break;
+      case 'BC':
+        len = x1 - p;
+        msg = '✓ 一上一下：接入 B 端到滑片 P 之间的一段电阻丝，滑片右移 → 接入变短 → 阻值变小';
+        break;
+      case 'AB':
+        len = x1 - x0; ok = false;
+        msg = '✗ 都接下接线柱：整根电阻丝全部接入，滑片形同虚设，阻值不随滑动改变';
+        break;
+      case 'CD':
+        len = 0; ok = false;
+        msg = '✗ 都接上接线柱：电流只经过滑杆，几乎等于短路，滑片失效';
+        break;
+    }
+    len = clamp(len, 0, x1 - x0);
+    const R = len / (x1 - x0) * R_TOTAL;
+
+    el.ohm.textContent = state.wire === 'CD' ? '≈ 0 Ω' : R.toFixed(1) + ' Ω';
+    el.len.textContent = len.toFixed(1) + ' cm';
+    el.verdict.textContent = msg;
+    el.verdict.className = 'verdict ' + (ok ? 'good' : 'bad');
+
+    // 端子高亮环
+    termRingA.visible = (state.wire === 'AC' || state.wire === 'AB');
+    termRingB.visible = (state.wire === 'BC' || state.wire === 'AB');
+
+    // 金属箍与滑杆：高亮时染成铜金色，表示"这一段有电流通过"
+    // （浅色金属加 emissive 会饱和成粉白，直接用色相区分更清楚）
+    const ON_BAND = new THREE.Color(0xe8a04a);
+    const OFF_BAND = new THREE.Color(0xb9c3ce);
+    bandMatA.color.copy((state.wire === 'AC' || state.wire === 'AB') ? ON_BAND : OFF_BAND);
+    bandMatB.color.copy((state.wire === 'BC' || state.wire === 'AB') ? ON_BAND : OFF_BAND);
+
+    const barHot = (state.wire === 'AC' || state.wire === 'BC' || state.wire === 'CD');
+    barMat.color.set(barHot ? 0xe8903c : 0xc3ccd6);
+
+    const ON_NUT = new THREE.Color(0xe89a3c);
+    const OFF_NUT = new THREE.Color(0xb2bcc7);
+    nutMatC.color.copy((state.wire === 'AC' || state.wire === 'BC' || state.wire === 'CD') ? ON_NUT : OFF_NUT);
+    nutMatD.color.copy((state.wire === 'AC' || state.wire === 'BC' || state.wire === 'CD') ? ON_NUT : OFF_NUT);
+
+    updateCoilGlow();
+    updateFlows();
+    updateDirLabel();
+  }
+
+  /* ================= 电流回路：导线可见性 + 箭头路径 ================= */
+  function wireEnds() {
+    switch (state.wire) {
+      case 'BC': return ['B', 'C'];
+      case 'AB': return ['A', 'B'];
+      case 'CD': return ['C', 'D'];
+      default: return ['A', 'C'];
+    }
+  }
+
+  function updateDirLabel() {
+    const e = wireEnds();
+    if (!el.dirLabel) return;
+    el.dirLabel.textContent = state.dir > 0 ? (e[0] + ' → ' + e[1]) : (e[1] + ' → ' + e[0]);
+  }
+
+  function updateFlows() {
+    const w = state.wire;
+    const p = clamp(state.pShown, COIL_X0, COIL_X1);
+    const front = wireEnds()[0];      // 进线端（电流从这里流向外部之前先进入）
+
+    // 只有被接入的两个接线柱才引导线
+    fLeadA.on = (w === 'AC' || w === 'AB');
+    fLeadB.on = (w === 'BC' || w === 'AB');
+    fLeadC.on = (w === 'AC' || w === 'BC' || w === 'CD');
+    fLeadD.on = (w === 'CD');
+
+    // 导线曲线按“接线柱 → 外端”方向定义；进线端电流由外流入（取反），出线端由柱流出
+    fLeadA.sign = (front === 'A') ? -1 : 1;
+    fLeadB.sign = (front === 'B') ? -1 : 1;
+    fLeadC.sign = (front === 'C') ? -1 : 1;
+    fLeadD.sign = (front === 'D') ? -1 : 1;
+
+    fCoil.on = (w !== 'CD');
+    fBar.on = (w !== 'AB');
+    fSld.on = (w === 'AC' || w === 'BC');   // 只有"一上一下"时才有电流经过滑片
+
+    if (w === 'AC') {
+      setFlowHelix(fCoil, COIL_X0, p);                                    // A 端 → 沿绕线 → 滑片
+      setFlowLine(fBar, p, BAR_SEG_Y, 0, -NUT_X, BAR_SEG_Y, 0);           // 滑片 → C 端
+    } else if (w === 'BC') {
+      setFlowHelix(fCoil, COIL_X1, p);                                    // B 端 → 沿绕线 → 滑片
+      setFlowLine(fBar, p, BAR_SEG_Y, 0, -NUT_X, BAR_SEG_Y, 0);           // 滑片 → C 端
+    } else if (w === 'AB') {
+      setFlowHelix(fCoil, COIL_X0, COIL_X1);                              // A 端 → B 端（全丝）
+    } else {
+      setFlowLine(fBar, -NUT_X, BAR_SEG_Y, 0, NUT_X, BAR_SEG_Y, 0);       // C 端 → D 端（只有滑杆）
+    }
+
+    rebalanceFlowArrows();
+
+    const show = state.showFlow && state.explodeShown < 0.04;
+    for (let i = 0; i < FLOW_ALL.length; i++) {
+      FLOW_ALL[i].group.visible = show && FLOW_ALL[i].on;
+    }
+  }
+
+  // 每帧推进箭头（按弧长匀速，方向随接线端与“正/反”切换）
+  const leadCamera = new THREE.Vector3(), leadNormal = new THREE.Vector3();
+  function updateArrowPositions() {
+    for (let k = 0; k < FLOW_ALL.length; k++) {
+      const f = FLOW_ALL[k];
+      if (!f.on || !f.group.visible) continue;
+      const n = f.arrows.length;
+      if (!n) continue;
+      const sgn = f.sign * state.dir;
+      const base = travel * sgn / f.length;
+      if (f.surfaceRadius) {
+        // 相机转到哪一侧，就在导线朝向观察者的表面显示；不被导线实体吞掉。
+        f.group.updateWorldMatrix(true, false);
+        f.group.worldToLocal(leadCamera.copy(camera.position));
+      }
+      for (let i = 0; i < n; i++) {
+        let u = base + i / n;
+        u -= Math.floor(u);
+        const m = f.arrows[i];
+        m.position.copy(flowPoint(f, u));
+        const tangent = flowTangent(f, u).clone().multiplyScalar(sgn);
+        if (f.surfaceRadius) {
+          leadNormal.subVectors(leadCamera, m.position);
+          leadNormal.addScaledVector(tangent, -leadNormal.dot(tangent));
+          if (leadNormal.lengthSq() > 1e-8) {
+            m.userData.surfaceOffset = f.surfaceRadius + FLOW_STYLE.radius + 0.012;
+            m.position.addScaledVector(leadNormal.normalize(), m.userData.surfaceOffset);
+          }
+        }
+        if (tangent.lengthSq() > 1e-8) {
+          tangent.normalize();
+          m.quaternion.setFromUnitVectors(FLOW_AXIS, tangent);
+        }
+      }
+    }
+  }
+
+  /* ================= 滑片位置 ================= */
+  function setSliderP(v, syncRange) {
+    const nv = clamp(v, SLD_MIN, SLD_MAX);
+    state.p = nv;
+    if (syncRange !== false && el.sliderP) {
+      el.sliderP.value = String(Math.round((nv - SLD_MIN) / (SLD_MAX - SLD_MIN) * 1000));
+    }
+    const pct = (nv - SLD_MIN) / (SLD_MAX - SLD_MIN);
+    if (pct < 0.06) el.posLabel.textContent = '最左端';
+    else if (pct > 0.94) el.posLabel.textContent = '最右端';
+    else el.posLabel.textContent = '距左端 ' + (nv - COIL_X0).toFixed(1) + ' cm';
+    updateCircuit();
+  }
+
+  /* ================= 相机控制 ================= */
+  const view = {
+    theta: 0.56, phi: 1.16, dist: 20.5, distTarget: 20.5, baseDist: 20.5,
+    target: new THREE.Vector3(0.35, 3.90, 0)
+  };
+
+  function applyCamera() {
+    const v = view;
+    const fit = Math.max(1, 20 / (2 * Math.tan(19 * Math.PI / 180) * camera.aspect * v.baseDist));
+    const dist = v.dist * fit;
+    camera.position.set(
+      v.target.x + dist * Math.sin(v.phi) * Math.sin(v.theta),
+      v.target.y + dist * Math.cos(v.phi),
+      v.target.z + dist * Math.sin(v.phi) * Math.cos(v.theta)
+    );
+    camera.lookAt(v.target);
+  }
+
+  /* ================= 交互：指针 ================= */
+  const pointers = new Map();
+  let dragging = false;
+  let dragMode = null;       // 'orbit' | 'pan' | 'slider'
+  let last = { x: 0, y: 0 };
+  let pinchStart = 0, pinchDist = 0;
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  const dragPlane = new THREE.Plane();
+  const hitPoint = new THREE.Vector3();
+
+  function pointerNDC(e) {
+    const r = canvas.getBoundingClientRect();
+    ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    return ndc;
+  }
+
+  function pickSlider(e) {
+    raycaster.setFromCamera(pointerNDC(e), camera);
+    const hits = raycaster.intersectObject(gSlider, true);
+    return hits.length > 0;
+  }
+
+  // 把屏幕点投到「过滑杆中心、垂直于视线」的平面上，取 x 作为滑片位置
+  function screenToSliderX(e) {
+    raycaster.setFromCamera(pointerNDC(e), camera);
+    const n = new THREE.Vector3();
+    camera.getWorldDirection(n);
+    dragPlane.setFromNormalAndCoplanarPoint(n, new THREE.Vector3(0, BAR_Y + state.explodeShown * EX.slider, 0));
+    if (!raycaster.ray.intersectPlane(dragPlane, hitPoint)) return null;
+    return hitPoint.x;
+  }
+
+  const dragOffset = { v: 0 };
+
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 1) {
+      if (pickSlider(e)) {
+        dragMode = 'slider';
+        state.dragging = true;
+        canvas.style.cursor = 'grabbing';
+        const x = screenToSliderX(e);
+        if (x !== null) dragOffset.v = state.p - x;
+        e.preventDefault();
+        return;
+      }
+      dragMode = (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
+      dragging = true;
+      last = { x: e.clientX, y: e.clientY };
+    } else if (pointers.size === 2) {
+      dragMode = 'pinch';
+      dragging = false;
+      state.dragging = false;
+      const pts = Array.from(pointers.values());
+      pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      pinchStart = view.distTarget;
+    }
+  });
+
+  let hoverSlider = false;
+  function setHover(hit) {
+    if (hit === hoverSlider) return;
+    hoverSlider = hit;
+    M.handle.emissive.set(hit ? 0x2f6ba8 : 0x000000);
+    M.handle.emissiveIntensity = hit ? 0.55 : 0;
+  }
+
+  canvas.addEventListener('pointermove', function (e) {
+    if (!pointers.has(e.pointerId)) {
+      // hover 提示：可拖动滑片
+      if (pointers.size === 0) {
+        const hit = pickSlider(e);
+        canvas.style.cursor = hit ? 'grab' : 'default';
+        setHover(hit);
+      }
+      return;
+    }
+    const prev = pointers.get(e.pointerId);
+    const dx = e.clientX - prev.x;
+    const dy = e.clientY - prev.y;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (dragMode === 'slider') {
+      const x = screenToSliderX(e);
+      if (x !== null) setSliderP(x + dragOffset.v);
+      e.preventDefault();
+      return;
+    }
+    if (dragMode === 'pinch' && pointers.size === 2) {
+      const pts = Array.from(pointers.values());
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (pinchDist > 0) { view.distTarget = clamp(pinchStart * pinchDist / d, 11, 62); view.baseDist = view.distTarget; }
+      return;
+    }
+    if (!dragging) return;
+    if (dragMode === 'pan') {
+      const scale = view.dist * 0.0016;
+      const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0);
+      const up = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1);
+      view.target.addScaledVector(right, -dx * scale);
+      view.target.addScaledVector(up, dy * scale);
+    } else {
+      view.theta -= dx * 0.0058;
+      view.phi = clamp(view.phi - dy * 0.0055, 0.10, 1.62);
+    }
+    e.preventDefault();
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size === 0) {
+      dragging = false;
+      if (dragMode === 'slider') { state.dragging = false; canvas.style.cursor = 'default'; }
+      setHover(false);
+      dragMode = null;
+    }
+  }
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', endPointer);
+  canvas.addEventListener('pointerleave', function (e) { if (pointers.size) endPointer(e); });
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    view.distTarget = clamp(view.distTarget * Math.exp(e.deltaY * 0.0011), 11, 62);
+    view.baseDist = view.distTarget;
+  }, { passive: false });
+
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  /* ================= UI 绑定 ================= */
+  el.sliderP.addEventListener('input', function () {
+    const k = parseFloat(el.sliderP.value) / 1000;
+    setSliderP(SLD_MIN + k * (SLD_MAX - SLD_MIN), false);
+  });
+
+  el.explode.addEventListener('input', function () {
+    const t = parseFloat(el.explode.value) / 100;
+    state.explode = t;
+    el.exLabel.textContent = t < 0.02 ? '装配态' : Math.round(t * 100) + '%';
+    // 分解后模型整体变高，相机随之上移并拉远，保证 C / D 与滑片都在画面内
+    view.baseDist = 26.5 * (1 + 0.20 * t);
+    view.distTarget = view.baseDist;
+    view.target.set(0.35, 3.90 + 1.70 * t, 0);
+  });
+
+  document.querySelectorAll('[data-wire]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-wire]').forEach(function (o) { o.classList.remove('active'); });
+      b.classList.add('active');
+      state.wire = b.dataset.wire;
+      updateCircuit();
+      if (state.wire === 'AB') toast('都接下接线柱 → 全部电阻丝接入，滑片不起作用');
+      if (state.wire === 'CD') toast('都接上接线柱 → 只有滑杆导电，近似短路');
+    });
+  });
+
+  // 电流方向：正接 / 反接（箭头随之反向流动）
+  document.querySelectorAll('[data-dir]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-dir]').forEach(function (o) { o.classList.remove('active'); });
+      b.classList.add('active');
+      state.dir = parseFloat(b.dataset.dir);
+      updateDirLabel();
+    });
+  });
+
+  const btnFlow = document.getElementById('btnFlow');
+  btnFlow.addEventListener('click', function () {
+    state.showFlow = !state.showFlow;
+    btnFlow.classList.toggle('active', state.showFlow);
+  });
+
+  document.getElementById('btnAssemble').addEventListener('click', function () {
+    el.explode.value = '0';
+    el.explode.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  document.getElementById('btnExplode').addEventListener('click', function () {
+    el.explode.value = '100';
+    el.explode.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  const btnMarks = document.getElementById('btnMarks');
+  btnMarks.addEventListener('click', function () {
+    state.showMarks = !state.showMarks;
+    btnMarks.classList.toggle('active', state.showMarks);
+    [labelP].concat(collectLabels()).forEach(function (sp) { sp.visible = state.showMarks; });
+  });
+
+  function collectLabels() {
+    const out = [];
+    gCore.traverse(function (o) { if (o.isSprite) out.push(o); });
+    gBar.traverse(function (o) { if (o.isSprite) out.push(o); });
+    return out;
+  }
+
+  const btnAxis = document.getElementById('btnAxis');
+  btnAxis.addEventListener('click', function () {
+    state.showAxis = !state.showAxis;
+    btnAxis.classList.toggle('active', state.showAxis);
+    axleGroup.visible = state.showAxis && state.explodeShown > 0.02;
+  });
+
+  document.getElementById('btnReset').addEventListener('click', function () {
+    view.theta = 0.56; view.phi = 1.16; view.distTarget = view.baseDist;
+    view.target.set(0.35, 3.90, 0);
+  });
+  document.getElementById('btnFront').addEventListener('click', function () {
+    view.theta = 0; view.phi = 1.50; view.distTarget = view.baseDist * 0.96;
+    view.target.set(0, 3.70, 0);
+  });
+  document.getElementById('btnTop').addEventListener('click', function () {
+    view.theta = 0; view.phi = 0.34; view.distTarget = view.baseDist * 1.02;
+    view.target.set(0, 3.40, 0);
+  });
+  document.getElementById('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const url = renderer.domElement.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '滑动变阻器-' + Date.now() + '.png';
+    a.click();
+    toast('已导出 PNG');
+  });
+
+  document.getElementById('panelClose').addEventListener('click', function () {
+    el.panel.classList.add('collapsed');
+    document.body.classList.add('controls-hidden');resize();
+  });
+  document.getElementById('panelOpen').addEventListener('click', function () {
+    el.panel.classList.remove('collapsed');
+    document.body.classList.remove('controls-hidden');resize();
+  });
+
+  /* ================= 尺寸 ================= */
+  function resize() {
+    const stage = document.getElementById('stage');
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  /* ================= 主循环 ================= */
+  let prevT = performance.now();
+  function tick() {
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - prevT) / 1000);
+    prevT = now;
+
+    // 平滑
+    const kp = Math.min(1, dt * 12);
+    if (Math.abs(state.pShown - state.p) > 0.0005) {
+      state.pShown += (state.p - state.pShown) * kp;
+      gSlider.position.x = state.pShown;
+      updateCoilGlow();
+      updateCircuitReadoutOnly();
+    } else if (Math.abs(state.pShown - state.p) > 0) {
+      state.pShown = state.p;
+      gSlider.position.x = state.pShown;
+    }
+
+    if (Math.abs(state.explodeShown - state.explode) > 0.0005) {
+      state.explodeShown += (state.explode - state.explodeShown) * Math.min(1, dt * 6.5);
+      applyExplode(state.explodeShown);
+    }
+
+    if (Math.abs(view.dist - view.distTarget) > 0.002) {
+      view.dist += (view.distTarget - view.dist) * Math.min(1, dt * 6);
+    }
+
+    travel += dt * FLOW_SPEED;
+    applyCamera();
+    updateFlows();
+    updateArrowPositions();
+    updateSchematic(dt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+
+  // 只刷新数值文字（拖动时避免频繁重算高亮）
+  function updateCircuitReadoutOnly() {
+    const x0 = COIL_X0, x1 = COIL_X1;
+    const p = clamp(state.pShown, x0, x1);
+    let len;
+    switch (state.wire) {
+      case 'AC': len = p - x0; break;
+      case 'BC': len = x1 - p; break;
+      case 'AB': len = x1 - x0; break;
+      default: len = 0;
+    }
+    len = clamp(len, 0, x1 - x0);
+    const R = len / (x1 - x0) * R_TOTAL;
+    el.ohm.textContent = state.wire === 'CD' ? '≈ 0 Ω' : R.toFixed(1) + ' Ω';
+    el.len.textContent = len.toFixed(1) + ' cm';
+    const pct = (state.pShown - SLD_MIN) / (SLD_MAX - SLD_MIN);
+    if (pct < 0.06) el.posLabel.textContent = '最左端';
+    else if (pct > 0.94) el.posLabel.textContent = '最右端';
+    else el.posLabel.textContent = '距左端 ' + (state.pShown - COIL_X0).toFixed(1) + ' cm';
+  }
+
+  /* ================= 启动 ================= */
+  resize();
+  setSliderP(0);
+  updateCircuit();
+  applyExplode(0);
+  applyCamera();
+  requestAnimationFrame(tick);
+
+  window.__dbg = {
+    state: state,
+    view: view,
+    coilCount: TURNS,
+    setWire: function (w) { state.wire = w; updateCircuit(); },
+    setDir: function (d) { state.dir = d; updateDirLabel(); },
+    termInfo: function () {
+      return termGroups.map(function (g) {
+        g.updateWorldMatrix(true, false);
+        const b = new THREE.Vector3(0, 0.12, 0).applyMatrix4(g.matrixWorld);
+        const t = new THREE.Vector3(0, 1.16, 0).applyMatrix4(g.matrixWorld);
+        return {
+          side: g.position.x < 0 ? 'A(左)' : 'B(右)',
+          rotX: +g.rotation.x.toFixed(3),
+          baseZ: +b.z.toFixed(3), topZ: +t.z.toFixed(3),
+          dz: +(t.z - b.z).toFixed(3),                       // 前倾量：顶端相对底座向 +Z 探出
+          dx: +(t.x - b.x).toFixed(3),                       // 应为 0：不允许沿瓷管轴向偏
+          tiltDeg: +(Math.atan2(t.z - b.z, t.y - b.y) * 180 / Math.PI).toFixed(1)
+        };
+      });
+    },
+    flowInfo: function () {
+      const ax = new THREE.Vector3();
+      return FLOW_ALL.map(function (f) {
+        let head = null;
+        if (f.arrows.length) {
+          const dv0 = flowTangent(f, 0.5).clone().multiplyScalar(f.sign * state.dir);
+          head = [+dv0.x.toFixed(3), +dv0.y.toFixed(3), +dv0.z.toFixed(3)];
+        }
+        // 路径中点处的实际电流方向（含 sign / 正反接），比单个箭头位移更稳定
+        const dv = flowTangent(f, 0.5).clone().multiplyScalar(f.sign * state.dir);
+        return {
+          id: f.id, on: f.on, vis: f.group.visible,
+          n: f.arrows.length, len: +f.length.toFixed(2), sign: f.sign, head: head,
+          surfaceRadius: f.surfaceRadius || 0,
+          surfaceOffsets: f.arrows.map(function (m) { return m.userData.surfaceOffset || 0; }),
+          dirVec: [+dv.x.toFixed(3), +dv.y.toFixed(3), +dv.z.toFixed(3)],
+          xs: f.arrows.map(function (m) { return +m.position.x.toFixed(4); }),
+          pos: f.arrows.length ? [
+            +f.arrows[0].position.x.toFixed(3),
+            +f.arrows[0].position.y.toFixed(3),
+            +f.arrows[0].position.z.toFixed(3)
+          ] : null
+        };
+      });
+    },
+    screenOf: function (x, y, z) {
+      const v = new THREE.Vector3(x, y, z).project(camera);
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: Math.round(rect.left + (v.x * 0.5 + 0.5) * rect.width),
+        y: Math.round(rect.top + (-v.y * 0.5 + 0.5) * rect.height)
+      };
+    },
+    sliderScreen: function () {
+      return this.screenOf(state.pShown, BAR_Y + state.explodeShown * EX.slider, 0);
+    },
+    tri: function () { return renderer.info.render.triangles; }
+  };
+})();
+
+</script>
+</body>
+</html>

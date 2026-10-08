@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#f4f7fb" />
+<title>3D 交互模型作品集</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e3e9f1;
+    --brand:#2868d8; --brand-soft:#eaf2ff; --shadow:0 14px 42px rgba(24,39,75,.09);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:linear-gradient(180deg,#f8fbff 0,#f4f7fb 42%,#f0f4f9 100%);color:var(--ink);font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  button,input{font:inherit}
+  .shell{width:min(1180px,calc(100% - 40px));margin:0 auto;padding:42px 0 70px}
+  .hero{position:relative;overflow:hidden;border:1px solid rgba(214,224,238,.9);border-radius:28px;background:rgba(255,255,255,.76);box-shadow:var(--shadow);padding:42px 44px 38px;backdrop-filter:blur(16px)}
+  .hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none}
+  .hero:before{width:320px;height:320px;right:-120px;top:-150px;background:radial-gradient(circle,rgba(64,131,235,.18),rgba(64,131,235,0) 68%)}
+  .hero:after{width:240px;height:240px;left:38%;bottom:-190px;background:radial-gradient(circle,rgba(95,188,159,.15),rgba(95,188,159,0) 70%)}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:var(--brand-soft);color:#285fae;font-size:12px;font-weight:700;letter-spacing:.05em}
+  .eyebrow i{width:7px;height:7px;border-radius:50%;background:#3f7fe4;box-shadow:0 0 0 4px rgba(63,127,228,.12)}
+  h1{margin:17px 0 10px;font-size:clamp(30px,4vw,48px);line-height:1.12;letter-spacing:-.03em}
+  .lead{max-width:760px;margin:0;color:var(--muted);font-size:15px;line-height:1.85}
+  .hero-meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:25px;color:#4b5870;font-size:13px}
+  .hero-meta span{display:flex;align-items:center;gap:7px}
+  .hero-meta b{font-size:18px;color:#1e2c43}
+  .toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:28px 0 20px}
+  .search{position:relative;flex:1;max-width:430px}
+  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;stroke:#8b97aa}
+  .search input{width:100%;height:44px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:0 14px 0 42px;outline:none;color:var(--ink);box-shadow:0 4px 14px rgba(24,39,75,.04);transition:.18s}
+  .search input:focus{border-color:#a9c7f6;box-shadow:0 0 0 4px rgba(45,111,220,.08)}
+  .filters{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+  .filter{border:1px solid var(--line);background:#fff;color:#566176;border-radius:999px;padding:8px 13px;cursor:pointer;font-size:12.5px;font-weight:650;transition:.18s}
+  .filter:hover{border-color:#bfd0e8;color:#2d5f9d}
+  .filter.active{background:#253b5c;color:#fff;border-color:#253b5c}
+  .section-head{display:flex;justify-content:space-between;align-items:end;margin:26px 2px 14px}
+  .section-head h2{margin:0;font-size:18px}
+  .section-head p{margin:5px 0 0;color:#7a8698;font-size:12.5px}
+  .count{color:#7a8698;font-size:12.5px}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .card{position:relative;display:flex;flex-direction:column;min-height:330px;border:1px solid var(--line);border-radius:20px;background:var(--card);overflow:hidden;box-shadow:0 7px 23px rgba(24,39,75,.055);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;cursor:pointer}
+  .card:hover{transform:translateY(-4px);border-color:#d3dfef;box-shadow:0 16px 38px rgba(24,39,75,.1)}
+  .cover{position:relative;height:190px;display:grid;place-items:center;overflow:hidden;border-bottom:1px solid #edf1f6;background:linear-gradient(145deg,#eef4fb,#f9fbfe)}
+  .cover:before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(47,125,225,.16),rgba(47,125,225,0) 70%);transform:translate(-56px,-48px)}
+  .cover:after{content:"";position:absolute;width:112px;height:112px;border:1px solid rgba(85,108,142,.12);border-radius:24px;transform:rotate(34deg);box-shadow:0 0 0 18px rgba(255,255,255,.22),0 0 0 36px rgba(110,139,178,.035)}
+  .cover.has-image:before,.cover.has-image:after{display:none}
+  .cover-image{position:relative;z-index:1;width:100%;height:100%;display:block;object-fit:contain;background:#eef4f8;transition:transform .2s}
+  .card:hover .cover-image{transform:scale(1.025)}
+  .glyph{position:relative;z-index:1;display:grid;place-items:center;width:76px;height:76px;border-radius:24px;background:rgba(255,255,255,.88);border:1px solid rgba(219,228,240,.95);box-shadow:0 10px 25px rgba(45,73,112,.12);font-size:34px;font-weight:800;color:#2f6fcb;backdrop-filter:blur(8px)}
+  .accent-amber .glyph{color:#a86d1b}.accent-violet .glyph{color:#7254b7}.accent-orange .glyph{color:#c96a24}.accent-green .glyph{color:#278265}
+  .card-body{display:flex;flex-direction:column;flex:1;padding:18px 18px 16px}
+  .cat{font-size:11.5px;color:#6c7a90;font-weight:700;letter-spacing:.04em}
+  .card h3{margin:6px 0 4px;font-size:18px;line-height:1.35}
+  .sub{font-size:12.5px;color:#7a8698;margin-bottom:10px}
+  .summary{margin:0;color:#59667a;font-size:12.5px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 15px}
+  .tag{padding:4px 8px;border-radius:7px;background:#f3f6fa;color:#67758a;font-size:11px}
+  .open{margin-top:auto;display:flex;align-items:center;justify-content:space-between;color:#2868d8;font-size:12.5px;font-weight:750}
+  .open span:last-child{font-size:18px;transition:transform .18s}.card:hover .open span:last-child{transform:translateX(4px)}
+  .empty{grid-column:1/-1;padding:56px 20px;text-align:center;border:1px dashed #ced9e8;border-radius:18px;color:#7d899a;background:rgba(255,255,255,.5)}
+  footer{margin-top:32px;padding:18px 4px;color:#8a95a6;font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .viewer{position:fixed;inset:0;z-index:100;display:none;background:#eaf0f7}
+  .viewer.open{display:block}
+  .viewer-bar{position:absolute;left:14px;right:14px;top:12px;z-index:102;height:50px;display:flex;align-items:center;gap:10px;padding:7px 8px 7px 14px;border:1px solid rgba(210,220,234,.95);border-radius:15px;background:rgba(255,255,255,.91);box-shadow:0 8px 26px rgba(24,39,75,.13);backdrop-filter:blur(14px)}
+  .viewer-title{min-width:0;flex:1}.viewer-title b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.viewer-title span{display:block;font-size:10.5px;color:#7c889a;margin-top:2px}
+  .viewer-action{height:34px;border:1px solid #dce4ef;background:#fff;color:#526075;border-radius:9px;padding:0 11px;cursor:pointer;font-size:12px;font-weight:650}.viewer-action:hover{border-color:#bcd0ea;color:#2d63aa}.viewer-action.primary{background:#253b5c;color:#fff;border-color:#253b5c}
+  #viewerFrame{position:absolute;top:74px;right:0;bottom:0;left:0;width:100%;height:calc(100% - 74px);border:0;background:#eef3f9}
+  .viewer-loading{position:absolute;inset:0;display:grid;place-items:center;z-index:101;background:#eef3f9;color:#6d7a8d;font-size:13px}.viewer-loading.hide{display:none}
+  .spinner{width:28px;height:28px;border:3px solid #d9e3ef;border-top-color:#3775cf;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}@keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{align-items:flex-start;flex-direction:column}.search{max-width:none;width:100%}.filters{justify-content:flex-start}.hero{padding:34px 28px}}
+  @media(max-width:620px){.shell{width:min(100% - 24px,1180px);padding-top:18px}.hero{padding:28px 20px;border-radius:20px}.grid{grid-template-columns:1fr}.cover{height:185px}.viewer-bar{left:8px;right:8px;top:8px}.viewer-title span{display:none}.viewer-action.hide-mobile{display:none}}
+.viewer-eye-heading{display:none}.eye-model .viewer-eye-heading{display:flex;align-items:center;justify-content:center;gap:14px;flex:1;min-width:0}.viewer-eye-heading b{font-size:22px;color:#243a55}.viewer-eye-heading span{font-size:13px;color:#6a7f98}.eye-model .viewer-title{flex:0 1 300px}.eye-model .viewer-title b{display:none}.eye-model .viewer-title span{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:1100px){.eye-model .viewer-title{flex:0 1 190px}.viewer-eye-heading b{font-size:20px}.viewer-eye-heading span{display:none}}@media(max-width:720px){.eye-model .viewer-title{display:none}.viewer-eye-heading b{font-size:18px}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <section class="hero">
+    <span class="eyebrow"><i></i> PHYSICS · 3D INTERACTIVE COLLECTION</span>
+    <h1>3D 交互模型作品集</h1>
+    <p class="lead">把分散的 3D 教学模型集中到一个入口。选择作品后可直接进入交互场景，旋转、缩放、拆装、改变参数并观察结构与物理量的变化。</p>
+    <div class="hero-meta"><span><b id="heroCount">0</b> 个交互作品</span><span>按需加载 WebGL 场景</span><span>适合课堂演示与自主探究</span></div>
+  </section>
+
+  <div class="toolbar">
+    <label class="search" aria-label="搜索作品">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.7-3.7"></path></svg>
+      <input id="searchInput" type="search" placeholder="搜索模型、知识点或标签…" autocomplete="off" />
+    </label>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="section-head">
+    <div><h2>交互作品</h2><p>点击卡片进入完整 3D 场景</p></div>
+    <div class="count" id="resultCount"></div>
+  </div>
+  <section class="grid" id="grid"></section>
+
+  <footer><span>3D 教学模型作品集</span><span>每个案例保持独立，主页负责检索、分类与加载。</span></footer>
+</main>
+
+<section class="viewer" id="viewer" aria-hidden="true">
+  <div class="viewer-loading" id="viewerLoading"><div><div class="spinner"></div>正在加载交互模型…</div></div>
+  <iframe id="viewerFrame" title="3D 交互模型"></iframe>
+  <div class="viewer-bar">
+    <div class="viewer-title"><b id="viewerTitle">3D 模型</b><span>在下方场景中直接操作 · Esc 返回作品集</span></div>
+    <div class="viewer-eye-heading"><b>眼睛的调节</b><span>成像、矫正与视角</span></div>
+    <button class="viewer-action hide-mobile" id="newTabBtn">新窗口打开</button>
+    <button class="viewer-action hide-mobile" id="fullBtn">全屏</button>
+    <button class="viewer-action primary" id="closeBtn">返回作品集</button>
+  </div>
+</section>
+
+<script src="catalog.js?v=20261008-water-alarm"></script>
+<script>
+(() => {
+  const data = Array.isArray(window.MODEL_CATALOG) ? window.MODEL_CATALOG : [];
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('searchInput');
+  const filters = document.getElementById('filters');
+  const resultCount = document.getElementById('resultCount');
+  const heroCount = document.getElementById('heroCount');
+  const viewer = document.getElementById('viewer');
+  const frame = document.getElementById('viewerFrame');
+  const viewerTitle = document.getElementById('viewerTitle');
+  const loading = document.getElementById('viewerLoading');
+  const closeBtn = document.getElementById('closeBtn');
+  const newTabBtn = document.getElementById('newTabBtn');
+  const fullBtn = document.getElementById('fullBtn');
+  let category = '全部';
+  let active = null;
+
+  heroCount.textContent = data.length;
+  const categories = ['全部', ...new Set(data.map(x => x.category))];
+  filters.innerHTML = categories.map((c,i)=>`<button class="filter ${i===0?'active':''}" data-category="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');
+
+  filters.addEventListener('click', e => {
+    const btn = e.target.closest('.filter'); if(!btn) return;
+    category = btn.dataset.category;
+    filters.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b === btn));
+    render();
+  });
+  searchInput.addEventListener('input', render);
+
+  function escapeHtml(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+  function render(){
+    const q = searchInput.value.trim().toLowerCase();
+    const list = data.filter(item => {
+      const catOk = category === '全部' || item.category === category;
+      const hay = [item.title,item.subtitle,item.category,item.summary,...(item.tags||[])].join(' ').toLowerCase();
+      return catOk && (!q || hay.includes(q));
+    });
+    resultCount.textContent = `显示 ${list.length} / ${data.length}`;
+    if(!list.length){grid.innerHTML='<div class="empty">没有找到匹配的作品。换一个关键词或分类试试。</div>';return;}
+    grid.innerHTML = list.map(item => `
+      <article class="card accent-${escapeHtml(item.accent||'blue')}" tabindex="0" role="button" aria-label="打开 ${escapeHtml(item.title)}" data-id="${escapeHtml(item.id)}">
+        <div class="cover ${item.cover?'has-image':''}">${item.cover?`<img class="cover-image" src="${escapeHtml(item.cover)}" alt="${escapeHtml(item.title)}默认视角展示" loading="lazy" decoding="async" width="960" height="540">`:`<div class="glyph">${escapeHtml(item.symbol||'3D')}</div>`}</div>
+        <div class="card-body">
+          <span class="cat">${escapeHtml(item.category)}</span>
+          <h3>${escapeHtml(item.title)}</h3>
+          <div class="sub">${escapeHtml(item.subtitle||'')}</div>
+          <p class="summary">${escapeHtml(item.summary||'')}</p>
+          <div class="tags">${(item.tags||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+          <div class="open"><span>开始交互</span><span>→</span></div>
+        </div>
+      </article>`).join('');
+  }
+
+  grid.addEventListener('click', e => { const c=e.target.closest('.card'); if(c) openModel(c.dataset.id); });
+  grid.addEventListener('keydown', e => { if((e.key==='Enter'||e.key===' ') && e.target.classList.contains('card')){e.preventDefault();openModel(e.target.dataset.id);} });
+
+  function modelPath(item,embedded=false){
+    if(item.id==='water-level-alarm') return item.path+'?v=20261008-water-alarm';
+    if(item.id==='reflection-refraction') return item.path+'?v=20261008-optics';
+    if(item.id==='museum-alarm') return item.path+'?v=20261006-alarm-v2';
+    if(item.id==='rheostat') return item.path+'?v=20261008-schematic';
+    if(item.id==='e27-bulb') return item.path+'?v=20261008-clean-contact';
+    return item.path+(item.id==='eye-accommodation'?'?v=4693abb'+(embedded?'&embedded=1':''):'');
+  }
+  function openModel(id){
+    const item = data.find(x=>x.id===id); if(!item) return;
+    active = item; viewer.classList.toggle('eye-model',item.id==='eye-accommodation'); viewerTitle.textContent = item.title; loading.classList.remove('hide');
+    viewer.classList.add('open'); viewer.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+    frame.src = modelPath(item,true); location.hash = 'model=' + encodeURIComponent(id);
+  }
+  function closeModel(){
+    viewer.classList.remove('open'); viewer.setAttribute('aria-hidden','true'); document.body.style.overflow='';
+    frame.src='about:blank'; active=null; history.replaceState(null,'',location.pathname+location.search);
+  }
+  frame.addEventListener('load',()=>{ if(frame.src && !frame.src.endsWith('about:blank')) loading.classList.add('hide'); });
+  closeBtn.addEventListener('click',closeModel);
+  newTabBtn.addEventListener('click',()=>{ if(active) window.open(modelPath(active),'_blank','noopener'); });
+  fullBtn.addEventListener('click',async()=>{ try{ if(!document.fullscreenElement) await viewer.requestFullscreen(); else await document.exitFullscreen(); }catch(e){} });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && viewer.classList.contains('open') && !document.fullscreenElement) closeModel(); });
+
+  render();
+  const match = location.hash.match(/^#model=(.+)$/); if(match) openModel(decodeURIComponent(match[1]));
+})();
+</script>
+</body>
+</html>
+
+
+

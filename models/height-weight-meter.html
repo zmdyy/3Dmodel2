@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>身高体重测量仪 · 3D</title>
+<style>
+
+:root{--ink:#172b42;--blue:#1b64c9;--line:#ccd7e2}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Droid Sans Fallback",sans-serif;color:var(--ink);background:#dbe7f1}button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:9px 13px;font-size:15px;font-weight:700;white-space:nowrap}button:hover{border-color:var(--blue);color:var(--blue)}button.active{background:var(--blue);color:white;border-color:var(--blue)}#stage{position:absolute;inset:0 0 137px 0}#scene{width:100%;height:100%;display:block;touch-action:none}#dock{position:absolute;bottom:0;left:0;right:0;height:137px;padding:12px 24px;background:rgba(250,252,255,.97);border-top:1px solid #c4d2df;display:grid;grid-template-columns:1.25fr 1fr 1fr 2fr;gap:21px;align-items:center}.brand strong{display:block;font-size:22px;margin-bottom:5px}.brand small{font-size:12px;color:#657487}.slider label{display:flex;justify-content:space-between;align-items:baseline;font-size:16px;font-weight:700;margin-bottom:9px}.slider b{color:#1a5aab;font-size:20px}input[type=range]{width:100%;accent-color:#1d68ca;cursor:pointer}.slider small{display:block;font-size:12px;color:#657487;margin-top:5px}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{padding:8px 11px;font-size:14px}.toolbar{position:absolute;top:14px;left:17px;display:flex;gap:7px}.toolbar button{background:rgba(255,255,255,.94);font-size:14px;box-shadow:0 4px 14px #34485a10}#exitProjection{position:fixed;top:12px;right:14px;z-index:40;font-size:12px;opacity:.5}#exitProjection:hover{opacity:1}.projection #stage{inset:0}.projection #dock,.projection .toolbar{display:none}#drawer{position:absolute;right:0;top:0;bottom:137px;width:370px;z-index:10;background:rgba(255,255,255,.97);box-shadow:-8px 0 30px #22334d20;padding:23px;overflow-y:auto;transform:translateX(101%);transition:transform .2s}.projection #drawer{display:none}#drawer.open{transform:translateX(0)}#drawer h2{font-size:20px;margin:0 0 19px}#closePanel{position:absolute;right:15px;top:15px;font-size:18px;padding:3px 9px}.group{margin:0 0 22px}.group h3{font-size:16px;margin:0 0 10px}.two{display:flex;gap:7px}.two button{flex:1;font-size:13px;padding:9px 7px}.readouts{background:#f1f6fb;border:1px solid #d9e4f0;border-radius:12px;padding:13px}.rv{display:flex;justify-content:space-between;font-size:14px;margin:7px 0}.rv b{font-size:16px;color:#205a98;font-variant-numeric:tabular-nums}#steps{background:#f5f8fb;border-radius:9px;padding:12px;margin-top:10px;font-size:13px;line-height:1.8}#sch,#graph{display:block;width:100%;height:auto;border:1px solid #d2deea;border-radius:10px;background:#fff}details{font-size:13px;line-height:1.8;margin-top:9px}summary{cursor:pointer;color:#235d9b;font-weight:700}#check{font-size:12px;color:#31765c;margin-top:13px}#failure{position:fixed;inset:25%;background:#fff;padding:35px;border-radius:15px;z-index:50;font-size:18px;line-height:1.8}
+@media(max-width:1250px){#dock{grid-template-columns:1fr 1fr 1.8fr;gap:14px;padding:13px 17px}.brand{display:none}.actions button{font-size:13px;padding:7px 9px}}
+@media(max-width:780px){#dock{height:182px;grid-template-columns:1fr 1fr;gap:10px}#stage{bottom:182px}.actions{grid-column:1/-1;justify-content:center}.slider b{font-size:17px}.slider label{font-size:14px}.toolbar{top:10px;left:10px}.toolbar button{font-size:12px;padding:7px}#drawer{width:min(370px,92vw);bottom:182px}}
+</style></head><body><main id="stage"><canvas id="scene" aria-label="可旋转的身高体重测量仪3D场景"></canvas></main>
+<nav class="toolbar"><button id="viewDefault">正面总览</button><button id="viewThree">立体视角</button><button id="viewCircuit">电路特写</button></nav>
+<footer id="dock"><div class="brand"><strong>身高体重测量仪</strong><small>拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移</small></div><div class="slider"><label for="height">身高 H <b id="hVal">170 cm</b></label><input id="height" type="range" min="100" max="200" step="1" value="170"><small>滑片随测高机构移动</small></div><div class="slider"><label for="force">压力 F <b id="fVal">600 N</b></label><input id="force" type="range" min="0" max="1050" step="10" value="600"><small>压力增大，压敏电阻减小</small></div><div class="actions"><button id="topSwitch" class="active">S₁ 测高 · 闭合</button><button id="bottomSwitch" class="active">S₂ 称重 · 闭合</button><button id="btnFlow">电流方向</button><button id="btnProjection">投影模式</button><button id="btnPanel">教学面板</button><button id="btnFull">全屏</button><button id="btnExport">导出图片</button></div></footer>
+<button id="exitProjection" hidden>退出投影 · Esc</button>
+<aside id="drawer"><button id="closePanel" aria-label="关闭教学面板">×</button><h2>电路与测量</h2><div class="group"><h3>实时读数</h3><div class="readouts"><div class="rv"><span>R₀ 接入电阻</span><b id="r0Val"></b></div><div class="rv"><span>电流表 A</span><b id="iVal"></b></div><div class="rv"><span>R压</span><b id="rpVal"></b></div><div class="rv"><span>R₂ 两端电压</span><b id="uVal"></b></div></div></div><div class="group"><h3>电路图</h3><svg id="sch" viewBox="0 0 340 218"></svg><p style="font-size:13px;line-height:1.7">测高：正极 → 滑片 → R₀ 定端 → A → R₁ → S₁ → 负极。<br>称重：正极 → R压 → R₂ → S₂ → 负极。<br>电压表并联在 R₂ 两端。</p></div><div class="group"><h3>计算过程</h3><div id="steps"></div><details><summary>参考答案</summary><p>① R₁ 起限流、保护作用，身高 200 cm 时电流最大为 0.6 A。<br>② 电流为 0.30 A 时，R₀ = 24 ÷ 0.30 − 40 = 40 Ω，身高为 180 cm。<br>③ 压力越大，电压表示数越大；示数随压力变化不均匀。<br>④ 压力 600 N 时，R压 = 240 Ω，U₂ = 168/13 V ≈ 12.9 V。</p></details></div><div class="group"><h3>R压 — F 关系</h3><canvas id="graph" width="640" height="380"></canvas></div><div class="group"><h3>观察设置</h3><div class="two"><button id="btnLabels" class="active">结构标注</button><button id="btnRuler">隐藏机构</button></div><div class="two" style="margin-top:8px"><button id="viewFront">恢复正面</button><button id="viewSensor">传感器特写</button></div><p style="font-size:13px;line-height:1.8">点击立体开关可断开或闭合对应支路。黑线跨过红色母线的位置有绝缘与空间间隙，两线不相连。</p><div id="check"></div></div></aside>
+<div id="failure" hidden>当前浏览器未能开启 3D 显示。请在 Chrome 或 Edge 中启用硬件加速后重新打开此文件。</div>
+<script src="../shared/vendor/three-r144.min.js"></script>
+<script src="../shared/current-flow-style.js"></script>
+<script>document.fonts.ready.then(()=>{
+/* Reference scene rebuilt as editable Three.js meshes. Units: 40 reference pixels = 1 world unit. */
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), T=THREE;
+if(T.ColorManagement)T.ColorManagement.legacyMode=false;
+const stage=$('stage'), canvas=$('scene');
+let renderer;
+try{renderer=new T.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});}catch(e){$('failure').hidden=false;return;}
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputEncoding=T.sRGBEncoding;
+renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.96;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+const scene=new T.Scene();scene.background=new T.Color('#dbe7f1');
+const camera=new T.OrthographicCamera(-22,22,12.5,-12.5,.1,180);
+const model=new T.Group();scene.add(model);
+const panel=new T.Group(),device=new T.Group(),tags=new T.Group(),leads=new T.Group();model.add(panel,device,tags,leads);
+const P=(x,y,z=0)=>new T.Vector3((x-840)/40,(883-y)/40,z);
+const V=(x,y,z)=>new T.Vector3(x,y,z);
+function mat(color,metalness=0,roughness=.5){return new T.MeshStandardMaterial({color,metalness,roughness});}
+const M={ivory:mat('#e9e8e2',0,.78),frame:mat('#aab4bf',.8,.25),silver:mat('#aeb7c1',.82,.23),steel:mat('#687480',.74,.3),black:mat('#171c23',.05,.42),brass:mat('#c89745',.72,.26),red:mat('#ec3028',.05,.36),yellow:mat('#f2bf23',.02,.4),orange:mat('#f07712',.02,.4),blue:mat('#0875ef',.02,.42),green:mat('#07886e',.02,.4),white:mat('#eff0ee',0,.55),tan:mat('#ceb18b',.02,.4),skin:mat('#c88f6f',0,.67),skinLight:mat('#dda382',0,.67),shirt:mat('#1760ba',0,.84),pants:mat('#243345',0,.82),hair:mat('#111419',0,.68)};
+const ambient=new T.HemisphereLight('#fff9f0','#74889d',.72);scene.add(ambient);
+const key=new T.DirectionalLight('#ffffff',1.40);key.position.set(-20,36,42);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-27,right:27,top:30,bottom:-7,near:1,far:110});key.shadow.bias=-.0002;key.shadow.normalBias=.04;scene.add(key);
+const fill=new T.DirectionalLight('#cfdded',.55);fill.position.set(30,18,30);scene.add(fill);
+const back=new T.DirectionalLight('#ffffff',.8);back.position.set(-5,20,-15);scene.add(back);
+function mesh(geo,ma,pos,parent=model){const o=new T.Mesh(geo,ma);o.position.copy(pos||V(0,0,0));o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
+function rbGeo(w,h,d,r=.08){const s=new T.Shape();r=Math.min(r,w/2,h/2);const x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);const g=new T.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:Math.min(.03,d/5),bevelThickness:Math.min(.025,d/5),curveSegments:8});g.translate(0,0,-d/2);return g;}
+function box(x,y,w,h,d,ma,z=0,parent=panel,r=.09){return mesh(rbGeo(w/40,h/40,d,r),ma,P(x,y,z),parent);}
+function sphere(pos,scale,ma,parent=model){const o=mesh(new T.SphereGeometry(1,32,22),ma,pos,parent);o.scale.set(...scale);return o;}
+function rod(a,b,r,ma,parent=model){const delta=b.clone().sub(a);const o=mesh(new T.CylinderGeometry(r,r,delta.length(),18),ma,a.clone().add(b).multiplyScalar(.5),parent);o.quaternion.setFromUnitVectors(V(0,1,0),delta.normalize());return o;}
+function disk(x,y,r,depth,ma,z,parent=panel){const o=mesh(new T.CylinderGeometry(r/40,r/40,depth,48),ma,P(x,y,z),parent);o.rotation.x=Math.PI/2;return o;}
+function ring(x,y,r,t,ma,z,parent=panel){return mesh(new T.TorusGeometry(r/40,t/40,10,64),ma,P(x,y,z),parent);}
+function texture(draw,w=1024,h=512){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const tex=new T.CanvasTexture(c);tex.encoding=T.sRGBEncoding;tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return tex;}
+function rounded(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+const textFaces=[];
+function plaque(text,x,y,w,h,opts={}){const parent=opts.parent||tags,z=opts.z===undefined?.85:opts.z;
+ const backing=box(x,y,w,h,.08,M.frame,z,parent,.075);box(x,y,w-2,h-2,.045,M.white,z+.052,parent,.06);
+ const tex=texture((c,W,H)=>{c.clearRect(0,0,W,H);c.fillStyle=opts.color||'#142238';c.textAlign='center';c.textBaseline='middle';c.font='700 '+Math.min(H*.73,W/(text.length*.62+1))+'px "Microsoft YaHei","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Droid Sans Fallback",sans-serif';c.fillText(text,W/2,H*.53,W*.96);},1024,Math.round(1024*h/w));
+ const f=mesh(new T.PlaneGeometry((w-4)/40,(h-4)/40),new T.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}),P(x,y,z+.084),parent);f.castShadow=false;f.receiveShadow=false;textFaces.push({f,text,w,h,opts});return {backing,face:f,set(s){this.text=s;const t=texture((c,W,H)=>{c.clearRect(0,0,W,H);c.fillStyle=opts.color||'#142238';c.font='700 '+Math.min(H*.73,W/(s.length*.62+1))+'px "Microsoft YaHei","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Droid Sans Fallback",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(s,W/2,H*.53,W*.96);},1024,Math.round(1024*h/w));f.material.map.dispose();f.material.map=t;}};
+}
+function screw(x,y,z=.27,parent=panel,r=6){disk(x,y,r,.045,M.silver,z,parent);ring(x,y,r-.5,.55,M.steel,z+.025,parent);box(x,y,r*1.15,1.4,.014,M.black,z+.03,parent,.005);}
+function roundedPath(points,r=.18){const pts=points.map(p=>Array.isArray(p)?P(...p):p.clone()),curve=new T.CurvePath();let last=pts[0];for(let i=1;i<pts.length-1;i++){const cur=pts[i],prev=pts[i-1],next=pts[i+1];const rr=Math.min(r,cur.distanceTo(prev)*.35,cur.distanceTo(next)*.35),a=cur.clone().add(prev.clone().sub(cur).normalize().multiplyScalar(rr)),b=cur.clone().add(next.clone().sub(cur).normalize().multiplyScalar(rr));curve.add(new T.LineCurve3(last,a));curve.add(new T.QuadraticBezierCurve3(a,cur,b));last=b;}curve.add(new T.LineCurve3(last,pts[pts.length-1]));return curve;}
+function wire(name,pts,ma=M.red,r=.074,parent=panel){const curve=roundedPath(pts,.26);const o=mesh(new T.TubeGeometry(curve,Math.max(32,pts.length*14),r,10,false),ma,V(0,0,0),parent);o.userData.wire=name;return {mesh:o,curve,set(next){this.curve=roundedPath(next,.24);o.geometry.dispose();o.geometry=new T.TubeGeometry(this.curve,Math.max(32,next.length*14),r,10,false);}};}
+const nodes={};
+function post(name,x,y,color='black',parent=panel,z=.44,size=1){const start=parent.children.length,ma=M[color]||M.black;disk(x,y,14*size,.12,M.black,z,parent);disk(x,y,11.5*size,.14,M.brass,z+.1,parent);disk(x,y,9.5*size,.19,ma,z+.24,parent);ring(x,y,9.3*size,1.05,ma,z+.34,parent);disk(x,y,5.5*size,.04,M.brass,z+.355,parent);disk(x,y,2.8*size,.045,M.black,z+.38,parent);for(let i=0;i<20;i++){const a=i*Math.PI*2/20;box(x+9.5*size*Math.cos(a),y+9.5*size*Math.sin(a),1.1,2,.03,ma,z+.33,parent,.005);}const tip=P(x,y,z+.38);nodes[name]={name,x,y,tip,kind:'terminal',meshes:parent.children.slice(start)};return nodes[name];}
+function plug(x,y,ma,side='left',parent=panel,z=.78){const dx=side==='left'?-1:side==='right'?1:0,dy=side==='bottom'?1:0;rod(P(x+dx*9,y+dy*9,z),P(x+dx*19,y+dy*19,z),.082,M.brass,parent);rod(P(x+dx*15,y+dy*15,z),P(x+dx*29,y+dy*29,z),.105,ma,parent);for(let k=0;k<3;k++)sphere(P(x+dx*(17+k*3),y+dy*(17+k*3),z),[.11,.11,.11],ma,parent);return P(x+dx*29,y+dy*29,z);}
+/* One exposed T-adapter per shared post. Cable jackets stop outside the brass
+   junction; the terminal cap and both separate cable entries remain visible. */
+const sharedJunctions={};
+function sharedAdapter(name,x,y,mainMa,side){const cx=x-27,sy=side==='top'?-1:1,z=1.00;
+ rod(P(cx-13,y,z),P(x-10,y,z),.095,M.brass,panel);
+ rod(P(cx,y,z),P(cx,y+sy*17,z),.095,M.brass,panel);
+ box(cx,y,13,13,.17,M.brass,z,panel,.05);
+ screw(cx,y,z+.12,panel,3.1);
+ rod(P(cx-26,y,z),P(cx-13,y,z),.108,mainMa,panel);
+ rod(P(cx,y+sy*17,z),P(cx,y+sy*25,z),.108,M.red,panel);
+ for(const dx of [-23,-20,-17])ring(cx+dx,y,4.2,.35,mainMa,z+.01,panel);
+ sharedJunctions[name]={post:name,center:P(cx,y,z),main:P(cx-26,y,z),branch:P(cx,y+sy*25,z),entryDistance:Math.hypot(26,25)/40};
+ return sharedJunctions[name];}
+/* Backboard and frame: proportions are taken directly from selected reference image. */
+box(1058,475,1178,802,.34,M.ivory,-.06,panel,.12);
+box(1058,77,1188,20,.52,M.frame,.01,panel,.07);box(1058,873,1188,22,.52,M.frame,.01,panel,.07);
+box(474,475,22,802,.52,M.frame,.01,panel,.07);box(1643,475,22,802,.52,M.frame,.01,panel,.07);
+for(const [x,y] of [[477,79],[1642,79],[477,875],[1642,875],[505,108],[1609,108],[505,841],[1609,841]])screw(x,y,.31,panel,6);
+box(1058,366,1090,3,.025,M.steel,.15,panel,.01);
+plaque('测量电路板',1058,44,342,85,{z:.40});
+plaque('测高支路',619,135,180,47,{z:.44});plaque('称重支路',619,415,180,47,{z:.44});
+box(555,244,58,142,.14,M.white,.24,panel,.10);box(555,606,58,139,.14,M.white,.24,panel,.1);
+post('fixed',551,203,'red');post('slider',551,281,'black');post('pressureIn',551,571,'red');post('pressureOut',551,644,'black');
+plaque('R₀ 定端',648,205,112,45,{z:.53});plaque('R₀ 滑片',648,282,112,45,{z:.53});plaque('R压',631,575,79,47,{z:.53});
+/* Same black slider post receives red supply lug AND yellow sensing cable. */
+plug(551,203,M.orange);sharedAdapter('slider',551,281,M.yellow,'bottom');sharedAdapter('pressureIn',551,571,M.green,'top');plug(551,644,M.black);
+const fixedOut=plug(551,203,M.orange,'right');
+/* Resistors: 40 Ω yellow-black-black-gold, 280 Ω red-gray-brown-gold. */
+function resistor(name,x,y,left,right,bands){const center=P(x,y,.55),len=(right-left-44)/40;const profile=[new T.Vector2(.21,-len/2),new T.Vector2(.32,-len/2+.1),new T.Vector2(.39,-len/2+.24),new T.Vector2(.41,-len/2+.4),new T.Vector2(.41,len/2-.4),new T.Vector2(.39,len/2-.24),new T.Vector2(.32,len/2-.1),new T.Vector2(.21,len/2)];const o=mesh(new T.LatheGeometry(profile,48),M.tan,center,panel);o.rotation.z=Math.PI/2;
+ const colors=bands.map(c=>mat(c,c==='#c9a037'?.65:0,.4));const xs=[-.32,-.12,.08,.33];xs.forEach((q,i)=>{const rr=mesh(new T.CylinderGeometry(.414,.414,.21,48),colors[i],center.clone().add(V(len*q,0,0)),panel);rr.rotation.z=Math.PI/2;});
+ rod(P(left,y,.55),P(right,y,.55),.045,M.silver,panel);
+ for(const end of [left,right]){box(end,y,13,48,.20,M.white,.36,panel,.08);disk(end,y,5.5,.06,M.silver,.57,panel);}
+ nodes[name+'L']={x:left,y,tip:P(left,y,.66)};nodes[name+'R']={x:right,y,tip:P(right,y,.66)};
+ plaque(name==='r1'?'R₁':'R₂',x,y-57,87,45,{z:.45});return {o,left,right,y};}
+resistor('r1',1165,266,1036,1294,['#edc300','#111111','#111111','#c9a037']);
+resistor('r2',1081,644,918,1247,['#ce2425','#6f7783','#684127','#c9a037']);
+/* Knife switches: porcelain bases, brass blade, black insulating handles. */
+const switches={},pickables=[];
+function knife(name,x,y){const g=new T.Group();panel.add(g);box(x,y,182,84,.22,M.white,.36,g,.12);const l=x-66,r=x+66;
+ post(name+'L',l,y+12,'red',g,.47,.82);post(name+'R',r,y+12,'black',g,.47,.82);
+ box(l,y-24,11,24,.17,M.brass,.61,g,.025);box(r,y-24,12,24,.17,M.brass,.61,g,.025);
+ const lever=new T.Group();lever.position.copy(P(r,y+12,.89));g.add(lever);
+ const blade=mesh(rbGeo(3.38,.29,.12,.04),M.brass,V(-1.65,0,0),lever);
+ rod(V(-.10,.06,0),V(1.02,.51,0),.18,M.black,lever);sphere(V(1.06,.53,0),[.17,.17,.17],M.black,lever);
+ disk(r,y-17,5,.07,M.brass,.78,g);screw(l,y-30,.69,g,3);screw(r,y-30,.69,g,3);
+ const hit=mesh(new T.BoxGeometry(4.6,2.5,1.7),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}),P(x,y,.4),g);hit.userData.switch=name;hit.castShadow=false;pickables.push(hit);
+ plaque(name==='top'?'S₁':'S₂',x-5,y-80,74,44,{z:.44});switches[name]={g,lever,hit,x,y,l,r};return switches[name];}
+const s1=knife('top',1468,273),s2=knife('bottom',1468,632);
+/* Large meters have mechanical needles and a texture containing only markings. */
+const meters={};
+function meter(kind,x,y,r,max,left,right){const g=new T.Group();panel.add(g);
+ disk(x,y,r+4,.49,M.black,.43,g);ring(x,y,r+1,2.0,M.frame,.73,g);ring(x,y,r-2,2.2,M.black,.75,g);
+ const faceTex=texture((c,W,H)=>{c.fillStyle='#f6f7f5';c.fillRect(0,0,W,H);const cx=W/2,cy=H*.58,R=W*.46;for(let i=0;i<=30;i++){const a=-.91+i/30*1.82,major=i%15===0,mid=i%5===0;const l=major?W*.064:mid?W*.047:W*.027;c.strokeStyle='#132035';c.lineWidth=major?W*.008:W*.003;c.beginPath();c.moveTo(cx+Math.sin(a)*(R-l),cy-Math.cos(a)*(R-l));c.lineTo(cx+Math.sin(a)*R,cy-Math.cos(a)*R);c.stroke();}c.fillStyle='#111e32';c.textAlign='center';c.textBaseline='middle';c.font='700 '+W*.092+'px sans-serif';for(let i=0;i<3;i++){const a=-.91+i*.91;c.fillText(i===0?'0':kind==='A'?(max*i/2).toFixed(1):String(max*i/2),cx+Math.sin(a)*R*.74,cy-Math.cos(a)*R*.74);}c.font='700 '+W*.20+'px sans-serif';c.fillText(kind,cx,H*.65);},1024,1024);
+ const face=mesh(new T.CircleGeometry((r-5)/40,96),new T.MeshBasicMaterial({map:faceTex}),P(x,y,.78),g);face.castShadow=false;
+ const pivot=new T.Group();pivot.position.copy(P(x,y+17,.86));g.add(pivot);
+ const needle=mesh(rbGeo(.053,(r*.70)/40,.023,.014),M.red,V(0,(r*.35)/40,0),pivot);needle.castShadow=false;disk(x,y+17,3.3,.05,M.brass,.9,g);
+ const glass=mesh(new T.CircleGeometry((r-7)/40,64),new T.MeshPhysicalMaterial({color:'#ffffff',transparent:true,opacity:.04,roughness:.08,metalness:0,depthWrite:false}),P(x,y,.94),g);glass.castShadow=false;
+ post(kind+'L',left[0],left[1],kind==='A'?'red':'blue',g,.66,.9);post(kind+'R',right[0],right[1],kind==='A'?'red':'blue',g,.66,.9);
+ const read=plaque(kind==='A'?'0.24 A':'12.9 V',x,y+r*.61,74,28,{parent:g,z:1.01});
+ const pol1=plaque('+',left[0],left[1]-21,15,15,{parent:g,z:1.04,color:'#a62a20'}),pol2=plaque('−',right[0],right[1]-21,15,15,{parent:g,z:1.04});
+ meters[kind]={g,pivot,read,max,needle,x,y,r};return meters[kind];}
+meter('A',852,237,113,.6,[740,302],[962,302]);meter('V',1080,474,99,15,[971,520],[1190,520]);
+/* Single rectangular battery; studs on the side faces are actually connected. */
+box(1065,784,574,135,.68,M.silver,.38,panel,.12);box(1065,784,558,122,.10,M.frame,.78,panel,.11);
+for(const [x,y] of [[779,721],[1351,721],[779,846],[1351,846]])screw(x,y,.9,panel,4);
+post('batteryP',757,783,'red',panel,.53,1.0);post('batteryN',1377,783,'black',panel,.53,1.0);
+plaque('24 V',1064,787,214,65,{z:.87});plaque('+',835,785,49,61,{z:.87,color:'#ad1256'});plaque('−',1293,785,50,61,{z:.87});
+/* Board wiring, all endpoints are the contacts declared above. */
+const routes=[];function route(name,pts,ma=M.red,r=.077,parent=panel){const w=wire(name,pts,ma,r,parent);routes.push(w);return w;}
+route('positive bus',[[757,783,.85],[507,783,.65],[501,772,.65],[501,326,.65],[508,313,.74],[524,306,1.00]],M.red);
+route('negative bus',[[1377,783,.84],[1598,783,.64],[1607,771,.64],[1607,286,.64],[s1.r,285,.82]],M.black);
+route('height fixed to ammeter',[[577,203,.81],[589,241,.8],[705,241,.8],[711,292,.81],[740,302,.99]],M.orange);
+route('A to R1',[[962,302,.99],[987,302,.76],[1005,267,.70],[1036,266,.65]],M.orange);
+route('R1 to S1',[[1294,266,.65],[1315,266,.69],[1358,285,.74],[s1.l,285,.85]],M.orange);
+route('S1 negative',[[s1.r,285,.84],[1607,285,.64]],M.red);
+route('pressure input supply',[[501,545,.65],[513,545,.80],[524,546,1.00]],M.red);
+/* Green sensor lead and positive supply meet at ONE red pressure input contact. */
+route('pressure to R2',[[551,644,.82],[918,644,.68]],M.red);
+route('R2 to S2',[[1247,644,.68],[s2.l,644,.84]],M.black);
+route('S2 negative',[[s2.r,644,.84],[1607,644,.64]],M.black);
+route('voltmeter positive',[[918,644,.72],[930,644,.72],[930,531,.76],[945,520,.83],[971,520,1.01]],M.blue,.075);
+route('voltmeter negative',[[1247,644,.72],[1233,644,.72],[1233,540,.76],[1220,520,.83],[1190,520,1.01]],M.blue,.075);
+/* The scale's black cable passes IN FRONT of positive bus, with .65 world unit clearance. */
+const graphEdges=[['batteryP','slider'],['slider','railSlider'],['railSlider','railFixed'],['railFixed','fixed'],['fixed','AL'],['AL','AR'],['AR','r1L'],['r1L','r1R'],['r1R','topL'],['topL','topR'],['topR','batteryN'],['batteryP','pressureIn'],['pressureIn','sensorL'],['sensorL','sensorR'],['sensorR','pressureOut'],['pressureOut','r2L'],['r2L','r2R'],['r2R','bottomL'],['bottomL','bottomR'],['bottomR','batteryN'],['r2L','VL'],['r2R','VR']];
+/* Measuring apparatus rebuilt with separate metal structure and pressure-sensor layer. */
+box(195,817,315,43,.95,M.silver,.0,device,.08);box(197,792,281,18,3.2,M.silver,-1.02,device,.06);
+for(const x of [72,324]){box(x,855,27,17,.8,M.black,-.12,device,.07);}
+const pressureLayer=box(196,824,261,12,2.4,M.black,-.55,device,.03);
+post('sensorL',342,787,'green',device,.64,.73);post('sensorR',322,810,'black',device,.66,.73);
+box(322,422,30,787,.88,M.silver,-1.1,device,.04);box(305,418,7,750,.28,M.steel,-.64,device,.02);
+box(326,421,12,752,.035,M.white,-.62,device,.012);
+/* Ruler face contains all numbers/ticks in a single native canvas texture. */
+const rulerTex=texture((c,W,H)=>{c.fillStyle='#e8e9e7';c.fillRect(0,0,W,H);c.fillStyle='#132235';c.strokeStyle='#132235';for(let cm=0;cm<=200;cm++){const y=H-(cm/205)*H;c.lineWidth=cm%10===0?4:2;c.beginPath();c.moveTo(W*(cm%10===0?.12:.45),y);c.lineTo(W*.92,y);c.stroke();if(cm%10===0){c.font='700 22px sans-serif';c.textAlign='left';c.fillText(cm,4,y-3);}}},128,4096);
+mesh(new T.PlaneGeometry(.34,18.70),new T.MeshBasicMaterial({map:rulerTex}),P(323,418,-.595),device);
+const railFixed=P(347,123,.76),railBottom=P(347,404,.76);
+rod(railFixed,railBottom,.10,M.tan,device);rod(P(352,124,.63),P(352,404,.63),.03,M.brass,device);
+for(let i=0;i<170;i++){const y=124+i*1.64;ring(347,y,4.3,.75,M.brass,.81,device);}
+post('railFixed',347,123,'orange',device,.48,.65);
+const sliderG=new T.Group();device.add(sliderG);box(0,0,37,42,.6,M.black,0,sliderG,.08);sliderG.children[0].position.set(0,0,0);
+const movingPost=post('railSlider',347,194,'yellow',device,.45,.65);
+const sliderConnector=movingPost.tip.clone();
+const headBar=new T.Group();device.add(headBar);box(234,80,171,10,.48,M.silver,-.35,headBar,.035);box(193,83,74,6,.80,M.black,.08,headBar,.04);screw(306,79,.16,headBar,4);
+/* Scale sensor wires (black lead bridges bus without an electrical junction). */
+const greenLead=route('sensor input cable',[[342,787,.9],[370,783,.9],[390,720,1.0],[430,593,1.2],[478,571,1.1],[498,571,1.00]],M.green,.081,leads);
+const blackLead=route('sensor output cable',[[322,810,.9],[370,809,.9],[405,786,1.2],[445,675,1.3],[480,644,1.5],[501,644,1.5],[522,644,.85]],M.black,.085,leads);
+const fixedLead=route('rail fixed cable',[[347,123,.84],[379,125,.94],[416,168,1.0],[458,204,1.04],[522,203,.84]],M.orange,.082,leads);
+const movingLead=route('rail slider cable',[[347,194,.84],[379,196,.94],[416,245,1.0],[456,282,1.04],[498,281,1.00]],M.yellow,.082,leads);
+/* Golden anthropomorphic bull, rebuilt from the supplied character reference.
+   Body, curved horns, ears, muzzle, eyes, hands and cloven hooves are meshes. */
+const student=new T.Group();device.add(student);student.name='reference-bull';student.position.copy(P(184,784,.6));
+let grainSeed=9137;const rnd=()=>{grainSeed=(Math.imul(grainSeed,1664525)+1013904223)>>>0;return grainSeed/4294967296;};
+const furMap=texture((c,W,H)=>{c.fillStyle='#d69724';c.fillRect(0,0,W,H);for(let i=0;i<23000;i++){const x=rnd()*W,y=rnd()*H;const v=rnd();c.strokeStyle=v<.2?'#946014':v<.6?'#bb7d1b':'#f5c465';c.globalAlpha=.25+rnd()*.30;c.lineWidth=.6+rnd();c.beginPath();c.moveTo(x,y);c.lineTo(x+(rnd()-.5)*3,y+1+rnd()*4);c.stroke();}c.globalAlpha=1;},1024,1024);
+furMap.wrapS=furMap.wrapT=T.RepeatWrapping;
+const coat=new T.MeshStandardMaterial({color:'#ffffff',map:furMap,bumpMap:furMap,bumpScale:.035,roughness:.86});
+const faceGold=mat('#e5b43d',0,.78),cream=mat('#dec998',0,.73),earInner=mat('#bf7734',0,.8),hoof=mat('#4b4840',0,.54),hoofSplit=mat('#292720',0,.83),eyeWhite=mat('#ece4cd',0,.38),eyeBrown=mat('#39281b',0,.31),darkGold=mat('#866124',0,.8);
+function ell(x,y,z,sx,sy,sz,ma,parent=student){return sphere(V(x,y,z),[sx,sy,sz],ma,parent);}
+function bullLimb(a,b,r1,r2,ma){const d=b.clone().sub(a),o=mesh(new T.CylinderGeometry(r1,r2,d.length(),36),ma,a.clone().add(b).multiplyScalar(.5),student);o.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());ell(a.x,a.y,a.z,r1,r1,r1,ma);ell(b.x,b.y,b.z,r2,r2,r2,ma);return o;}
+function bullCurve(points,r,ma){const c=new T.CatmullRomCurve3(points.map(p=>V(...p)));return mesh(new T.TubeGeometry(c,36,r,10,false),ma,V(0,0,0),student);}
+// Broad rounded belly, short stocky legs and naturally joined shoulders.
+const body=mesh(new T.LatheGeometry([new T.Vector2(.92,1.55),new T.Vector2(1.64,1.85),new T.Vector2(2.03,2.5),new T.Vector2(2.25,4.3),new T.Vector2(2.29,7.5),new T.Vector2(2.17,9.2),new T.Vector2(1.97,10.5),new T.Vector2(1.53,11.45),new T.Vector2(.96,11.85)],64),coat,V(0,0,0),student);body.scale.z=.66;
+ell(0,11.65,0,1.22,.86,.9,coat);
+for(const s of [-1,1]){
+ bullLimb(V(s*.93,4.55,0),V(s*.96,1.13,.10),.80,.62,coat);
+ const foot=mesh(rbGeo(1.55,1.05,1.76,.20),hoof,V(s*.98,.54,.44),student);
+ ell(s*.98,1.03,.27,.74,.20,.83,hoof);
+ // Each hoof has two separated toes, with a visible front cleft.
+ rod(V(s*.98,.11,1.345),V(s*.98,.80,1.345),.028,hoofSplit,student);
+ const armCurve=new T.CatmullRomCurve3([V(s*1.89,10.55,.0),V(s*2.48,9.5,.07),V(s*2.64,7.4,.13),V(s*2.69,5.5,.22),V(s*2.70,3.95,.27)]);
+ const armFrames=armCurve.computeFrenetFrames(40,false),ap=[],au=[],ai=[];
+ for(let k=0;k<=40;k++){const t=k/40,p=armCurve.getPointAt(t),r=.67-.23*t;for(let j=0;j<=24;j++){const a=j/24*Math.PI*2,v=p.clone().add(armFrames.normals[k].clone().multiplyScalar(Math.cos(a)*r)).add(armFrames.binormals[k].clone().multiplyScalar(Math.sin(a)*r));ap.push(v.x,v.y,v.z);au.push(j/24,t*2);if(k<40&&j<24){const q=k*25+j;ai.push(q,q+25,q+1,q+1,q+25,q+26);}}}
+ const ag=new T.BufferGeometry();ag.setAttribute('position',new T.Float32BufferAttribute(ap,3));ag.setAttribute('uv',new T.Float32BufferAttribute(au,2));ag.setIndex(ai);ag.computeVertexNormals();mesh(ag,coat,V(0,0,0),student);
+ ell(s*1.89,10.55,0,.67,.67,.67,coat);ell(s*2.70,3.95,.27,.44,.44,.44,coat);
+ ell(s*2.70,3.42,.28,.45,.68,.37,cream);
+ for(let i=0;i<3;i++)bullLimb(V(s*(2.46+i*.20),3.32,.49),V(s*(2.48+i*.20),2.72+i*.05,.51),.104,.083,cream);
+ bullLimb(V(s*2.35,3.71,.47),V(s*2.23,3.24,.67),.14,.11,cream);
+}
+// Large golden head, flared ears and pale projecting muzzle.
+ell(0,13.64,.05,1.89,2.14,1.17,faceGold);
+ell(0,12.14,.52,1.55,1.24,1.03,coat);
+for(const s of [-1,1]){
+ const ear=ell(s*2.04,14.15,.0,.83,.41,.27,coat);ear.rotation.z=s*.42;
+ const inside=ell(s*2.07,14.16,.225,.59,.23,.085,earInner);inside.rotation.z=s*.42;
+ ell(s*1.56,12.91,.43,.42,.67,.40,coat);
+}
+ell(0,12.39,1.01,1.25,.97,.72,cream);
+ell(0,12.55,1.50,.91,.45,.35,cream);
+for(const s of [-1,1]){ell(s*.44,12.63,1.79,.18,.078,.035,darkGold);}
+bullCurve([[-.78,12.02,1.59],[-.38,11.86,1.69],[0,11.83,1.72],[.38,11.86,1.69],[.78,12.02,1.59]],.037,earInner);
+ell(0,11.70,1.31,.78,.18,.32,cream);
+// Half-lidded eyes and restrained brows match the reference expression.
+for(const s of [-1,1]){
+ ell(s*.78,14.06,1.08,.55,.22,.17,eyeWhite);
+ ell(s*.70,14.04,1.235,.145,.168,.040,eyeBrown);
+ ell(s*.68,14.04,1.271,.078,.128,.016,M.black);
+ ell(s*.72,14.11,1.292,.027,.029,.013,M.white);
+ const lid=ell(s*.79,14.28,1.10,.62,.18,.19,faceGold);lid.rotation.z=s*.05;
+ bullCurve([[s*.34,14.54,1.01],[s*.75,14.63,1.00],[s*1.18,14.49,.90]],.061,darkGold);
+}
+// Tapered horn surfaces follow a true 3D curve, rather than straight cones.
+const hornMap=texture((c,W,H)=>{const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#776851');g.addColorStop(.28,'#b5ac97');g.addColorStop(1,'#e2dfd1');c.fillStyle=g;c.fillRect(0,0,W,H);for(let j=0;j<1800;j++){c.fillStyle='rgba(71,58,39,.10)';c.fillRect(rnd()*W,rnd()*H,.8+rnd()*2,1+rnd()*5);}},256,512);
+const hornMat=new T.MeshStandardMaterial({map:hornMap,roughness:.60});
+for(const s of [-1,1]){
+ const curve=new T.CatmullRomCurve3([V(s*1.39,15.15,.00),V(s*1.96,15.41,-.03),V(s*2.24,15.91,-.06),V(s*2.29,16.47,-.08),V(s*2.25,16.73,-.07)]);
+ const frames=curve.computeFrenetFrames(32,false),pos=[],uv=[],idx=[];
+ for(let i=0;i<=32;i++){const t=i/32,p=curve.getPointAt(t),r=.36*Math.pow(1-t,.78)+.009;for(let j=0;j<=20;j++){const a=j/20*Math.PI*2,v=p.clone().add(frames.normals[i].clone().multiplyScalar(Math.cos(a)*r)).add(frames.binormals[i].clone().multiplyScalar(Math.sin(a)*r));pos.push(v.x,v.y,v.z);uv.push(j/20,t);if(i<32&&j<20){const k=i*21+j;idx.push(k,k+21,k+1,k+1,k+21,k+22);}}}
+ const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();mesh(geo,hornMat,V(0,0,0),student);
+}
+student.scale.setScalar(1.035);
+const ground=mesh(new T.PlaneGeometry(150,120),mat('#dbe6ef',0,.9),V(0,.02,0),model);ground.rotation.x=-Math.PI/2;ground.castShadow=false;
+const MODEL={U:24,R1:40,R2:280},state={height:170,force:600,topOn:true,bottomOn:true,flow:false,labels:true,device:true,paused:false};
+const calc=()=>{const R0=2*(200-state.height),Rp=320-2*state.force/15,I=state.topOn?24/(R0+40):0,Ib=state.bottomOn?24/(Rp+280):0;return {R0,Rp,I,Ib,U2:Ib*280};};
+const orbit={theta:0,phi:Math.PI/2-.025,zoom:1,target:V(0,11.40,0)},views={front:[0,Math.PI/2-.025,1,0,11.40,0],three:[.13,1.46,1,0,11.40,0],circuit:[0,Math.PI/2,1.28,5.3,10.5,0],sensor:[.18,1.16,3.3,-15.2,2.3,0]};
+let lastAspect=1;
+function applyCamera(){const r=60,s=Math.sin(orbit.phi);camera.position.set(orbit.target.x+r*s*Math.sin(orbit.theta),orbit.target.y+r*Math.cos(orbit.phi),orbit.target.z+r*s*Math.cos(orbit.theta));camera.lookAt(orbit.target);camera.zoom=orbit.zoom;camera.updateProjectionMatrix();}
+function setView(name){const a=views[name];orbit.theta=a[0];orbit.phi=a[1];orbit.zoom=a[2];orbit.target.set(a[3],a[4],a[5]);applyCamera();}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight,aspect=w/h;lastAspect=aspect;renderer.setSize(w,h,false);const hh=Math.max(12,21.7/aspect);camera.left=-hh*aspect;camera.right=hh*aspect;camera.top=hh;camera.bottom=-hh;camera.updateProjectionMatrix();applyCamera();}
+new ResizeObserver(resize).observe(stage);addEventListener('resize',resize);resize();
+/* Dynamic mechanisms move with sliders; only the dynamic yellow lead is rebuilt. */
+function sync(){const m=calc(),dy=(state.height-170)*.10,sliderY=194-(state.height-170)*2.37;
+ student.scale.setScalar(1.035*state.height/170);headBar.position.y=dy;
+ sliderG.position.copy(P(306,sliderY,-.42));movingPost.tip.copy(P(347,sliderY,.83));nodes.railSlider.y=sliderY;
+ // Move every mesh belonging to moving rail post together via a dedicated group.
+ movingPostGroup.position.y=(194-sliderY)/40;
+ movingLead.set([[347,sliderY,.84],[379,sliderY+4,.94],[416,Math.max(245,sliderY+20),1.0],[456,282,1.04],[498,281,1.00]]);
+ pressureLayer.scale.y=1-.36*state.force/1050;
+ meters.A.pivot.rotation.z=.91*(1-2*m.I/.6);meters.V.pivot.rotation.z=.91*(1-2*m.U2/15);
+ const ia=m.I.toFixed(2)+' A',uv=m.U2.toFixed(1)+' V';if(meters.A.last!==ia){meters.A.read.set(ia);meters.A.last=ia;}if(meters.V.last!==uv){meters.V.read.set(uv);meters.V.last=uv;}
+ switches.top.lever.rotation.z=state.topOn?0:-.57;switches.bottom.lever.rotation.z=state.bottomOn?0:-.57;
+ $('hVal').textContent=state.height+' cm';$('fVal').textContent=state.force+' N';$('iVal').textContent=m.I.toFixed(3)+' A';$('uVal').textContent=m.U2.toFixed(2)+' V';$('r0Val').textContent=m.R0.toFixed(0)+' Ω';$('rpVal').textContent=m.Rp.toFixed(0)+' Ω';
+ for(const [id,on] of [['topSwitch',state.topOn],['bottomSwitch',state.bottomOn]]){$(id).classList.toggle('active',on);$(id).textContent=(id==='topSwitch'?'S₁ 测高':'S₂ 称重')+(on?' · 闭合':' · 断开');}
+ tags.visible=state.labels;device.visible=state.device;leads.visible=state.device;
+ $('steps').innerHTML='<b>测高支路</b><br>R₀ = 2 × (200 − '+state.height+') = '+m.R0+' Ω<br>I = 24 ÷ ('+m.R0+' + 40) = '+m.I.toFixed(3)+' A<br><br><b>称重支路</b><br>R压 = 320 − 2 × '+state.force+' ÷ 15 = '+m.Rp.toFixed(1)+' Ω<br>U₂ = 24 × 280 ÷ ('+m.Rp.toFixed(1)+' + 280) = '+m.U2.toFixed(2)+' V';
+ drawSchematic(m);drawGraph(m);return m;
+}
+// Collect the rail slider contact meshes under a group without changing world transforms.
+const movingPostGroup=new T.Group();device.add(movingPostGroup);
+for(const o of movingPost.meshes){device.remove(o);movingPostGroup.add(o);}
+function toggleBranch(which){state[which==='top'?'topOn':'bottomOn']=!state[which==='top'?'topOn':'bottomOn'];sync();}
+function drawSchematic(m){const a=state.topOn,b=state.bottomOn;$('sch').innerHTML=`<g fill="none" stroke="#293d55" stroke-width="2.8" stroke-linejoin="round"><path d="M24 33V176H151M189 176H316V33M24 44H60M100 44H132M160 44H185M221 44H254M279 44H316M24 129H63M100 129H165M203 129H251M279 129H316M165 129V91H172M198 91H203V129"/><rect x="61" y="35" width="40" height="18"/><path d="M84 22V35m-5 -5 5 5 5 -5"/><rect x="185" y="35" width="36" height="18"/><rect x="63" y="120" width="37" height="18"/><rect x="165" y="120" width="38" height="18"/><circle cx="146" cy="44" r="14"/><circle cx="185" cy="91" r="14"/><path d="M254 44l25 ${a?'0':'-12'}M251 129l28 ${b?'0':'-12'}M153 164V188m7 -18v12m10 -18v24m8 -18v12m9 -18v24"/></g><g fill="#172c46" font-family="sans-serif" font-size="15" text-anchor="middle"><text x="78" y="69">R₀</text><text x="146" y="49">A</text><text x="203" y="69">R₁</text><text x="267" y="29">S₁</text><text x="81" y="153">R压</text><text x="184" y="153">R₂</text><text x="185" y="96">V</text><text x="265" y="153">S₂</text><text x="171" y="209">24 V</text><text x="135" y="177" fill="#cf2920">+</text><text x="207" y="177">−</text></g>`;}
+function drawGraph(m){const c=$('graph'),x=c.getContext('2d'),w=c.width,h=c.height,L=52,B=h-35;x.clearRect(0,0,w,h);x.fillStyle='#ffffff';x.fillRect(0,0,w,h);const xx=f=>L+f/1050*(w-L-20),yy=r=>B-(r-180)/140*(B-25);x.strokeStyle='#e1e7ee';x.lineWidth=1;for(let f=0;f<=1050;f+=150){x.beginPath();x.moveTo(xx(f),25);x.lineTo(xx(f),B);x.stroke();}for(let r=180;r<=320;r+=20){x.beginPath();x.moveTo(L,yy(r));x.lineTo(w-20,yy(r));x.stroke();}x.strokeStyle='#526478';x.beginPath();x.moveTo(L,20);x.lineTo(L,B);x.lineTo(w-15,B);x.stroke();x.strokeStyle='#176be6';x.lineWidth=3;x.beginPath();x.moveTo(xx(0),yy(320));x.lineTo(xx(1050),yy(180));x.stroke();x.fillStyle='#192e49';x.font='14px sans-serif';x.fillText('R / Ω',5,18);x.fillText('F / N',w-50,h-9);for(let r=180;r<=320;r+=40)x.fillText(r,10,yy(r)+5);for(let f=0;f<=900;f+=300)x.fillText(f,xx(f)-10,h-14);x.fillStyle='#de3328';x.beginPath();x.arc(xx(state.force),yy(m.Rp),5,0,Math.PI*2);x.fill();}
+/* Animated arrows follow the actual circuit path; voltage-sense branch has no ideal-meter current. */
+const flowStyle=window.CurrentFlowStyle,arrowMaterial=flowStyle.createMaterial(T),arrowAxis=flowStyle.createAxis(T),arrowSets=[];
+function pathArrows(which,points,count){const curve=roundedPath(points,.18),group=new T.Group();model.add(group);const arrows=[],geometry=flowStyle.createGeometry(T);count=Math.max(count,Math.ceil(curve.getLength()/1.1));for(let i=0;i<count;i++){const o=mesh(geometry,arrowMaterial,V(0,0,0),group);o.castShadow=false;o.receiveShadow=false;arrows.push(o);}arrowSets.push({which,curve,group,arrows,geometry,length:curve.getLength()});}
+function currentPaths(){const s=nodes.railSlider.y;pathArrows('top',[[757,783,1.35],[501,783,1.35],[501,326,1.35],[524,306,1.35],[524,281,1.35],[498,281,1.35],[456,282,1.55],[379,s+4,1.45],[347,s,1.2],[347,123,1.2],[416,168,1.4],[551,203,1.35],[590,241,1.35],[711,292,1.35],[740,302,1.45],[852,237,1.4],[962,302,1.45],[1036,266,1.25],[1294,266,1.25],[s1.l,285,1.4],[s1.r,285,1.4],[1607,285,1.2],[1607,783,1.2],[1377,783,1.3]],46);
+pathArrows('bottom',[[757,783,1.4],[501,783,1.4],[501,545,1.4],[524,546,1.4],[524,571,1.4],[498,571,1.4],[478,571,1.6],[390,720,1.5],[342,787,1.4],[342,821,1.4],[322,810,1.4],[405,786,1.7],[501,644,1.9],[551,644,1.4],[918,644,1.3],[1247,644,1.3],[s2.l,644,1.4],[s2.r,644,1.4],[1607,644,1.3],[1607,783,1.3],[1377,783,1.4]],40);}
+function rebuildCurrent(){for(const s of arrowSets){model.remove(s.group);s.geometry.dispose();}arrowSets.length=0;currentPaths();}
+$('height').oninput=e=>{state.height=+e.target.value;sync();rebuildCurrent();};$('force').oninput=e=>{state.force=+e.target.value;sync();};
+$('topSwitch').onclick=()=>toggleBranch('top');$('bottomSwitch').onclick=()=>toggleBranch('bottom');
+$('btnFlow').onclick=()=>{state.flow=!state.flow;$('btnFlow').classList.toggle('active',state.flow);};
+$('btnLabels').onclick=()=>{state.labels=!state.labels;$('btnLabels').classList.toggle('active',state.labels);sync();};
+$('btnRuler').onclick=()=>{state.device=!state.device;$('btnRuler').textContent=state.device?'隐藏机构':'显示机构';sync();};
+for(const [id,name] of [['viewDefault','front'],['viewFront','front'],['viewThree','three'],['viewCircuit','circuit'],['viewSensor','sensor']])$(id).onclick=()=>setView(name);
+$('btnPanel').onclick=()=>{$('drawer').classList.toggle('open');$('btnPanel').classList.toggle('active');};$('closePanel').onclick=()=>{$('drawer').classList.remove('open');$('btnPanel').classList.remove('active');};
+$('btnProjection').onclick=()=>{document.body.classList.toggle('projection');$('exitProjection').hidden=!document.body.classList.contains('projection');resize();};$('exitProjection').onclick=()=>{document.body.classList.remove('projection');$('exitProjection').hidden=true;resize();};
+$('btnFull').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();};
+$('btnExport').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='身高体重测量仪3D.png';a.href=canvas.toDataURL('image/png');a.click();};
+let down=null,moved=false;canvas.onpointerdown=e=>{down={x:e.clientX,y:e.clientY,shift:e.shiftKey};moved=false;canvas.setPointerCapture(e.pointerId);};
+canvas.onpointermove=e=>{if(!down)return;const dx=e.clientX-down.x,dy=e.clientY-down.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;down.x=e.clientX;down.y=e.clientY;if(down.shift){const scale=(camera.right-camera.left)/stage.clientWidth/orbit.zoom;orbit.target.x-=dx*scale;orbit.target.y+=dy*scale;}else{orbit.theta-=dx*.005;orbit.phi=Math.max(.35,Math.min(2.75,orbit.phi-dy*.005));}applyCamera();};
+canvas.onpointerup=e=>{if(!moved){const rect=canvas.getBoundingClientRect(),pointer=new T.Vector2((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height*2-1)),ray=new T.Raycaster();ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects(pickables,false);if(hit.length)toggleBranch(hit[0].object.userData.switch);}down=null;};canvas.onpointercancel=()=>down=null;
+canvas.addEventListener('wheel',e=>{e.preventDefault();orbit.zoom=Math.max(.5,Math.min(6,orbit.zoom*Math.exp(-e.deltaY*.001)));applyCamera();},{passive:false});
+addEventListener('keydown',e=>{if(e.key==='Escape'){document.body.classList.remove('projection');$('exitProjection').hidden=true;resize();}if(e.key.toLowerCase()==='r'&&e.target.tagName!=='INPUT')setView('front');});
+function validate(){const errors=[];const expect=(a,b,msg)=>{if(Math.abs(a-b)>1e-7)errors.push(msg);};expect(24/(2*(200-180)+40),.3,'H=180电流');expect(24/(2*(200-200)+40),.6,'H=200电流');expect(320-2*600/15,240,'R压');expect(24*280/(240+280),168/13,'U₂');let bad=0;model.traverse(o=>{if(o.isMesh&&o.geometry.attributes.position){for(const n of o.geometry.attributes.position.array)if(!Number.isFinite(n)){bad++;break;}}});if(bad)errors.push('几何坐标');if(graphEdges.some(([a,b])=>!nodes[a]||!nodes[b]))errors.push('接线节点');return {passed:errors.length===0,errors,nodes:Object.keys(nodes).length,wires:routes.length,objects:renderer.info.memory.geometries};}
+/* Batch fixed geometry by material. Moving switches, pointers and slider retain their own groups. */
+function batchStatic(parent,exclude=new Set()){
+ const groups=new Map();for(const o of parent.children.slice()){if(!o.isMesh||o.children.length||exclude.has(o)||o.userData.wire||Array.isArray(o.material))continue;o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);const key=o.material.uuid;if(!groups.has(key))groups.set(key,{ma:o.material,items:[],originals:[]});groups.get(key).items.push(g);groups.get(key).originals.push(o);}
+ for(const group of groups.values()){if(group.items.length<2){group.items.forEach(g=>g.dispose());continue;}const out=new T.BufferGeometry();for(const attr of ['position','normal','uv']){const size=attr==='uv'?2:3,total=group.items.reduce((n,g)=>n+(g.attributes[attr]?.array.length||g.attributes.position.count*size),0),data=new Float32Array(total);let offset=0;for(const g of group.items){const a=g.attributes[attr];if(a){data.set(a.array,offset);offset+=a.array.length;}else offset+=g.attributes.position.count*size;}out.setAttribute(attr,new T.BufferAttribute(data,size));}out.computeBoundingSphere();const combined=mesh(out,group.ma,V(0,0,0),parent);combined.userData.batched=true;for(const o of group.originals){parent.remove(o);o.geometry.dispose();}for(const g of group.items)g.dispose();}
+}
+batchStatic(panel);batchStatic(device,new Set([pressureLayer]));batchStatic(student);
+for(const s of Object.values(switches))batchStatic(s.g,new Set([s.hit]));for(const m of Object.values(meters))batchStatic(m.g);
+sync();rebuildCurrent();setView('front');const checks=validate();$('check').textContent=checks.passed?'电路与模型自检通过':'自检：'+checks.errors.join('、');
+let last=0,time=0;
+function animate(ms){requestAnimationFrame(animate);const dt=Math.min(.05,(ms-last)/1000||0);last=ms;time+=dt;for(const s of arrowSets){s.group.visible=state.flow&&state[s.which==='top'?'topOn':'bottomOn'];if(!s.group.visible)continue;for(let i=0;i<s.arrows.length;i++){const t=(time*flowStyle.speed/s.length+i/s.arrows.length)%1,p=s.curve.getPoint(t),tangent=s.curve.getTangent(t);s.arrows[i].position.copy(p);s.arrows[i].quaternion.setFromUnitVectors(arrowAxis,tangent);}}renderer.render(scene,camera);}requestAnimationFrame(animate);
+window.__dbg={flowStyle,arrowSets,student,sharedJunctions,scene,camera,renderer,model,panel,device,state,MODEL,nodes,graphEdges,routes,meters,switches,orbit,views,calc,sync,setView,validate,toggleBranch,movingLead,checks,resize};
+})();
+
+});</script>
+</body></html>

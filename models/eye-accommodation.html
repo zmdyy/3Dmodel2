@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>眼睛的调节与视力矫正 · 3D 交互演示</title>
+<style>
+:root{
+  --bg:#eef3f9;--ink:#1b2430;--ink2:#5a6879;--line:#dde5ef;--brand:#2f7de1;
+  --brandSoft:#e7f0fd;--red:#d93a2b;--green:#268a68;--amber:#c67b27;--shadow:0 10px 34px rgba(28,48,78,.13)
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{position:fixed;inset:0}
+#scene{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.head{position:fixed;left:24px;top:20px;z-index:5;max-width:440px;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:14px 18px;box-shadow:var(--shadow)}
+.head h1{margin:0 0 5px;font-size:19px;font-weight:750}.head h1 span{font-weight:550;color:var(--ink2);font-size:13px}.head p{margin:0;font-size:12.5px;line-height:1.58;color:var(--ink2)}
+.panel{position:fixed;right:22px;top:20px;z-index:6;width:316px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px;max-height:calc(100vh - 40px);overflow:auto}
+.panel::-webkit-scrollbar{width:6px}.panel::-webkit-scrollbar-thumb{background:#cfdae8;border-radius:3px}
+.grp{margin-bottom:15px}.lbl{font-size:11.5px;font-weight:700;letter-spacing:.4px;color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px}.lbl b{color:var(--brand);font-size:12.5px;margin-left:auto}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:#e2eaf4;outline:none}input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 3px rgba(47,125,225,.14);cursor:pointer}
+.seg,.btns{display:flex;gap:7px;flex-wrap:wrap}.seg button,.btns button{border:1px solid var(--line);background:#fff;color:#43536b;border-radius:10px;padding:8px 10px;font:inherit;font-size:11.8px;font-weight:700;cursor:pointer;transition:.18s}.seg button:hover,.btns button:hover{border-color:#b9cce6;background:#f9fbfe}.seg button.active,.btns button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.readout{display:grid;grid-template-columns:1fr 1fr;gap:7px}.tile{padding:9px 10px;background:#f8fbfe;border:1px solid var(--line);border-radius:11px}.tile small{display:block;color:#7a8799;font-size:10.5px;margin-bottom:3px}.tile strong{font-size:13px;color:#26384f}
+.status{padding:10px 11px;border-radius:12px;border:1px solid #cae3d8;background:#f2faf7;color:#2b6f58;font-size:12px;line-height:1.55}.status.warn{border-color:#efd4b4;background:#fff9f1;color:#966226}.status.bad{border-color:#ecc8c1;background:#fff5f3;color:#a04c40}
+.note{font-size:11.5px;line-height:1.58;color:#6c798b;padding-top:3px}.legend{display:grid;gap:5px}.legend span{font-size:11.5px;color:#5f6d7f;display:flex;align-items:center;gap:7px}.dot{width:9px;height:9px;border-radius:50%}.dot.ray{background:#d50072}.dot.retina{background:#e36c2e}.dot.ciliary{background:#b15051}.dot.lens{background:#73cbe6}.dot.zonule{background:#d5b157}
+.tip{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:4;background:rgba(255,255,255,.90);border:1px solid var(--line);border-radius:999px;padding:8px 13px;color:#657286;font-size:11.5px;box-shadow:0 5px 17px rgba(28,48,78,.10)}
+@media(max-width:820px){.head{left:12px;top:12px;max-width:calc(100vw - 340px)}.panel{right:12px;top:12px;width:300px}.tip{left:12px;right:12px;transform:none;text-align:center}}
+@media(max-width:670px){.head{display:none}.panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:46vh}.tip{display:none}}
+
+/* Two views share distance controls; the angular view assumes correct accommodation. */
+#stage{right:360px}.head{max-width:560px}.head h1{font-size:23px}.head p{font-size:14px}.panel{width:328px;right:16px}.lbl{font-size:14px}.lbl b{font-size:14px}.seg button,.btns button{font-size:14px;padding:9px 11px}.note,.legend span{font-size:13px}.status{font-size:14px}.tile small{font-size:12px}.tile strong{font-size:14px}.tip{left:20px;right:380px;bottom:14px;transform:none;border-radius:12px;text-align:center;font-size:13px}.view-tabs{position:absolute;left:24px;top:132px;z-index:8;display:flex;gap:8px}.view-tabs button{padding:9px 16px;border:1px solid #bfd0e4;border-radius:10px;background:#fff;color:#43536b;font:inherit;font-size:16px;cursor:pointer}.view-tabs button.active{background:#2f7de1;border-color:#2f7de1;color:white}#angleView{position:absolute;inset:187px 18px 56px;overflow:auto;z-index:4;background:#eef3f9;padding:0 4px 16px}.angle-intro{padding:12px 16px;background:#fff;border:1px solid #dbe4ef;border-radius:13px;font-size:15px;line-height:1.6}.angle-intro b{color:#24689f}.angle-diagram{width:100%;height:206px;background:#fff;border:1px solid #dbe4ef;border-radius:14px;margin-top:12px}.angle-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.angle-card{padding:14px;background:white;border:1px solid #dbe4ef;border-radius:14px}.angle-card h2{font-size:18px;margin:0 0 5px}.angle-card p{font-size:13px;color:#58697e;margin:5px 0;line-height:1.6}.angle-images{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:10px;align-items:center}.retina-grid{width:100%;max-width:300px;aspect-ratio:1;display:block;border-radius:10px;border:1px solid #ddd}.sample-zoom{width:105px;height:130px;background:#f2f6fb;border:1px solid #dbe4ef;border-radius:10px}.angle-facts{padding:9px;background:#edf5ff;border-radius:8px;font-size:14px;line-height:1.7;margin-top:8px}.angle-foot{font-size:13px;line-height:1.65;color:#56667a;margin-top:10px;padding:10px;background:#f9fbfe;border-radius:10px}#focusDiagram{width:100%;height:auto;margin-top:9px;border:1px solid #d9e2ee;border-radius:10px;background:#fff}.lock-info{display:none;padding:9px;background:#fff5e7;border-radius:9px;font-size:13px;margin-top:8px;color:#855c2a}.panel.angle-mode .eye-only{display:none}.panel:not(.angle-mode) .angle-only{display:none}.sources{font-size:12px;line-height:1.6;color:#68788b;margin-top:12px}.sources a{color:#346da9}#openPanel{display:none}button:focus-visible,input:focus-visible{outline:3px solid #85b9ef;outline-offset:2px}.panel-close{display:none}#angleView[hidden]{display:none}#openPanel[hidden]{display:none!important}
+@media(max-width:1100px){.angle-cards{grid-template-columns:1fr}.angle-images{grid-template-columns:minmax(0,1fr) 140px}.sample-zoom{width:140px;height:155px}.retina-grid{max-height:320px;aspect-ratio:1;object-fit:contain}.head{max-width:calc(100% - 30px)}}
+@media(max-width:820px){#stage{right:0}.head{display:block;left:12px;top:12px;max-width:calc(100% - 110px);padding:10px 12px}.head h1{font-size:20px}.head h1 span{display:none}.head p{font-size:13px}.view-tabs{left:12px;top:123px}.panel{right:10px;left:auto;top:12px;bottom:auto;width:328px;max-height:calc(100vh - 24px);z-index:12}.panel.mobile-hidden{display:none}#openPanel{display:block;position:fixed;right:12px;top:16px;z-index:11;background:#fff;border:1px solid #c5d5e7;border-radius:9px;padding:9px;font:inherit;color:#43536b}.panel-close{display:block;float:right;border:0;padding:3px 7px;border-radius:6px;background:#e7f0fd;color:#376baf;font:inherit;font-size:13px;cursor:pointer}.tip{display:block;left:12px;right:12px;font-size:11px;bottom:8px;padding:6px}.angle-diagram{height:195px}#angleView{inset:174px 10px 53px}.angle-images{grid-template-columns:minmax(0,1fr) 100px}.sample-zoom{width:100px;height:130px}.angle-intro{font-size:14px;padding:10px}.angle-card h2{font-size:17px}}
+
+.angle-diagram{display:block;height:auto;aspect-ratio:1000/300}.angle-card p{font-size:14px}.head{max-width:510px}
+@media(max-width:820px){.angle-diagram{height:auto;aspect-ratio:600/330}}
+
+/* Compact title and a comparison that fits the viewport. */
+.head{left:16px;right:360px;top:12px;max-width:none;padding:10px 18px;border-radius:12px;box-shadow:none;text-align:center}.head h1{font-size:22px;margin-bottom:3px}.head p{font-size:13px}.view-tabs{top:100px;left:18px}.embedded .head{display:none}.embedded .view-tabs{top:14px}.tip{font-size:12px;padding:6px 10px}.angle-page #stage{right:0}.angle-page .head{right:16px}.angle-page .panel,.angle-page #openPanel{display:none!important}.angle-page .tip{display:none}.angle-page .view-tabs{top:98px}.angle-page.embedded .view-tabs{top:12px}
+#angleView{inset:148px 18px 12px;padding:0;overflow:hidden;display:grid;grid-template-rows:auto auto minmax(145px,.75fr) minmax(210px,1.3fr) auto;gap:8px}.embedded #angleView{top:62px}#angleView[hidden]{display:none}.angle-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 16px;background:white;border:1px solid #dbe4ef;padding:9px 12px;border-radius:12px}.angle-controls label{font-size:15px;font-weight:650;color:#405d75;display:flex;align-items:center;gap:7px}.angle-controls input{width:76px;border:1px solid #bfd0e1;border-radius:8px;padding:7px;color:#245d8d;font:inherit;background:#f5f9fd}.angle-controls button{font-size:14px;padding:7px 10px}.angle-intro{font-size:14px;padding:8px 14px;line-height:1.5}.angle-diagram{height:100%;width:100%;min-height:0;aspect-ratio:auto;margin:0}.angle-cards{display:grid;grid-template-columns:1fr 1fr;min-height:0;margin:0;gap:10px}.angle-card{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-height:0;padding:10px 14px}.angle-card h2{font-size:18px;margin:0}.angle-card p{font-size:13px;margin:3px 0}.angle-images{display:flex;justify-content:center;align-items:center;min-height:0}.retina-grid{height:100%;width:auto;max-width:100%;max-height:100%;aspect-ratio:1;object-fit:contain;border:1px solid #d1ad80}.angle-facts{font-size:14px;line-height:1.5;margin-top:6px;padding:6px 9px}.angle-foot{font-size:12px;line-height:1.45;margin:0;padding:7px 12px;background:white;border:1px solid #dbe4ef;border-radius:10px}
+@media(max-width:820px){.head{left:12px;right:12px;top:10px;max-width:none}.head h1{font-size:20px}.head h1 span{display:inline;font-size:12px}.head p{font-size:12px}.view-tabs{top:108px;left:12px}.embedded .view-tabs{top:12px}.angle-page .view-tabs{top:108px}.angle-page.embedded .view-tabs{top:12px}#angleView{inset:156px 10px 10px;grid-template-rows:auto auto minmax(130px,.7fr) minmax(180px,1.3fr) auto}.embedded #angleView{top:62px}.angle-controls{gap:6px 10px;padding:7px}.angle-controls label,.angle-controls button{font-size:13px}.angle-controls button{padding:6px 8px}.angle-intro{font-size:12px}.angle-card{padding:8px}.angle-card h2{font-size:15px}.angle-facts{font-size:12px}.angle-foot{font-size:11px}.angle-controls input{width:62px;padding:5px}.angle-card p{font-size:12px}}
+@media(max-height:740px){#angleView{grid-template-rows:auto minmax(110px,.75fr) minmax(160px,1.3fr) auto}.angle-intro{display:none}.angle-controls{padding:5px 10px}.angle-card p{display:none}.angle-card{grid-template-rows:auto minmax(0,1fr) auto}.angle-facts{font-size:12px;padding:4px 7px;line-height:1.4}.angle-foot{font-size:11px;padding:5px 10px}.angle-controls button{padding:5px 8px}}
+
+
+/* Screenshot layout: tabs left, title centre, compact parameters right. */
+.angle-controls{display:none}
+.angle-page .view-tabs,.angle-page.embedded .view-tabs{top:25px;left:20px}
+.angle-page .head{left:224px;right:min(650px,46vw);top:12px;padding:8px 12px;background:transparent;border:0}
+.angle-page .head h1{font-size:20px}.angle-page .head h1 span{display:none}.angle-page .head p{font-size:12px}
+.angle-page .angle-controls{position:absolute;right:18px;top:12px;width:min(610px,45vw);z-index:8;display:grid;grid-template-columns:max-content 1fr;gap:5px 10px;justify-content:end;padding:7px 10px}
+.angle-controls label{font-size:13px;white-space:nowrap}.angle-controls input{width:64px;padding:5px}.angle-controls .seg{display:flex;justify-content:flex-end;gap:4px}.angle-controls .btns{margin:0;display:flex;justify-content:flex-end}.angle-controls button{font-size:13px;white-space:nowrap;padding:5px 8px}
+#angleView,.embedded #angleView{top:100px;grid-template-rows:minmax(180px,.8fr) minmax(210px,1.3fr) auto}
+.angle-intro{display:none}
+.angle-diagram{padding:4px 10px;box-sizing:border-box}
+@media(max-width:1100px){.angle-page .head{left:220px;right:20px;top:8px}.angle-page .head h1{font-size:18px}.angle-page .head p{display:none}.angle-page .view-tabs,.angle-page.embedded .view-tabs{top:14px;left:12px}.angle-page .angle-controls{top:58px;left:12px;right:12px;width:auto;display:flex;justify-content:center;flex-wrap:wrap;gap:6px 10px}.angle-controls .seg{justify-content:center}.angle-controls .btns{justify-content:center}#angleView,.embedded #angleView{top:113px;grid-template-rows:minmax(140px,.8fr) minmax(180px,1.3fr) auto}}
+@media(max-width:680px){.angle-page .head{left:218px;right:10px}.angle-page .angle-controls{top:56px;gap:5px}.angle-controls label,.angle-controls button{font-size:12px}.angle-controls input{width:52px}.angle-controls button{padding:4px 5px}#angleView,.embedded #angleView{top:144px}.angle-card{padding:7px}.angle-facts{font-size:11px}.angle-foot{font-size:10px}}
+@media(max-height:650px){#angleView,.embedded #angleView{grid-template-rows:minmax(105px,.65fr) minmax(140px,1.3fr) auto}.angle-card{grid-template-rows:auto minmax(0,1fr) auto}.angle-card p{display:none}.angle-foot{font-size:10px;padding:4px 8px}.angle-facts{font-size:11px;padding:4px}.angle-card h2{font-size:14px}}
+
+
+/* One diagram per column, directly above its matching retinal image. */
+.angle-diagrams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;min-height:0}
+.angle-diagrams .angle-diagram{min-width:0;height:100%;padding:6px 10px}
+#angleView,.embedded #angleView{grid-template-rows:minmax(150px,.52fr) minmax(210px,1.3fr) auto}
+.angle-page .angle-controls{grid-template-columns:1fr max-content}
+.angle-controls .distance-control{grid-column:1/-1;min-width:0;gap:10px}
+.angle-controls input[type=range]{flex:1;min-width:80px;width:auto;height:24px;border:0;padding:0;margin:0;box-shadow:none;accent-color:#2f7de1;background:transparent;cursor:pointer}
+.angle-controls input[type=range]::-webkit-slider-thumb{width:20px;height:20px}
+.angle-controls output{min-width:60px;text-align:right;font-size:15px;font-weight:700;color:#245f91}
+@media(max-width:1100px){.angle-page .angle-controls{display:grid;grid-template-columns:1fr max-content;top:54px}.angle-controls .height-control{justify-content:flex-start}#angleView,.embedded #angleView{top:142px;grid-template-rows:minmax(110px,.52fr) minmax(180px,1.3fr) auto}}
+@media(max-width:680px){#angleView,.embedded #angleView{top:140px}.angle-diagrams{gap:10px}.angle-diagrams .angle-diagram{padding:4px}.angle-controls output{font-size:13px}}
+@media(max-height:650px){#angleView,.embedded #angleView{grid-template-rows:minmax(85px,.45fr) minmax(140px,1.3fr) auto}}
+
+
+.angle-controls input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:4px;background:linear-gradient(to right,#2f7de1 var(--distance-progress,100%),#dce7f4 var(--distance-progress,100%))}
+.angle-controls input[type=range]::-webkit-slider-thumb{margin-top:-7.5px}
+.angle-controls input[type=range]::-moz-range-track{height:5px;background:#dce7f4;border-radius:4px}
+.angle-controls input[type=range]::-moz-range-progress{height:5px;background:#2f7de1;border-radius:4px}
+.angle-controls input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#2f7de1}
+
+
+/* Large illustrations and only the controls / distance titles remain. */
+#angleView,.embedded #angleView{grid-template-rows:minmax(195px,.70fr) minmax(260px,1fr);gap:12px}
+.angle-card{grid-template-rows:auto minmax(0,1fr);gap:8px;padding:12px 16px}
+.angle-card h2{font-size:27px;line-height:1.25}
+.angle-diagrams .angle-diagram{padding:0 10px}
+.angle-images{min-height:0}.retina-grid{max-width:100%;max-height:100%}
+.angle-controls label{font-size:17px}.angle-controls input[type=number]{font-size:17px;width:76px}
+.angle-controls output{font-size:19px;min-width:76px}.angle-controls button{font-size:16px}
+.angle-page .head p{display:none}
+@media(max-width:1100px){#angleView,.embedded #angleView{top:150px;grid-template-rows:minmax(170px,.65fr) minmax(220px,1fr)}.angle-card h2{font-size:22px}.angle-controls label{font-size:15px}.angle-controls output{font-size:17px}}
+@media(max-width:680px){.angle-card h2{font-size:18px}.angle-card{padding:8px}.angle-controls label,.angle-controls button{font-size:14px}.angle-controls input[type=number]{width:58px;font-size:15px}}
+@media(max-height:650px){#angleView,.embedded #angleView{grid-template-rows:minmax(100px,.60fr) minmax(145px,1fr)}.angle-card h2{font-size:19px}.angle-card{padding:8px;gap:4px}}
+
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="scene"></canvas><nav class="view-tabs" aria-label="教学视图"><button id="eyeViewBtn" class="active">3D 调焦</button><button id="angleViewBtn">视角</button></nav>
+<div class="angle-controls"><label class="distance-control">当前距离 <input id="angleDistance" type="range" min="25" max="600" step="5" value="600" aria-label="当前观察距离"><output id="angleDistanceText" for="angleDistance">600 cm</output></label><label class="height-control">物体高度 <input id="angleHeight" type="number" min="2" max="14" step="1" value="10" inputmode="numeric"> cm</label><div class="btns"><button id="gridBtn" class="active">显示采样格</button></div></div><section id="angleView" hidden><div class="angle-diagrams"><svg preserveAspectRatio="xMinYMid meet" id="nearAngleDiagram" class="angle-diagram" role="img" aria-label="近处25厘米物体的视角"></svg><svg preserveAspectRatio="xMinYMid meet" id="farAngleDiagram" class="angle-diagram" role="img" aria-label="当前距离物体的视角"></svg></div>
+<div class="angle-cards"><article class="angle-card"><h2>近处 · 25 cm</h2><div class="angle-images"><canvas id="nearRetina" class="retina-grid" width="384" height="384" aria-label="近处物体的视网膜像及采样格"></canvas></div></article>
+<article class="angle-card"><h2 id="farTitle">当前距离 · 600 cm</h2><div class="angle-images"><canvas id="farRetina" class="retina-grid" width="384" height="384" aria-label="当前距离物体的视网膜像及采样格"></canvas></div></article></div>
+</section></div>
+
+<section class="head">
+  <h1>眼睛的调节 <span>· 成像、矫正与视角</span></h1>
+  <p><span id="viewIntro">点击“像在前方 / 后方”直接观察，再加入透镜将像移回视网膜。正常调节与固定晶状体仍可操作。</span></p>
+</section>
+
+<button id="openPanel">控制面板</button><aside class="panel" id="controlPanel"><button class="panel-close" id="closePanel">收起</button>
+  <div class="grp eye-only">
+    <div class="lbl">成像演示 <b id="scenarioText">正常调节</b></div>
+    <div class="seg"><button id="normalEyeBtn" class="active">正常调节</button><button id="myopiaBtn">像在前方 · 近视</button><button id="hyperopiaBtn">像在后方 · 远视</button></div>
+    <p class="note">近视、远视示例以固定等效屈光力偏差表示。绿色是理论清晰像，橙色是固定视网膜；主图的前后间距自适应放大，微小偏移也可分辨；面板保留实际毫米数值。</p>
+  </div>
+  <div class="grp">
+    <div class="lbl">观察距离 <b id="distanceText">600 cm · 远处</b></div>
+    <input id="distanceRange" type="range" min="25" max="600" value="600" step="5" />
+    <div class="seg" style="margin-top:9px">
+      <button id="farBtn" class="active">看远处</button>
+      <button id="nearBtn">看近处</button>
+    </div>
+  </div>
+
+  <div class="grp eye-only">
+    <div class="lbl">调焦方式 <b id="modeText">自动调焦</b></div>
+    <div class="seg">
+      <button id="autoBtn" class="active">自动调焦</button>
+      <button id="lockBtn">固定晶状体</button>
+    </div>
+    <div class="note" style="margin-top:7px">在正常调节模式中，固定的是点击时的晶状体状态。先看远再固定并移近：像在视网膜后；先看近再固定并移远：像在视网膜前。</div><div id="lockInfo" class="lock-info"></div>
+  </div>
+
+  <div class="grp eye-only">
+    <div class="lbl">外加透镜矫正 <b id="correctionText">未加透镜</b></div>
+    <div class="seg"><button id="noCorrectionBtn" class="active">移除透镜</button><button id="concaveBtn">凹透镜</button><button id="convexBtn">凸透镜</button></div>
+    <div id="correctionControls" hidden><div class="lbl" style="margin-top:12px">透镜屈光度 <b id="powerText">0.00 D</b></div><input id="correctionRange" type="range" min="0" max="10" step="0.05" value="0"><div class="btns" style="margin-top:10px"><button id="matchCorrectionBtn">调至清晰</button><button id="compareCorrectionBtn">矫正前 / 后</button></div></div>
+    <p id="correctionNote" class="note">先选择前方或后方成像，再选透镜；也可手动调节，观察欠矫正、正确矫正与过矫正。</p>
+  </div>
+  <div class="grp eye-only">
+    <div class="lbl">当前调节状态</div>
+    <div class="readout">
+      <div class="tile"><small>晶状体</small><strong id="lensText">较薄</strong></div>
+      <div class="tile"><small>睫状体</small><strong id="ciliaryText">放松</strong></div>
+      <div class="tile"><small>悬韧带</small><strong id="zonuleText">较紧</strong></div>
+      <div class="tile"><small>调节需求</small><strong id="diopterText">0.17 D</strong></div>
+    </div>
+  </div>
+
+  <div class="grp eye-only">
+    <div class="lbl">成像结果</div>
+    <div id="focusStatus" class="status">焦点落在视网膜上，成像清晰。</div><canvas id="focusDiagram" width="600" height="270" aria-label="理论清晰像平面与固定视网膜像面的对照"></canvas><p class="note">主图中的唯一绿色箭头表示理论清晰像；橙色线固定为视网膜像面。视网膜后方的虚线是光路延长，真实视网膜上接收的是散开的光斑。</p>
+  </div>
+
+  <div class="grp eye-only">
+    <div class="lbl">显示</div>
+    <div class="btns">
+      <button id="sectionBtn" class="active">半剖切</button>
+      <button id="rayBtn" class="active">光路</button>
+      <button id="labelBtn" class="active">结构标注</button>
+      <button id="imageBtn" class="active">理论成像</button>
+      <button id="resetViewBtn">默认视角</button><button id="sideViewBtn">成像侧视</button><button id="imageFocusBtn">近看成像位置</button><button id="irisViewBtn">虹膜正视</button><button id="structureFocusBtn">近看调节结构</button>
+    </div>
+  </div>
+
+  <div class="grp legend eye-only">
+    <span><i class="dot ray"></i>玫红：入射与折射光线，箭头指向传播方向</span>
+    <span><i class="dot lens"></i>浅蓝：晶状体</span>
+    <span><i class="dot ciliary"></i>暗红：睫状体</span>
+    <span><i class="dot zonule"></i>金色：悬韧带</span>
+    <span><i class="dot retina"></i>橙色：视网膜</span>
+  </div>
+
+<div class="note">模型用于初中“眼睛的调节”教学，突出结构与因果关系；3D 距离与像的大小作显示压缩。光路采用角膜＋晶状体的等效透镜，视网膜像面取距等效透镜 17 mm；外加透镜距等效透镜 15 mm，使用两透镜近轴模型。前后位置差自适应放大（非等比例），透镜厚度与物距也作显示压缩；视角视图中物体与眼球的绘图尺寸也分别放大。</div>
+<div class="sources">参考：<a href="https://www.nei.nih.gov/learn-about-eye-health/healthy-vision/how-eyes-work" target="_blank" rel="noopener">NEI：眼睛如何工作</a> · <a href="https://www.ncbi.nlm.nih.gov/books/NBK11509/" target="_blank" rel="noopener">Webvision：视力与分辨率</a></div></aside>
+
+<div class="tip">拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移 · 绿色：理论像 · 橙色：视网膜</div>
+
+<script src="../shared/vendor/three-r144.min.js"></script>
+<script>
+(() => {
+'use strict';
+if(new URLSearchParams(location.search).get('embedded')==='1')document.body.classList.add('embedded');
+if(THREE.ColorManagement) THREE.ColorManagement.legacyMode=false;
+const canvas=document.getElementById('scene');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.06;
+renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled=true;
+
+let dirty=true;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xeef3f9);scene.fog=new THREE.Fog(0xeef3f9,28,70);
+const camera=new THREE.PerspectiveCamera(36,1,.1,150);
+scene.add(new THREE.HemisphereLight(0xffffff,0x8ca0b2,.96));
+const key=new THREE.DirectionalLight(0xfffbf3,1.28);key.position.set(-6,10,10);key.castShadow=true;key.shadow.mapSize.set(2048,2048);scene.add(key);
+const fill=new THREE.DirectionalLight(0xdcecff,.48);fill.position.set(8,4,-10);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xffffff,.32);rim.position.set(4,8,12);scene.add(rim);
+
+const floor=new THREE.Mesh(new THREE.CircleGeometry(16,72),new THREE.ShadowMaterial({color:0x7b8b9a,opacity:.08}));floor.rotation.x=-Math.PI/2;floor.position.y=-4.4;floor.receiveShadow=true;scene.add(floor);
+
+const clipPlane=new THREE.Plane(new THREE.Vector3(0,0,-1),0.04);
+// Native high-resolution textures: iris fibres and the vascular retinal surface.
+let surfaceSeed=641;function surfaceRandom(){surfaceSeed=(surfaceSeed*1664525+1013904223)>>>0;return surfaceSeed/4294967296;}
+function canvasTexture(size,draw){const c=document.createElement('canvas');c.width=c.height=size;draw(c.getContext('2d'),size);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;}
+const irisTexture=canvasTexture(1024,(x,n)=>{
+ const c=n/2,im=x.createImageData(n,n);for(let py=0;py<n;py++)for(let px=0;px<n;px++){const dx=(px-c)/n,dy=(py-c)/n,r=Math.hypot(dx,dy),a=Math.atan2(dy,dx),wave=Math.sin(a*113+Math.sin(a*31)*2+r*42)*.5+Math.sin(a*217-r*62)*.25+Math.sin(a*59+r*93)*.25,coll=.222+.009*Math.sin(a*17)+.006*Math.sin(a*29),rim=Math.min(1,Math.max(0,(.498-r)*32)),inner=Math.min(1,Math.max(.1,(r-.145)*23)),crypt=Math.exp(-(((r-coll)/.015)**2))*(.5+.5*Math.sin(a*43)),v=(.67+.16*wave-.18*crypt+(surfaceRandom()-.5)*.10)*rim*inner,i=(py*n+px)*4;im.data[i]=34+Math.max(0,v)*114;im.data[i+1]=22+Math.max(0,v)*73;im.data[i+2]=13+Math.max(0,v)*35;im.data[i+3]=255;}x.putImageData(im,0,0);
+ for(let i=0;i<1000;i++){const a=surfaceRandom()*Math.PI*2,ri=n*(.20+surfaceRandom()*.08),ro=n*(.32+surfaceRandom()*.17),j=(surfaceRandom()-.5)*.045;x.strokeStyle=surfaceRandom()>.6?'rgba(214,162,90,.09)':'rgba(28,18,10,.14)';x.lineWidth=.6+surfaceRandom()*1.2;x.beginPath();x.moveTo(c+Math.cos(a)*ri,c+Math.sin(a)*ri);x.bezierCurveTo(c+Math.cos(a+j)*n*.29,c+Math.sin(a+j)*n*.29,c+Math.cos(a-j)*n*.37,c+Math.sin(a-j)*n*.37,c+Math.cos(a)*ro,c+Math.sin(a)*ro);x.stroke();}
+});
+const retinaTexture=canvasTexture(1024,(x,n)=>{let g=x.createRadialGradient(n*.55,n*.45,10,n*.5,n*.5,n*.7);g.addColorStop(0,'#d88664');g.addColorStop(.55,'#c87652');g.addColorStop(1,'#aa593c');x.fillStyle=g;x.fillRect(0,0,n,n);for(let i=0;i<24000;i++){x.fillStyle=surfaceRandom()>.5?'rgba(255,214,176,.10)':'rgba(102,47,35,.08)';x.fillRect(surfaceRandom()*n,surfaceRandom()*n,1+surfaceRandom()*2,1+surfaceRandom()*2);}function branch(px,py,a,len,w,depth){const qx=px+Math.cos(a)*len,qy=py+Math.sin(a)*len;x.strokeStyle='rgba(115,34,27,.60)';x.lineWidth=w;x.lineCap='round';x.beginPath();x.moveTo(px,py);x.quadraticCurveTo((px+qx)/2+Math.sin(a)*len*.17,(py+qy)/2-Math.cos(a)*len*.17,qx,qy);x.stroke();if(depth>0)for(const da of [-.50,.36])branch(qx,qy,a+da,len*.65,w*.58,depth-1);}for(let i=0;i<8;i++)branch(n*.51,n*.51,i*Math.PI/4+.1,n*.17,5,4);});
+const M={
+  sclera:new THREE.MeshPhysicalMaterial({color:0xe9eef2,roughness:.62,metalness:0,clearcoat:.12,clearcoatRoughness:.30,side:THREE.DoubleSide}),
+  choroid:new THREE.MeshPhysicalMaterial({color:0xc6672d,roughness:.56,metalness:0,side:THREE.DoubleSide}),
+  retina:new THREE.MeshPhysicalMaterial({map:retinaTexture,bumpMap:retinaTexture,bumpScale:.012,color:0xffffff,roughness:.55,clearcoat:.16,side:THREE.DoubleSide}),
+  vitreous:new THREE.MeshPhysicalMaterial({color:0xa9dff2,transparent:true,opacity:.10,roughness:.08,metalness:0,transmission:.16,depthWrite:false,side:THREE.DoubleSide}),
+  cornea:new THREE.MeshPhysicalMaterial({color:0xc6e6f4,transparent:true,opacity:.18,depthWrite:false,roughness:.06,metalness:0,transmission:.20,clearcoat:1,clearcoatRoughness:.04,side:THREE.DoubleSide}),
+  iris:new THREE.MeshPhysicalMaterial({map:irisTexture,bumpMap:irisTexture,bumpScale:.018,color:0xffffff,roughness:.62,metalness:0,clearcoat:.14,side:THREE.DoubleSide}),
+  lens:new THREE.MeshPhysicalMaterial({color:0x91d9ed,transparent:true,opacity:.72,roughness:.12,metalness:0,transmission:.18,clearcoat:.65,clearcoatRoughness:.10,side:THREE.DoubleSide}),
+  ciliary:new THREE.MeshPhysicalMaterial({color:0x9e4b51,roughness:.46,metalness:.02,clearcoat:.08}),
+  zonule:new THREE.MeshBasicMaterial({color:0xa77a22}),
+  nerve:new THREE.MeshPhysicalMaterial({color:0xe3ba64,roughness:.58,metalness:.02}),
+  ray:new THREE.MeshBasicMaterial({color:0xd50072,depthTest:false,depthWrite:false,toneMapped:false,transparent:true,opacity:1}),
+  ray2:new THREE.MeshBasicMaterial({color:0xd50072,depthTest:false,depthWrite:false,toneMapped:false,transparent:true,opacity:.86}),
+  focusGood:new THREE.MeshBasicMaterial({color:0x2c9a72}),
+  focusBad:new THREE.MeshBasicMaterial({color:0xd95a3e}),
+  object:new THREE.MeshPhysicalMaterial({color:0x426f9b,roughness:.40,metalness:.22,clearcoat:.12}),
+  image:new THREE.MeshBasicMaterial({color:0x008264,depthTest:false,depthWrite:false,toneMapped:false,transparent:true,opacity:1})
+};
+
+const root=new THREE.Group();scene.add(root);root.position.set(0,-.15,0);
+const shellG=new THREE.Group(),insideG=new THREE.Group(),rayG=new THREE.Group(),labelG=new THREE.Group(),objectG=new THREE.Group(),imageG=new THREE.Group();
+root.add(shellG,insideG,rayG,labelG,objectG,imageG);
+
+function applyClip(mat,on){mat.clippingPlanes=on?[clipPlane]:[];mat.clipShadows=!!on;mat.needsUpdate=true}
+[M.sclera,M.choroid,M.retina,M.vitreous,M.cornea,M.iris,M.ciliary,M.zonule].forEach(m=>applyClip(m,true));
+function put(parent,geo,mat,pos,rot){const m=new THREE.Mesh(geo,mat);if(pos)m.position.set(...pos);if(rot)m.rotation.set(...rot);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function tubeLine(parent,pts,r,mat){const curve=new THREE.CatmullRomCurve3(pts,false,'centripetal',.08);return put(parent,new THREE.TubeGeometry(curve,34,r,7,false),mat)}
+function label(text,color,h,pos){
+  const c=document.createElement('canvas');c.width=512;c.height=144;const x=c.getContext('2d');
+  x.font='bold 70px "Microsoft YaHei","PingFang SC",sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=14;x.strokeStyle='rgba(255,255,255,.96)';x.strokeText(text,256,74);x.fillStyle=color;x.fillText(text,256,74);
+  const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false,toneMapped:false}));sp.scale.set(h*4.97,h*1.4,1);sp.position.set(...pos);sp.userData.text=text;labelG.add(sp);return sp;
+}
+function annulusX(ro,ri,depth,mat,x){
+  const sh=new THREE.Shape();sh.absarc(0,0,ro,0,Math.PI*2,false);const hole=new THREE.Path();hole.absarc(0,0,ri,0,Math.PI*2,true);sh.holes.push(hole);
+  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false,steps:1,curveSegments:72});g.translate(0,0,-depth/2);g.rotateY(Math.PI/2);const pos=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<pos.count;i++)uv.setXY(i,.5+pos.getZ(i)/(2*ro),.5+pos.getY(i)/(2*ro));return put(insideG,g,mat,[x,0,0]);
+}
+
+// ---- anterior opening and a cornea that bulges outward (-X) ----
+const EYE_R=2.45, CORNEA_RIM_X=-2.06;
+function eyeCup(radius,frontX,material,parent){
+ const g=new THREE.SphereGeometry(radius,80,56,0,Math.PI*2,0,Math.acos(frontX/radius));g.rotateZ(-Math.PI/2);return put(parent,g,material,[0,0,0]);
+}
+eyeCup(EYE_R,CORNEA_RIM_X,M.sclera,shellG);
+eyeCup(EYE_R*.935,-1.84,M.choroid,insideG);
+eyeCup(EYE_R*.900,-1.75,M.retina,insideG);
+const vitreousMesh=put(insideG,new THREE.SphereGeometry(EYE_R*.82,64,40),M.vitreous,[.05,0,0]);
+const CORNEA_APEX_X=-2.90, CORNEA_RIM_R=Math.sqrt(EYE_R*EYE_R-CORNEA_RIM_X*CORNEA_RIM_X);
+const capHeight=CORNEA_RIM_X-CORNEA_APEX_X,capRadius=(CORNEA_RIM_R**2+capHeight**2)/(2*capHeight),capCenter=CORNEA_APEX_X+capRadius;
+function axialSurface(profile){const positions=[],indices=[],n=80,L=profile.length;for(let j=0;j<=n;j++){const a=j/n*Math.PI*2;for(const [x,r] of profile)positions.push(x,r*Math.cos(a),r*Math.sin(a));}for(let j=0;j<n;j++)for(let k=0;k<L-1;k++){const a=j*L+k,b=a+L;indices.push(a,b,a+1,b,b+1,a+1);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();return g;}
+const capProfile=[];
+for(let i=0;i<=40;i++){const r=CORNEA_RIM_R*i/40;capProfile.push([capCenter-Math.sqrt(capRadius**2-r*r),r]);}
+for(let i=40;i>=0;i--){const r=CORNEA_RIM_R*i/40;capProfile.push([capCenter-Math.sqrt(capRadius**2-r*r)+.045*(1-.45*i/40),r]);}capProfile.push(capProfile[0]);
+const cornea=put(shellG,axialSurface(capProfile),M.cornea,[0,0,0]);
+const corneaSection=new THREE.Group();shellG.add(corneaSection);
+for(const offset of [0,.035]){const pts=[];for(let i=-40;i<=40;i++){const r=CORNEA_RIM_R*i/40;pts.push(new THREE.Vector3(capCenter-Math.sqrt(capRadius**2-r*r)+offset,r,.065));}const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:offset?0x9bc5d4:0x659bb5,transparent:true,opacity:offset?.6:.95,depthTest:false,toneMapped:false}));corneaSection.add(line);}
+const limbus=put(shellG,new THREE.TorusGeometry(CORNEA_RIM_R,.035,10,80),M.sclera,[CORNEA_RIM_X,0,0],[0,Math.PI/2,0]);
+// The open space between cornea and iris is the anterior chamber.
+// iris + pupil
+const iris=annulusX(1.19,.34,.06,M.iris,-1.63);
+const pupilRing=put(insideG,new THREE.TorusGeometry(.34,.025,8,48),new THREE.MeshBasicMaterial({color:0x14191e}),[-1.59,0,0],[0,Math.PI/2,0]);
+
+const pupilMaterial=new THREE.MeshBasicMaterial({color:0x070706,side:THREE.DoubleSide});applyClip(pupilMaterial,true);const pupil=put(insideG,new THREE.CircleGeometry(.335,64),pupilMaterial,[-1.67,0,0],[0,Math.PI/2,0]);annulusX(CORNEA_RIM_R,1.18,.035,M.sclera,-1.72);
+// ciliary body
+const ciliaryRing=put(insideG,new THREE.TorusGeometry(1.15,.115,16,80),M.ciliary,[-1.02,0,0],[0,Math.PI/2,0]);
+
+// lens group
+const lensG=new THREE.Group();lensG.position.set(-.92,0,0);insideG.add(lensG);
+const lens=put(lensG,new THREE.SphereGeometry(1,64,48),M.lens,[0,0,0]);
+
+// zonules, dynamically rebuilt
+const zonuleLeaderAnchor=new THREE.Vector3();const zonuleG=new THREE.Group();insideG.add(zonuleG);
+function rebuildZonules(accom){
+  while(zonuleG.children.length){const o=zonuleG.children.pop();if(o.geometry)o.geometry.dispose()}
+  const outerR=1.15*(1-.085*accom),innerR=.91-.07*accom;
+  for(let i=0;i<12;i++){
+    const a=i/12*Math.PI*2,y1=outerR*Math.cos(a),z1=outerR*Math.sin(a),y2=innerR*Math.cos(a),z2=innerR*Math.sin(a);
+    const sag=.05+.10*accom;
+    const pts=[new THREE.Vector3(-1.03,y1,z1),new THREE.Vector3(-.98-sag,(y1+y2)*.5,(z1+z2)*.5),new THREE.Vector3(-.86,y2,z2)];
+    const tube=tubeLine(zonuleG,pts,.016,M.zonule);if(i===7)zonuleLeaderAnchor.copy(tube.geometry.parameters.path.getPointAt(.76));
+  }
+}
+
+// optic nerve
+const nervePts=[new THREE.Vector3(1.88,-1.18,-.35),new THREE.Vector3(2.85,-1.38,-.40),new THREE.Vector3(3.70,-1.35,-.40)];
+tubeLine(insideG,nervePts,.24,M.nerve);
+
+// retina target marker
+const retinaX=2.22;
+const retinaMark=put(insideG,new THREE.TorusGeometry(.34,.016,8,56),new THREE.MeshBasicMaterial({color:0xffb96d,transparent:true,opacity:.58}),[2.20,0,0],[0,Math.PI/2,0]);
+
+// labels
+label('角膜','#2e718d',.34,[-3.05,1.56,.40]);
+label('前房','#4b8ca4',.25,[-2.25,-1.04,.40]);
+const irisLabel=label('虹膜 / 瞳孔','#6f5635',.28,[-1.92,.98,.72]);
+const lensLabel=label('晶状体','#2e7d9b',.30,[-.34,1.43,.72]);
+const ciliaryLabel=label('睫状体','#8d444a',.28,[-1.68,-1.75,.72]);
+const zonuleLabel=label('悬韧带','#89601b',.27,[.06,-1.22,.72]);
+label('视网膜','#c45d28',.30,[1.66,1.74,.72]);
+label('玻璃体','#4b8ca4',.28,[.70,-1.72,.72]);
+label('视神经','#aa7c31',.28,[3.18,-1.83,.72]);
+
+// object arrow
+function makeArrowObject(){
+  const g=new THREE.Group();objectG.add(g);
+  put(g,new THREE.BoxGeometry(.10,1.52,.10),M.object,[0,.32,0]);
+  put(g,new THREE.ConeGeometry(.34,.62,24),M.object,[0,1.36,0]);
+  put(g,new THREE.BoxGeometry(.66,.10,.34),M.object,[0,-.45,0]);
+  return g;
+}
+const objectArrow=makeArrowObject();
+const structureLeaders=new THREE.Group();root.add(structureLeaders);const structureCallouts=[];
+for(const [label,color] of [[lensLabel,0x297e9c],[ciliaryLabel,0x91494f],[zonuleLabel,0x936721]]){const mat=new THREE.LineBasicMaterial({color,depthTest:false,depthWrite:false,transparent:true,toneMapped:false}),line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3()]),mat);line.renderOrder=60;structureLeaders.add(line);const dot=put(structureLeaders,new THREE.SphereGeometry(.033,12,8),new THREE.MeshBasicMaterial({color,depthTest:false,depthWrite:false,transparent:true,toneMapped:false}));dot.renderOrder=61;structureCallouts.push({label,line,dot});}
+function updateStructureLeaders(have){const targets=[new THREE.Vector3(-.92+(.37+.17*have)*.777,.43,.40),new THREE.Vector3(-.97,-1.245*(1-.085*have),-.17),zonuleLeaderAnchor.clone()];structureCallouts.forEach((o,i)=>{const a=o.label.position.clone();a.y+=i===0?-.16:.16;const t=targets[i],elbow=new THREE.Vector3(a.x,t.y+(i===0?.24:-.16),.74);const v=o.line.geometry.attributes.position;[a,elbow,t].forEach((p,j)=>v.setXYZ(j,p.x,p.y,p.z));o.line.geometry.computeBoundingSphere();v.needsUpdate=true;o.dot.position.copy(t);});}
+const objectLabel=label('物体','#335f87',.28,[-5.15,2.12,.65]);
+
+// inverted image arrow near retina
+function makeImageArrow(){
+  const g=new THREE.Group();imageG.add(g);
+  put(g,new THREE.BoxGeometry(.045,.72,.045),M.image,[0,-.14,0]);
+  put(g,new THREE.ConeGeometry(.15,.28,20),M.image,[0,-.62,0],[0,0,Math.PI]);
+  return g;
+}
+const imageArrow=makeImageArrow();imageArrow.position.set(2.14,0,0);imageArrow.scale.set(.60,.60,.60);
+
+// rays
+M.rayDash=new THREE.LineDashedMaterial({color:0xd50072,dashSize:.09,gapSize:.07,depthTest:false,depthWrite:false,toneMapped:false});
+const rayMeshes=[];
+function clearRays(){while(rayG.children.length){const o=rayG.children[0];rayG.remove(o);o.traverse(x=>{if(x.geometry)x.geometry.dispose()});}rayMeshes.length=0}
+function addRay(points,mat=M.ray){const group=new THREE.Group();rayG.add(group);for(let i=0;i<points.length-1;i++){const a=points[i].clone(),b=points[i+1].clone();a.z=b.z=.075;const d=b.clone().sub(a),len=d.length();if(len<.001)continue;const line=put(group,new THREE.CylinderGeometry(.014,.014,len,8),mat);line.position.copy(a).lerp(b,.5);line.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());line.renderOrder=30;for(const f of (len>2?[.40,.75]:[.55])){if(len<.35)continue;const shape=new THREE.Shape();shape.moveTo(.105,0);shape.lineTo(-.075,.067);shape.lineTo(-.025,0);shape.lineTo(-.075,-.067);shape.closePath();const arrow=put(group,new THREE.ShapeGeometry(shape),mat);arrow.position.copy(a).lerp(b,f);arrow.rotation.z=Math.atan2(d.y,d.x);arrow.renderOrder=31;}}rayMeshes.push(group);return group;}
+const focusDot=put(insideG,new THREE.SphereGeometry(.06,16,10),M.focusGood,[retinaX,0,0]);
+const imageLabel=label('理论清晰像','#007659',.27,[2.6,-.90,.15]);imageLabel.renderOrder=70;
+const focusPlaneLine=put(insideG,new THREE.BoxGeometry(.012,1.38,.022),new THREE.MeshBasicMaterial({color:0x28a47b,transparent:true,opacity:.6,depthTest:false}),[retinaX,0,0]);
+M.image.depthTest=false;M.image.depthWrite=false;imageArrow.traverse(o=>o.renderOrder=50);focusPlaneLine.renderOrder=40;focusDot.renderOrder=50;focusDot.material.depthTest=false;
+const diagram=document.getElementById('focusDiagram'),dc=diagram.getContext('2d');
+
+// state / UI
+const state={distanceCm:600,auto:true,lockedAccom:0,lockDistance:600,section:true,rays:true,labels:true,image:true,view:'eye',inspect:'whole',heightCm:10,grid:true,vision:'normal',correction:'none',correctionMagnitude:0,correctionEnabled:true};
+const distanceRange=document.getElementById('distanceRange'),distanceText=document.getElementById('distanceText'),modeText=document.getElementById('modeText'),lensText=document.getElementById('lensText'),ciliaryText=document.getElementById('ciliaryText'),zonuleText=document.getElementById('zonuleText'),diopterText=document.getElementById('diopterText'),focusStatus=document.getElementById('focusStatus');
+function demandForDistance(cm){const m=Math.max(.25,cm/100);return 1/m}
+function accomNorm(cm){const d=demandForDistance(cm),far=1/6,near=4;return THREE.MathUtils.clamp((d-far)/(near-far),0,1)}
+function currentAccom(){return state.auto?accomNorm(state.distanceCm):state.lockedAccom}
+
+const REDUCED_RETINA_MM=17, OPTICAL_SCALE=(retinaX+.92)/REDUCED_RETINA_MM, DISPLAY_GAP_GAIN=3, FOCUS_TOLERANCE_MM=.002, SPECTACLE_DISTANCE_M=.015;
+const spectacleX=-.92-SPECTACLE_DISTANCE_M*1000*OPTICAL_SCALE;
+const spectacleG=new THREE.Group();root.add(spectacleG);spectacleG.position.x=spectacleX;
+const spectacleMaterial=new THREE.MeshPhysicalMaterial({color:0x86cde6,transparent:true,opacity:.48,roughness:.08,metalness:0,clearcoat:.9,side:THREE.DoubleSide,depthWrite:false});
+const spectacleMesh=put(spectacleG,new THREE.BufferGeometry(),spectacleMaterial);
+const spectacleLabel=label('矫正透镜','#246d8d',.25,[spectacleX,1.48,.3]);
+const retinaPlaneLine=put(insideG,new THREE.BoxGeometry(.065,3.4/3,.028),new THREE.MeshBasicMaterial({color:0xe47732,depthTest:false,depthWrite:false,toneMapped:false,transparent:true}),[retinaX,-.05,.12]);retinaPlaneLine.renderOrder=42;
+// Keep the retinal anatomy intact; shrink the highlighted receiving region
+// to one third of its previous lateral diameter on the same curved surface.
+const receivingTexture=canvasTexture(1024,(x,n)=>{x.fillStyle='#ffd797';x.fillRect(0,0,n,n);for(let j=0;j<65;j++)for(let i=0;i<65;i++){const px=i*16+(j%2)*8,py=j*16;x.strokeStyle='rgba(160,81,30,.20)';x.lineWidth=1.6;x.beginPath();x.ellipse(px,py,5.3,6.2,0,0,Math.PI*2);x.stroke();x.fillStyle='rgba(255,249,209,.60)';x.beginPath();x.arc(px-1,py-1,2.2,0,Math.PI*2);x.fill();}});
+const receivingMaterial=new THREE.MeshPhysicalMaterial({map:receivingTexture,color:0xffffff,roughness:.52,emissive:0x815018,emissiveIntensity:.23,side:THREE.DoubleSide});applyClip(receivingMaterial,true);
+const receivingRadius=EYE_R*.900-.014,receivingDiameterRatio=1/3,receivingPatchRadius=Math.sqrt(receivingRadius**2-1.30**2)*receivingDiameterRatio,receivingFrontX=Math.sqrt(receivingRadius**2-receivingPatchRadius**2);
+const receivingG=new THREE.Group();insideG.add(receivingG);const receivingMesh=eyeCup(receivingRadius,receivingFrontX,receivingMaterial,receivingG);
+const receivingBorderMaterial=new THREE.MeshBasicMaterial({color:0xc77928,side:THREE.DoubleSide});applyClip(receivingBorderMaterial,true);
+put(receivingG,new THREE.TorusGeometry(receivingPatchRadius,.024,8,80),receivingBorderMaterial,[receivingFrontX,0,0],[0,Math.PI/2,0]);
+retinaMark.visible=false;
+const receivingLabel=label('视网膜接收区','#aa6323',.24,[2.00,-1.28,.3]);
+const receivingLeader=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(2.00,-1.10,.3),new THREE.Vector3(2.12,-.80,.2),new THREE.Vector3(receivingFrontX,-receivingPatchRadius*.85,.2)]),new THREE.LineBasicMaterial({color:0xa76b2b,transparent:true,depthTest:false,toneMapped:false}));root.add(receivingLeader);receivingLeader.renderOrder=60;
+
+const gapLine=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x537086,depthTest:false,transparent:true,toneMapped:false}));root.add(gapLine);gapLine.renderOrder=65;
+const gapLabel=label('间距示意放大','#456378',.20,[retinaX,1.30,.16]);
+function updateSpectacle(){const visible=state.correction!=='none',power=correctionPower(),type=state.correction;const key=type+':'+Math.abs(power).toFixed(2);if(spectacleMesh.userData.shape!==key){
+ const radius=1.08,edge=.075,bulge=.12+.012*Math.abs(power),profile=[];for(let side=0;side<2;side++){for(let j=0;j<=40;j++){const r=radius*(side?1-j/40:j/40),t=r/radius,half=type==='concave'?edge+bulge*t*t:edge+bulge*(1-t*t);profile.push([(side?1:-1)*half,r]);}}profile.push(profile[0]);spectacleMesh.geometry.dispose();spectacleMesh.geometry=axialSurface(profile);spectacleMesh.userData.shape=key;}
+ spectacleG.visible=visible&&state.correctionEnabled&&state.view==='eye'&&!['iris','structure','image'].includes(state.inspect);if(spectacleLabel.userData.text!==type){const c=document.createElement('canvas');c.width=512;c.height=144;const x=c.getContext('2d');x.font='bold 70px "Microsoft YaHei","PingFang SC",sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=14;x.strokeStyle='rgba(255,255,255,.96)';x.strokeText(type==='concave'?'凹透镜':'凸透镜',256,74);x.fillStyle='#246d8d';x.fillText(type==='concave'?'凹透镜':'凸透镜',256,74);spectacleLabel.material.map.dispose();spectacleLabel.material.map=new THREE.CanvasTexture(c);spectacleLabel.material.map.encoding=THREE.sRGBEncoding;spectacleLabel.material.needsUpdate=true;spectacleLabel.userData.text=type;}spectacleLabel.visible=spectacleG.visible&&state.labels&&state.inspect!=='image';
+}
+function correctionPower(){return state.correction==='none'||!state.correctionEnabled?0:(state.correction==='concave'?-1:1)*state.correctionMagnitude;}
+function requiredCorrectionPower(){const objectD=demandForDistance(state.distanceCm),power=eyePower(),q=power-1000/REDUCED_RETINA_MM;return objectD/(1-SPECTACLE_DISTANCE_M*objectD)-q/(1-SPECTACLE_DISTANCE_M*q);}
+function eyePower(){const objectD=demandForDistance(state.distanceCm),lockedD=1/6+currentAccom()*(4-1/6);return 1000/REDUCED_RETINA_MM+(state.auto?objectD:lockedD)+(state.vision==='myopia'?6:state.vision==='hyperopia'?-6:0);}
+
+// Only the display gap is enlarged adaptively; the solved millimetres and
+// retinal blur still use the physical two-lens result. Smooth and zero at focus.
+function displayFocusGap(deltaMM){const a=Math.abs(deltaMM);return Math.sign(deltaMM)*OPTICAL_SCALE*(DISPLAY_GAP_GAIN*a+1.8*(-Math.expm1(-a/.025)));}
+function opticalState(){const want=accomNorm(state.distanceCm),have=currentAccom(),objectD=demandForDistance(state.distanceCm),power=eyePower(),uncorrectedVMM=1000/(power-objectD),atSpectacle=-objectD/(1-SPECTACLE_DISTANCE_M*objectD)+correctionPower(),atEye=atSpectacle/(1-SPECTACLE_DISTANCE_M*atSpectacle),vMM=1000/(power+atEye),deltaMM=vMM-REDUCED_RETINA_MM;
+ return {want,have,vMM,deltaMM,uncorrectedVMM,uncorrectedDeltaMM:uncorrectedVMM-17,focusX:retinaX+displayFocusGap(deltaMM),uncorrectedFocusX:retinaX+displayFocusGap(uncorrectedVMM-17),power,correctionPower:correctionPower(),requiredCorrectionPower:requiredCorrectionPower(),error:want-have};}
+// Display distances are compressed. Derive display-lens powers from the solved
+// image plane so all rays from one point converge to that same single image.
+function traceDisplayRay(o,objX,sourceY,eyeY){const ex=-.92,U=ex-objX,d=ex-spectacleX,V=o.focusX-ex,P=1/(o.uncorrectedFocusX-ex)+1/U,q=P-1/V,p=1/(U-d)-q/(1-d*q),withLens=state.correction!=='none'&&state.correctionEnabled;
+ const glassY=withLens?(eyeY+d*sourceY/(U-d))/(1+d/(U-d)-d*p):sourceY+(eyeY-sourceY)*(U-d)/U,slopeIn=withLens?(glassY-sourceY)/(U-d)-p*glassY:(eyeY-sourceY)/U,slopeOut=slopeIn-P*eyeY,targetY=eyeY+slopeOut*V,retinaY=eyeY+slopeOut*(retinaX-ex),points=[new THREE.Vector3(objX,sourceY,0)];if(withLens)points.push(new THREE.Vector3(spectacleX,glassY,0));points.push(new THREE.Vector3(ex,eyeY,0));if(o.focusX<=retinaX)points.push(new THREE.Vector3(o.focusX,targetY,0));points.push(new THREE.Vector3(retinaX,retinaY,0));return {points,targetY,retinaY,glassY,slopeIn,slopeOut};}
+function drawFocusDiagram(o){const w=diagram.width,h=diagram.height;dc.clearRect(0,0,w,h);dc.fillStyle='#fff';dc.fillRect(0,0,w,h);const objX=objectArrow.position.x,minX=objX-.3,maxX=Math.max(o.focusX,retinaX)+.7,mapX=x=>25+(x-minX)/(maxX-minX)*550,mapY=y=>135-y*50,rx=mapX(retinaX),fx=mapX(o.focusX),lx=mapX(-.92),gx=mapX(spectacleX);
+ dc.strokeStyle='#b4c1d1';dc.lineWidth=1;dc.beginPath();dc.moveTo(20,135);dc.lineTo(580,135);dc.stroke();
+ for(const yy of [-.25,0,.25]){const r=traceDisplayRay(o,objX,1.67,yy);dc.strokeStyle='#d50072';dc.lineWidth=3;dc.setLineDash([]);dc.beginPath();r.points.forEach((p,i)=>i?dc.lineTo(mapX(p.x),mapY(p.y)):dc.moveTo(mapX(p.x),mapY(p.y)));dc.stroke();if(o.focusX>retinaX){dc.setLineDash([5,5]);dc.beginPath();dc.moveTo(rx,mapY(r.retinaY));dc.lineTo(fx,mapY(r.targetY));dc.stroke();}dc.setLineDash([]);}
+ dc.fillStyle='#90d7eb';dc.beginPath();dc.ellipse(lx,135,9,37,0,0,Math.PI*2);dc.fill();if(state.correction!=='none'&&state.correctionEnabled){dc.fillStyle='#aadbea';dc.strokeStyle='#2883a5';dc.lineWidth=2;dc.beginPath();if(state.correction==='convex'){dc.ellipse(gx,135,10,47,0,0,Math.PI*2);}else{dc.moveTo(gx-10,88);dc.quadraticCurveTo(gx,135,gx-10,182);dc.lineTo(gx+10,182);dc.quadraticCurveTo(gx,135,gx+10,88);dc.closePath();}dc.fill();dc.stroke();}
+ dc.strokeStyle='#df7a37';dc.lineWidth=5;dc.beginPath();dc.moveTo(rx,65);dc.lineTo(rx,206);dc.stroke();dc.strokeStyle='#008264';dc.lineWidth=4;const iy=mapY(o.traceTopY);dc.beginPath();dc.moveTo(fx,135);dc.lineTo(fx,iy);dc.lineTo(fx-7,iy-9);dc.moveTo(fx,iy);dc.lineTo(fx+7,iy-9);dc.stroke();
+ dc.font='21px "Noto Sans CJK SC","Microsoft YaHei",sans-serif';dc.fillStyle='#54768c';dc.fillText('眼睛等效透镜',Math.max(15,lx-65),45);dc.fillStyle='#b5652e';dc.fillText('视网膜',rx-40,45);if(state.correction!=='none'&&state.correctionEnabled){dc.fillStyle='#246d8d';dc.fillText(state.correction==='concave'?'凹透镜':'凸透镜',gx-35,78);}dc.fillStyle='#267858';dc.fillText('实际像距 '+o.vMM.toFixed(2)+' mm',24,245);dc.fillStyle='#86684c';dc.fillText('间距示意放大 · 视网膜 17 mm',298,245);}
+function applyEye(){
+ dirty=true;const o=opticalState(),have=o.have,D=demandForDistance(state.distanceCm);
+ distanceText.textContent=state.distanceCm+' cm · '+(state.distanceCm<=40?'近处':state.distanceCm>=550?'远处':'中距离');diopterText.textContent=D.toFixed(2)+' D';modeText.textContent=state.vision!=='normal'?'固定眼睛屈光状态':state.auto?'自动调焦':'固定晶状体';
+ document.getElementById('lockInfo').style.display=state.auto?'none':'block';document.getElementById('lockInfo').textContent=state.vision!=='normal'?(state.vision==='myopia'?'近视示例：等效屈光力偏强，未矫正时像在前方。':'远视示例：等效屈光力偏弱，未矫正时像在后方。'):'固定在 '+state.lockDistance+' cm 时的晶状体状态。';
+ lens.scale.set(.37+.17*have,.93-.07*have,.93-.07*have);ciliaryRing.scale.set(1,1-.085*have,1-.085*have);rebuildZonules(have);updateStructureLeaders(have);lensText.textContent=have>.65?'较厚':have>.25?'中等':'较薄';ciliaryText.textContent=have>.65?'收缩':have>.25?'部分收缩':'放松';zonuleText.textContent=have>.65?'较松':have>.25?'中等':'较紧';
+ const u=clamp((Math.log(state.distanceCm)-Math.log(25))/(Math.log(600)-Math.log(25)),0,1),objX=-4.4-3.25*u;objectArrow.position.set(objX,0,0);objectLabel.position.set(objX,2.12,.4);
+ const focusX=o.focusX,topRay=traceDisplayRay(o,objX,1.67,.18),imgY=topRay.targetY,imageScale=Math.abs(imgY)/.76;o.traceTopY=imgY;
+ imageArrow.position.set(focusX,0,.14);imageArrow.scale.set(imageScale,imageScale,imageScale);imageLabel.position.set(focusX+.15,-.99,.18);imageLabel.visible=state.labels&&state.image;focusPlaneLine.position.x=focusX;focusPlaneLine.visible=state.image;
+ imageArrow.visible=state.image;M.image.opacity=1;
+ clearRays();const tracePoints=[];
+ function rayFrom(sourceY,yy,mat){const r=traceDisplayRay(o,objX,sourceY,yy);tracePoints.push({sourceY,eyeY:yy,targetY:r.targetY,retinaY:r.retinaY,glassY:r.glassY,slopeIn:r.slopeIn,slopeOut:r.slopeOut});addRay(r.points,mat);if(focusX>retinaX){const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(retinaX,r.retinaY,.075),new THREE.Vector3(focusX,r.targetY,.075)]),M.rayDash);line.computeLineDistances();line.renderOrder=32;rayG.add(line);}}
+ [-.25,.18].forEach(yy=>rayFrom(1.67,yy,M.ray));[-.18,.25].forEach(yy=>rayFrom(-.49,yy,M.ray2));state.rayTrace=tracePoints;
+ const gapPts=[new THREE.Vector3(focusX,1.06,.18),new THREE.Vector3(retinaX,1.06,.18)];for(const x of [focusX,retinaX])gapPts.push(new THREE.Vector3(x,.97,.18),new THREE.Vector3(x,1.15,.18));gapLine.geometry.dispose();gapLine.geometry=new THREE.BufferGeometry().setFromPoints(gapPts);gapLabel.position.set((focusX+retinaX)/2,1.32,.18);updateSpectacle();updateCorrectionUI(o);
+ focusDot.position.set(focusX,imgY,.14);focusDot.material=Math.abs(o.deltaMM)<FOCUS_TOLERANCE_MM?M.focusGood:M.focusBad;focusDot.material.depthTest=false;focusDot.material.depthWrite=false;focusDot.visible=state.rays;drawFocusDiagram(o);
+ if(Math.abs(o.deltaMM)<FOCUS_TOLERANCE_MM){focusStatus.className='status';focusStatus.textContent='理论清晰像与视网膜像面重合，正确聚焦。';}else if(o.deltaMM>0){focusStatus.className='status bad';focusStatus.textContent='理论清晰像在视网膜后 '+o.deltaMM.toFixed(2)+' mm；视网膜上的光斑散开。';}else{focusStatus.className='status warn';focusStatus.textContent='理论清晰像在视网膜前 '+(-o.deltaMM).toFixed(2)+' mm；光线会聚后又散开，落到视网膜。';}
+ rayG.visible=state.rays;imageG.visible=state.image;labelG.visible=state.labels;syncEyeVisibility();if(state.view==='angle')drawAngleView();
+}
+
+distanceRange.addEventListener('input',e=>{state.distanceCm=+e.target.value;applyEye();});
+document.getElementById('farBtn').addEventListener('click',()=>{state.distanceCm=600;distanceRange.value=600;setPresetButtons('far');applyEye();});
+document.getElementById('nearBtn').addEventListener('click',()=>{state.distanceCm=25;distanceRange.value=25;setPresetButtons('near');applyEye();});
+function setPresetButtons(which){document.getElementById('farBtn').classList.toggle('active',which==='far');document.getElementById('nearBtn').classList.toggle('active',which==='near')}
+function updatePresetState(){if(state.distanceCm>=550)setPresetButtons('far');else if(state.distanceCm<=35)setPresetButtons('near');else setPresetButtons('none')}
+distanceRange.addEventListener('input',updatePresetState);
+document.getElementById('autoBtn').addEventListener('click',()=>{state.vision='normal';state.correction='none';state.auto=true;document.getElementById('autoBtn').classList.add('active');document.getElementById('lockBtn').classList.remove('active');applyEye();});
+document.getElementById('lockBtn').addEventListener('click',()=>{if(state.vision!=='normal')return;state.vision='normal';state.correction='none';state.lockedAccom=currentAccom();state.lockDistance=state.distanceCm;state.auto=false;document.getElementById('lockBtn').classList.add('active');document.getElementById('autoBtn').classList.remove('active');applyEye();});
+document.getElementById('sectionBtn').addEventListener('click',function(){const wasIris=state.inspect==='iris';if(wasIris)leaveInspection();state.section=wasIris?true:!state.section;this.classList.toggle('active',state.section);[M.sclera,M.choroid,M.retina,M.vitreous,M.cornea,M.iris,M.ciliary,M.zonule,pupilMaterial,receivingMaterial,receivingBorderMaterial].forEach(m=>applyClip(m,state.section));corneaSection.visible=state.section;dirty=true;});
+document.getElementById('rayBtn').addEventListener('click',function(){state.rays=!state.rays;this.classList.toggle('active',state.rays);syncEyeVisibility();});
+document.getElementById('labelBtn').addEventListener('click',function(){state.labels=!state.labels;this.classList.toggle('active',state.labels);syncEyeVisibility();});
+document.getElementById('imageBtn').addEventListener('click',function(){state.image=!state.image;this.classList.toggle('active',state.image);syncEyeVisibility();});
+
+function updateCorrectionUI(o){for(const [id,name] of [['normalEyeBtn','normal'],['myopiaBtn','myopia'],['hyperopiaBtn','hyperopia']])document.getElementById(id).classList.toggle('active',state.vision===name);document.getElementById('scenarioText').textContent=state.vision==='normal'?'正常调节':state.vision==='myopia'?'近视示例':'远视示例';for(const [id,name] of [['noCorrectionBtn','none'],['concaveBtn','concave'],['convexBtn','convex']])document.getElementById(id).classList.toggle('active',state.correction===name);document.getElementById('correctionControls').hidden=state.correction==='none';document.getElementById('correctionText').textContent=state.correction==='none'?'未加透镜':!state.correctionEnabled?'矫正前':state.correction==='concave'?'凹透镜 · 发散':'凸透镜 · 会聚';document.getElementById('powerText').textContent=(o.correctionPower>0?'+':'')+o.correctionPower.toFixed(2)+' D';document.getElementById('correctionRange').value=state.correctionMagnitude;document.getElementById('compareCorrectionBtn').textContent=state.correctionEnabled?'看矫正前':'看矫正后';const req=o.requiredCorrectionPower;
+ document.getElementById('correctionNote').textContent=Math.abs(req)<.01?'目前已聚焦；外加透镜会改变成像位置。':('当前需'+(req<0?'凹透镜（发散）':'凸透镜（会聚）')+'，示例参考屈光度 '+(req>0?'+':'')+req.toFixed(2)+' D。')+(state.correction!=='none'&&Math.sign(req)!==(state.correction==='concave'?-1:1)?'所选透镜方向相反，会使偏差增大。':'拖动可比较欠矫正与过矫正。');document.getElementById('autoBtn').classList.toggle('active',state.auto);document.getElementById('autoBtn').textContent=state.vision==='normal'?'自动调焦':'返回正常调焦';document.getElementById('lockBtn').classList.toggle('active',!state.auto);document.getElementById('lockBtn').disabled=state.vision!=='normal';}
+function selectScenario(vision){leaveInspection();state.vision=vision;state.correction='none';state.correctionEnabled=true;state.correctionMagnitude=0;state.distanceCm=600;distanceRange.value=600;state.auto=vision==='normal';state.lockedAccom=0;state.lockDistance=600;state.section=true;document.getElementById('sectionBtn').classList.add('active');[M.sclera,M.choroid,M.retina,M.vitreous,M.cornea,M.iris,M.ciliary,M.zonule,pupilMaterial,receivingMaterial,receivingBorderMaterial].forEach(m=>applyClip(m,true));corneaSection.visible=true;state.image=true;state.rays=true;document.getElementById('imageBtn').classList.add('active');document.getElementById('rayBtn').classList.add('active');updatePresetState();view.theta=0;view.phi=Math.PI/2;view.dist=view.distTarget=16;view.target.set(-2,0,0);applyEye();}
+document.getElementById('normalEyeBtn').onclick=()=>selectScenario('normal');document.getElementById('myopiaBtn').onclick=()=>selectScenario('myopia');document.getElementById('hyperopiaBtn').onclick=()=>selectScenario('hyperopia');
+function selectCorrection(type){if(state.auto){state.lockedAccom=currentAccom();state.lockDistance=state.distanceCm;state.auto=false;}state.correction=type;state.correctionEnabled=true;state.correctionMagnitude=type==='none'?0:Math.abs(requiredCorrectionPower());applyEye();}
+document.getElementById('noCorrectionBtn').onclick=()=>selectCorrection('none');document.getElementById('concaveBtn').onclick=()=>selectCorrection('concave');document.getElementById('convexBtn').onclick=()=>selectCorrection('convex');document.getElementById('correctionRange').oninput=function(){state.correctionMagnitude=+this.value;state.correctionEnabled=true;applyEye();};document.getElementById('matchCorrectionBtn').onclick=()=>selectCorrection(requiredCorrectionPower()<0?'concave':'convex');document.getElementById('compareCorrectionBtn').onclick=()=>{state.correctionEnabled=!state.correctionEnabled;applyEye();};
+
+// camera controls
+const view={theta:.12,phi:1.32,dist:18.8,distTarget:18.8,target:new THREE.Vector3(-2.0,0,0)};const DEF={theta:.12,phi:1.32,dist:18.8,target:[-2.0,0,0]};
+function clamp(v,a,b){return v<a?a:(v>b?b:v)}
+function applyCamera(){const sp=Math.sin(view.phi),cp=Math.cos(view.phi),dist=view.dist*Math.max(1,1/camera.aspect);camera.position.set(view.target.x+dist*sp*Math.sin(view.theta),view.target.y+dist*cp,view.target.z+dist*sp*Math.cos(view.theta));camera.lookAt(view.target)}
+function syncEyeVisibility(){const irisView=state.inspect==='iris',structureView=state.inspect==='structure';vitreousMesh.visible=!irisView;M.cornea.opacity=irisView?.065:.18;objectG.visible=!irisView&&!structureView;rayG.visible=state.rays&&!irisView&&!structureView;imageG.visible=state.image&&!irisView&&!structureView;focusPlaneLine.visible=state.image&&!irisView&&!structureView;focusDot.visible=state.rays&&!irisView&&!structureView;labelG.visible=state.labels;for(const l of labelG.children)l.visible=irisView?l===irisLabel:structureView?['角膜','虹膜 / 瞳孔','晶状体','睫状体','悬韧带'].includes(l.userData.text):state.inspect==='image'?['视网膜','理论清晰像','视神经'].includes(l.userData.text):true;imageLabel.visible=state.image&&state.labels&&!irisView&&!structureView;structureLeaders.visible=state.labels&&!irisView&&state.inspect!=='image';retinaPlaneLine.visible=state.image&&!irisView&&!structureView;receivingG.visible=!irisView&&!structureView;receivingLeader.visible=state.labels&&!irisView&&!structureView;receivingLabel.visible=receivingLeader.visible;gapLine.visible=state.image&&!irisView&&!structureView&&Math.abs(opticalState().deltaMM)>FOCUS_TOLERANCE_MM;gapLabel.visible=gapLine.visible&&state.labels;updateSpectacle();dirty=true;}
+function leaveInspection(){if(state.inspect==='iris'){state.section=state.savedSection;document.getElementById('sectionBtn').classList.toggle('active',state.section);[M.sclera,M.choroid,M.retina,M.vitreous,M.cornea,M.iris,M.ciliary,M.zonule,pupilMaterial,receivingMaterial,receivingBorderMaterial].forEach(m=>applyClip(m,state.section));corneaSection.visible=state.section;irisLabel.position.set(-1.92,.98,.72);}state.inspect='whole';syncEyeVisibility();}
+function resetView(){leaveInspection();dirty=true;view.theta=DEF.theta;view.phi=DEF.phi;view.dist=view.distTarget=DEF.dist;view.target.set(...DEF.target)}
+resetView();document.getElementById('resetViewBtn').addEventListener('click',resetView);
+const pointers=new Map();let dragging=false,dragMode=null,pinchStart=0,pinchDist=0;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture&&canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.style.cursor='grabbing';if(pointers.size===1){dragMode=(e.button===2||e.shiftKey)?'pan':'orbit';dragging=true}else if(pointers.size===2){dragMode='pinch';dragging=false;const p=Array.from(pointers.values());pinchDist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);pinchStart=view.distTarget}e.preventDefault()});
+canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;dirty=true;const prev=pointers.get(e.pointerId),dx=e.clientX-prev.x,dy=e.clientY-prev.y;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(dragMode==='pinch'&&pointers.size===2){const p=Array.from(pointers.values()),d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(pinchDist>0)view.distTarget=clamp(pinchStart*pinchDist/d,4,30);e.preventDefault();return}if(!dragging)return;if(dragMode==='pan'){const k=view.dist*.0016,right=new THREE.Vector3().setFromMatrixColumn(camera.matrix,0),up=new THREE.Vector3().setFromMatrixColumn(camera.matrix,1);view.target.addScaledVector(right,-dx*k);view.target.addScaledVector(up,dy*k)}else{view.theta-=dx*.0055;view.phi=clamp(view.phi-dy*.0050,.10,Math.PI-.10)}e.preventDefault()});
+function endPointer(e){pointers.delete(e.pointerId);if(!pointers.size){dragging=false;dragMode=null;canvas.style.cursor='grab'}else if(pointers.size===1&&dragMode==='pinch'){dragMode='orbit';dragging=true}}
+canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);canvas.addEventListener('pointerleave',e=>{if(pointers.size)endPointer(e)});canvas.addEventListener('wheel',e=>{e.preventDefault();dirty=true;view.distTarget=clamp(view.distTarget*Math.exp(e.deltaY*.0011),4,32)},{passive:false});canvas.addEventListener('contextmenu',e=>e.preventDefault());
+
+function resize(){const rect=document.getElementById('stage').getBoundingClientRect();renderer.setSize(rect.width,rect.height,false);camera.aspect=rect.width/rect.height;camera.updateProjectionMatrix();dirty=true;if(state.view==='angle')drawAngleView();}addEventListener('resize',resize);resize();
+document.getElementById('sideViewBtn').onclick=()=>{leaveInspection();view.theta=0;view.phi=Math.PI/2;view.distTarget=18.8;view.target.set(-2.0,0,0);dirty=true;};
+
+document.getElementById('structureFocusBtn').onclick=()=>{leaveInspection();state.inspect='structure';syncEyeVisibility();view.theta=.08;view.phi=Math.PI/2;view.dist=view.distTarget=9;view.target.set(-1.03,-.05,0);dirty=true;};
+document.getElementById('imageFocusBtn').onclick=()=>{leaveInspection();state.inspect='image';syncEyeVisibility();view.theta=0;view.phi=Math.PI/2;view.dist=view.distTarget=8;view.target.set(1.7,-.1,0);dirty=true;};
+document.getElementById('irisViewBtn').onclick=()=>{if(state.inspect!=='iris')state.savedSection=state.section;state.inspect='iris';irisLabel.position.set(-2.0,1.42,.05);view.theta=-Math.PI/2;view.phi=Math.PI/2;view.dist=view.distTarget=6;view.target.set(-1.63,0,0);state.section=false;document.getElementById('sectionBtn').classList.remove('active');[M.sclera,M.choroid,M.retina,M.vitreous,M.cornea,M.iris,M.ciliary,M.zonule,pupilMaterial,receivingMaterial,receivingBorderMaterial].forEach(m=>applyClip(m,false));corneaSection.visible=false;syncEyeVisibility();dirty=true;};
+
+// Visual-angle comparison: both objects are assumed to be correctly focused.
+const RETINAL_PATCH_MM=10,SAMPLE_COUNT=64;
+function angleData(cm){const heightMM=17*state.heightCm/cm;return {distance:cm,angleDeg:2*Math.atan(state.heightCm/(2*cm))*180/Math.PI,heightMM,widthMM:.6*heightMM,rows:heightMM/RETINAL_PATCH_MM*SAMPLE_COUNT,columns:.6*heightMM/RETINAL_PATCH_MM*SAMPLE_COUNT};}
+function drawE(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w*.22,h);for(const t of [0,.39,.78])ctx.fillRect(x,y+h*t,w,h*.22);}
+function drawRetina(canvasId,data){
+ const out=document.getElementById(canvasId),size=512,pitch=size/SAMPLE_COUNT,dpr=Math.max(1,Math.min(devicePixelRatio||1,2)),actual=Math.max(512,Math.ceil(out.getBoundingClientRect().width*dpr));out.width=out.height=actual;const ctx=out.getContext('2d');ctx.setTransform(actual/size,0,0,actual/size,0,0);const ideal=document.createElement('canvas');ideal.width=ideal.height=size;const ic=ideal.getContext('2d');
+ ic.fillStyle='#ffffff';ic.fillRect(0,0,size,size);const hp=data.heightMM/RETINAL_PATCH_MM*size,wp=.6*hp;
+ ic.save();ic.translate(size/2,size/2);ic.rotate(Math.PI);drawE(ic,-wp/2,-hp/2,wp,hp,'#236d88');ic.restore();
+ // Integrate the fraction of each square covered by the ideal image. One square
+ // is an enlarged illustrative group of photoreceptors, not a real cell count.
+ const pixels=ic.getImageData(0,0,size,size).data,sampled=document.createElement('canvas');sampled.width=sampled.height=SAMPLE_COUNT;const sc=sampled.getContext('2d'),sd=sc.createImageData(SAMPLE_COUNT,SAMPLE_COUNT);
+ for(let y=0;y<SAMPLE_COUNT;y++)for(let x=0;x<SAMPLE_COUNT;x++){const sum=[0,0,0];for(let yy=y*pitch;yy<(y+1)*pitch;yy++)for(let xx=x*pitch;xx<(x+1)*pitch;xx++){const k=(yy*size+xx)*4;for(let c=0;c<3;c++)sum[c]+=pixels[k+c];}const p=(y*SAMPLE_COUNT+x)*4;for(let c=0;c<3;c++)sd.data[p+c]=Math.round(sum[c]/(pitch*pitch));sd.data[p+3]=255;}sc.putImageData(sd,0,0);
+ ctx.clearRect(0,0,size,size);ctx.imageSmoothingEnabled=false;ctx.drawImage(sampled,0,0,size,size);
+ if(state.grid){ctx.strokeStyle='rgba(167,115,63,.20)';ctx.lineWidth=.65;ctx.beginPath();for(let k=0;k<=SAMPLE_COUNT;k++){const a=k*pitch;ctx.moveTo(a,0);ctx.lineTo(a,size);ctx.moveTo(0,a);ctx.lineTo(size,a);}ctx.stroke();}
+ ctx.strokeStyle='#3b829d';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.strokeRect(size/2-wp/2-2,size/2-hp/2-2,wp+4,hp+4);ctx.setLineDash([]);
+
+}
+
+// Readable teaching geometry: horizontal distance is compressed smoothly,
+// with enlarged eye/object symbols. The retinal samples retain their true ratio.
+function drawAngularGeometry(near,far){const W=800,H=235,ex=125,y=115,objectH=112*state.heightCm/10;
+ function drawPanel(id,d){const svg=document.getElementById(id),gap=200+380*Math.log(d.distance/25)/Math.log(600/25),ox=ex+gap,hh=objectH/2;
+ let content='<rect width="'+W+'" height="'+H+'" rx="14" fill="white"/>';
+ content+='<path d="M'+ex+' '+y+' L'+ox+' '+(y-hh)+' L'+ox+' '+(y+hh)+' Z" fill="#c6e5f1" stroke="#247b9b" stroke-width="4"/><path d="M'+ex+' '+y+' L'+ox+' '+y+'" stroke="#8aafbf" stroke-width="2" stroke-dasharray="8 6"/>';
+ content+='<ellipse cx="77" cy="'+y+'" rx="46" ry="36" fill="#e7f1f6" stroke="#597a91" stroke-width="4"/><ellipse cx="118" cy="'+y+'" rx="9" ry="28" fill="#9bd7e5" stroke="#597a91" stroke-width="3"/>';
+ const r=58,phi=Math.atan(hh/gap),ax=ex+r*Math.cos(phi),dy=r*Math.sin(phi);content+='<path d="M'+ax+' '+(y-dy)+' A'+r+' '+r+' 0 0 1 '+ax+' '+(y+dy)+'" fill="none" stroke="#006b95" stroke-width="5"/>';
+ content+='<text x="'+(ex+r+18)+'" y="'+(y+82)+'" fill="#de4747" font-size="26" font-weight="600">'+d.angleDeg.toFixed(2)+'°</text>';
+ content+='<g fill="#247891"><rect x="'+ox+'" y="'+(y-hh)+'" width="'+(objectH*.22)+'" height="'+objectH+'"/>';for(const q of [0,.39,.78])content+='<rect x="'+ox+'" y="'+(y-hh+objectH*q)+'" width="'+(objectH*.6)+'" height="'+(objectH*.22)+'"/>';content+='</g>';
+ svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('aria-label',(id==='nearAngleDiagram'?'近处25厘米':'当前'+d.distance+'厘米')+'物体的视角示意，距离采用显示压缩');svg.innerHTML=content;}
+ drawPanel('nearAngleDiagram',near);drawPanel('farAngleDiagram',far);}
+
+function drawAngleView(){const near=angleData(25),far=angleData(state.distanceCm);drawAngularGeometry(near,far);drawRetina('nearRetina',near);drawRetina('farRetina',far);document.getElementById('angleDistance').value=state.distanceCm;document.getElementById('angleDistanceText').textContent=state.distanceCm+' cm';document.getElementById('angleDistance').style.setProperty('--distance-progress',((state.distanceCm-25)/575*100)+'%');document.getElementById('angleHeight').value=state.heightCm;document.querySelectorAll('[data-angle-distance]').forEach(b=>b.classList.toggle('active',+b.dataset.angleDistance===state.distanceCm));
+ document.getElementById('farTitle').textContent='当前距离 · '+state.distanceCm+' cm';
+}
+function setView(name){leaveInspection();state.view=name;document.body.classList.toggle('angle-page',name==='angle');document.getElementById('angleView').hidden=name!=='angle';canvas.style.visibility=name==='eye'?'visible':'hidden';document.getElementById('eyeViewBtn').classList.toggle('active',name==='eye');document.getElementById('angleViewBtn').classList.toggle('active',name==='angle');document.getElementById('controlPanel').classList.toggle('angle-mode',name==='angle');document.getElementById('viewIntro').textContent=name==='eye'?'点击“像在前方 / 后方”直接观察，再加入透镜将像移回视网膜。正常调节与固定晶状体仍可操作。':'同样正确调焦时，用同一比例尺比较近、远物体的像与可辨细节。';document.querySelector('.tip').textContent=name==='eye'?'拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移 · 绿色：理论像 · 橙色：视网膜':'两种距离均正确调焦 · 改变观察距离和物体高度 · 小格为放大的采样示意';dirty=true;resize();if(name==='angle')drawAngleView();}
+document.getElementById('eyeViewBtn').onclick=()=>setView('eye');document.getElementById('angleViewBtn').onclick=()=>setView('angle');
+function setAngleDistance(v){const value=Number(v);if(!Number.isFinite(value))return;state.distanceCm=clamp(value,25,600);distanceRange.value=state.distanceCm;updatePresetState();applyEye();}
+document.getElementById('angleDistance').oninput=function(){setAngleDistance(this.value);};document.querySelectorAll('[data-angle-distance]').forEach(b=>b.onclick=()=>setAngleDistance(b.dataset.angleDistance));
+document.getElementById('angleHeight').onchange=function(){const v=Number(this.value);if(!Number.isFinite(v))return;state.heightCm=clamp(v,2,14);drawAngleView();};
+document.getElementById('gridBtn').onclick=function(){state.grid=!state.grid;this.classList.toggle('active',state.grid);drawAngleView();};
+const controlPanel=document.getElementById('controlPanel'),openPanel=document.getElementById('openPanel');
+function hideMobilePanel(hidden){controlPanel.classList.toggle('mobile-hidden',hidden);openPanel.hidden=!hidden;}
+document.getElementById('closePanel').onclick=()=>hideMobilePanel(true);openPanel.onclick=()=>hideMobilePanel(false);hideMobilePanel(innerWidth<=820);let mobileLayout=innerWidth<=820;addEventListener('resize',()=>{const next=innerWidth<=820;if(next!==mobileLayout){mobileLayout=next;hideMobilePanel(next);}});
+
+applyEye();
+function animate(){requestAnimationFrame(animate);const change=Math.abs(view.distTarget-view.dist);view.dist+=(view.distTarget-view.dist)*.12;if(state.view==='eye'&&(dirty||change>.0001)){applyCamera();renderer.render(scene,camera);dirty=false;}}requestAnimationFrame(animate);
+window.EyeDemo={getState:()=>({...state,...opticalState(),corneaApex:CORNEA_APEX_X,corneaRim:CORNEA_RIM_X,imageX:imageArrow.position.x,retinaX,displayGapGain:DISPLAY_GAP_GAIN,spectacleVisible:spectacleG.visible,spectacleX,retinaMarkerVisible:retinaPlaneLine.visible,receivingRegionVisible:receivingG.visible,receivingRegionFrontX:receivingFrontX,receivingDiameterRatio,receivingPatchRadius,displayGapMode:'adaptive',spectacleHelperLines:0,gapVisible:gapLine.visible,nearAngle:angleData(25),currentAngle:angleData(state.distanceCm),geometryCount:renderer.info.memory.geometries,rayStyle:'solid-arrow',raySegments:rayMeshes.length,irisTextureSize:irisTexture.image.width,retinaTextureSize:retinaTexture.image.width,mainImageCount:imageG.visible?1:0,structureLeadersVisible:structureLeaders.visible,structureTargets:structureCallouts.map(o=>({name:o.label.userData.text,target:o.dot.position.toArray()})),camera:{theta:view.theta,phi:view.phi,distance:view.dist},objectVisible:objectG.visible,raysVisible:rayG.visible}),setDistance:cm=>{state.distanceCm=cm;distanceRange.value=cm;applyEye();}};
+})();
+</script>
+</body>
+</html>
