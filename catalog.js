@@ -312,6 +312,24 @@ window.MODEL_CATALOG = [
     "accent": "orange"
   },
   {
+    "id": "refracting-telescope",
+    "title": "折射式天文望远镜",
+    "subtitle": "开普勒式 · 焦平面实像与目镜调焦",
+    "category": "光学仪器",
+    "summary": "可交互的程序化 WebGL 天文望远镜：观察物镜、目镜、寻星镜与调焦机构，切换外观、半剖、光路及拆解，并演示倒立实像、焦平面、焦距和调焦。",
+    "tags": [
+      "折射式望远镜",
+      "凸透镜",
+      "焦平面",
+      "倒立实像",
+      "调焦",
+      "光路"
+    ],
+    "path": "models/refracting-telescope.html",
+    "symbol": "🔭",
+    "accent": "blue"
+  },
+  {
     "id": "reflection-refraction",
     "cover": "assets/covers/reflection-refraction.svg?v=20261008",
     "title": "光的反射与折射",
