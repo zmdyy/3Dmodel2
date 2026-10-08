@@ -245,7 +245,7 @@
   <div id="toast"></div>
 
   <script src="../shared/vendor/three-r144.min.js"></script>
-<script src="../shared/material-finish.js"></script>
+<script src="../shared/material-finish.js?v=2.0-20261008"></script>
   <script src="../shared/current-flow-style.js"></script>
   <script>
 /* =========================================================
@@ -412,14 +412,14 @@
 
   /* ================= 材质 ================= */
   const M = {
-    baseMetal: new THREE.MeshStandardMaterial({ color: 0xbfc6cc, roughness: 0.24, metalness: 0.96, envMapIntensity: 1.16 }),
+    baseMetal: new THREE.MeshStandardMaterial({ color: 0xbfc6cc, roughness: 0.68, metalness: 0.96, envMapIntensity: 1.16 }),
     plate: new THREE.MeshPhysicalMaterial({ color: 0x6b2f20, roughness: 0.43, metalness: 0.0, clearcoat: 0.22, clearcoatRoughness: 0.34, envMapIntensity: 0.48 }),
     frame: new THREE.MeshPhysicalMaterial({ color: 0x24211f, roughness: 0.58, metalness: 0.0, clearcoat: 0.10, clearcoatRoughness: 0.40, envMapIntensity: 0.34 }),
-    wire: new THREE.MeshPhysicalMaterial({ color: 0xaa5d2d, roughness: 0.27, metalness: 0.24, clearcoat: 0.48, clearcoatRoughness: 0.22, envMapIntensity: 0.94 }),
-    wireSoft: new THREE.MeshStandardMaterial({ color: 0x9a542b, roughness: 0.32, metalness: 0.62, envMapIntensity: 0.88 }),
-    metal: new THREE.MeshStandardMaterial({ color: 0xc8ced3, roughness: 0.19, metalness: 1.0, envMapIntensity: 1.24 }),
-    metalSoft: new THREE.MeshStandardMaterial({ color: 0xabb4bc, roughness: 0.29, metalness: 0.94, envMapIntensity: 1.08 }),
-    brass: new THREE.MeshStandardMaterial({ color: 0xb7853c, roughness: 0.23, metalness: 0.93, envMapIntensity: 1.14 }),
+    wire: new THREE.MeshPhysicalMaterial({ color: 0xaa5d2d, roughness: 0.68, metalness: 0.24, clearcoat: 0.48, clearcoatRoughness: 0.22, envMapIntensity: 0.94 }),
+    wireSoft: new THREE.MeshStandardMaterial({ color: 0x9a542b, roughness: 0.69, metalness: 0.62, envMapIntensity: 0.88 }),
+    metal: new THREE.MeshStandardMaterial({ color: 0xc8ced3, roughness: 0.64, metalness: 1.0, envMapIntensity: 1.24 }),
+    metalSoft: new THREE.MeshStandardMaterial({ color: 0xabb4bc, roughness: 0.72, metalness: 0.94, envMapIntensity: 1.08 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xb7853c, roughness: 0.65, metalness: 0.93, envMapIntensity: 1.14 }),
     insulRed: new THREE.MeshPhysicalMaterial({ color: 0x7c3525, roughness: 0.46, metalness: 0.0, clearcoat: 0.16, clearcoatRoughness: 0.34, envMapIntensity: 0.42 }),
     extRed: new THREE.MeshPhysicalMaterial({ color: 0xc92f2f, roughness: 0.40, metalness: 0.0, clearcoat: 0.28, clearcoatRoughness: 0.28, envMapIntensity: 0.46 }),
     extBlack: new THREE.MeshPhysicalMaterial({ color: 0x171b20, roughness: 0.48, metalness: 0.0, clearcoat: 0.18, clearcoatRoughness: 0.34, envMapIntensity: 0.38 })
