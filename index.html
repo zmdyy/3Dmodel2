@@ -80,6 +80,7 @@
     <span class="eyebrow"><i></i> PHYSICS · 3D INTERACTIVE COLLECTION</span>
     <h1>3D 交互模型作品集</h1>
     <p class="lead">把分散的 3D 教学模型集中到一个入口。选择作品后可直接进入交互场景，旋转、缩放、拆装、改变参数并观察结构与物理量的变化。</p>
+    <p class="lead" style="font-size:13px;margin-top:10px">3Dmodel2 材质 V2：已升级模型内部的哑光金属、微表面纹理与旧化效果。注意：首页封面仍是升级前的静态图片，请点击作品查看实时 3D 新材质。</p>
     <div class="hero-meta"><span><b id="heroCount">0</b> 个交互作品</span><span>按需加载 WebGL 场景</span><span>适合课堂演示与自主探究</span></div>
   </section>
 
@@ -112,7 +113,7 @@
   </div>
 </section>
 
-<script src="catalog.js?v=20261008-water-alarm"></script>
+<script src="catalog.js?v=20261008-matte-v2"></script>
 <script>
 (() => {
   const data = Array.isArray(window.MODEL_CATALOG) ? window.MODEL_CATALOG : [];
@@ -171,12 +172,13 @@
   grid.addEventListener('keydown', e => { if((e.key==='Enter'||e.key===' ') && e.target.classList.contains('card')){e.preventDefault();openModel(e.target.dataset.id);} });
 
   function modelPath(item,embedded=false){
-    if(item.id==='water-level-alarm') return item.path+'?v=20261008-water-alarm';
-    if(item.id==='reflection-refraction') return item.path+'?v=20261008-optics';
-    if(item.id==='museum-alarm') return item.path+'?v=20261006-alarm-v2';
-    if(item.id==='rheostat') return item.path+'?v=20261008-schematic';
-    if(item.id==='e27-bulb') return item.path+'?v=20261008-clean-contact';
-    return item.path+(item.id==='eye-accommodation'?'?v=4693abb'+(embedded?'&embedded=1':''):'');
+    // Keep all previously supported options, but force GitHub Pages to fetch new 3D material builds.
+    let url=item.path;
+    const params=new URLSearchParams();
+    params.set('mat','matte-v2-20261008');
+    if(item.id==='eye-accommodation' && embedded) params.set('embedded','1');
+    url+=(url.includes('?')?'&':'?')+params.toString();
+    return url;
   }
   function openModel(id){
     const item = data.find(x=>x.id===id); if(!item) return;
