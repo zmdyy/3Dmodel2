@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>KEPLER 08 · 折射望远镜｜3D 光学实验 · 精简交互版</title>
+<style>
+:root{color-scheme:dark;--bg:#090f18;--panel:#101a27;--panel2:#152332;--stroke:rgba(202,220,233,.15);--muted:#8da2b4;--text:#eaf4fa;--gold:#dfb77b;--cyan:#55d5ee;--orange:#ffad6c}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font-family:Inter,"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#0a1018;color:var(--text)}button,input{font:inherit}button{cursor:pointer}
+.page{height:100dvh;min-height:580px;display:grid;grid-template-columns:minmax(0,1fr) 348px;grid-template-rows:auto minmax(0,1fr);background:radial-gradient(ellipse at 42% 42%,#162536 0,#090f18 64%,#080c13 100%)}
+.topbar{grid-column:1/-1;height:75px;display:flex;align-items:center;gap:22px;padding:0 32px;border-bottom:1px solid var(--stroke);background:rgba(6,13,23,.65);z-index:10}
+.monogram{width:43px;height:43px;border:1px solid #c9a678;border-radius:50%;display:grid;place-items:center;font:24px Georgia,serif;color:#edc995;box-shadow:inset 0 0 0 5px rgba(223,183,123,.065)}
+.brand{font-size:12px;letter-spacing:.22em;font-weight:800;color:#ead3ae;white-space:nowrap}.brand span{font-size:10px;display:block;font-weight:500;letter-spacing:.18em;color:#7e95a7;margin-top:3px}
+.header-title{margin-left:22px;border-left:1px solid var(--stroke);padding-left:24px;font-size:17px;font-weight:700;letter-spacing:.035em}.header-sub{color:#9bafbf;font-size:11px;display:block;margin-top:4px;font-weight:400}
+.header-right{margin-left:auto;color:#aec1c7;font-size:11px;letter-spacing:.13em;display:flex;align-items:center;gap:9px;white-space:nowrap}.lamp{width:7px;height:7px;background:#69daba;border-radius:50%;box-shadow:0 0 12px #69daba}
+.stage{position:relative;overflow:hidden;min-width:0;background:radial-gradient(ellipse at 48% 47%,rgba(61,85,109,.22),transparent 60%)}#three{width:100%;height:100%;display:block;touch-action:none}#rayCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.stage-top{position:absolute;left:32px;top:27px;pointer-events:none}.eyebrow{font-size:11px;letter-spacing:.27em;color:#cfaa76;font-weight:800}.stage-title{margin-top:9px;font-family:Georgia,"Noto Serif SC",serif;font-size:clamp(24px,2.5vw,36px);font-weight:500;color:#f2f6f9;line-height:1.25}.stage-desc{margin-top:11px;max-width:460px;color:#94aabd;font-size:12px;line-height:1.9}
+.stage-foot{position:absolute;left:30px;bottom:23px;right:22px;display:flex;align-items:end;justify-content:space-between;pointer-events:none;gap:15px}.hint{display:flex;gap:15px;flex-wrap:wrap;color:#b8c6d2;font-size:11px}.hint span{display:flex;gap:7px;align-items:center}.mouse{border:1px solid #7490a5;border-radius:5px;padding:3px 6px;color:#d5e5eb;font-size:12px}
+.legend{display:flex;gap:13px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:11px;color:#a5b5c0}.sw{display:inline-block;width:18px;height:3px;margin-right:5px;vertical-align:3px;border-radius:4px}
+.label3d{position:absolute;pointer-events:none;transform:translate(-50%,-100%);border:1px solid rgba(152,190,206,.34);border-radius:8px;background:rgba(6,14,23,.81);padding:7px 12px;backdrop-filter:blur(10px);font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 10px 35px #0006}.label3d small{display:block;color:#95b3bd;font-size:10px;font-weight:400;margin-top:3px}.label3d:after{content:"";position:absolute;left:50%;height:22px;top:100%;border-left:1px solid rgba(172,208,219,.6)}
+.label3d.obj{color:#8be2ef}.label3d.eye{color:#edc18d}
+.side{z-index:2;border-left:1px solid var(--stroke);background:linear-gradient(145deg,rgba(18,29,42,.98),rgba(11,18,29,.99));overflow-y:auto;overflow-x:hidden;padding:24px 23px 30px;scrollbar-width:thin;scrollbar-color:#385065 transparent}
+.side h2{margin:0 0 6px;font-size:19px;letter-spacing:.03em}.subtitle{font-size:12px;color:var(--muted);line-height:1.8;margin:0 0 22px}
+.section{padding:20px 0 19px;border-top:1px solid var(--stroke)}.section-label{font-size:11px;color:#e6c28c;font-weight:800;letter-spacing:.16em;margin:0 0 14px}.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.seg.four{grid-template-columns:repeat(4,1fr)}.seg button{min-height:39px;background:#142130;color:#a8bccb;border:1px solid #304457;border-radius:8px;font-size:12px;font-weight:700}.seg button.active{color:#fce9ca;background:#4a3d32;border-color:#c39a67;box-shadow:inset 0 0 16px #d49d3f13}
+.field{margin-top:18px}.fieldhead{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#b7cbd6;margin-bottom:11px}.fieldhead strong{color:#f0f6fa;font-size:14px;font-variant-numeric:tabular-nums}.fieldhead strong b{color:#86dfe9}
+input[type=range]{width:100%;accent-color:#d5ad73;cursor:pointer;margin:4px 0} .rangeend{display:flex;justify-content:space-between;color:#6f899f;font-size:10px;margin-top:1px}
+.smallnote{font-size:11px;color:#9bb0c0;line-height:1.85;margin:10px 0 0}.datum{padding:13px 12px;border-radius:10px;background:#192b3a;border:1px solid #334657}.datum-head{font-size:11px;color:#9eb8c5}.datum-main{font-size:19px;font-weight:800;color:#e7f5fa;letter-spacing:.025em;margin-top:6px}.datum-ok{color:#8de2b4}.datum-warn{color:#ffc38b}
+.switchline{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#c6d6df;margin-top:14px}.switch{width:39px;height:22px;border-radius:30px;border:1px solid #536577;background:#28394b;position:relative;transition:.2s}.switch:after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;background:#92a8bb;border-radius:50%;transition:.2s}.switch.on{background:#276778;border-color:#4ec7df}.switch.on:after{left:19px;background:#a1f4fb}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{background:#131f2e;border:1px solid #2b3d4e;border-radius:10px;padding:12px 12px}.metric .k{font-size:11px;color:#92a9ba}.metric .v{font-size:23px;color:#f5f7f4;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}.metric .unit{font-size:11px;font-weight:500;color:#a5b6c1;margin-left:3px}.metric.gold .v{color:#f3ce95}.metric.cyan .v{color:#a0edfd}
+.formula{margin-top:12px;border-left:2px solid #b88c58;padding:6px 0 6px 12px;font-family:Georgia,serif;font-size:15px;color:#e7d6b9}.formula small{display:block;margin-top:6px;font:11px/1.65 system-ui,sans-serif;color:#a7b9c5}
+.demo{margin-top:12px;padding:13px 10px 12px;border:1px solid #2b4055;border-radius:10px;background:linear-gradient(135deg,#0d1c2e,#13283b);text-align:center;overflow:hidden}.demo .dline{font-size:10px;color:#aac5d3;letter-spacing:.08em}.demo .arrows{display:flex;justify-content:space-evenly;align-items:center;font:34px Georgia,serif;margin-top:4px}.demo .arrows .input{color:#7adbea}.demo .arrows .arrow{color:#7e8d9a;font:17px sans-serif}.demo .arrows .output{color:#e2b978;transform:rotate(180deg)}
+.action{display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid #486072;background:#1a2a39;color:#d8e5ec;border-radius:8px;padding:10px 11px;font-size:12px;width:100%;margin-top:12px}.action:hover,.seg button:hover{filter:brightness(1.15)}
+.footerlink{display:block;margin:13px 0 0;font-size:10px;color:#6e899d;line-height:1.7}
+#notice{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;background:#142435ee;border:1px solid #ad784e;border-radius:12px;padding:20px 24px;max-width:370px;line-height:1.8;font-size:13px;display:none}
+
+.seg.two{grid-template-columns:repeat(2,1fr)}
+.diy-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.diy-grid .field{margin-top:6px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;border:1px solid #385068;background:#142332;color:#d2e3ed;font-size:11px;letter-spacing:.04em}
+.combo-intro{margin-top:10px;padding:11px 12px;border-radius:10px;background:#13212f;border:1px solid #324759;color:#bdd0da;font-size:11px;line-height:1.8}
+.muted-tip{font-size:11px;color:#92a6b7;line-height:1.75;margin-top:10px}
+.metric-grid.triple{grid-template-columns:1fr 1fr}
+#viewSeg.seg.four button{font-size:11px;padding:2px 0}
+#stage:has(.label3d){isolation:isolate}
+.metric-grid .metric .v .unit{font-size:12px;margin-left:2px;color:#9cb4c1}
+#diyPanel[hidden]{display:none}
+@media(max-width:900px){.page{grid-template-columns:minmax(0,1fr) 305px}.topbar{padding:0 17px}.header-title{margin-left:5px;padding-left:15px;font-size:14px}.stage-top{left:18px;top:20px}.side{padding:20px 15px}.stage-foot{left:15px;bottom:15px}.label3d{font-size:10px;padding:5px 7px}}
+@media(max-width:680px){html,body{height:auto;overflow:auto}.page{display:flex;flex-direction:column;min-height:100dvh;height:auto}.topbar{height:64px;padding:0 14px}.brand{font-size:10px}.header-title{font-size:12px;margin-left:0}.header-right{display:none}.stage{height:62vh;min-height:410px}.side{overflow:visible}.stage-desc{max-width:245px}.stage-title{font-size:24px}.hint{display:none}.label3d{display:none}.legend{font-size:10px}}
+
+/* Classroom view: control labels and numeric values are readable from a distance. */
+.page{grid-template-columns:minmax(0,1fr) 326px}
+.side{padding:22px 20px 24px}
+.side h2{font-size:20px;margin-bottom:14px}
+.section{padding:19px 0 17px}
+.section-label{font-size:14px;letter-spacing:.06em;margin-bottom:13px}
+.fieldhead,.switchline{font-size:14px}
+.fieldhead strong{font-size:17px}
+.rangeend{font-size:12px;color:#b9cbd8;margin-top:5px}
+.seg button{font-size:14px;min-height:44px}
+#viewSeg.seg.four button{font-size:13px}
+.datum{padding:15px 14px}
+.datum-head{font-size:13px;color:#e1eaf1}
+.datum-main{font-size:21px;margin-top:5px}
+.metric .k{font-size:12px}.metric .v{font-size:22px}
+.label3d{font-size:13px}.label3d small{display:none}
+@media(max-width:900px){.page{grid-template-columns:minmax(0,1fr) 305px}}
+</style>
+
+</head>
+<body>
+<div class="page">
+<header class="topbar">
+ <div class="monogram">K</div><div class="brand">KEPLER / 08<span>INTERACTIVE OPTICS</span></div>
+ <div class="header-title">折射式天文望远镜</div>
+ 
+</header>
+<main class="stage" id="stage">
+ <canvas id="three"></canvas><canvas id="rayCanvas" aria-hidden="true"></canvas>
+ 
+ <div class="label3d obj" id="labelObj">物镜</div>
+ <div class="label3d eye" id="labelEye">目镜</div>
+ <div id="notice"></div>
+</main>
+<aside class="side">
+ <h2>实验控制台</h2>
+ <div class="section" style="padding-top:0;border:0"><div class="section-label">观察结构</div><div class="seg four" id="modeSeg"><button data-mode="full">外观</button><button data-mode="half">半剖</button><button data-mode="optics" class="active">光路</button><button data-mode="explode">拆解</button></div>
+  <div class="field"><div class="fieldhead"><span>观察视角</span></div><div class="seg four" id="viewSeg"><button data-view="isometric" class="active">立体</button><button data-view="side">正侧面</button><button data-view="lens">物镜特写</button><button data-view="image">像特写</button></div></div>
+  <div class="switchline"><span>显示光线 / 传播箭头</span><button class="switch on" id="raysSwitch" aria-label="显示光线" aria-pressed="true"></button></div>
+  <div class="switchline"><span>标出两片透镜</span><button class="switch on" id="labelsSwitch" aria-label="标出两片透镜" aria-pressed="true"></button></div>
+  <div class="switchline"><span>显示两镜一倍焦距 f₁、f₂</span><button class="switch on" id="focalSwitch" aria-label="显示一倍焦距" aria-pressed="true"></button></div>
+  <div class="switchline"><span>显示物镜后焦平面</span><button class="switch on" id="planeSwitch" aria-label="显示焦平面" aria-pressed="true"></button></div>
+ </div>
+ <div class="section"><div class="section-label">光学组合</div>
+  <div class="seg two" id="presetSeg"><button data-preset="classic" class="active">经典组合</button><button data-preset="diy">自制组合</button></div>
+  <div id="comboIntro" hidden></div><div id="diyPanel" hidden>
+    <div class="diy-grid">
+      <div class="field"><div class="fieldhead"><span>物镜焦距 f₁</span><strong id="f1Val">50 mm</strong></div><input type="range" id="f1Range" min="50" max="800" step="10" value="50"/><div class="rangeend"><span>50</span><span>800 mm</span></div></div>
+      <div class="field"><div class="fieldhead"><span>物镜直径 D₁</span><strong id="d1Val">50 mm</strong></div><input type="range" id="d1Range" min="30" max="80" step="5" value="50"/><div class="rangeend"><span>30</span><span>80 mm</span></div></div>
+      <div class="field"><div class="fieldhead"><span>目镜焦距 f₂</span><strong id="f2Val">10 mm</strong></div><input type="range" id="f2Range" min="5" max="100" step="5" value="10"/><div class="rangeend"><span>5</span><span>100 mm</span></div></div>
+      <div class="field"><div class="fieldhead"><span>目镜直径 D₂</span><strong id="d2Val">20 mm</strong></div><input type="range" id="d2Range" min="10" max="40" step="2" value="20"/><div class="rangeend"><span>10</span><span>40 mm</span></div></div>
+    </div>
+  </div>
+ </div>
+ <div class="section"><div class="section-label">调焦实验</div>
+  <div class="fieldhead"><span>移动目镜筒</span><strong id="focusVal"><b>0</b> mm</strong></div>
+  <input type="range" id="focus" min="-20" max="20" step="1" value="0" aria-label="目镜移动距离（毫米）" /><div class="rangeend"><span>−20 mm · 向物镜</span><span>+20 mm · 远离物镜</span></div>
+  <div class="datum" style="margin-top:15px"><div class="datum-head">目镜后的出射光线</div><div id="focusStatus" class="datum-main datum-ok">平行出射 · 正常调焦</div><p id="focusDesc" hidden></p></div>
+  <button class="action" id="resetFocus">↺ &nbsp;恢复正常调焦位置</button>
+ </div>
+ <div class="section"><div class="section-label">改变入射方向</div>
+  <div class="fieldhead"><span>离轴视场角</span><strong id="angleVal">1.0°</strong></div><input id="angle" aria-label="离轴光束视场角" type="range" min="0" max="1.2" step="0.1" value="1.0"/><div class="rangeend"><span>主轴 0°</span><span>边缘 1.2°</span></div>
+ </div>
+ <div class="section"><div class="section-label">参数与尺寸</div>
+   <div class="metric-grid triple">
+    <div class="metric cyan"><div class="k">物镜焦距 f₁</div><div class="v" id="metricF1">360<span class="unit">mm</span></div></div>
+    <div class="metric cyan"><div class="k">物镜直径 D₁</div><div class="v" id="metricD1">60<span class="unit">mm</span></div></div>
+    <div class="metric gold"><div class="k">目镜焦距 f₂</div><div class="v" id="metricF2">45<span class="unit">mm</span></div></div>
+    <div class="metric gold"><div class="k">目镜直径 D₂</div><div class="v" id="metricD2">30<span class="unit">mm</span></div></div>
+    <div class="metric"><div class="k">镜片间距 L</div><div class="v" id="separation">405<span class="unit">mm</span></div></div>
+    <div class="metric"><div class="k">角放大率 M</div><div class="v" id="metricMag">−8<span class="unit">×</span></div></div>
+   </div>
+  </div>
+</aside>
+</div>
+<script>
+/* KEPLER GPU telescope: self-contained WebGL 3D, no CDN and no external libraries. */
+(()=>{'use strict';
+const get=id=>document.getElementById(id),stage=get('stage'),canvas=get('three'),raysCanvas=get('rayCanvas'),notice=get('notice');
+let gl=canvas.getContext('webgl2',{alpha:true,antialias:true,premultipliedAlpha:false,depth:true,stencil:false})||canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false,depth:true,stencil:false});
+if(!gl){notice.style.display='block';notice.textContent='此浏览器无法启动 GPU WebGL 3D。请在 Chrome / Edge 设置里开启“使用图形加速”，然后重启浏览器。';return;}
+const overlay=raysCanvas.getContext('2d');
+const vs=`attribute vec3 aPos; attribute vec3 aNormal; uniform mat4 uVP; uniform vec3 uOffset; uniform float uXStretch; uniform float uAperture; uniform float uXOrigin; uniform float uYCentre; uniform float uWheelAngle; uniform float uWheelFlag; uniform float uEyeAperture; uniform float uReducerFlag; varying vec3 vN; varying vec3 vWorld; varying vec3 vLocal; void main(){ vec3 vertex=aPos;vec3 nor=aNormal;
+ if(uWheelFlag>.5){float c=cos(uWheelAngle),s=sin(uWheelAngle);vec2 d=aPos.xy-vec2(1.39,.535);vertex.xy=vec2(1.39+c*d.x-s*d.y,.535+s*d.x+c*d.y);nor.xy=vec2(c*aNormal.x-s*aNormal.y,s*aNormal.x+c*aNormal.y);}
+ float aperture=uAperture;
+ if(uReducerFlag>.5){float blend=smoothstep(.0,1.0,clamp((aPos.x-(uXOrigin+0.60-.07))/.145,0.,1.));aperture=mix(uAperture,uEyeAperture,blend);}
+ vec3 p=vertex+uOffset; p.x=uXOrigin+(vertex.x-uXOrigin)*uXStretch+uOffset.x; p.y=uYCentre+(vertex.y-uYCentre)*aperture+uOffset.y; p.z=vertex.z*aperture+uOffset.z; vWorld=p; vLocal=aPos; vN=normalize(vec3(nor.x/uXStretch,nor.y/aperture,nor.z/aperture)); gl_Position=uVP*vec4(p,1.0); }`;
+const fs=`
+precision highp float;
+varying vec3 vN;
+varying vec3 vWorld;
+varying vec3 vLocal;
+uniform vec3 uCamera;
+uniform vec3 uColor;
+uniform float uMetal;
+uniform float uRough;
+uniform float uAlpha;
+uniform float uGlass;
+uniform float uCoat;
+uniform float uDetail;
+uniform float uWear;
+uniform float uPatina;
+uniform float uBrushed;
+uniform samplerCube uEnvSharp;
+uniform samplerCube uEnvSoft;
+const float PI=3.14159265359;
+vec3 filmic(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.0,1.0);}
+float Dggx(float nh,float r){float a=r*r;float a2=a*a;float den=nh*nh*(a2-1.0)+1.0;return a2/(PI*den*den+0.00004);}
+float hash3(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+float Gs(float nv,float k){return nv/(nv*(1.0-k)+k+0.00001);}
+vec3 fresnel(vec3 f0,float vdoth){return f0+(1.0-f0)*pow(1.0-clamp(vdoth,0.0,1.0),5.0);}
+vec3 directLight(vec3 N,vec3 V,vec3 L,vec3 base,vec3 f0,float metal,float rough,vec3 strength){
+  vec3 H=normalize(V+L);
+  float nl=max(dot(N,L),0.0), nv=max(dot(N,V),0.05);
+  float nh=max(dot(N,H),0.0), vh=max(dot(V,H),0.0);
+  float k=pow(rough+1.0,2.0)*0.125;
+  vec3 F=fresnel(f0,vh);
+  vec3 spec=Dggx(nh,rough)*Gs(nv,k)*Gs(nl,k)*F/(4.0*nl*nv+0.001);
+  vec3 diff=(1.0-F)*(1.0-metal)*base/PI;
+  return (diff+spec)*strength*nl;
+}
+void main(){
+  vec3 N=normalize(vN),V=normalize(uCamera-vWorld);
+  if(dot(N,V)<0.0)N=-N;
+  float nv=max(0.04,dot(N,V));
+  float metal=clamp(uMetal,0.0,1.0);
+  vec3 base=uColor;
+  // Spatially stable procedural wear: this texture follows the component,
+  // not the camera or the lighting; no downloaded images or extra triangles.
+  float grain=hash3(floor(vLocal*67.0));
+  float large=hash3(floor(vLocal*7.5));
+  float waves=sin(vLocal.x*19.0+2.4*sin(vLocal.z*13.0))*sin(vLocal.y*17.0+vLocal.z*9.0);
+  float wear=uWear;
+  float patina=uPatina;
+  float brushed=uBrushed;
+  // Fine casting texture / shallow orange-peel paint. Preserve readability at a distance.
+  float fine=0.5*grain+0.5*(0.5+0.5*waves);
+  base*=1.0-(0.028+0.075*wear)*(fine-.36);
+  if(wear>.001){
+    // Uneven old paint, light road dust and tiny dark scuffs; not fake rust patches.
+    float haze=0.64*large+0.36*max(0.0,waves);
+    base*=1.0-wear*(.11+.18*haze);
+    // Rare, thin axial scratches on barrel surface, exposing grey undercoat.
+    float phi=atan(vLocal.z,vLocal.y-.86);
+    float stripe=abs(sin(phi*87.0+vLocal.x*.83));
+    float scratch=(1.0-smoothstep(.995,1.0,stripe)) * 0.0;
+    scratch=smoothstep(.9985,.9997,stripe);
+    float patch=hash3(floor(vec3(vLocal.x*3.0,phi*8.0,2.0)));
+    float mask=smoothstep(.84,.995,patch)*scratch;
+    base=mix(base,vec3(.20,.22,.23),mask*.36*wear);
+  }
+  if(patina>.001){
+    // Oxidized recesses and quiet tarnish of unpolished brass / steel.
+    float tarnish=smoothstep(.40,.86,large*.69+fine*.31);
+    base*=1.0-patina*(.22+.31*tarnish);
+  }
+  if(brushed>.001){
+    // Directional machining marks, restrained to avoid a chrome-like shine.
+    float line=.5+.5*sin(vLocal.x*140.0+sin(vLocal.y*12.0)*.9);
+    base*=1.0+brushed*(line-.5)*.105;
+  }
+  float rough=clamp(uRough + .09*(fine-.5)+.11*wear*large+.05*patina*grain,.18,.98);
+  vec3 f0=mix(vec3(.042),base,metal);
+  vec3 L1=normalize(vec3(-.60,1.12,1.08));
+  vec3 L2=normalize(vec3(.74,.36,-1.06));
+  vec3 L3=normalize(vec3(.11,.93,-.45));
+  vec3 c=directLight(N,V,L1,base,f0,metal,rough,vec3(1.20,1.23,1.20));
+  c+=directLight(N,V,L2,base,f0,metal,rough,vec3(.53,.60,.66));
+  c+=directLight(N,V,L3,base,f0,metal,rough,vec3(.16,.18,.19));
+  float sky=clamp(N.y*.5+.5,0.0,1.0);
+  vec3 ambient=mix(vec3(.21,.23,.26),vec3(.37,.41,.46),sky);
+  c+=base*(1.0-metal)*ambient*1.05;
+  // Gentle bounced light preserves the machined detail without glossy hotspots.
+  c+=base*(.095+.055*(1.0-metal))*clamp(.55+.45*N.y,.35,1.0);
+  // Studio IBL: physically directional reflections, sampled from embedded cube maps.
+  vec3 R=reflect(-V,N);
+  vec3 envA=textureCube(uEnvSharp,R).rgb;
+  vec3 envB=textureCube(uEnvSoft,R).rgb;
+  float blur=smoothstep(.22,.76,rough);
+  vec3 env=mix(envA,envB,blur);
+  vec3 Fv=fresnel(f0,nv);
+  c+=env*Fv*mix(.58,.87,metal)*(1.0-.45*rough);
+  // Clear-coated enamel barrel: second dielectric reflection over colored substrate.
+  if(uCoat>.001){
+    vec3 clearEnv=mix(envA,envB,.85);
+    float clearF=.055+.945*pow(1.0-nv,5.0);
+    c=mix(c,c*.86,uCoat*.28);
+    c+=clearEnv*uCoat*(.11+.25*clearF);
+  }
+  if(uGlass>.5){
+    // Dual-surface coated optical glass: blue/cyan low-reflectance center,
+    // violet-blue grazing reflections; remains transparent to the interior.
+    float edge=pow(1.0-nv,3.0);
+    vec3 film=mix(vec3(.055,.18,.22),vec3(.22,.41,.66),edge);
+    vec3 coatedRef=envB*mix(vec3(.18,.31,.36),vec3(.35,.51,.66),edge);
+    c=film*.31+coatedRef*(.08+.57*edge);
+    c+=directLight(N,V,L1,vec3(.10,.38,.55),vec3(.045),0.0,.10,vec3(.86,1.03,1.12));
+    float a=clamp(.12+.43*edge+.07*pow(max(dot(N,L1),0.0),18.0),.12,.65);
+    c*=1.15; gl_FragColor=vec4(pow(filmic(c),vec3(.4545)),a);return;
+  }
+  c=pow(filmic(max(c*1.15,vec3(0.0))),vec3(.4545));
+  gl_FragColor=vec4(c,uAlpha);
+}`;
+function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+let program;try{program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));}catch(e){notice.style.display='block';notice.textContent='3D 着色器初始化失败：'+e.message;return;}
+gl.useProgram(program);const attrs={p:gl.getAttribLocation(program,'aPos'),n:gl.getAttribLocation(program,'aNormal')};const loc=Object.fromEntries(['uVP','uOffset','uCamera','uColor','uMetal','uRough','uAlpha','uGlass','uCoat','uDetail','uWear','uPatina','uBrushed','uXStretch','uAperture','uXOrigin','uYCentre','uWheelAngle','uWheelFlag','uEyeAperture','uReducerFlag'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const TAU=Math.PI*2,DEG=Math.PI/180,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),V=(x,y,z)=>[x,y,z],add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],scale=(a,s)=>[a[0]*s,a[1]*s,a[2]*s],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{const l=Math.hypot(...a)||1;return scale(a,1/l)};
+// CAD-like palette: linearized sRGB-style color constants
+const materials={
+ body:{c:[.064,.115,.139],m:.12,r:.73,coat:.06,wear:.64}, // aged blue-grey powder coated instrument finish
+ inner:{c:[.012,.015,.016],m:.00,r:.97},                   // dark flocking
+ graphite:{c:[.083,.098,.104],m:.67,r:.75,wear:.32,patina:.16,brush:.25},
+ black:{c:[.025,.029,.031],m:.08,r:.88,wear:.16},
+ brass:{c:[.37,.256,.122],m:.84,r:.67,patina:.50,brush:.40},
+ gold:{c:[.52,.364,.195],m:.83,r:.62,patina:.27,brush:.36},
+ oldGold:{c:[.263,.186,.103],m:.78,r:.79,patina:.69,brush:.18},
+ steel:{c:[.265,.303,.320],m:.84,r:.65,patina:.19,brush:.60},
+ mount:{c:[.117,.145,.156],m:.35,r:.81,wear:.31},
+ rubber:{c:[.022,.024,.025],m:.00,r:.96,wear:.18},
+ glass:{c:[.15,.38,.44],m:.00,r:.15,a:.60,glass:1},
+ floor:{c:[.037,.043,.046],m:.05,r:.95,wear:.13},
+ bezel:{c:[.088,.104,.110],m:.52,r:.72,patina:.16,brush:.16},
+ red:{c:[.33,.133,.102],m:.12,r:.72,wear:.21},
+ focalGlass:{c:[.075,.27,.30],m:.02,r:.89,a:.115},
+ focalEdge:{c:[.25,.52,.55],m:.12,r:.81,a:.73},
+ focalPointUpper:{c:[.15,.80,.93],m:.04,r:.55},
+ focalPointCentre:{c:[.96,.67,.34],m:.06,r:.60},
+ focalPointLower:{c:[.92,.35,.23],m:.04,r:.60}
+};
+// Offline studio IBL. Two procedural environment cube maps approximate sharp
+// softbox reflections and rough microfacet prefiltering, without downloads.
+function makeStudioCube(soft){
+ const side=soft?64:128,tex=gl.createTexture();
+ gl.bindTexture(gl.TEXTURE_CUBE_MAP,tex);
+ const smooth=(a,b,x)=>{let q=clamp((x-a)/(b-a),0,1);return q*q*(3-2*q)};
+ const orient=[
+  (u,v)=>[1,-v,-u],(u,v)=>[-1,-v,u],
+  (u,v)=>[u,1,v],(u,v)=>[u,-1,-v],
+  (u,v)=>[u,-v,1],(u,v)=>[-u,-v,-1]
+ ];
+ const boxes=[
+  {d:norm([-.47,.87,.83]),w:.79,h:.30,power:[.42,.44,.42]},
+  {d:norm([.60,.55,-.75]),w:.32,h:.67,power:[.36,.41,.47]},
+  {d:norm([.88,.42,.29]),w:.24,h:.80,power:[.42,.37,.31]},
+  {d:norm([-.88,-.23,.12]),w:.18,h:.46,power:[.20,.24,.27]}
+ ];
+ for(const b of boxes){b.t=norm(cross([0,1,0],b.d));b.b=norm(cross(b.d,b.t));}
+ for(let face=0;face<6;face++){
+  const pix=new Uint8Array(side*side*4);
+  for(let j=0;j<side;j++)for(let i=0;i<side;i++){
+   const u=2*(i+.5)/side-1,v=2*(j+.5)/side-1;
+   const d=norm(orient[face](u,v));
+   const sky=smooth(-.75,.95,d[1]);
+   const nearHorizon=1-Math.abs(d[1]);
+   const col=[.052+.065*sky+.01*nearHorizon,.060+.073*sky+.015*nearHorizon,.073+.085*sky+.018*nearHorizon];
+   for(const b of boxes){
+    const facing=dot(d,b.d);if(facing<.20)continue;
+    let xx=dot(d,b.t)/facing,yy=dot(d,b.b)/facing;
+    const fade=soft?.32:.035;
+    const shape=(1-smooth(b.w-fade,b.w+fade,Math.abs(xx)))*(1-smooth(b.h-fade,b.h+fade,Math.abs(yy)));
+    for(let k=0;k<3;k++)col[k]+=shape*b.power[k]*(soft?.42:.68);
+   }
+   const n=(j*side+i)*4;
+   for(let k=0;k<3;k++)pix[n+k]=Math.round(clamp(col[k],0,1)*255);
+   pix[n+3]=255;
+  }
+  gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X+face,0,gl.RGBA,side,side,0,gl.RGBA,gl.UNSIGNED_BYTE,pix);
+ }
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ return tex;
+}
+const envSharp=makeStudioCube(false),envSoft=makeStudioCube(true);
+gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_CUBE_MAP,envSharp);
+gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_CUBE_MAP,envSoft);
+gl.uniform1i(gl.getUniformLocation(program,'uEnvSharp'),0);
+gl.uniform1i(gl.getUniformLocation(program,'uEnvSoft'),1);
+
+const raw=new Map();function bucket(mat,part='fixed',side='all'){const key=mat+'|'+part+'|'+side;let g=raw.get(key);if(!g){g={mat,part,side,arr:[]};raw.set(key,g);}return g;}
+function vertex(a,n,mat,part,side){bucket(mat,part,side).arr.push(...a,...n);}
+function tri(a,b,c,mat,part,side,na,nb,nc){const n=norm(cross(sub(b,a),sub(c,a)));vertex(a,na||n,mat,part,side);vertex(b,nb||n,mat,part,side);vertex(c,nc||n,mat,part,side);}
+function quad(a,b,c,d,mat,part,side,na,nb,nc,nd){tri(a,b,c,mat,part,side,na,nb,nc);tri(a,c,d,mat,part,side,na,nc,nd);}
+const circ=(x,y,z,r,t)=>[x,y+r*Math.cos(t),z+r*Math.sin(t)];
+function ringX(x1,x2,ro,ri,mat,part='fixed',cut=false,N=48,y=.86,z=0){
+ N=Math.max(16,Math.round(N*.72));
+ for(let i=0;i<N;i++){const a=i*TAU/N,b=(i+1)*TAU/N,sd=cut&&Math.sin((a+b)/2)>0?'near':'all';const A=circ(x1,y,z,ro,a),B=circ(x2,y,z,ro,a),C=circ(x2,y,z,ro,b),D=circ(x1,y,z,ro,b);
+ const na=[0,Math.cos(a),Math.sin(a)],nb=[0,Math.cos(b),Math.sin(b)];quad(A,B,C,D,mat,part,sd,na,na,nb,nb);
+ if(ri>0){const ia=circ(x1,y,z,ri,a),ib=circ(x2,y,z,ri,a),ic=circ(x2,y,z,ri,b),id=circ(x1,y,z,ri,b);
+ quad(ib,ia,id,ic,'inner',part,sd,scale(na,-1),scale(na,-1),scale(nb,-1),scale(nb,-1));
+ quad(A,D,id,ia,mat,part,sd);quad(B,ib,ic,C,mat,part,sd);
+ }else{let center1=[x1,y,z],center2=[x2,y,z];tri(center1,D,A,mat,part,sd);tri(center2,B,C,mat,part,sd);}}
+}
+function rod(a,b,r,mat='steel',part='fixed',N=16){N=Math.max(10,Math.round(N*.82));const axis=norm(sub(b,a)),ref=Math.abs(axis[1])<.90?[0,1,0]:[1,0,0],U=norm(cross(axis,ref)),W=norm(cross(axis,U));const pt=(c,t)=>add(c,scale(add(scale(U,Math.cos(t)),scale(W,Math.sin(t))),r));
+ for(let i=0;i<N;i++){const t=i*TAU/N,s=(i+1)*TAU/N,n1=norm(add(scale(U,Math.cos(t)),scale(W,Math.sin(t)))),n2=norm(add(scale(U,Math.cos(s)),scale(W,Math.sin(s))));quad(pt(a,t),pt(b,t),pt(b,s),pt(a,s),mat,part,'all',n1,n1,n2,n2);tri(a,pt(a,s),pt(a,t),mat,part,'all');tri(b,pt(b,t),pt(b,s),mat,part,'all');}}
+function sphere(c,r,mat,part='fixed',rows=12,cols=24){rows=Math.max(5,Math.round(rows*.75));cols=Math.max(10,Math.round(cols*.78));for(let j=0;j<rows;j++)for(let k=0;k<cols;k++){const aa=Math.PI*j/rows,bb=Math.PI*(j+1)/rows,cc=TAU*k/cols,dd=TAU*(k+1)/cols;const p=(u,v)=>add(c,[r*Math.cos(u),r*Math.sin(u)*Math.cos(v),r*Math.sin(u)*Math.sin(v)]);const a=p(aa,cc),b=p(bb,cc),d=p(aa,dd),e=p(bb,dd);quad(a,b,e,d,mat,part,'all',norm(sub(a,c)),norm(sub(b,c)),norm(sub(e,c)),norm(sub(d,c)));}}
+function box(a,b,mat,part='fixed'){const [x,y,z]=a,[X,Y,Z]=b,p=[[x,y,z],[X,y,z],[X,Y,z],[x,Y,z],[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]];for(const inds of [[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[0,3,7,4],[1,5,6,2]])quad(...inds.map(i=>p[i]),mat,part,'all');}
+function lens(x,r,part='fixed',yc=.86,zc=0){const rings=6,N=40;for(let f of [-1,1])for(let j=0;j<rings;j++)for(let i=0;i<N;i++){const u=j/rings,v=(j+1)/rings,a=i*TAU/N,b=(i+1)*TAU/N;
+  const p=(s,t)=>{let r0=r*s;return [x+f*(.003+.027*(1-s*s)),yc+r0*Math.cos(t),zc+r0*Math.sin(t)]};let A=p(u,a),B=p(v,a),C=p(v,b),D=p(u,b);
+  const n=(s,t)=>norm([f, 1.8*s*Math.cos(t), 1.8*s*Math.sin(t)]);quad(A,B,C,D,'glass',part,'all',n(u,a),n(v,a),n(v,b),n(u,b));
+ }ringX(x-.018,x+.018,r+.010,r-.012,'steel',part,false,56,yc,zc);}
+function stripX(x1,x2,y1,y2,z1,z2,mat,part='fixed'){box([x1,y1,z1],[x2,y2,z2],mat,part)}
+// Dimensions: 1 world unit = 100 mm. Optical centres -2.15 and +1.90; gap=405 mm.
+const xObj=-2.15,xEye=1.90,cy=.88;
+const presetClassic={name:'经典组合',f1:360,d1:60,f2:45,d2:30};
+let presetMode='classic';
+const diyOptics={f1:50,d1:50,f2:10,d2:20};
+function optics(){return presetMode==='classic'?presetClassic:diyOptics;}
+function baseLensDistance(){const o=optics();return o.f1+o.f2;}
+const diyXObj=-1.55,diyBaseLength=60;
+function diyLengthWorld(){return (baseLensDistance()+delta)/100;}
+function objectivePosX(){return presetMode==='diy'?diyXObj:xObj;}
+function eyePosX(){return objectivePosX()+(baseLensDistance()+delta)/100;}
+function eyeBaseShift(){return 0;}
+function assemblyConfig(){return presetMode==='diy'?{origin:diyXObj,length:diyLengthWorld()}: {origin:xObj,length:baseLensDistance()/100};}
+function nominalMag(){const o=optics();return -(o.f1/o.f2);}
+function fmt1(v){return (Math.round(v*10)/10).toFixed(Math.abs(v)>=100||Math.abs(v)%1===0?0:1);}
+
+// MAIN OBJECTIVE TUBE: a genuinely continuous open-ended optical barrel
+ringX(-2.18,1.48,.354,.333,'body','barrel',true,72); // main uninterrupted shell
+ringX(-2.17,1.46,.337,.329,'inner','barrel',true,72);
+for(let x of [-2.00,-1.85,-.83,.23,.86,1.32,1.48])ringX(x-.019,x+.019,.361,.338,x<-.8?'oldGold':'bezel','barrel',true,56);
+// Small strengthening longitudinal guide strips, cross-section exposed on cutting half
+for(const ang of [Math.PI/2,3*Math.PI/2]){const yy=cy+.362*Math.cos(ang),zz=.362*Math.sin(ang);rod([-2.00,yy,zz],[1.43,yy,zz],.013,'oldGold','barrel',12);}
+// FRONT CELL: full assembly with dew shield, barrel adapter, rings and retaining hardware
+ringX(-2.80,-2.23,.422,.401,'graphite','front',true,64);ringX(-2.80,-2.74,.433,.385,'gold','front',true,64);
+ringX(-2.26,-2.18,.418,.348,'oldGold','front',true,64);ringX(-2.28,-2.23,.441,.414,'brass','front',true,64);
+ringX(-2.21,-2.06,.367,.316,'steel','front',true,64);ringX(-2.13,-2.095,.330,.302,'black','front',true,64);
+lens(xObj,.299,'front');ringX(-2.19,-2.175,.339,.310,'gold','front',true,64);
+// Small external screw heads distributed around machined front cell
+for(let k=0;k<12;k++){const a=k*TAU/12;sphere([-2.24,cy+.421*Math.cos(a),.421*Math.sin(a)],.015,'steel','front',6,10);}
+// FOCUSER: a large fixed metal seat, truly attached to back end of main barrel
+ringX(1.37,1.65,.406,.322,'oldGold','barrel',true,64);ringX(1.53,1.66,.394,.305,'brass','barrel',true,64);
+for(let j=0;j<7;j++)ringX(1.55+j*.017,1.557+j*.017,.402,.387,j%2?'oldGold':'gold','barrel',true,48);
+// Rear drawtube + eyepiece (moves together on optical axis)
+ringX(1.53,2.18,.246,.219,'steel','eye',true,56);ringX(1.70,2.30,.211,.193,'graphite','eye',true,56);
+ringX(2.13,2.27,.266,.201,'brass','eye',true,56);for(let j=0;j<24;j++)ringX(2.135+j*.005,2.140+j*.005,.273,.259,j%3===0?'gold':'oldGold','eye',true,36);
+ringX(2.28,2.36,.238,.165,'rubber','eye',true,64);ringX(2.35,2.38,.222,.142,'black','eye',true,56);
+lens(xEye,.148,'eye'); // optical element is inside the eyepiece shell
+// Compact integrated rack and pinion. The guide fits close to the tube instead of
+// being a wide detached steel shelf. The exposed travel is just 0.50 model units.
+const wheelCX=1.39,wheelCY=.535,wheelZ=.455,wheelRadius=.089;
+// fixed focuser casting hugs the barrel; shallow recessed guide and cover
+box([1.10,.512,.276],[1.68,.604,.397],'graphite','barrel');
+box([1.15,.509,.391],[1.62,.527,.419],'steel','focusRack');
+for(let j=0;j<19;j++){
+  const x=1.17+j*.022;
+  box([x,.505,.404],[x+.010,.515,.424],'oldGold','focusRack');
+}
+// The pinion is enclosed inside the dark casting; only the small knurled knob is exposed.
+rod([wheelCX,wheelCY,.374],[wheelCX,wheelCY,.442],.048,'steel','barrel',24);
+rod([wheelCX,wheelCY,.433],[wheelCX,wheelCY,.481],wheelRadius,'brass','focusWheel',42);
+for(let j=0;j<28;j++){
+ const t=j*TAU/28;
+ rod([wheelCX+wheelRadius*Math.cos(t),wheelCY+wheelRadius*Math.sin(t),.444],
+     [wheelCX+wheelRadius*Math.cos(t),wheelCY+wheelRadius*Math.sin(t),.476],.0035,'oldGold','focusWheel',6);
+}
+// Matching small control on the far side.
+rod([wheelCX,wheelCY,-.364],[wheelCX,wheelCY,-.439],.042,'steel','barrel',18);
+rod([wheelCX,wheelCY,-.439],[wheelCX,wheelCY,-.475],.078,'brass','focusWheel',32);
+for(let j=0;j<24;j++){
+ const t=j*TAU/24;
+ rod([wheelCX+.077*Math.cos(t),wheelCY+.077*Math.sin(t),-.442],
+     [wheelCX+.077*Math.cos(t),wheelCY+.077*Math.sin(t),-.474],.003,'oldGold','focusWheel',6);
+}
+// Finder: auxiliary low-power aiming scope, not part of the main telescope light path.
+ringX(-1.29,.09,.104,.086,'graphite','finder',false,40,cy+.50,0);
+for(let x of [-1.26,.045]){ringX(x-.042,x+.042,.130,.101,'brass','finder',false,48,cy+.50);}
+lens(-1.18,.080,'finder',cy+.50,0);lens(-.005,.063,'finder',cy+.50,0);
+for(let x of [-.98,-.19]){
+ rod([x,cy+.355,0],[x,cy+.455,0],.045,'steel','finder',16);box([x-.12,cy+.32,-.14],[x+.12,cy+.39,.14],'mount','finder');
+ ringX(x-.06,x+.06,.116,.10,'oldGold','finder',false,36,cy+.50);
+ for(let z of [-.11,.11])sphere([x+.055,cy+.50,z],.025,'steel','finder',6,12);
+}
+// Two ring clamps wrapping tube and carrying it on a rotating azimuth/elevation cradle
+for(let x of [-.92,.62]){
+ ringX(x-.062,x+.062,.400,.359,'mount','fixed',false,64);
+ ringX(x-.062,x-.049,.412,.385,'brass','fixed',false,56);ringX(x+.049,x+.062,.412,.385,'brass','fixed',false,56);
+ box([x-.082,.345,-.15],[x+.082,.61,.15],'mount');
+ for(let z of [-.38,.38])sphere([x,.85,z],.024,'brass');
+}
+// Mechanical mounting rail and central hinge (barrel remains visibly attached)
+box([-1.02,.26,-.145],[.70,.35,.145],'mount');
+box([-.44,.04,-.23],[.16,.25,.23],'bezel');
+rod([-.15,.06,-.35],[-.15,.06,.35],.115,'steel','stand',32);
+for(let z of [-.32,.32])rod([-.15,.06,z-.035],[-.15,.06,z+.035],.155,'brass','stand',36);
+// Alt-az head, pedestal and three realistic two-stage legs with feet
+rod([-.15,.05,0],[-.15,-.34,0],.174,'mount','stand',36);
+rod([-.15,-.30,0],[-.15,-.49,0],.224,'steel','stand',36);
+rod([-.15,-.49,0],[-.15,-.70,0],.258,'mount','stand',36);
+ringX(-.26,-.04,.01,.005,'oldGold','stand',false,10,-.45,0); // small calibration insert
+for(let k=0;k<3;k++){const t=k*TAU/3+.15,base=[-.15+1.37*Math.cos(t),-1.58,1.37*Math.sin(t)];
+ rod([-.15,-.54,0],base,.075,'mount','stand',20);
+ const hinge=[-.15+.57*Math.cos(t),-.98,.57*Math.sin(t)];
+ rod([-.15,-.69,0],hinge,.043,'oldGold','stand',12);
+ rod(hinge,[base[0],-1.49,base[2]],.035,'steel','stand',12);
+ rod([base[0],-1.46,base[2]],[base[0],-1.54,base[2]],.102,'rubber','stand',18);
+ sphere([base[0],-1.56,base[2]],.102,'rubber','stand',8,12);
+}
+// Stable premium pedestal / floor disk, physically underneath feet
+rod([-.12,-1.77,0],[-.12,-1.66,0],2.00,'floor','floor',92);
+rod([-.12,-1.661,0],[-.12,-1.650,0],1.94,'bezel','floor',96);
+// Separate compact DIY scope. The barrel stretches continuously with the optical separation.
+// All geometry keeps the same aged material palette and original GPU rendering pipeline.
+const diyR=0.256,diyXR=diyXObj+diyBaseLength/100;
+// Tubing exterior: matte blue-grey painted aluminum/printed sleeve, darkened bore.
+ringX(diyXObj+.028,diyXR-.035,.292,.272,'body','diyBody',true,60,cy);
+ringX(diyXObj+.02,diyXR-.043,.272,.263,'inner','diyBody',true,60,cy);
+for(const t of [.06,.23,.48,.84]){
+ const a=diyXObj+t*diyBaseLength/100;
+ ringX(a-.008,a+.008,.301,.272,'bezel','diyBody',true,44,cy);
+}
+// Front 50 mm objective holder and clear lens.
+ringX(diyXObj-.065,diyXObj+.07,.310,.270,'graphite','diyFront',true,60,cy);
+ringX(diyXObj-.07,diyXObj-.056,.317,.270,'brass','diyFront',true,60,cy);
+ringX(diyXObj-.043,diyXObj-.028,.276,.250,'oldGold','diyFront',true,52,cy);
+lens(diyXObj,.25,'diyFront',cy);
+// Sliding 20 mm eyepiece assembly, always attached to the stretchable main shell.
+// Optical reducer connects the wide sealed main tube to the narrow ocular drawtube.
+// The rear cone is attached to the tube and morphs to the eyepiece aperture as parameters change.
+function taperX(xa,xb,r0,r1,i0,i1,mat,part){const N=56;
+ for(let k=0;k<N;k++){const a=k*TAU/N,b=(k+1)*TAU/N,sd=Math.sin((a+b)/2)>0?'near':'all';
+ const O0=circ(xa,cy,0,r0,a),O1=circ(xb,cy,0,r1,a),O2=circ(xb,cy,0,r1,b),O3=circ(xa,cy,0,r0,b);
+ quad(O0,O1,O2,O3,mat,part,sd);
+ const I0=circ(xa,cy,0,i0,a),I1=circ(xb,cy,0,i1,a),I2=circ(xb,cy,0,i1,b),I3=circ(xa,cy,0,i0,b);
+ quad(I1,I0,I3,I2,'inner',part,sd);
+ quad(O0,I0,I3,O3,mat,part,sd);quad(O1,O2,I2,I1,mat,part,sd);
+ }}
+taperX(diyXR-.073,diyXR+.075,.294,.153,.270,.131,'graphite','diyReducer');
+ringX(diyXR-.082,diyXR-.067,.307,.266,'brass','diyReducer',true,44,cy);
+ringX(diyXR+.055,diyXR+.085,.165,.140,'oldGold','diyEye',true,44,cy);
+ringX(diyXR-.049,diyXR+.08,.153,.131,'steel','diyEye',true,44,cy);
+ringX(diyXR+.03,diyXR+.105,.125,.109,'graphite','diyEye',true,44,cy);
+ringX(diyXR+.092,diyXR+.135,.152,.108,'brass','diyEye',true,44,cy);
+ringX(diyXR+.131,diyXR+.153,.140,.096,'rubber','diyEye',true,44,cy);
+lens(diyXR,.10,'diyEye',cy);
+// Stable small table support. It moves to the midpoint of the optical tube when focal lengths change.
+ringX(diyXObj+.24,diyXObj+.28,.28,.257,'mount','diyHolder',false,48,cy);
+box([diyXObj+.215,.51,-.11],[diyXObj+.315,.62,.11],'steel','diyHolder');
+rod([diyXObj+.265,.51,0],[diyXObj+.265,.05,0],.06,'steel','diyHolder',24);
+rod([diyXObj+.265,.05,0],[diyXObj+.265,-.11,0],.13,'mount','diyHolder',32);
+rod([diyXObj+.265,-.15,0],[diyXObj+.265,-.19,0],.48,'floor','diyHolder',42);
+// DIY materials reused from the existing instrument. No downloaded assets.
+
+// The image-side focal plane is a genuine translucent 3D plane (not a screen-space dashed line).
+// Its world x coordinate is updated to x_objective+f_objective/100 on every preset change.
+const pc=cy,ph=.335,pw=.29;
+quad([0,pc-ph,-pw],[0,pc+ph,-pw],[0,pc+ph,pw],[0,pc-ph,pw],'focalGlass','focalPlane','all');
+for(const [aa,bb] of [ [[0,pc-ph,-pw],[0,pc+ph,-pw]],[[0,pc+ph,-pw],[0,pc+ph,pw]],[[0,pc+ph,pw],[0,pc-ph,pw]],[[0,pc-ph,pw],[0,pc-ph,-pw]],[[0,pc, -pw],[0,pc,pw]] ])rod(aa,bb,.007,'focalEdge','focalPlane',10);
+// Real ray-bundle image points lie ON the same physical 3-D focal plane.
+for(const [part,material] of [['focalPointUpper','focalPointUpper'],['focalPointCentre','focalPointCentre'],['focalPointLower','focalPointLower']])sphere([0,cy,.012],.009,material,part,10,12);
+
+// Visible INVERTED TREE REAL IMAGE on the physical objective back focal plane.
+// The image is not a floating HUD icon. Its world X exactly equals focal-plane X.
+// Its Y/Z dimensions follow f1*tan(viewAngle), matching the intersecting ray bundles.
+Object.assign(materials,{
+ treeWood:{c:[.46,.25,.12],m:0,r:.91},
+ treeWoodLite:{c:[.65,.38,.19],m:0,r:.90},
+ treeLeafA:{c:[.10,.55,.29],m:0,r:.95},
+ treeLeafB:{c:[.18,.72,.42],m:0,r:.94},
+ treeLeafC:{c:[.07,.42,.30],m:0,r:.95},
+ treeLeafLight:{c:[.39,.80,.46],m:0,r:.91}
+});
+const treeP=(z,y,x=.009)=>[x,cy+(y+7),z-16];
+function treePoly(points,mat,x=.009){
+ const p0=treeP(points[0][0],points[0][1],x);
+ for(let i=1;i<points.length-1;i++) {
+  const p1=treeP(points[i][0],points[i][1],x),p2=treeP(points[i+1][0],points[i+1][1],x);
+  tri(p0,p1,p2,mat,'focalTree','all',[1,0,0],[1,0,0],[1,0,0]);
+ }
+}
+function treeOval(z,y,rx,ry,mat,x=.011){
+ const N=20;
+ const center=treeP(z,y,x);
+ for(let i=0;i<N;i++){
+  const a=TAU*i/N,b=TAU*(i+1)/N;
+  const A=treeP(z+Math.cos(a)*rx,y+Math.sin(a)*ry,x),B=treeP(z+Math.cos(b)*rx,y+Math.sin(b)*ry,x);
+  tri(center,A,B,mat,'focalTree','all',[1,0,0],[1,0,0],[1,0,0]);
+ }
+}
+// In the source glyph the crown is ABOVE (y negative); after optical inversion
+// the crown is BELOW, since canvas pixel y and 3-D world y point oppositely.
+treePoly([[14,28],[13,4],[12,-12],[17,-23],[23,-15],[21,4],[22,28]],'treeWood');
+treePoly([[17,9],[3,-14],[7,-17],[20,1]],'treeWoodLite',.011);
+treePoly([[18,2],[31,-19],[34,-16],[21,13]],'treeWoodLite',.011);
+const crown=[[-2,-9,10,10],[9,-22,12,13],[22,-24,13,15],[34,-12,11,12],
+             [18,-12,17,17],[8,-1,12,13],[30,1,11,11],[14,-33,8,9],[27,-32,8,9]];
+crown.forEach(([z,y,rx,ry],i)=>treeOval(z,y,rx,ry,['treeLeafC','treeLeafA','treeLeafB'][i%3],.012+i*.00004));
+for(let i=0;i<15;i++){
+ const z=16+Math.sin(i*3.1)*10+Math.cos(i*.82)*9;
+ const y=-18+Math.cos(i*2.2)*14;
+ treeOval(z,y,2.7,1.75,i%3?'treeLeafLight':'treeLeafB',.014+i*.000015);
+}
+
+// Finish GPU upload: batching static geometry by (material, moving group, cut status)
+const batches=[];for(const g of raw.values()){const arr=new Float32Array(g.arr),buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);batches.push({...g,buffer,count:arr.length/6,transparent:!!materials[g.mat].a});delete g.arr;}
+const triCount=batches.reduce((a,b)=>a+b.count/3,0);
+// Matrix math is column-major, used by both GPU and ray-label projection
+function perspective(fov,aspect,near,far){const f=1/Math.tan(fov/2),s=1/(near-far);return new Float32Array([f/aspect,0,0,0,0,f,0,0,0,0,(far+near)*s,-1,0,0,2*far*near*s,0]);}
+function lookAt(eye,target,up){const z=norm(sub(eye,target)),x=norm(cross(up,z)),y=cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]);}
+function mm(a,b){let r=new Float32Array(16);for(let c=0;c<4;c++)for(let i=0;i<4;i++)r[c*4+i]=a[0*4+i]*b[c*4+0]+a[1*4+i]*b[c*4+1]+a[2*4+i]*b[c*4+2]+a[3*4+i]*b[c*4+3];return r;}
+let mode='full',delta=0,angle=1,raysOn=true,labelsOn=true,focalOn=true,planeOn=true,yaw=.81,pitch=.23,distance=7.55,target=[0,.03,0],cw=0,ch=0,scaleDpr=1,queued=false,drawCount=0;
+function camera(){const eye=add(target,[Math.sin(yaw)*Math.cos(pitch)*distance,Math.sin(pitch)*distance,Math.cos(yaw)*Math.cos(pitch)*distance]);let vp=mm(perspective(46*DEG,Math.max(.2,cw/ch),.05,70),lookAt(eye,target,[0,1,0]));return{eye,vp,right:norm(cross(norm(sub(target,eye)),[0,1,0]))};}
+function transform(p,part){let a=p.slice();if(mode==='explode'){if(part==='front')a[0]-=.72;if(part==='eye')a[0]+=.75;if(part==='finder')a[1]+=.52;}if(part==='eye')a[0]+=delta/100;return a;}
+function screen(p,cam){const m=cam.vp,x=p[0],y=p[1],z=p[2],px=m[0]*x+m[4]*y+m[8]*z+m[12],py=m[1]*x+m[5]*y+m[9]*z+m[13],w=m[3]*x+m[7]*y+m[11]*z+m[15];return{x:(px/w*.5+.5)*cw,y:(.5-py/w*.5)*ch,visible:w>.04};}
+function drawPanel(x,y,w,h,title,sub){overlay.save();overlay.fillStyle='rgba(8,17,28,.78)';overlay.strokeStyle='rgba(146,190,214,.18)';overlay.lineWidth=1;overlay.beginPath();overlay.roundRect(x,y,w,h,14);overlay.fill();overlay.stroke();overlay.fillStyle='#e8f2f7';overlay.font='700 14px system-ui';overlay.fillText(title,x+12,y+19);if(sub){overlay.fillStyle='rgba(182,205,219,.78)';overlay.font='11px system-ui';overlay.fillText(sub,x+12,y+36);}overlay.restore();}
+function drawObjectGlyph(x,y,s,invert,showHeightMarker=false){
+ overlay.save();overlay.translate(x,y);if(invert)overlay.rotate(Math.PI);
+ // Keep the tree centred in both the eyepiece and the focal-plane inset.
+ overlay.translate(-12*s,0);
+ overlay.lineCap='round';overlay.lineJoin='round';
+ if(showHeightMarker){
+  // The orange symbol is a HEIGHT DIMENSION for this tree, not another
+  // object in front of or behind it. The crown and foot share the same
+  // drawn object plane. Top of foliage = -42s; bottom of trunk = +28s.
+  const hx=-23*s,yt=-42*s,yb=28*s;
+  overlay.save();overlay.strokeStyle='rgba(241,193,138,.70)';
+  overlay.lineWidth=Math.max(1,0.9*s);overlay.setLineDash([3*s,3*s]);
+  overlay.beginPath();overlay.moveTo(hx,yt);overlay.lineTo(14*s,yt);
+  overlay.moveTo(hx,yb);overlay.lineTo(18*s,yb);overlay.stroke();
+  overlay.setLineDash([]);
+  overlay.strokeStyle='#f1c18a';overlay.lineWidth=Math.max(1.6,1.6*s);
+  overlay.beginPath();overlay.moveTo(hx,yb);overlay.lineTo(hx,yt+7*s);overlay.stroke();
+  overlay.fillStyle='#f2b971';overlay.beginPath();
+  overlay.moveTo(hx,yt);overlay.lineTo(hx-6*s,yt+10*s);
+  overlay.lineTo(hx+6*s,yt+10*s);overlay.closePath();overlay.fill();
+  overlay.fillStyle='#ffd4a1';overlay.font=`600 ${Math.max(10,11*s)}px system-ui`;
+  overlay.textAlign='center';overlay.fillText('h',hx-12*s,-2*s);
+  overlay.restore();
+ }
+ // Tree: irregular foliage clumps, branches and brown bark rather than a flat triangle.
+ overlay.fillStyle='#755840';overlay.beginPath();overlay.moveTo(14*s,28*s);overlay.lineTo(15*s,-5*s);overlay.lineTo(12*s,-19*s);overlay.lineTo(20*s,-22*s);overlay.lineTo(22*s,-4*s);overlay.lineTo(22*s,28*s);overlay.closePath();overlay.fill();
+ overlay.strokeStyle='#967150';overlay.lineWidth=Math.max(1.25,2*s);
+ overlay.beginPath();overlay.moveTo(18*s,12*s);overlay.lineTo(8*s,-13*s);overlay.moveTo(18*s,1*s);overlay.lineTo(30*s,-17*s);overlay.stroke();
+ const leaves=[[-2,-9,10,10],[9,-22,12,13],[22,-24,13,15],[34,-12,11,12],[18,-12,17,17],[8,-1,12,13],[30,1,11,11],[14,-33,8,9],[27,-32,8,9]];
+ for(let i=0;i<leaves.length;i++){
+  const [cx,cy2,rx,ry]=leaves[i];overlay.fillStyle=i%3===0?'#468e79':i%3===1?'#57b18b':'#6cca9a';
+  overlay.beginPath();overlay.ellipse(cx*s,cy2*s,rx*s,ry*s,Math.sin(i*1.4)*.32,0,TAU);overlay.fill();
+ }
+ // Quiet mottled highlights give a real tree silhouette at large view scale.
+ for(let i=0;i<18;i++){
+  const ax=(3+Math.sin(i*3.1)*12+Math.sin(i*.93)*10)*s,ay=(-17+Math.cos(i*2.2)*14)*s;
+  overlay.fillStyle=i%2?'rgba(166,232,175,.24)':'rgba(5,48,38,.20)';
+  overlay.beginPath();overlay.ellipse(ax,ay,Math.max(1,2.1*s),Math.max(1,1.05*s),i*.3,0,TAU);overlay.fill();
+ }
+ overlay.restore();
+}
+function dimLine(a,b,label,color){if(!a.visible||!b.visible)return;overlay.save();overlay.strokeStyle=color||'rgba(225,234,239,.78)';overlay.fillStyle=color||'rgba(225,234,239,.92)';overlay.lineWidth=1.2;overlay.beginPath();overlay.moveTo(a.x,a.y);overlay.lineTo(b.x,b.y);overlay.stroke();const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,nx=-uy,ny=ux;for(const p of [a,b]){overlay.beginPath();overlay.moveTo(p.x+nx*5,p.y+ny*5);overlay.lineTo(p.x-nx*5,p.y-ny*5);overlay.stroke();}overlay.font='13px system-ui';overlay.fillText(label,(a.x+b.x)/2+nx*14,(a.y+b.y)/2+ny*14);overlay.restore();}
+function drawTeachingOverlay(cam){const o=optics(),mag=nominalMag();drawPanel(20,256,140,155,'远处目标','');drawObjectGlyph(90,352,1,false,true);const bigView=currentView==='image',r=bigView?Math.min(172,cw*.19,ch*.29):67,vx=bigView?Math.min(cw-205,Math.max(230,cw*.78)):cw-106,vy=bigView?Math.max(220,ch*.54):322;overlay.save();overlay.fillStyle='rgba(8,17,28,.78)';overlay.strokeStyle='rgba(146,190,214,.20)';overlay.lineWidth=1;overlay.beginPath();overlay.roundRect(bigView?vx-r-20:cw-190,bigView?vy-r-64:256,bigView?2*r+40:170,bigView?2*r+95:168,18);overlay.fill();overlay.stroke();overlay.fillStyle='#e8f2f7';overlay.font='600 12px system-ui';overlay.fillText(bigView?'目镜观察':'目镜视场',bigView?vx-r: cw-176,bigView?vy-r-44:275);overlay.fillStyle='rgba(182,205,219,.78)';overlay.font='11px system-ui';overlay.beginPath();overlay.arc(vx,vy,r,0,TAU);overlay.fillStyle='rgba(2,7,12,.98)';overlay.fill();overlay.strokeStyle='rgba(88,126,152,.95)';overlay.stroke();overlay.clip();overlay.filter=delta===0?'none':'blur('+Math.min(5,Math.abs(delta)*.22)+'px)';drawObjectGlyph(vx,vy,bigView?clamp(Math.abs(mag)/3 *Math.sqrt(2/Math.max(.28,distance)),1.45,7):Math.max(1.0,Math.min(2.2,Math.abs(mag)/4)),true);overlay.filter='none';overlay.restore();overlay.save();overlay.fillStyle='rgba(167,190,206,.86)';overlay.font='11px system-ui';overlay.restore();if((mode==='half'||mode==='optics')&&!bigView){const f1=o.f1/100,imgX=objectivePosX()+f1,img=screen([imgX,cy,.03],cam),pTop=screen([imgX,cy-o.f1*Math.tan(angle*DEG)/100,.03],cam),pBot=screen([imgX,cy+o.f1*Math.tan(angle*DEG)/100,.03],cam);if(img.visible){
+ overlay.save();
+ // All image marks belong to the SAME x coordinate as the physical 3-D focal plane.
+ // The two ray bundles each meet their actual image point at x = objective + f1.
+ // Scale uses projection (pixels/world-unit), not a fixed pixel-size overlay.
+ if(planeOn){overlay.strokeStyle='rgba(130,233,251,.72)';overlay.lineWidth=1.4;overlay.beginPath();overlay.arc(img.x,img.y,3.5,0,TAU);overlay.stroke();}
+ // The object icon is intentionally NOT painted at a screen-space offset beside
+ // the physical focal plane: doing that falsely suggests the image is formed behind it.
+ // Actual small image-point markers are rendered as GPU 3-D objects ON the plane.
+ // A distinct magnification card shows the inverted picture facing the pupil.
+ if(currentView==='side'){
+   const cardX=clamp(img.x-61,196,Math.max(200,cw-145));
+   const cardY=clamp(img.y-171,224,ch-135);
+   overlay.restore();
+   drawPanel(cardX,cardY,122,110,'实像放大','');
+   drawObjectGlyph(cardX+63,cardY+78,0.87,true);
+   overlay.save();
+   overlay.strokeStyle='rgba(122,222,238,.68)';overlay.setLineDash([3,4]);
+   overlay.beginPath();overlay.moveTo(cardX+62,cardY+110);overlay.lineTo(img.x,img.y);overlay.stroke();overlay.setLineDash([]);
+ }
+ overlay.fillStyle='rgba(145,238,245,.96)';overlay.font='600 12px system-ui';
+ overlay.fillText('倒立实像',img.x+14,img.y-48);
+ overlay.fillStyle='rgba(184,212,222,.94)';overlay.font='11px system-ui';
+ // The actual tree now occupies this 3-D plane.
+ overlay.restore();
+ 
+}const objA=screen([objectivePosX()-.10,cy+o.d1/200,.32],cam),objB=screen([objectivePosX()-.10,cy-o.d1/200,.32],cam);dimLine(objA,objB,'D₁ '+fmt1(o.d1)+' mm','rgba(103,220,240,.78)');const ex=eyePosX(),eyeA=screen([ex+.08,cy+o.d2/200,.22],cam),eyeB=screen([ex+.08,cy-o.d2/200,.22],cam);dimLine(eyeA,eyeB,'D₂ '+fmt1(o.d2)+' mm','rgba(238,196,136,.82)');const lenA=screen([objectivePosX(),.20,.14],cam),lenB=screen([ex,.20,.14],cam);dimLine(lenA,lenB,'L '+fmt1(baseLensDistance()+delta)+' mm','rgba(220,226,233,.82)');}}
+function drawFocalDistances(cam){
+ if(!focalOn || !(mode==='optics'||mode==='half') || currentView==='image')return;
+ const o=optics(),ox=objectivePosX(),ex=eyePosX(),f1=o.f1/100,f2=o.f2/100;
+ // F1: objective to its rear focal plane; F2: ocular front focal point to ocular.
+ // Each line gets an independent offset from the optical axis so overlapping focal positions remain legible.
+ const at=(x,y)=>screen([x,y,.05],cam);
+ dimLine(at(ox,cy+.59),at(ox+f1,cy+.59),'f₁ = '+o.f1+' mm','#79dfef');
+ dimLine(at(ex-f2,cy-.59),at(ex,cy-.59),'f₂ = '+o.f2+' mm','#eac18c');
+ if(planeOn){const pt=at(ox+f1,cy+.30);if(pt.visible){overlay.save();overlay.fillStyle='#8fe3ee';overlay.font='12px system-ui';overlay.fillText('F₁',pt.x+10,pt.y-10);overlay.restore();}}
+ const pf=at(ex-f2,cy-.30);if(pf.visible){overlay.save();overlay.fillStyle='#e8bd88';overlay.font='12px system-ui';overlay.fillText('F₂',pf.x-20,pf.y+10);overlay.restore();}
+}
+function drawRays(cam){overlay.clearRect(0,0,cw,ch);if(!(mode==='optics'||mode==='half'))return;if(!raysOn){drawTeachingOverlay(cam);drawFocalDistances(cam);return;}
+ const palette=['#6bd7f9','#f5c486','#f58a72'];overlay.save();overlay.globalCompositeOperation='screen';
+ // z is a little to the exposed side so the rays don't hide behind the rim
+ const o=optics(),f1=o.f1/100,f2=o.f2/100,separation=(baseLensDistance()+delta)/100,ox=objectivePosX(),ex=eyePosX();
+ for(let k=0;k<3;k++){const incoming=Math.tan((1-k)*angle*DEG);for(let j=0;j<2;j++){
+ const maxHeight=Math.min(o.d1/200*.70,f1*.07);
+ const yh=(j-.5)*maxHeight*1.45,u2=incoming-yh/f1,ye=yh+u2*separation,u3=u2-ye/f2;
+ const startX=ox-Math.max(.12,Math.min(.75,f1*.4));
+ const P=[[startX,cy+yh-incoming*(ox-startX),.019],[ox,cy+yh,.019],[ex,cy+ye,.019],[ex+Math.min(.9,Math.max(.20,f2*2)),cy+ye+u3*Math.min(.9,Math.max(.20,f2*2)),.019]];
+ const q=P.map(v=>screen(v,cam)),color=palette[k];if(q.some(v=>!v.visible))continue;
+ overlay.beginPath();overlay.moveTo(q[0].x,q[0].y);for(let l=1;l<4;l++)overlay.lineTo(q[l].x,q[l].y);overlay.strokeStyle=color;overlay.lineWidth=1.65;overlay.shadowColor=color;overlay.shadowBlur=8;overlay.globalAlpha=.86;overlay.stroke();overlay.globalAlpha=1;overlay.shadowBlur=0;
+ for(let s=0;s<3;s++){const a=q[s],b=q[s+1],cx=a.x+(b.x-a.x)*.68,yy=a.y+(b.y-a.y)*.68,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
+ overlay.beginPath();overlay.moveTo(cx+ux*7,yy+uy*7);overlay.lineTo(cx-ux*3-uy*4,yy-uy*3+ux*4);overlay.lineTo(cx-ux*3+uy*4,yy-uy*3-ux*4);overlay.closePath();overlay.fillStyle=color;overlay.fill();}
+ }}
+ overlay.restore();drawTeachingOverlay(cam);drawFocalDistances(cam);}
+function drawLabels(cam){const visible=labelsOn&&(mode==='half'||mode==='optics')&&currentView!=='image'&&cw>600;
+ for(const [id,p] of [['labelObj',[objectivePosX(),1.28,.33]],['labelEye',[eyePosX(),1.18,.23]]]){
+ const e=get(id);if(!visible){e.style.display='none';continue;}
+ const q=screen(p,cam),on=q.visible&&q.x>55&&q.x<cw-50&&q.y>35&&q.y<ch-20;
+ e.style.display=on?'block':'none';e.style.left=q.x+'px';e.style.top=(q.y-10)+'px';}}
+function resize(){let r=stage.getBoundingClientRect(),w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));if(cw===w&&ch===h)return;cw=w;ch=h;scaleDpr=Math.min(window.devicePixelRatio||1,1.35);const bw=Math.round(w*scaleDpr),bh=Math.round(h*scaleDpr);canvas.width=bw;canvas.height=bh;raysCanvas.width=bw;raysCanvas.height=bh;canvas.style.width=raysCanvas.style.width=w+'px';canvas.style.height=raysCanvas.style.height=h+'px';overlay.setTransform(scaleDpr,0,0,scaleDpr,0,0);gl.viewport(0,0,bw,bh);}
+function render(){queued=false;resize();const cam=camera();gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.useProgram(program);gl.uniformMatrix4fv(loc.uVP,false,cam.vp);gl.uniform3fv(loc.uCamera,new Float32Array(cam.eye));
+ const draw=b=>{
+ const diy=b.part.startsWith('diy');if(diy!==(presetMode==='diy'))return;
+ if(b.part.startsWith('focalPoint'))return; // replaced by complete tree image
+  if((b.part==='focalPlane'||b.part==='focalTree')&&(!(mode==='half'||mode==='optics')||!planeOn))return;
+ if((mode==='half'||mode==='optics')&&b.side==='near')return;
+ const m=materials[b.mat];
+ let of=[0,0,0],xStretch=1,aperture=1,xOrigin=0;
+ if(diy){
+  xOrigin=diyXObj;
+  const o=optics();
+  if(b.part==='diyBody') {xStretch=diyLengthWorld()/(diyBaseLength/100);aperture=o.d1/50;}
+  else if(b.part==='diyFront'){aperture=o.d1/50;if(mode==='explode')of[0]=-.20;}
+  else if(b.part==='diyReducer'){aperture=o.d1/50;of[0]=diyLengthWorld()-diyBaseLength/100;if(mode==='explode')of[0]+=.06;}
+  else if(b.part==='diyEye'){aperture=o.d2/20;of[0]=diyLengthWorld()-diyBaseLength/100;if(mode==='explode')of[0]+=.20;}
+  else if(b.part==='diyHolder'){of[0]=(diyLengthWorld()-diyBaseLength/100)/2;aperture=1;}
+ }else if(b.part==='focalPlane'){of=[objectivePosX()+optics().f1/100,0,0];}
+  else if(b.part==='focalTree'){
+    of=[objectivePosX()+optics().f1/100,0,0];
+    // The raw glyph has a half-height of 35 px. 3-D image half-height f1*tan(theta).
+    aperture=(optics().f1/100)*Math.tan(angle*DEG)/35;
+  }
+ else if(b.part.startsWith('focalPoint')){const k=b.part==='focalPointUpper'?1:b.part==='focalPointLower'?-1:0;of=[objectivePosX()+optics().f1/100,(optics().f1/100)*Math.tan(k*angle*DEG),0];}
+ else if(b.part==='focusWheel'){of=[0,0,0];}
+ else if(b.part==='focusRack'){of=[delta/100,0,0];}
+ else {
+  of=mode==='explode'?(b.part==='front'?[-.72,0,0]:b.part==='eye'?[.75+delta/100,0,0]:b.part==='finder'?[0,.52,0]:[0,0,0]):b.part==='eye'?[delta/100,0,0]:[0,0,0];
+ }
+ gl.uniform1f(loc.uXStretch,xStretch);gl.uniform1f(loc.uAperture,aperture);gl.uniform1f(loc.uXOrigin,xOrigin);gl.uniform1f(loc.uYCentre,cy);
+ gl.uniform1f(loc.uWheelFlag,b.part==='focusWheel'?1:0);
+ gl.uniform1f(loc.uWheelAngle,-delta/8.9);
+ gl.uniform1f(loc.uReducerFlag,b.part==='diyReducer'?1:0);
+ gl.uniform1f(loc.uEyeAperture,diy?optics().d2/20:1);
+ gl.uniform3fv(loc.uOffset,new Float32Array(of));gl.uniform3fv(loc.uColor,new Float32Array(m.c));gl.uniform1f(loc.uMetal,m.m);gl.uniform1f(loc.uRough,m.r);gl.uniform1f(loc.uAlpha,m.a||1);gl.uniform1f(loc.uGlass,m.glass||0);gl.uniform1f(loc.uCoat,m.coat||0);gl.uniform1f(loc.uDetail,m.detail||0);gl.uniform1f(loc.uWear,m.wear||0);gl.uniform1f(loc.uPatina,m.patina||0);gl.uniform1f(loc.uBrushed,m.brush||0);
+ gl.bindBuffer(gl.ARRAY_BUFFER,b.buffer);gl.enableVertexAttribArray(attrs.p);gl.enableVertexAttribArray(attrs.n);gl.vertexAttribPointer(attrs.p,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(attrs.n,3,gl.FLOAT,false,24,12);gl.drawArrays(gl.TRIANGLES,0,b.count);};
+ gl.disable(gl.BLEND);gl.depthMask(true);for(const b of batches)if(!b.transparent)draw(b);
+ gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);for(const b of batches)if(b.transparent)draw(b);gl.depthMask(true);gl.disable(gl.BLEND);
+ drawRays(cam);drawLabels(cam);drawCount++;}
+function schedule(){if(!queued){queued=true;requestAnimationFrame(render);}}
+function updateOpticsUI(){
+ const o=optics(),mag=nominalMag(),L=baseLensDistance()+delta;
+ if(get('f1Val')) get('f1Val').textContent=o.f1+' mm';
+ if(get('d1Val')) get('d1Val').textContent=o.d1+' mm';
+ if(get('f2Val')) get('f2Val').textContent=o.f2+' mm';
+ if(get('d2Val')) get('d2Val').textContent=o.d2+' mm';
+ get('metricF1').innerHTML=fmt1(o.f1)+'<span class="unit">mm</span>';
+ get('metricD1').innerHTML=fmt1(o.d1)+'<span class="unit">mm</span>';
+ get('metricF2').innerHTML=fmt1(o.f2)+'<span class="unit">mm</span>';
+ get('metricD2').innerHTML=fmt1(o.d2)+'<span class="unit">mm</span>';
+ get('metricMag').innerHTML=(mag<0?'−':'')+fmt1(Math.abs(mag))+'<span class="unit">×</span>';
+ get('separation').innerHTML=fmt1(L)+'<span class="unit">mm</span>';
+ 
+ get('comboIntro').textContent=presetMode==='classic' ? ('经典组合：f₁ '+o.f1+' mm，D₁ '+o.d1+' mm，f₂ '+o.f2+' mm，D₂ '+o.d2+' mm。') : ('自制组合：参数可调，当前默认满足你的要求 f₁ '+o.f1+' mm，D₁ '+o.d1+' mm。');
+ 
+ const panel=get('diyPanel'); if(panel) panel.hidden=presetMode!=='diy';
+ document.querySelectorAll('#presetSeg button').forEach(b=>b.classList.toggle('active',b.dataset.preset===presetMode));
+}
+function setMode(m){mode=m;document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));schedule();}
+function setFocus(v){
+ delta=+v;
+ get('focusVal').innerHTML=`<b>${delta>0?'+':''}${delta}</b> mm`;
+ updateOpticsUI();
+ const h=get('focusStatus'),d=get('focusDesc');
+ if(delta===0){h.textContent='平行出射 · 正常调焦';h.className='datum-main datum-ok';d.textContent='物镜将远处平行光汇聚，目镜使光线重新平行出射。';}
+ else if(delta<0){h.textContent='出射光束发散';h.className='datum-main datum-warn';d.textContent='目镜靠近物镜：平行光经过目镜后发散。';}
+ else{h.textContent='出射光束会聚';h.className='datum-main datum-warn';d.textContent='目镜远离物镜：平行光经过目镜后会聚。';}
+ schedule();
+}
+let currentView='isometric';
+function frameOptics(){const o=optics(),len=(o.f1+o.f2+delta)/100;
+ if(presetMode==='classic'){
+   if(currentView==='side'){yaw=0;pitch=.07;distance=8.25;target=[0,.10,0];}
+   else if(currentView==='lens'){yaw=-1.25;pitch=.14;distance=3.10;target=[-2.15,.83,0];}
+   else if(currentView==='image'){yaw=0;pitch=.05;distance=2.0;target=[1.35,cy,0];}
+   else{yaw=.81;pitch=.23;distance=7.55;target=[0,.03,0];}
+ }else{
+   const center=diyXObj+len/2;
+   if(currentView==='side'){yaw=0;pitch=.07;distance=Math.max(1.72,Math.min(19,1.18+len*1.25));target=[center,.65,0];}
+   else if(currentView==='lens'){yaw=-1.25;pitch=.14;distance=1.65;target=[diyXObj,.84,0];}
+   else if(currentView==='image'){yaw=0;pitch=.05;distance=1.35;target=[eyePosX(),cy,0];}
+   else{yaw=.77;pitch=.20;distance=Math.max(2.18,Math.min(18,2.12+len*1.17));target=[center,.64,0];}
+ }
+}
+function setView(v){currentView=v;if(v==='image')setMode('optics');document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));frameOptics();schedule();}
+get('modeSeg').addEventListener('click',e=>{let b=e.target.closest('button[data-mode]');if(b)setMode(b.dataset.mode);});get('viewSeg').addEventListener('click',e=>{let b=e.target.closest('button[data-view]');if(b)setView(b.dataset.view);});
+get('presetSeg').addEventListener('click',e=>{const b=e.target.closest('button[data-preset]');if(!b)return;presetMode=b.dataset.preset;updateOpticsUI();frameOptics();schedule();});
+for(const id of ['f1Range','d1Range','f2Range','d2Range'])get(id).addEventListener('input',e=>{const v=+e.target.value;if(id==='f1Range')diyOptics.f1=v;else if(id==='d1Range')diyOptics.d1=v;else if(id==='f2Range')diyOptics.f2=v;else diyOptics.d2=v;presetMode='diy';updateOpticsUI();frameOptics();schedule();});
+for(const [id,onChange] of [['focalSwitch',()=>focalOn=!focalOn],['planeSwitch',()=>planeOn=!planeOn]])get(id).addEventListener('click',e=>{onChange();const on=id==='focalSwitch'?focalOn:planeOn;e.currentTarget.classList.toggle('on',on);e.currentTarget.setAttribute('aria-pressed',String(on));schedule();});
+get('focus').addEventListener('input',e=>setFocus(e.target.value));get('angle').addEventListener('input',e=>{angle=+e.target.value;get('angleVal').textContent=angle.toFixed(1)+'°';schedule();});get('resetFocus').addEventListener('click',()=>{get('focus').value='0';setFocus(0);});
+for(const [id,key] of [['raysSwitch','rays'],['labelsSwitch','labels']])get(id).addEventListener('click',e=>{if(key==='rays')raysOn=!raysOn;else labelsOn=!labelsOn;const on=key==='rays'?raysOn:labelsOn;e.currentTarget.classList.toggle('on',on);e.currentTarget.setAttribute('aria-pressed',String(on));schedule();});
+let pointer=null;canvas.addEventListener('pointerdown',e=>{
+ const rect=canvas.getBoundingClientRect(),px=e.clientX-rect.left,py=e.clientY-rect.top;
+ const wheel=screen([wheelCX,wheelCY,wheelZ],camera());
+ const turnKnob=presetMode==='classic' && mode!=='explode' && e.button===0 && wheel.visible && Math.hypot(px-wheel.x,py-wheel.y)<Math.max(32,110/Math.max(1,distance));
+ pointer={id:e.pointerId,x:e.clientX,y:e.clientY,btn:e.button,knob:turnKnob};
+ canvas.setPointerCapture(e.pointerId);canvas.style.cursor='grabbing';
+});
+canvas.addEventListener('pointermove',e=>{if(!pointer||e.pointerId!==pointer.id)return;let dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer.x=e.clientX;pointer.y=e.clientY;
+ if(pointer.knob){const v=clamp(delta+dx*0.42,-20,20);get('focus').value=String(v);setFocus(v);return;}
+ if(pointer.btn===2||e.shiftKey){const f=norm(sub(target,camera().eye)),right=norm(cross(f,[0,1,0])),up=norm(cross(right,f));target=add(target,add(scale(right,-dx*distance*.0013),scale(up,dy*distance*.0013)));}else{yaw-=dx*.007;pitch=clamp(pitch+dy*.006,-1.25,1.25);}schedule();});
+for(const evt of ['pointerup','pointercancel'])canvas.addEventListener(evt,e=>{if(pointer&&e.pointerId===pointer.id)pointer=null;canvas.style.cursor='grab';});canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('wheel',e=>{e.preventDefault();distance=clamp(distance*Math.exp(e.deltaY*.0009),.82,32);schedule();},{passive:false});
+window.addEventListener('resize',schedule);if(window.ResizeObserver)new ResizeObserver(schedule).observe(stage);
+window.addEventListener('webglcontextlost',e=>{e.preventDefault();notice.textContent='显卡渲染上下文丢失，请刷新页面重新载入。';notice.style.display='block';});
+canvas.style.cursor='grab';get('focus').value=0;['f1Range','d1Range','f2Range','d2Range'].forEach(id=>get(id).value=id==='f1Range'?diyOptics.f1:id==='d1Range'?diyOptics.d1:id==='f2Range'?diyOptics.f2:diyOptics.d2);updateOpticsUI();setFocus(0);setMode('optics');
+window.__telescopeDebug={status:'ready',renderer:'offline-webgl-matte-patina',triangles:triCount,batches:batches.length,glVersion:gl.getParameter(gl.VERSION),get state(){return{mode,presetMode,opticParams:optics(),opticalSpacing:baseLensDistance()+delta,delta,angle,yaw,pitch,distance,drawCount,wheelAngle:-delta/8.9,focalOn,planeOn,currentView}},get knobPos(){return screen([wheelCX,wheelCY,wheelZ],camera())},get focalX(){return objectivePosX()+optics().f1/100;},get pointImageY(){return cy+optics().f1/100*Math.tan(angle*DEG);},get insetScale(){return currentView==='image'?clamp(Math.abs(nominalMag())/3*Math.sqrt(2/Math.max(.28,distance)),1.45,7):Math.max(1.0,Math.min(2.2,Math.abs(nominalMag())/4));},render};
+console.info('KEPLER MATTE PATINA telescope ready:',{triangleCount:triCount,batchCount:batches.length,glVersion:gl.getParameter(gl.VERSION)});
+})();
+</script>
+</body>
+</html>
