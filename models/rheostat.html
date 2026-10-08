@@ -306,7 +306,7 @@
   <div id="toast"></div>
 
   <script src="../shared/vendor/three-r144.min.js"></script>
-<script src="../shared/material-finish.js"></script>
+<script src="../shared/material-finish.js?v=2.0-20261008"></script>
   <script src="../shared/current-flow-style.js"></script>
   <script>
 /* =========================================================
@@ -478,17 +478,17 @@
   /* ================= 材质 ================= */
   const M = {
     // 铸造支架：深灰金属、较高粗糙度，避免“浅蓝塑料”感
-    bracket: new THREE.MeshStandardMaterial({ color: 0x59636d, roughness: 0.48, metalness: 0.72, envMapIntensity: 0.86 }),
-    bracketDark: new THREE.MeshStandardMaterial({ color: 0x424b54, roughness: 0.52, metalness: 0.76, envMapIntensity: 0.82 }),
+    bracket: new THREE.MeshStandardMaterial({ color: 0x59636d, roughness: 0.72, metalness: 0.72, envMapIntensity: 0.86 }),
+    bracketDark: new THREE.MeshStandardMaterial({ color: 0x424b54, roughness: 0.76, metalness: 0.76, envMapIntensity: 0.82 }),
     // 瓷管：暖白、低金属度，表面略有釉面反射
-    ceramic: new THREE.MeshPhysicalMaterial({ color: 0xf1eee6, roughness: 0.36, metalness: 0.0, clearcoat: 0.18, clearcoatRoughness: 0.34, envMapIntensity: 0.52 }),
+    ceramic: new THREE.MeshPhysicalMaterial({ color: 0xf1eee6, roughness: 0.69, metalness: 0.0, clearcoat: 0.18, clearcoatRoughness: 0.34, envMapIntensity: 0.52 }),
     ceramicMatte: new THREE.MeshStandardMaterial({ color: 0xe4e0d7, roughness: 0.60, metalness: 0.0, envMapIntensity: 0.38 }),
     // 钢件 / 镀层
-    metal: new THREE.MeshStandardMaterial({ color: 0xc7cdd2, roughness: 0.20, metalness: 1.0, envMapIntensity: 1.22 }),
-    metalSoft: new THREE.MeshStandardMaterial({ color: 0xaeb6bd, roughness: 0.30, metalness: 0.92, envMapIntensity: 1.06 }),
+    metal: new THREE.MeshStandardMaterial({ color: 0xc7cdd2, roughness: 0.61, metalness: 1.0, envMapIntensity: 1.22 }),
+    metalSoft: new THREE.MeshStandardMaterial({ color: 0xaeb6bd, roughness: 0.67, metalness: 0.92, envMapIntensity: 1.06 }),
     // 漆包电阻丝：橙棕色漆膜，保留轻微金属底色与清漆高光
-    wire: new THREE.MeshPhysicalMaterial({ color: 0xa95b2b, roughness: 0.27, metalness: 0.22, clearcoat: 0.52, clearcoatRoughness: 0.22, envMapIntensity: 0.92 }),
-    brass: new THREE.MeshStandardMaterial({ color: 0xb8873f, roughness: 0.24, metalness: 0.92, envMapIntensity: 1.12 }),
+    wire: new THREE.MeshPhysicalMaterial({ color: 0xa95b2b, roughness: 0.66, metalness: 0.22, clearcoat: 0.52, clearcoatRoughness: 0.22, envMapIntensity: 0.92 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xb8873f, roughness: 0.62, metalness: 0.92, envMapIntensity: 1.12 }),
     red: new THREE.MeshPhysicalMaterial({ color: 0xc83c2f, roughness: 0.34, metalness: 0.0, clearcoat: 0.30, clearcoatRoughness: 0.24, envMapIntensity: 0.55 }),
     redDark: new THREE.MeshPhysicalMaterial({ color: 0x9f2f25, roughness: 0.40, metalness: 0.0, clearcoat: 0.22, clearcoatRoughness: 0.30, envMapIntensity: 0.48 }),
     // 滑块手柄改为深色工程塑料
@@ -497,7 +497,7 @@
     insul: new THREE.MeshPhysicalMaterial({ color: 0x20252b, roughness: 0.52, metalness: 0.0, clearcoat: 0.18, clearcoatRoughness: 0.34, envMapIntensity: 0.42 }),
     insulOrange: new THREE.MeshPhysicalMaterial({ color: 0xc64f22, roughness: 0.40, metalness: 0.0, clearcoat: 0.34, clearcoatRoughness: 0.28, envMapIntensity: 0.55 }),
     // 被滑片磨去绝缘层的裸金属点
-    contactMetal: new THREE.MeshStandardMaterial({ color: 0xd5d8da, roughness: 0.16, metalness: 1.0, envMapIntensity: 1.30 })
+    contactMetal: new THREE.MeshStandardMaterial({ color: 0xd5d8da, roughness: 0.58, metalness: 1.0, envMapIntensity: 1.30 })
   };
   const glowMat = new THREE.MeshBasicMaterial({ color: 0xff7a1f, transparent: true, opacity: 0.85 });
   const axisMat = new THREE.MeshBasicMaterial({ color: 0x4f8ee0, transparent: true, opacity: 0.0 });
