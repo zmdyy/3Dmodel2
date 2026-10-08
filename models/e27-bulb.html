@@ -258,7 +258,7 @@
   <div id="toast"></div>
 
   <script src="../shared/vendor/three-r144.min.js"></script>
-<script src="../shared/material-finish.js"></script>
+<script src="../shared/material-finish.js?v=2.0-20261008"></script>
   <script>
 /* =========================================================
    螺口灯泡的装配与接线 · 3D 交互演示
@@ -422,14 +422,14 @@
     transparent: true, opacity: 0.40, depthWrite: true, side: THREE.DoubleSide
   });
   const M = {
-    shell: new THREE.MeshStandardMaterial({ color: 0xd3d9df, roughness: 0.20, metalness: 1.0, envMapIntensity: 1.15, side: THREE.DoubleSide }),
-    tin: new THREE.MeshStandardMaterial({ color: 0xe4e9ef, roughness: 0.22, metalness: 1.0, envMapIntensity: 1.35, side: THREE.DoubleSide }),
-    brass: new THREE.MeshStandardMaterial({ color: 0xa87f3c, roughness: 0.28, metalness: 0.96, envMapIntensity: 1.05, side: THREE.DoubleSide }),
-    brassSoft: new THREE.MeshStandardMaterial({ color: 0xd9ab55, roughness: 0.30, metalness: 0.94, envMapIntensity: 1.05 }),
-    lead: new THREE.MeshStandardMaterial({ color: 0xb9c1c9, roughness: 0.34, metalness: 0.92, envMapIntensity: 0.95 }),
+    shell: new THREE.MeshStandardMaterial({ color: 0xd3d9df, roughness: 0.66, metalness: 1.0, envMapIntensity: 1.15, side: THREE.DoubleSide }),
+    tin: new THREE.MeshStandardMaterial({ color: 0xe4e9ef, roughness: 0.62, metalness: 1.0, envMapIntensity: 1.35, side: THREE.DoubleSide }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xa87f3c, roughness: 0.68, metalness: 0.96, envMapIntensity: 1.05, side: THREE.DoubleSide }),
+    brassSoft: new THREE.MeshStandardMaterial({ color: 0xd9ab55, roughness: 0.64, metalness: 0.94, envMapIntensity: 1.05 }),
+    lead: new THREE.MeshStandardMaterial({ color: 0xb9c1c9, roughness: 0.69, metalness: 0.92, envMapIntensity: 0.95 }),
     insul: new THREE.MeshStandardMaterial({ color: 0x22242a, roughness: 0.62, metalness: 0.06, envMapIntensity: 0.4, side: THREE.DoubleSide }),
-    ceramic: new THREE.MeshStandardMaterial({ color: 0xe7eaee, roughness: 0.52, metalness: 0.04, envMapIntensity: 0.5 }),
-    screw: new THREE.MeshStandardMaterial({ color: 0xc8ced5, roughness: 0.28, metalness: 1.0, envMapIntensity: 1.0 })
+    ceramic: new THREE.MeshStandardMaterial({ color: 0xe7eaee, roughness: 0.79, metalness: 0.04, envMapIntensity: 0.5 }),
+    screw: new THREE.MeshStandardMaterial({ color: 0xc8ced5, roughness: 0.68, metalness: 1.0, envMapIntensity: 1.0 })
   };
 
   /* 剖切专用材质：与内部接线铜条分开，剖切时只剖"外壳/螺纹"，不把走线切断 */
