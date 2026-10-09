@@ -330,6 +330,24 @@ window.MODEL_CATALOG = [
     "accent": "blue"
   },
   {
+    "id": "reflecting-telescope",
+    "title": "牛顿式反射望远镜",
+    "subtitle": "凹面主镜 · 45°副镜 · 侧置目镜",
+    "category": "光学仪器",
+    "summary": "原生 WebGL 程序化三维模型：观察凹面主镜、副镜背部蜘蛛支架和带通光孔的调焦座，切换完整、半剖、光路、拆解，并沿反射光路查看焦平面倒立实像及目镜调焦。",
+    "tags": [
+      "反射式望远镜",
+      "凹面镜",
+      "平面镜",
+      "倒立实像",
+      "调焦",
+      "光路"
+    ],
+    "path": "models/reflecting-telescope.html",
+    "symbol": "🔭",
+    "accent": "amber"
+  },
+  {
     "id": "reflection-refraction",
     "cover": "assets/covers/reflection-refraction.svg?v=20261008",
     "title": "光的反射与折射",
