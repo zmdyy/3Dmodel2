@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NEWTON / 牛顿式反射望远镜 · 3D 教学模型</title><style>
+:root{color-scheme:dark;--b:#090f18;--s:#142435;--line:#314453;--text:#edf4f7;--mut:#9aaebd;--amber:#e7b875;--cyan:#79d9f4}
+*{box-sizing:border-box}body,html{height:100%;margin:0;overflow:hidden;font-family:Inter,"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#08111c;color:var(--text)}button,input{font:inherit}button{cursor:pointer}
+.app{height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-rows:70px minmax(0,1fr)}
+header{grid-column:1/-1;display:flex;align-items:center;gap:17px;padding:0 24px;background:#0b1622;border-bottom:1px solid #29404f}header .symbol{width:44px;height:44px;border:1px solid #ad8b64;color:#efd0a2;border-radius:50%;display:grid;place-items:center;font:26px Georgia,serif}header .brand{font-weight:800;letter-spacing:.16em;font-size:12px;color:#e6c69b}header .brand small{display:block;color:#839cab;font-size:9px;letter-spacing:.16em;font-weight:500;margin-top:4px}header .head-name{font-size:20px;font-weight:700;border-left:1px solid #314555;padding-left:22px}header .badge{margin-left:auto;color:#95b8c4;font-size:12px;letter-spacing:.05em}
+.stage{position:relative;min-width:0;overflow:hidden;background:radial-gradient(ellipse at 48% 45%,#203448 0%,#0e1d2c 60%,#0a1522 100%)}#three{width:100%;height:100%;display:block;touch-action:none;cursor:grab}#rays{pointer-events:none;position:absolute;inset:0;width:100%;height:100%}
+.scene-label{position:absolute;left:24px;top:25px;pointer-events:none;color:#f2f5f6;font:500 clamp(22px,2.6vw,33px) Georgia,"Microsoft YaHei",serif;text-shadow:0 2px 15px #0007}.scene-label small{display:block;font:700 11px system-ui;letter-spacing:.24em;color:#efc48d;margin-bottom:10px}
+.float-label{pointer-events:none;position:absolute;left:0;top:0;display:none;transform:translate(-50%,-130%);padding:7px 11px;background:#081421e8;border:1px solid #426071;border-radius:8px;font-weight:700;font-size:14px;color:#b9edf8;white-space:nowrap;text-shadow:0 2px 5px #000}.float-label:after{content:"";position:absolute;top:100%;left:50%;height:17px;border-left:1px solid #7bafbd}.float-label.gold{color:#f8d5a4}
+.stage-bottom{position:absolute;bottom:17px;left:22px;right:20px;pointer-events:none;display:flex;justify-content:space-between;align-items:end;font-size:12px;color:#bdced7;gap:18px}.keycap{border:1px solid #6c869a;border-radius:4px;padding:1px 5px;margin-right:5px}.legend{display:flex;gap:13px;flex-wrap:wrap;justify-content:flex-end}.legend span:before{content:"";width:15px;height:3px;display:inline-block;margin-right:5px;vertical-align:4px;background:var(--color)}
+.side{border-left:1px solid #304353;background:linear-gradient(145deg,#152331,#0c1725);overflow-y:auto;padding:25px 20px;scrollbar-width:thin;scrollbar-color:#334c60 transparent}.side h2{font-size:21px;margin:0 0 20px}.section{border-top:1px solid #304352;padding:20px 0}.section:first-of-type{border-top:none;padding-top:0}.title{font-size:14px;color:#eac188;font-weight:800;margin-bottom:13px;letter-spacing:.04em}.segment{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.segment.three{grid-template-columns:repeat(3,1fr)}.segment button{min-height:45px;border:1px solid #365267;background:#192c3b;border-radius:8px;color:#bbcbd7;font-size:14px;font-weight:700}.segment button.on{color:#ffe9c7;background:#483b2f;border-color:#cd9c61}.segment button:hover,.action:hover{filter:brightness(1.14)}.rowfield{margin:20px 0 0}.fieldhead{display:flex;align-items:center;justify-content:space-between;color:#d4e1ea;font-size:15px;font-weight:600}.fieldhead strong{font-size:18px;color:#faf4eb;font-variant-numeric:tabular-nums}input[type=range]{width:100%;margin-top:14px;accent-color:#e1b57c;cursor:pointer}.state{border:1px solid #3a5363;background:#1a3040;border-radius:11px;padding:15px}.state strong{display:block;margin:6px 0 0;color:#9be9c8;font-size:22px}.state strong.warn{color:#ffbf89}.state .head{color:#b6cbd7;font-size:14px}.action{width:100%;margin-top:13px;padding:13px;border:1px solid #49677c;background:#1e3445;border-radius:8px;color:#e4ebee;font-weight:700;font-size:14px}
+.check{display:flex;align-items:center;gap:10px;color:#cddbe4;margin-top:17px;font-size:15px;cursor:pointer}.check input{accent-color:#c99e67;width:18px;height:18px}.viewbox{position:absolute;right:20px;top:25px;border:1px solid #3d6774;background:#091525e8;border-radius:15px;padding:14px 12px;width:200px;text-align:center;pointer-events:none;box-shadow:0 9px 25px #0004}.viewbox b{display:block;font-size:14px;color:#f5d09e;margin-bottom:8px}.viewbox canvas{width:156px;height:150px;max-width:100%;display:block;margin:auto}.viewbox[hidden]{display:none}
+.profilebox{position:absolute;right:20px;top:25px;width:260px;pointer-events:none;border:1px solid #456273;background:#0b1b2be8;border-radius:15px;padding:12px 12px 9px;text-align:center;box-shadow:0 12px 30px #0004}
+.profilebox b{display:block;font-size:15px;color:#f7d4a2;margin-bottom:3px}.profilebox canvas{width:234px;max-width:100%;height:165px}.profilebox[hidden]{display:none}
+#notice{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:390px;padding:18px;background:#142638;border:1px solid #a98359;border-radius:12px;color:white;z-index:9}
+@media(max-width:850px){.app{grid-template-columns:minmax(0,1fr) 290px}.side{padding:20px 15px}header .badge{display:none}}@media(max-width:640px){html,body{overflow:auto}.app{height:auto;min-height:100dvh;display:flex;flex-direction:column}header{height:70px;flex-shrink:0;padding:0 14px}header .head-name{font-size:16px;padding-left:11px}.stage{height:59vh;min-height:390px}.side{overflow:visible}.scene-label{left:12px;top:18px}.stage-bottom{left:12px;bottom:10px}.viewbox{width:148px;padding:9px;right:9px;top:15px}.viewbox canvas{width:115px;height:110px}.viewbox b{font-size:12px}.profilebox{right:9px;top:15px;width:195px}.profilebox b{font-size:12px}.profilebox canvas{height:118px}.float-label{font-size:12px}}
+</style></head>
+<body><div class="app"><header><div class="symbol">N</div><div class="brand">NEWTON / 1668<small>INTERACTIVE OPTICS</small></div><div class="head-name">反射式天文望远镜</div><div class="badge">原生 WebGL · 光学结构</div></header>
+<main class="stage" id="stage"><canvas id="three"></canvas><canvas id="rays"></canvas><div class="scene-label"><small>INSTRUMENT / 002</small>光线经反射，转向目镜。</div>
+<div id="primaryLabel" class="float-label">凹面主镜</div><div id="secondaryLabel" class="float-label">45° 平面副镜</div><div id="eyepieceLabel" class="float-label gold">目镜</div><div id="imageLabel" class="float-label gold">倒立实像（示意）</div>
+<div class="viewbox" id="inset"><b>中间倒立实像 · 放大观察</b><canvas id="insetImage" width="260" height="250"></canvas></div>
+<div class="profilebox" id="mirrorProfile" hidden><b>主镜剖面 · 深度 ×12</b><canvas id="profileCanvas" width="360" height="235"></canvas></div>
+<div class="stage-bottom"><div><span class="keycap">↔</span>拖动旋转　<span class="keycap">⊕</span>滚轮缩放</div><div class="legend"><span style="--color:#70d9ff">上方视场</span><span style="--color:#f2c17e">光轴</span><span style="--color:#f39078">下方视场</span></div></div><div id="notice"></div>
+</main>
+<aside class="side"><h2>实验控制台</h2>
+<section class="section"><div class="title">01 / 观察结构</div><div class="segment" id="modeSeg"><button data-mode="full">完整</button><button data-mode="half">半剖</button><button data-mode="optics" class="on">光路</button><button data-mode="explode">拆解</button></div></section>
+<section class="section"><div class="title">02 / 观察视角</div><div class="segment" id="viewSeg"><button data-view="iso" class="on">3D 视角</button><button data-view="side">侧视</button><button data-view="mirror">看凹面主镜</button><button data-view="secondary">看平面副镜</button><button data-view="secondaryBack">看副镜支架</button><button data-view="image">看实像位置</button></div></section>
+<section class="section"><div class="title">03 / 调节目镜</div><div class="state"><div class="head">目镜后的出射光线</div><strong id="focusStatus">平行出射</strong></div><div class="rowfield"><div class="fieldhead"><span>调焦位置</span><strong id="focusVal">0 mm</strong></div><input id="focus" type="range" min="-22" max="22" step="1" value="0"></div><button class="action" id="resetFocus">↺　恢复正常调焦位置</button></section>
+<section class="section"><div class="title">04 / 改变入射方向</div><div class="rowfield" style="margin-top:0"><div class="fieldhead"><span>离轴视场角</span><strong id="angleVal">1.0°</strong></div><input id="angle" type="range" min="0.3" max="2" step="0.1" value="1.0"></div></section>
+<section class="section"><div class="title">05 / 显示项目</div><label class="check"><input id="showRays" type="checkbox" checked> 光线路径</label><label class="check"><input id="showPlane" type="checkbox" checked> 焦平面与树像</label><label class="check"><input id="showLabels" type="checkbox" checked> 仪器标注</label><button class="action" id="resetAll">恢复全部默认设置</button></section>
+</aside></div>
+<script>(()=>{'use strict';
+const get=id=>document.getElementById(id),stage=get('stage'),canvas=get('three'),rayCanvas=get('rays'),notice=get('notice');
+const gl=canvas.getContext('webgl2',{alpha:true,antialias:true,premultipliedAlpha:false,depth:true})||canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false,depth:true});
+if(!gl){notice.style.display='block';notice.textContent='无法启动 WebGL，请在 Chrome / Edge 中开启图形加速。';return;}
+const overlay=rayCanvas.getContext('2d'),inset=get('insetImage').getContext('2d'),profile=get('profileCanvas').getContext('2d');
+const vs=`attribute vec3 aPos;attribute vec3 aNormal;
+uniform mat4 uVP;uniform vec3 uOffset;uniform float uWheelAngle;uniform float uWheelFlag;uniform float uImageScale;uniform float uImageFlag;
+varying vec3 vN;varying vec3 vWorld;varying vec3 vLocal;
+void main(){vec3 p=aPos;vec3 n=aNormal;
+if(uWheelFlag>.5){float c=cos(uWheelAngle),s=sin(uWheelAngle);vec2 v=p.xy-vec2(-0.33,1.75);p.xy=vec2(-0.33+c*v.x-s*v.y,1.75+s*v.x+c*v.y);n.xy=vec2(c*n.x-s*n.y,s*n.x+c*n.y);}
+if(uImageFlag>.5){p.x=-.66+(p.x+.66)*uImageScale;p.z*=uImageScale;}p+=uOffset;vN=n;vWorld=p;vLocal=aPos;gl_Position=uVP*vec4(p,1.0);}
+`;
+const fs=`
+precision highp float;
+varying vec3 vN;
+varying vec3 vWorld;
+varying vec3 vLocal;
+uniform vec3 uCamera;
+uniform vec3 uColor;
+uniform float uMetal;
+uniform float uRough;
+uniform float uAlpha;
+uniform float uGlass;
+uniform float uCoat;
+uniform float uDetail;
+uniform float uWear;
+uniform float uPatina;
+uniform float uBrushed;
+uniform float uPrimary;
+uniform float uOpticalMirror;
+uniform samplerCube uEnvSharp;
+uniform samplerCube uEnvSoft;
+const float PI=3.14159265359;
+vec3 filmic(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.0,1.0);}
+float Dggx(float nh,float r){float a=r*r;float a2=a*a;float den=nh*nh*(a2-1.0)+1.0;return a2/(PI*den*den+0.00004);}
+float hash3(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+float Gs(float nv,float k){return nv/(nv*(1.0-k)+k+0.00001);}
+vec3 fresnel(vec3 f0,float vdoth){return f0+(1.0-f0)*pow(1.0-clamp(vdoth,0.0,1.0),5.0);}
+// Studio softbox reflection: projected on the mirrored environment direction,
+// not painted on the optical surface. It moves naturally as the model rotates.
+float studioPanel(vec3 R,vec3 direction,float halfWidth,float halfHeight){
+  vec3 D=normalize(direction),U=normalize(cross(vec3(0.0,1.0,0.0),D)),W=normalize(cross(D,U));
+  float forward=dot(R,D);
+  if(forward<=0.0)return 0.0;
+  vec2 uv=vec2(dot(R,U),dot(R,W))/max(forward,.06);
+  float a=1.0-smoothstep(halfWidth-.012,halfWidth+.012,abs(uv.x));
+  float b=1.0-smoothstep(halfHeight-.018,halfHeight+.018,abs(uv.y));
+  return a*b;
+}
+vec3 directLight(vec3 N,vec3 V,vec3 L,vec3 base,vec3 f0,float metal,float rough,vec3 strength){
+  vec3 H=normalize(V+L);
+  float nl=max(dot(N,L),0.0), nv=max(dot(N,V),0.05);
+  float nh=max(dot(N,H),0.0), vh=max(dot(V,H),0.0);
+  float k=pow(rough+1.0,2.0)*0.125;
+  vec3 F=fresnel(f0,vh);
+  vec3 spec=Dggx(nh,rough)*Gs(nv,k)*Gs(nl,k)*F/(4.0*nl*nv+0.001);
+  vec3 diff=(1.0-F)*(1.0-metal)*base/PI;
+  return (diff+spec)*strength*nl;
+}
+void main(){
+  vec3 N=normalize(vN),V=normalize(uCamera-vWorld);
+  if(dot(N,V)<0.0)N=-N;
+  float nv=max(0.04,dot(N,V));
+  // Optical mirrors are front-surface reflective coatings: no painted diffuse layer,
+  // no brushed-metal grain, and no dark powder-coat roughness.
+  // The specular scene is sampled in reflection direction, so highlights slide when the
+  // viewer rotates around the instrument and curved primary has spatially changing highlights.
+  if(uOpticalMirror>.5){
+    vec3 R=reflect(-V,N);
+    vec3 sharp=textureCube(uEnvSharp,R).rgb;
+    vec3 soft=textureCube(uEnvSoft,R).rgb;
+    // A neutral silver coating reflecting a dark optical lab and its bright softboxes.
+    // Slight blue tint comes from the environment, not colored mirror paint.
+    // Dark laboratory reflections with deliberately limited (not overexposed) silver highlights.
+    vec3 scene=sharp*.48+soft*.09+vec3(.025,.040,.060);
+    // A pair of large, rectangular studio lights are seen only in mirror reflection.
+    // Primary sees the forward-left panel; secondary sees the elevated side panel.
+    float stripA=studioPanel(R,vec3(-.80,-.18,-.57),.36,.025);
+    float stripB=studioPanel(R,vec3(.23,.85,-.46),.10,.054);
+    float broad=studioPanel(R,vec3(-.93,.12,-.37),.22,.085);
+    scene+=vec3(.54,.60,.69)*stripA;
+    scene+=vec3(.56,.62,.70)*stripB;
+    scene+=vec3(.25,.33,.41)*broad;
+    float rimF=pow(1.0-nv,5.0);
+    scene*=mix(vec3(.97,.99,1.02),vec3(1.05,1.10,1.15),rimF);
+    vec3 silver=pow(filmic(scene*1.18),vec3(.4545));
+    gl_FragColor=vec4(silver,1.0);
+    return;
+  }
+  float metal=clamp(uMetal,0.0,1.0);
+  vec3 base=uColor;
+  // Spatially stable procedural wear: this texture follows the component,
+  // not the camera or the lighting; no downloaded images or extra triangles.
+  float grain=hash3(floor(vLocal*67.0));
+  float large=hash3(floor(vLocal*7.5));
+  float waves=sin(vLocal.x*19.0+2.4*sin(vLocal.z*13.0))*sin(vLocal.y*17.0+vLocal.z*9.0);
+  float wear=uWear;
+  float patina=uPatina;
+  float brushed=uBrushed;
+  // Fine casting texture / shallow orange-peel paint. Preserve readability at a distance.
+  float fine=0.5*grain+0.5*(0.5+0.5*waves);
+  base*=1.0-(0.028+0.075*wear)*(fine-.36);
+  if(wear>.001){
+    // Uneven old paint, light road dust and tiny dark scuffs; not fake rust patches.
+    float haze=0.64*large+0.36*max(0.0,waves);
+    base*=1.0-wear*(.11+.18*haze);
+    // Rare, thin axial scratches on barrel surface, exposing grey undercoat.
+    float phi=atan(vLocal.z,vLocal.y-.86);
+    float stripe=abs(sin(phi*87.0+vLocal.x*.83));
+    float scratch=(1.0-smoothstep(.995,1.0,stripe)) * 0.0;
+    scratch=smoothstep(.9985,.9997,stripe);
+    float patch=hash3(floor(vec3(vLocal.x*3.0,phi*8.0,2.0)));
+    float mask=smoothstep(.84,.995,patch)*scratch;
+    base=mix(base,vec3(.20,.22,.23),mask*.36*wear);
+  }
+  if(patina>.001){
+    // Oxidized recesses and quiet tarnish of unpolished brass / steel.
+    float tarnish=smoothstep(.40,.86,large*.69+fine*.31);
+    base*=1.0-patina*(.22+.31*tarnish);
+  }
+  if(brushed>.001){
+    // Directional machining marks, restrained to avoid a chrome-like shine.
+    float line=.5+.5*sin(vLocal.x*140.0+sin(vLocal.y*12.0)*.9);
+    base*=1.0+brushed*(line-.5)*.105;
+  }
+  float rough=clamp(uRough + .09*(fine-.5)+.11*wear*large+.05*patina*grain,.18,.98);
+  vec3 f0=mix(vec3(.042),base,metal);
+  vec3 L1=normalize(vec3(-.60,1.12,1.08));
+  vec3 L2=normalize(vec3(.74,.36,-1.06));
+  vec3 L3=normalize(vec3(.11,.93,-.45));
+  vec3 c=directLight(N,V,L1,base,f0,metal,rough,vec3(1.20,1.23,1.20));
+  c+=directLight(N,V,L2,base,f0,metal,rough,vec3(.53,.60,.66));
+  c+=directLight(N,V,L3,base,f0,metal,rough,vec3(.16,.18,.19));
+  float sky=clamp(N.y*.5+.5,0.0,1.0);
+  vec3 ambient=mix(vec3(.21,.23,.26),vec3(.37,.41,.46),sky);
+  c+=base*(1.0-metal)*ambient*1.05;
+  // Gentle bounced light preserves the machined detail without glossy hotspots.
+  c+=base*(.095+.055*(1.0-metal))*clamp(.55+.45*N.y,.35,1.0);
+  // Studio IBL: physically directional reflections, sampled from embedded cube maps.
+  vec3 R=reflect(-V,N);
+  vec3 envA=textureCube(uEnvSharp,R).rgb;
+  vec3 envB=textureCube(uEnvSoft,R).rgb;
+  float blur=smoothstep(.22,.76,rough);
+  vec3 env=mix(envA,envB,blur);
+  vec3 Fv=fresnel(f0,nv);
+  c+=env*Fv*mix(.58,.87,metal)*(1.0-.45*rough);
+  // Clear-coated enamel barrel: second dielectric reflection over colored substrate.
+  if(uCoat>.001){
+    vec3 clearEnv=mix(envA,envB,.85);
+    float clearF=.055+.945*pow(1.0-nv,5.0);
+    c=mix(c,c*.86,uCoat*.28);
+    c+=clearEnv*uCoat*(.11+.25*clearF);
+  }
+  if(uGlass>.5){
+    // Dual-surface coated optical glass: blue/cyan low-reflectance center,
+    // violet-blue grazing reflections; remains transparent to the interior.
+    float edge=pow(1.0-nv,3.0);
+    vec3 film=mix(vec3(.055,.18,.22),vec3(.22,.41,.66),edge);
+    vec3 coatedRef=envB*mix(vec3(.18,.31,.36),vec3(.35,.51,.66),edge);
+    c=film*.31+coatedRef*(.08+.57*edge);
+    c+=directLight(N,V,L1,vec3(.10,.38,.55),vec3(.045),0.0,.10,vec3(.86,1.03,1.12));
+    float a=clamp(.12+.43*edge+.07*pow(max(dot(N,L1),0.0),18.0),.12,.65);
+    c*=1.15; gl_FragColor=vec4(pow(filmic(c),vec3(.4545)),a);return;
+  }
+  // Only the parabolic primary receives a radial coating falloff; the flat stays neutral.
+  // Subtle lighting contrast is optical-coating appearance, not a fake geometric depression.
+  if(uPrimary>.5){
+    float rr=length(vec2(vLocal.y-.33,vLocal.z));
+    float mid=smoothstep(.05,.58,rr);
+    float rim=smoothstep(.60,.79,rr);
+    c=mix(c*1.38,c*.72,mid);
+    c=mix(c,c*.70,rim);
+    float softSweep=.5+.5*cos(atan(vLocal.z,vLocal.y-.33)-.75);
+    c+=vec3(.12,.19,.21)*softSweep*(1.0-rim)*.25;
+  }
+  c=pow(filmic(max(c*1.15,vec3(0.0))),vec3(.4545));
+  gl_FragColor=vec4(c,uAlpha);
+}`;
+function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+let program;try{program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));}catch(e){notice.style.display='block';notice.textContent='着色器错误：'+e.message;return;}
+gl.useProgram(program);
+const attrs={p:gl.getAttribLocation(program,'aPos'),n:gl.getAttribLocation(program,'aNormal')};
+const loc=Object.fromEntries(['uVP','uOffset','uCamera','uColor','uMetal','uRough','uAlpha','uGlass','uCoat','uDetail','uWear','uPatina','uBrushed','uPrimary','uOpticalMirror','uWheelAngle','uWheelFlag','uImageFlag','uImageScale'].map(k=>[k,gl.getUniformLocation(program,k)]));
+const TAU=Math.PI*2,DEG=Math.PI/180,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),V=(x,y,z)=>[x,y,z],add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],scale=(a,s)=>[a[0]*s,a[1]*s,a[2]*s],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>{const l=Math.hypot(...a)||1;return scale(a,1/l)};
+const materials={
+body:{c:[.073,.113,.141],m:.28,r:.75,coat:.05,wear:.64},inner:{c:[.009,.012,.014],m:0,r:.99},
+steel:{c:[.24,.29,.31],m:.82,r:.64,brush:.53,patina:.20},graphite:{c:[.072,.084,.092],m:.65,r:.73,wear:.30},
+brass:{c:[.37,.252,.125],m:.86,r:.67,patina:.52,brush:.38},oldGold:{c:[.24,.178,.103],m:.74,r:.81,patina:.66},
+rubber:{c:[.024,.026,.027],m:0,r:.95},mount:{c:[.125,.155,.164],m:.31,r:.82,wear:.43},
+mirror:{c:[.97,.985,1.0],m:1,r:.008}, mirrorEdge:{c:[.32,.40,.45],m:.86,r:.30},
+mirrorBezel:{c:[.37,.47,.53],m:.92,r:.28,brush:.15},mirrorBack:{c:[.085,.112,.13],m:.52,r:.72},mirrorHighlight:{c:[.80,.90,.95],m:.96,r:.14},
+glass:{c:[.15,.38,.44],m:0,r:.15,a:.60,glass:1},
+plane:{c:[.14,.34,.37],m:0,r:.82,a:.15}, planeRim:{c:[.35,.68,.73],m:.2,r:.48,a:.9},
+leaf:{c:[.14,.51,.35],m:0,r:.82},leaf2:{c:[.08,.34,.27],m:0,r:.87},leaf3:{c:[.25,.65,.43],m:0,r:.78},trunk:{c:[.43,.27,.17],m:0,r:.85}
+};
+function makeStudioCube(soft){
+ const side=soft?64:256,tex=gl.createTexture();
+ gl.bindTexture(gl.TEXTURE_CUBE_MAP,tex);
+ const smooth=(a,b,x)=>{let q=clamp((x-a)/(b-a),0,1);return q*q*(3-2*q)};
+ const orient=[
+  (u,v)=>[1,-v,-u],(u,v)=>[-1,-v,u],
+  (u,v)=>[u,1,v],(u,v)=>[u,-1,-v],
+  (u,v)=>[u,-v,1],(u,v)=>[-u,-v,-1]
+ ];
+ const boxes=[
+  {d:norm([-.47,.87,.83]),w:.54,h:.18,power:[.83,.89,.94]},
+  {d:norm([.60,.55,-.75]),w:.18,h:.62,power:[.76,.85,.97]},
+  {d:norm([.88,.42,.29]),w:.11,h:.78,power:[.67,.73,.79]},
+  {d:norm([-.88,-.23,.12]),w:.15,h:.35,power:[.28,.36,.40]},
+  // Bright architectural softboxes visible only as environmental reflections.
+  // Mirror coating responds to these panels with true view-dependent specular patterns.
+  {d:norm([-.76,-.18,-.64]),w:.045,h:.61,power:[.65,.70,.78]},
+  {d:norm([-.53,.18,-.83]),w:.056,h:.69,power:[.56,.65,.78]},
+  {d:norm([-.91,.29,-.38]),w:.29,h:.065,power:[.36,.45,.53]}
+ ];
+ for(const b of boxes){b.t=norm(cross([0,1,0],b.d));b.b=norm(cross(b.d,b.t));}
+ for(let face=0;face<6;face++){
+  const pix=new Uint8Array(side*side*4);
+  for(let j=0;j<side;j++)for(let i=0;i<side;i++){
+   const u=2*(i+.5)/side-1,v=2*(j+.5)/side-1;
+   const d=norm(orient[face](u,v));
+   const sky=smooth(-.75,.95,d[1]);
+   const nearHorizon=1-Math.abs(d[1]);
+   const col=[.052+.065*sky+.01*nearHorizon,.060+.073*sky+.015*nearHorizon,.073+.085*sky+.018*nearHorizon];
+   for(const b of boxes){
+    const facing=dot(d,b.d);if(facing<.20)continue;
+    let xx=dot(d,b.t)/facing,yy=dot(d,b.b)/facing;
+    const fade=soft?.32:.035;
+    const shape=(1-smooth(b.w-fade,b.w+fade,Math.abs(xx)))*(1-smooth(b.h-fade,b.h+fade,Math.abs(yy)));
+    for(let k=0;k<3;k++)col[k]+=shape*b.power[k]*(soft?.42:.68);
+   }
+   const n=(j*side+i)*4;
+   for(let k=0;k<3;k++)pix[n+k]=Math.round(clamp(col[k],0,1)*255);
+   pix[n+3]=255;
+  }
+  gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X+face,0,gl.RGBA,side,side,0,gl.RGBA,gl.UNSIGNED_BYTE,pix);
+ }
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ return tex;
+}
+const envSharp=makeStudioCube(false),envSoft=makeStudioCube(true);
+gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_CUBE_MAP,envSharp);
+gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_CUBE_MAP,envSoft);
+gl.uniform1i(gl.getUniformLocation(program,'uEnvSharp'),0);
+gl.uniform1i(gl.getUniformLocation(program,'uEnvSoft'),1);
+const raw=new Map();function bucket(mat,part='fixed',side='all'){const key=mat+'|'+part+'|'+side;let g=raw.get(key);if(!g){g={mat,part,side,arr:[]};raw.set(key,g);}return g;}
+function vertex(a,n,mat,part,side){bucket(mat,part,side).arr.push(...a,...n);}
+function tri(a,b,c,mat,part,side,na,nb,nc){const n=norm(cross(sub(b,a),sub(c,a)));vertex(a,na||n,mat,part,side);vertex(b,nb||n,mat,part,side);vertex(c,nc||n,mat,part,side);}
+function quad(a,b,c,d,mat,part,side,na,nb,nc,nd){tri(a,b,c,mat,part,side,na,nb,nc);tri(a,c,d,mat,part,side,na,nc,nd);}
+const circ=(x,y,z,r,t)=>[x,y+r*Math.cos(t),z+r*Math.sin(t)];
+function ringX(x1,x2,ro,ri,mat,part='fixed',cut=false,N=48,y=.86,z=0){
+ N=Math.max(16,Math.round(N*.72));
+ for(let i=0;i<N;i++){const a=i*TAU/N,b=(i+1)*TAU/N,sd=cut&&Math.sin((a+b)/2)>0?'near':'all';const A=circ(x1,y,z,ro,a),B=circ(x2,y,z,ro,a),C=circ(x2,y,z,ro,b),D=circ(x1,y,z,ro,b);
+ const na=[0,Math.cos(a),Math.sin(a)],nb=[0,Math.cos(b),Math.sin(b)];quad(A,B,C,D,mat,part,sd,na,na,nb,nb);
+ if(ri>0){const ia=circ(x1,y,z,ri,a),ib=circ(x2,y,z,ri,a),ic=circ(x2,y,z,ri,b),id=circ(x1,y,z,ri,b);
+ quad(ib,ia,id,ic,'inner',part,sd,scale(na,-1),scale(na,-1),scale(nb,-1),scale(nb,-1));
+ quad(A,D,id,ia,mat,part,sd);quad(B,ib,ic,C,mat,part,sd);
+ }else{let center1=[x1,y,z],center2=[x2,y,z];tri(center1,D,A,mat,part,sd);tri(center2,B,C,mat,part,sd);}}
+}
+function rod(a,b,r,mat='steel',part='fixed',N=16){N=Math.max(10,Math.round(N*.82));const axis=norm(sub(b,a)),ref=Math.abs(axis[1])<.90?[0,1,0]:[1,0,0],U=norm(cross(axis,ref)),W=norm(cross(axis,U));const pt=(c,t)=>add(c,scale(add(scale(U,Math.cos(t)),scale(W,Math.sin(t))),r));
+ for(let i=0;i<N;i++){const t=i*TAU/N,s=(i+1)*TAU/N,n1=norm(add(scale(U,Math.cos(t)),scale(W,Math.sin(t)))),n2=norm(add(scale(U,Math.cos(s)),scale(W,Math.sin(s))));quad(pt(a,t),pt(b,t),pt(b,s),pt(a,s),mat,part,'all',n1,n1,n2,n2);tri(a,pt(a,s),pt(a,t),mat,part,'all');tri(b,pt(b,t),pt(b,s),mat,part,'all');}}
+function sphere(c,r,mat,part='fixed',rows=12,cols=24){rows=Math.max(5,Math.round(rows*.75));cols=Math.max(10,Math.round(cols*.78));for(let j=0;j<rows;j++)for(let k=0;k<cols;k++){const aa=Math.PI*j/rows,bb=Math.PI*(j+1)/rows,cc=TAU*k/cols,dd=TAU*(k+1)/cols;const p=(u,v)=>add(c,[r*Math.cos(u),r*Math.sin(u)*Math.cos(v),r*Math.sin(u)*Math.sin(v)]);const a=p(aa,cc),b=p(bb,cc),d=p(aa,dd),e=p(bb,dd);quad(a,b,e,d,mat,part,'all',norm(sub(a,c)),norm(sub(b,c)),norm(sub(e,c)),norm(sub(d,c)));}}
+function box(a,b,mat,part='fixed'){const [x,y,z]=a,[X,Y,Z]=b,p=[[x,y,z],[X,y,z],[X,Y,z],[x,Y,z],[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]];for(const inds of [[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[0,3,7,4],[1,5,6,2]])quad(...inds.map(i=>p[i]),mat,part,'all');}
+function lens(x,r,part='fixed',yc=.86,zc=0){const rings=6,N=40;for(let f of [-1,1])for(let j=0;j<rings;j++)for(let i=0;i<N;i++){const u=j/rings,v=(j+1)/rings,a=i*TAU/N,b=(i+1)*TAU/N;
+  const p=(s,t)=>{let r0=r*s;return [x+f*(.003+.027*(1-s*s)),yc+r0*Math.cos(t),zc+r0*Math.sin(t)]};let A=p(u,a),B=p(v,a),C=p(v,b),D=p(u,b);
+  const n=(s,t)=>norm([f, 1.8*s*Math.cos(t), 1.8*s*Math.sin(t)]);quad(A,B,C,D,'glass',part,'all',n(u,a),n(v,a),n(v,b),n(u,b));
+ }ringX(x-.018,x+.018,r+.010,r-.012,'steel',part,false,56,yc,zc);}
+function stripX(x1,x2,y1,y2,z1,z2,mat,part='fixed'){box([x1,y1,z1],[x2,y2,z2],mat,part)}
+// --------------------------------------------
+// Instrument coordinate: incident rays +X, parabolic mirror opens towards -X.
+// Main mirror focus for on-axis infinity: x = MX-F.
+// A 45-degree flat folds the still-converging beam from -X to +Y.
+const CY=.33,MX=2.25,F=4.10,SX=-.66,FOCUS_X=MX-F,IMAGE_Y=CY+(SX-FOCUS_X),EYE_F=.46;
+const BASE_EYE_Y=IMAGE_Y+EYE_F,PRIMARY_R=.79,TUBE_R=.94;
+function ringY(y1,y2,ro,ri,mat,part='fixed',N=56,cx=SX,cz=0){
+ N=Math.max(32,N|0);const cut=(part==='eye'||part==='focusBase');
+ const p=(y,r,t)=>[cx+r*Math.cos(t),y,cz+r*Math.sin(t)];
+ for(let i=0;i<N;i++){const a=TAU*i/N,b=TAU*(i+1)/N;
+  // 近侧(z>0)在光路/半剖模式隐藏；完整模式仍显示完整的目镜筒。
+  const face=cut&&Math.sin((a+b)*.5)>0?'near':'all';
+  const A=p(y1,ro,a),B=p(y2,ro,a),C=p(y2,ro,b),D=p(y1,ro,b);
+  const n1=[Math.cos(a),0,Math.sin(a)],n2=[Math.cos(b),0,Math.sin(b)];
+  quad(A,B,C,D,mat,part,face,n1,n1,n2,n2);
+  if(ri>0){const e=p(y1,ri,a),f=p(y2,ri,a),g=p(y2,ri,b),h=p(y1,ri,b);
+   quad(f,e,h,g,'inner',part,face,scale(n1,-1),scale(n1,-1),scale(n2,-1),scale(n2,-1));
+   quad(A,D,h,e,mat,part,face);quad(B,f,g,C,mat,part,face);
+  }
+ }
+ // 筒壁剖开后的真实壁厚截面，避免像切掉一张没有厚度的贴片。
+ if(cut&&ri>0)for(const t of [0,Math.PI]){
+  const x1=p(y1,ro,t),x2=p(y2,ro,t),x3=p(y2,ri,t),x4=p(y1,ri,t);
+  quad(x1,x2,x3,x4,'steel',part,'section');
+ }
+}
+// 带贯通圆孔的整体方形调焦器安装法兰：四周为实心金属，中央绝无挡光面。
+// 由 4 组曲面（上下面 / 方形外壁 / 圆孔内壁）组成，支持近侧剖切。
+function drilledFocuserFlange(y0,y1,halfX,halfZ,bore,mat='mount'){
+ const N=96, cx=SX, cz=0;
+ const outer=(y,t)=>{const co=Math.cos(t),si=Math.sin(t),k=1/Math.max(Math.abs(co)/halfX,Math.abs(si)/halfZ);return[cx+k*co,y,cz+k*si];};
+ const inner=(y,t)=>[cx+bore*Math.cos(t),y,cz+bore*Math.sin(t)];
+ for(let i=0;i<N;i++){
+  const a=i*TAU/N,b=(i+1)*TAU/N,side=Math.sin((a+b)*.5)>0?'near':'all';
+  const o0=outer(y0,a),o1=outer(y0,b),o2=outer(y1,b),o3=outer(y1,a);
+  const h0=inner(y0,a),h1=inner(y0,b),h2=inner(y1,b),h3=inner(y1,a);
+  quad(o3,o2,h2,h3,mat,'focusBase',side,[0,1,0],[0,1,0],[0,1,0],[0,1,0]);
+  quad(h0,h1,o1,o0,mat,'focusBase',side,[0,-1,0],[0,-1,0],[0,-1,0],[0,-1,0]);
+  quad(o0,o1,o2,o3,mat,'focusBase',side);
+  quad(h1,h0,h3,h2,'inner','focusBase',side);
+ }
+ for(const t of [0,Math.PI]){
+  quad(inner(y0,t),outer(y0,t),outer(y1,t),inner(y1,t),'steel','focusBase','section');
+ }
+}
+function paraboloidSurface(){const rings=21,N=70;const pt=(r,a)=>[MX-r*r/(4*F),CY+r*Math.cos(a),r*Math.sin(a)];const pn=(r,a)=>norm([-1,-r*Math.cos(a)/(2*F),-r*Math.sin(a)/(2*F)]);for(let j=0;j<rings;j++)for(let i=0;i<N;i++){const r=j*PRIMARY_R/rings,R=(j+1)*PRIMARY_R/rings,a=TAU*i/N,b=TAU*(i+1)/N;quad(pt(r,a),pt(R,a),pt(R,b),pt(r,b),'mirror','primary','all',pn(r,a),pn(R,a),pn(R,b),pn(r,b));}}
+function ellipseDisc(c,ua,ub,rx,rz,depth,part='secondary'){// Mirror plane tangent vectors ua,ub, correct 45-degree surface normal.
+const layers=2,N=84,normFront=scale(norm(cross(ua,ub)),-1);const ofs=[0,-depth];for(let j=0;j<2;j++){const q=add(c,scale(normFront,ofs[j]));for(let i=0;i<N;i++){const a=TAU*i/N,b=TAU*(i+1)/N;const point=(t)=>add(q,add(scale(ua,rx*Math.cos(t)),scale(ub,rz*Math.sin(t))));tri(q,point(a),point(b),j===0?'mirror':'mirrorBack',part,'all',j===0?normFront:scale(normFront,-1),j===0?normFront:scale(normFront,-1),j===0?normFront:scale(normFront,-1));if(j===0){let p0=point(a),p1=point(b),p2=add(p1,scale(normFront,-depth)),p3=add(p0,scale(normFront,-depth));quad(p0,p1,p2,p3,'mirrorEdge',part,'all');}}}}
+function focalTree(){// True 3-D planar glyph built from triangles, positioned in focal plane, not a screen image.
+// Transverse image coordinate is X after the Newtonian 45° fold.
+const y=IMAGE_Y+.004,cx=SX,rz=.052; const patch=(pts,mat)=>{for(let i=1;i<pts.length-1;i++)tri([pts[0][0],y,pts[0][1]],[pts[i][0],y,pts[i][1]],[pts[i+1][0],y,pts[i+1][1]],mat,'focalTree','all',[0,1,0],[0,1,0],[0,1,0]);};
+// For a positive original vertical coordinate (input slope), real image is inverted.
+patch([[cx+.071,-.011],[cx-.007,-.010],[cx-.007,.010],[cx+.071,.010]],'trunk');
+for(const [dx,z,rx,rr,m] of [[.037,0,.054,.050,'leaf'],[.073,-.030,.037,.032,'leaf2'],[.071,.029,.040,.033,'leaf3'],[.018,-.039,.043,.035,'leaf'],[.018,.035,.046,.036,'leaf2'],[.098,.008,.034,.027,'leaf3']]){const p=[];for(let k=0;k<20;k++){let t=TAU*k/20;p.push([cx-dx-rx*Math.cos(t),z+rr*Math.sin(t)]);}patch(p,m);}
+}
+function buildModel(){
+// Thin-walled, powder-coated optical tube and real dark inner wall.
+// Main tube has a genuine opening for the side focuser: no opaque wall crosses the light path.
+const nx=100,na=88,x0=-2.30,x1=2.40;
+for(let ix=0;ix<nx;ix++)for(let it=0;it<na;it++){
+ const xa=x0+(x1-x0)*ix/nx,xb=x0+(x1-x0)*(ix+1)/nx;
+ const a=TAU*it/na,b=TAU*(it+1)/na,mid=(a+b)*.5;
+ if(Math.abs((xa+xb)/2-SX)<.325 && Math.cos(mid)>.922)continue;
+ const part=Math.sin(mid)>0?'near':'all';
+ const po=(x,t,r)=>[x,CY+r*Math.cos(t),r*Math.sin(t)];
+ const A=po(xa,a,TUBE_R),B=po(xb,a,TUBE_R),C=po(xb,b,TUBE_R),D=po(xa,b,TUBE_R);
+ const na1=[0,Math.cos(a),Math.sin(a)],na2=[0,Math.cos(b),Math.sin(b)];
+ quad(A,B,C,D,'body','tube',part,na1,na1,na2,na2);
+ const E=po(xa,a,TUBE_R-.055),G=po(xb,a,TUBE_R-.055),H=po(xb,b,TUBE_R-.055),I=po(xa,b,TUBE_R-.055);
+ quad(G,E,I,H,'inner','tube',part,scale(na1,-1),scale(na1,-1),scale(na2,-1),scale(na2,-1));
+ }
+ringX(-2.34,-2.22,1.010,.885,'graphite','front',true,76,CY,0);
+ringX(-2.36,-2.31,1.025,.880,'steel','front',true,76,CY,0);
+ringX(-2.31,-2.05,.973,.924,'rubber','front',true,72,CY,0);
+ringX(-1.23,-1.16,.968,.916,'steel','tube',true,72,CY,0);
+ringX(.68,.76,.977,.915,'graphite','tube',true,72,CY,0);
+ringX(2.31,2.49,.992,.876,'brass','primaryMount',true,72,CY,0);
+ringX(2.38,2.52,1.01,.87,'graphite','primaryMount',true,64,CY,0);
+ringX(2.39,2.48,.88,0,'graphite','primaryMount',false,60,CY,0);
+// Genuine parabolic optical face: do not exaggerate sag independently from ray tracing.
+// A thicker glass substrate and stepped cell make the shallow dish legible when rotated.
+const edgeX=MX-PRIMARY_R*PRIMARY_R/(4*F);
+ringX(edgeX+.008,2.380,PRIMARY_R+.009,PRIMARY_R-.029,'mirrorBack','primaryMount',false,86,CY,0);
+ringX(edgeX-.031,edgeX+.015,PRIMARY_R+.066,PRIMARY_R-.013,'mirrorBezel','primaryMount',false,86,CY,0);
+ringX(edgeX-.037,edgeX-.023,PRIMARY_R+.071,PRIMARY_R+.031,'mirrorHighlight','primaryMount',false,86,CY,0);
+ringX(edgeX+.045,edgeX+.068,PRIMARY_R+.087,PRIMARY_R+.057,'graphite','primaryMount',false,86,CY,0);
+paraboloidSurface();
+// Supporting pads and retainer clips contact the mirror rim and rear cell.
+for(let i=0;i<6;i++){const a=i*TAU/6,yy=CY+PRIMARY_R*Math.cos(a),zz=PRIMARY_R*Math.sin(a);rod([2.32,yy,zz],[2.48,yy,zz],.024,'steel','primaryMount',12);sphere([2.35,yy,zz],.045,'graphite','primaryMount',10,16);}
+// 牛顿式副镜组件：反射层朝主镜，所有夹持件和准直机构严格位于镜背。
+const n=norm([-1,-1,0]),u=norm([1,-1,0]),v=[0,0,1],C=[SX,CY,0];
+ellipseDisc(C,u,v,.416,.295,.030);
+const faceNormal=norm([1,1,0]);
+const backOf=(d,du=0,dz=0)=>add(add(add(C,scale(faceNormal,-d)),scale(u,du)),scale(v,dz));
+// 反射面背后的小型三点准直螺钉，镜面上没有球形固定头和贯穿杆。
+for(const [du,dz] of [[-.16,-.080],[.13,-.085],[.035,.13]]){
+ rod(backOf(.037,du,dz),backOf(.089,du,dz),.012,'steel','secondary',12);
+}
+// 镜背低矮座 + 后倾连接颈；两端都在反射面背后。
+rod(backOf(.030),backOf(.148),.062,'graphite','secondary',20);
+const hubX=SX-.425,hub=[hubX,CY,0];
+rod(backOf(.145),hub,.047,'graphite','secondary',18);
+// 中央小型柱形轮毂（不是放在镜面上的球），承接四片辐条。
+rod([hubX-.064,CY,0],[hubX+.064,CY,0],.081,'graphite','spider',24);
+// 四片径向薄钢片，位于靠物镜一侧的同一横截面，末端固定到镜筒内壁。
+// 钢片绝不穿过椭圆反射面，且不与侧置调焦座相连。
+for(const ang of [0,Math.PI/2,Math.PI,3*Math.PI/2]){
+ const radial=[0,Math.cos(ang),Math.sin(ang)];
+ const tangent=[0,-Math.sin(ang),Math.cos(ang)];
+ const root=[hubX,CY+.075*Math.cos(ang),.075*Math.sin(ang)];
+ const tip=[hubX,CY+.899*Math.cos(ang),.899*Math.sin(ang)];
+ const mk=(p,ax,tan)=>add(add(p,[ax,0,0]),scale(tangent,tan));
+ const width=.028, thickness=.004;
+ const b0=mk(root,-width,-thickness),b1=mk(root,width,-thickness);
+ const b2=mk(tip,width,-thickness),b3=mk(tip,-width,-thickness);
+ const c0=mk(root,-width,thickness),c1=mk(root,width,thickness);
+ const c2=mk(tip,width,thickness),c3=mk(tip,-width,thickness);
+ quad(b0,b1,b2,b3,'graphite','spider');quad(c3,c2,c1,c0,'graphite','spider');
+ quad(b0,b3,c3,c0,'graphite','spider');quad(b1,c1,c2,b2,'graphite','spider');
+ // 扁平外端紧固片，贴在镜筒内壁；不用圆球或横贯光束的连杆。
+ const m0=add(tip,[-.055,0,0]),m1=add(tip,[.055,0,0]);
+ rod(m0,m1,.011,'graphite','spider',10);
+}
+// 对上游反射光束的等效几何追迹仍使用同一真实45°镜面。
+// Side-mounted focuser, real hollow rings, separate adjustable drawtube, ocular lens and knurled grip.
+ringY(CY+.85,CY+1.23,.245,.204,'graphite','focusBase',64);
+ringY(CY+.95,CY+1.19,.291,.240,'steel','focusBase',64);
+ringY(CY+1.18,CY+1.36,.263,.202,'brass','focusBase',72);
+ringY(CY+1.25,CY+1.63,.201,.162,'graphite','eye',64);
+ringY(CY+1.57,CY+1.68,.220,.161,'steel','eye',64);
+ringY(CY+1.64,CY+1.83,.226,.156,'rubber','eye',64);
+ringY(CY+1.78,CY+1.82,.223,.159,'oldGold','eye',60);
+// Two sided curved eyepiece glass, parametrised by local radius.
+for(let side of [-1,1]){const N=40,NR=9;for(let j=0;j<NR;j++)for(let k=0;k<N;k++){const r=j*.15/NR,R=(j+1)*.15/NR,a=k*TAU/N,b=(k+1)*TAU/N;
+const p=(rr,t)=>[SX+rr*Math.cos(t),BASE_EYE_Y+side*(.012+.018*(1-rr*rr/.15**2)),rr*Math.sin(t)];
+const nor=(rr,t)=>norm([side*rr*Math.cos(t)*1.3,side,side*rr*Math.sin(t)*1.3]);
+quad(p(r,a),p(R,a),p(R,b),p(r,b),'glass','eye','all',nor(r,a),nor(R,a),nor(R,b),nor(r,b));}}
+// 玻璃固定圈在目镜剖开后露出；保持光学模型的等效薄透镜焦距。
+ringY(BASE_EYE_Y-.035,BASE_EYE_Y-.018,.172,.153,'mirrorBezel','eye',56);
+ringY(BASE_EYE_Y+.018,BASE_EYE_Y+.033,.173,.151,'mirrorBezel','eye',56);
+// Focus rack moves with ocular. Gear wheel is rotatable via shader and drag.
+box([SX+.171,CY+1.28,-.078],[SX+.207,CY+1.58,.077],'steel','rack');
+for(let j=0;j<15;j++){const y=CY+1.29+j*.020;box([SX+.19,y,-.08],[SX+.230,y+.009,.08],'brass','rack');}
+rod([-.33,1.75,.04],[-.33,1.75,.22],.102,'oldGold','wheel',20);
+for(let k=0;k<15;k++){const a=k*TAU/15;rod([-.33+.112*Math.cos(a),1.75+.112*Math.sin(a),.045],[-.33+.112*Math.cos(a),1.75+.112*Math.sin(a),.24],.012,'steel','wheel',10);}
+sphere([-.33,1.75,.26],.029,'steel','wheel',9,16);
+// Side focuser mounting flange has a REAL Ø 0.48 light-through bore.
+// The former solid rectangular block incorrectly blocked the folded beam.
+drilledFocuserFlange(CY+.88,CY+1.02,.330,.290,.240,'mount');
+for(const xx of [SX-.265,SX+.265])for(const zz of [-.235,.235]){
+ // 螺钉在通光孔之外，绝不遮挡中心光束。
+ sphere([xx,CY+1.025,zz],.022,'steel','focusBase',8,14);
+}
+// Main tube saddle and cast metal support, mounting bolts and tripod adapter.
+ringX(-.24,.32,1.035,.969,'mount','holder',true,80,CY,0);
+box([-.12,CY-1.23,-.27],[.20,CY-.92,.27],'graphite','holder');
+box([-.15,CY-1.36,-.36],[.22,CY-1.20,.36],'steel','holder');
+box([-.23,CY-1.67,-.49],[.3,CY-1.36,.49],'mount','holder');
+for(const zz of [-.35,.35]){sphere([.28,CY-1.43,zz],.045,'brass','holder',9,12);}
+// 3D reference image exactly at the folded Newtonian focal plane.
+// 理想焦面不是一片实体光屏：只用虚线圆环指示空间位置。
+for(let k=0;k<32;k++){if(k%2)continue;const a=TAU*k/32,b=TAU*(k+1)/32;
+ rod([SX+.210*Math.cos(a),IMAGE_Y,.210*Math.sin(a)],[SX+.210*Math.cos(b),IMAGE_Y,.210*Math.sin(b)],.004,'planeRim','plane',7);
+}
+// 同一焦面上形成倒立的中间实像（形状为教学用树像示意）。
+focalTree();
+}
+buildModel();
+const batches=[];for(const g of raw.values()){const arr=new Float32Array(g.arr);if(!arr.every(Number.isFinite)){notice.style.display='block';notice.textContent='三维模型坐标错误：'+g.part+'，请使用修复版本。';return;}const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);batches.push({...g,buffer,count:arr.length/6,transparent:!!materials[g.mat].a});delete g.arr;}
+const triangles=batches.reduce((s,b)=>s+b.count/3,0);
+function perspective(fov,aspect,near,far){const t=1/Math.tan(fov/2),a=1/(near-far);return new Float32Array([t/aspect,0,0,0,0,t,0,0,0,0,(far+near)*a,-1,0,0,2*far*near*a,0]);}
+function lookAt(eye,target,up){const z=norm(sub(eye,target)),x=norm(cross(up,z)),y=cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]);}
+function mm(a,b){let r=new Float32Array(16);for(let c=0;c<4;c++)for(let i=0;i<4;i++)r[c*4+i]=a[0*4+i]*b[c*4+0]+a[1*4+i]*b[c*4+1]+a[2*4+i]*b[c*4+2]+a[3*4+i]*b[c*4+3];return r;}
+let mode='optics',view='iso',delta=0,angle=1,raysOn=true,planeOn=true,labelsOn=true;
+let yaw=-.55,pitch=.32,distance=8.1,target=[0,.26,0],cw=0,ch=0,scaleDpr=1,queued=false,drawCount=0,drag=null;
+function camera(){const eye=add(target,[Math.sin(yaw)*Math.cos(pitch)*distance,Math.sin(pitch)*distance,Math.cos(yaw)*Math.cos(pitch)*distance]);return{eye,vp:mm(perspective(44*DEG,Math.max(.1,cw/Math.max(1,ch)),.035,90),lookAt(eye,target,[0,1,0]))};}
+function screen(p,cam){const m=cam.vp,x=p[0],y=p[1],z=p[2],px=m[0]*x+m[4]*y+m[8]*z+m[12],py=m[1]*x+m[5]*y+m[9]*z+m[13],w=m[3]*x+m[7]*y+m[11]*z+m[15];return{x:(px/w*.5+.5)*cw,y:(.5-py/w*.5)*ch,visible:w>.05};}
+function rayTrace(field,offsetY,offsetZ){const origin=[-3.06,CY+offsetY,offsetZ],direction=norm([1,Math.tan(field*DEG),0]);
+const dy=direction[1]/direction[0],dz=direction[2]/direction[0],bx=origin[1]-CY,zx=origin[2];
+const A=(dy*dy+dz*dz)/(4*F),B=1+(bx*dy+zx*dz)/(2*F),C=origin[0]-MX+(bx*bx+zx*zx)/(4*F);
+const t=A>1e-11?-2*C/(B+Math.sqrt(Math.max(0,B*B-4*A*C))):-C/B;
+const mirror=[origin[0]+t,origin[1]+t*dy,origin[2]+t*dz],dIn=norm([1,dy,dz]);
+if(Math.hypot(mirror[1]-CY,mirror[2])>PRIMARY_R-.045)return null;
+const n=norm([-1,-(mirror[1]-CY)/(2*F),-mirror[2]/(2*F)]);
+const reflect=(I,N)=>sub(I,scale(N,2*dot(I,N)));
+const r1=norm(reflect(dIn,n)),S=[SX,CY,0],ns=norm([-1,-1,0]);
+const denom=dot(r1,ns);if(Math.abs(denom)<1e-8)return null;
+const t2=dot(sub(S,mirror),ns)/denom;
+if(t2<0)return null;const secondary=add(mirror,scale(r1,t2));
+// Elliptical footprint of 45° secondary (ignore rays missing the mirror).
+const u=norm([1,-1,0]); const du=dot(sub(secondary,S),u),dv=secondary[2];
+if(du*du/(.416*.416)+dv*dv/(.295*.295)>1.05)return null;
+const r2=norm(reflect(r1,ns));if(r2[1]<.05)return null;
+const getAtY=y=>add(secondary,scale(r2,(y-secondary[1])/r2[1]));
+const image=getAtY(IMAGE_Y),eyeY=BASE_EYE_Y+delta/100,eyeHit=getAtY(eyeY);
+const slopeX=r2[0]/r2[1],slopeZ=r2[2]/r2[1];
+const afterX=slopeX-(eyeHit[0]-SX)/EYE_F,afterZ=slopeZ-eyeHit[2]/EYE_F;
+const end=add(eyeHit,scale(norm([afterX,1,afterZ]),.73));
+return{origin,mirror,secondary,image,eyeHit,end,afterX,afterZ,r1,r2,field};
+}
+function polyline(points,cam,color,alpha=1){const p=points.map(pt=>screen(pt,cam));if(p.some(v=>!v.visible))return;overlay.globalAlpha=alpha;overlay.lineCap='round';overlay.lineJoin='round';overlay.beginPath();overlay.moveTo(p[0].x,p[0].y);for(let i=1;i<p.length;i++)overlay.lineTo(p[i].x,p[i].y);overlay.lineWidth=2;overlay.strokeStyle=color;overlay.shadowColor=color;overlay.shadowBlur=8;overlay.stroke();overlay.shadowBlur=0;overlay.globalAlpha=1;for(let k=0;k<p.length-1;k++){const a=p[k],b=p[k+1],dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<30)continue;const ux=dx/L,uy=dy/L,s=.58,cx=a.x+dx*s,cy=a.y+dy*s;overlay.beginPath();overlay.moveTo(cx+ux*8,cy+uy*8);overlay.lineTo(cx-ux*5-uy*4.6,cy-uy*5+ux*4.6);overlay.lineTo(cx-ux*5+uy*4.6,cy-uy*5-ux*4.6);overlay.closePath();overlay.fillStyle=color;overlay.fill();}}
+function drawTree2d(g,cx,cy,s,invert){g.save();g.translate(cx,cy);if(invert)g.rotate(Math.PI);g.scale(s,s);
+g.fillStyle='#886548';g.beginPath();g.moveTo(-5,8);g.lineTo(6,8);g.lineTo(4,49);g.lineTo(-4,49);g.fill();
+const leaf=[[-16,-10,20,19],[-2,-30,22,23],[17,-16,19,23],[-24,2,16,18],[18,5,15,18],[1,3,23,19]];
+leaf.forEach(([x,y,rx,ry],i)=>{g.fillStyle=['#5cae8a','#2e886c','#77c8a1'][i%3];g.beginPath();g.ellipse(x,y,rx,ry,0,0,TAU);g.fill();});g.restore();}
+function imageInset(){const w=260,h=250;inset.clearRect(0,0,w,h);inset.save();inset.strokeStyle='rgba(119,189,203,.40)';inset.lineWidth=2;inset.beginPath();inset.arc(130,121,99,0,TAU);inset.stroke();
+inset.strokeStyle='rgba(121,166,180,.38)';inset.beginPath();inset.moveTo(32,121);inset.lineTo(228,121);inset.moveTo(130,23);inset.lineTo(130,219);inset.stroke();
+const s=clamp(angle/.95,.65,1.6);drawTree2d(inset,130,115,s*1.13,true);inset.restore();}
+function drawMirrorProfile(){
+ // Educational profile at 12x axial sag. The actual 3-D paraboloid and ray trace remain unchanged.
+ const ctx=profile,w=360,h=235;ctx.clearRect(0,0,w,h);ctx.save();
+ const yc=118,R=83,edge=126,mag=12,sag=PRIMARY_R*PRIMARY_R/(4*F),pxSag=sag*120*mag;
+ // Magnification is stated in the title instead of another small explanatory caption.
+ // Behind the reflecting curve is a thick, physically distinct optical substrate.
+ ctx.beginPath();for(let i=0;i<=70;i++){const rr=2*i/70-1,yy=yc+rr*R,xx=edge+pxSag*(1-rr*rr);if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);}ctx.lineTo(245,yc+R);ctx.lineTo(245,yc-R);ctx.closePath();
+ let grad=ctx.createLinearGradient(edge,0,245,0);grad.addColorStop(0,'#536e7e');grad.addColorStop(.55,'#314757');grad.addColorStop(1,'#253442');ctx.fillStyle=grad;ctx.fill();
+ ctx.strokeStyle='#9fbac8';ctx.lineWidth=3;ctx.beginPath();for(let i=0;i<=90;i++){const rr=2*i/90-1,yy=yc+rr*R,xx=edge+pxSag*(1-rr*rr);if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);}ctx.stroke();
+ ctx.beginPath();ctx.arc(edge, yc-R,3,0,TAU);ctx.arc(edge,yc+R,3,0,TAU);ctx.fillStyle='#d7e5e9';ctx.fill();
+ // Dashed vertex tangent highlights that the center is recessed relative to the rim.
+ ctx.setLineDash([4,6]);ctx.strokeStyle='#6bbcd3';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(edge,yc-96);ctx.lineTo(edge,yc+96);ctx.stroke();ctx.setLineDash([]);
+ ctx.strokeStyle='#e6b778';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(26,yc-25);ctx.lineTo(92,yc-25);ctx.moveTo(26,yc+25);ctx.lineTo(92,yc+25);ctx.stroke();
+ for(let yy of [yc-25,yc+25]){ctx.fillStyle='#e6b778';ctx.beginPath();ctx.moveTo(94,yy);ctx.lineTo(82,yy-5);ctx.lineTo(82,yy+5);ctx.fill();}
+ ctx.fillStyle='#f0c58c';ctx.font='bold 17px system-ui';ctx.fillText('入射光',24,53);ctx.restore();
+}
+function drawRays(cam){overlay.clearRect(0,0,cw,ch);if(view==='secondaryBack'||!raysOn||!(mode==='optics'||mode==='half'))return;
+// 主镜汇聚 -> 平面镜改变方向 -> 在空气中的焦面上先交会成像 -> 再经目镜。
+const colors=['#77d8fa','#f1c17e','#f48c75'];
+for(let i=0;i<3;i++){const field=(i-1)*angle;for(let j=-1;j<=1;j++){
+ const ray=rayTrace(field,j*.45,(j===0?0:j*.12));if(!ray)continue;
+ const col=colors[i];polyline([ray.origin,ray.mirror,ray.secondary,ray.image,ray.eyeHit,ray.end],cam,col,j===0?.95:.54);
+}}
+// 焦面与右上方的放大观察框相连，让学生知道“放大图”取自何处。
+if(planeOn&&mode!=='explode'&&view!=='mirror'){
+ const at=screen([SX,IMAGE_Y,0],cam);
+ if(at.visible&&Number.isFinite(at.x)&&Number.isFinite(at.y)){
+  overlay.save();overlay.strokeStyle='#c9eff1';overlay.lineWidth=1.7;
+  overlay.beginPath();overlay.arc(at.x,at.y,9,0,TAU);overlay.stroke();
+  overlay.beginPath();overlay.arc(at.x,at.y,3.5,0,TAU);overlay.fillStyle='#d8ffe5';overlay.fill();
+  const toX=cw-220,toY=145;
+  if(at.x<toX-40&&at.y>65){overlay.setLineDash([5,7]);overlay.strokeStyle='rgba(147,215,221,.65)';overlay.lineWidth=1.3;
+   overlay.beginPath();overlay.moveTo(at.x+11,at.y-9);overlay.lineTo(at.x+45,at.y-48);overlay.lineTo(toX,toY);overlay.stroke();}
+  overlay.restore();
+ }
+}
+}
+function drawLabels(cam){const labels=[['primaryLabel',[2.21,CY+.85,.23]],['secondaryLabel',[SX,CY+.15,.23]],['eyepieceLabel',[SX,BASE_EYE_Y+.18+delta/100,.12]],['imageLabel',[SX,IMAGE_Y+.008,-.03]]];for(const [id,p] of labels){const e=get(id),v=screen(p,cam),ok=labelsOn&&mode!=='full'&&mode!=='explode'&&view!=='image'&&v.visible&&v.x>65&&v.x<cw-55&&v.y>50&&v.y<ch-20;e.style.display=ok?'block':'none';if(ok){e.style.left=v.x+'px';e.style.top=v.y+'px';}}}
+function resize(){const r=stage.getBoundingClientRect(),w=Math.max(1,r.width|0),h=Math.max(1,r.height|0);if(w===cw&&h===ch)return;cw=w;ch=h;scaleDpr=Math.min(1.4,window.devicePixelRatio||1);for(const c of [canvas,rayCanvas]){c.width=Math.ceil(w*scaleDpr);c.height=Math.ceil(h*scaleDpr);c.style.width=w+'px';c.style.height=h+'px';}overlay.setTransform(scaleDpr,0,0,scaleDpr,0,0);gl.viewport(0,0,canvas.width,canvas.height);}
+function render(){queued=false;resize();const cam=camera();if(!cam.vp.every(Number.isFinite)){notice.style.display='block';notice.textContent='相机投影坐标异常，请使用修复版本。';return;}gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.useProgram(program);gl.uniformMatrix4fv(loc.uVP,false,cam.vp);gl.uniform3fv(loc.uCamera,new Float32Array(cam.eye));
+const draw=b=>{if(!planeOn&&(b.part==='plane'||b.part==='focalTree'))return;
+if(b.side==='section'&&!(mode==='half'||mode==='optics'))return;
+if((mode==='half'||mode==='optics')&&b.side==='near')return;
+if(mode==='explode'&&(b.part==='plane'||b.part==='focalTree'))return;
+const m=materials[b.mat],shift=[0,0,0];if(b.part==='eye'||b.part==='rack')shift[1]+=delta/100;
+if(mode==='explode'){if(b.part==='primary'||b.part==='primaryMount')shift[0]+=.66;
+if(b.part==='secondary'||b.part==='spider')shift[1]+=.34;
+if(b.part==='eye'||b.part==='focusBase'||b.part==='rack'||b.part==='wheel')shift[1]+=.48;
+if(b.part==='front')shift[0]-=.33;}
+gl.uniform3fv(loc.uOffset,new Float32Array(shift));gl.uniform1f(loc.uWheelAngle,-delta/11);gl.uniform1f(loc.uWheelFlag,b.part==='wheel'?1:0);gl.uniform1f(loc.uImageFlag,b.part==='focalTree'?1:0);gl.uniform1f(loc.uImageScale,angle*.93);
+gl.uniform3fv(loc.uColor,new Float32Array(m.c));gl.uniform1f(loc.uMetal,m.m);gl.uniform1f(loc.uRough,m.r);gl.uniform1f(loc.uAlpha,m.a||1);gl.uniform1f(loc.uGlass,m.glass||0);gl.uniform1f(loc.uCoat,m.coat||0);gl.uniform1f(loc.uDetail,m.detail||0);gl.uniform1f(loc.uWear,m.wear||0);gl.uniform1f(loc.uPatina,m.patina||0);gl.uniform1f(loc.uBrushed,m.brush||0);gl.uniform1f(loc.uPrimary,b.part==='primary'?1:0);gl.uniform1f(loc.uOpticalMirror,b.mat==='mirror'?1:0);
+gl.bindBuffer(gl.ARRAY_BUFFER,b.buffer);gl.enableVertexAttribArray(attrs.p);gl.enableVertexAttribArray(attrs.n);gl.vertexAttribPointer(attrs.p,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(attrs.n,3,gl.FLOAT,false,24,12);gl.drawArrays(gl.TRIANGLES,0,b.count);};
+gl.disable(gl.BLEND);gl.depthMask(true);for(const b of batches)if(!b.transparent)draw(b);
+gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);for(const b of batches)if(b.transparent)draw(b);gl.depthMask(true);gl.disable(gl.BLEND);
+drawRays(cam);drawLabels(cam);drawCount++;}
+function schedule(){if(!queued){queued=true;requestAnimationFrame(render);}}
+function updateUI(){get('focusVal').textContent=(delta>0?'+':'')+delta+' mm';const st=get('focusStatus');st.textContent=delta===0?'平行出射':delta<0?'出射光发散':'出射光会聚';st.classList.toggle('warn',delta!==0);get('angleVal').textContent=angle.toFixed(1)+'°';imageInset();drawMirrorProfile();get('inset').hidden=!planeOn||mode==='explode'||view==='mirror';get('mirrorProfile').hidden=view!=='mirror';}
+function setMode(v){mode=v;document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===v));updateUI();schedule();}
+function setView(v){view=v;document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.view===v));if(v==='iso'){yaw=-.55;pitch=.32;distance=8.1;target=[0,.30,0];}else if(v==='side'){yaw=0;pitch=.07;distance=7.75;target=[0,.3,0];}else if(v==='mirror'){setMode('half');yaw=-.90;pitch=.19;distance=3.0;target=[2.02,CY,.0];}else if(v==='secondary'){setMode('half');yaw=1.09;pitch=.25;distance=2.25;target=[SX,CY+.05,0];}else if(v==='secondaryBack'){setMode('half');yaw=-1.30;pitch=-.27;distance=2.65;target=[SX-.18,CY+.03,0];}else{setMode('optics');yaw=-.18;pitch=.61;distance=2.45;target=[SX,IMAGE_Y+.17,.0];}
+updateUI();schedule();}
+get('modeSeg').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(b)setMode(b.dataset.mode);});get('viewSeg').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)setView(b.dataset.view);});
+get('focus').addEventListener('input',e=>{delta=+e.target.value;updateUI();schedule();});
+get('resetFocus').addEventListener('click',()=>{delta=0;get('focus').value='0';updateUI();schedule();});
+get('angle').addEventListener('input',e=>{angle=+e.target.value;updateUI();schedule();});
+for(const [id,key] of [['showRays','raysOn'],['showPlane','planeOn'],['showLabels','labelsOn']])get(id).addEventListener('change',e=>{if(key==='raysOn')raysOn=e.target.checked;if(key==='planeOn')planeOn=e.target.checked;if(key==='labelsOn')labelsOn=e.target.checked;updateUI();schedule();});
+get('resetAll').addEventListener('click',()=>{delta=0;angle=1;raysOn=planeOn=labelsOn=true;get('focus').value=0;get('angle').value=1;for(const id of ['showRays','showPlane','showLabels'])get(id).checked=true;setMode('optics');setView('iso');updateUI();schedule();});
+canvas.addEventListener('pointerdown',e=>{const rect=canvas.getBoundingClientRect(),wheel=screen([-.33,1.75,.22],camera());const knob=mode!=='explode'&&Math.hypot(wheel.x-(e.clientX-rect.left),wheel.y-(e.clientY-rect.top))<32;drag={id:e.pointerId,x:e.clientX,y:e.clientY,btn:e.button,knob};canvas.setPointerCapture(e.pointerId);canvas.style.cursor='grabbing';});
+canvas.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+if(drag.knob){delta=clamp(Math.round(delta+dx*.55),-22,22);get('focus').value=delta;updateUI();}
+else if(drag.btn===2||e.shiftKey){const forward=norm(sub(target,camera().eye)),right=norm(cross(forward,[0,1,0])),up=norm(cross(right,forward));target=add(target,add(scale(right,-dx*distance*.0015),scale(up,dy*distance*.0015)));}
+else{yaw-=dx*.007;pitch=clamp(pitch+dy*.006,-1.36,1.36);}schedule();});
+for(const ev of ['pointerup','pointercancel'])canvas.addEventListener(ev,e=>{if(drag&&e.pointerId===drag.id)drag=null;canvas.style.cursor='grab';});
+canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{e.preventDefault();distance=clamp(distance*Math.exp(e.deltaY*.001),.75,27);schedule();},{passive:false});
+window.addEventListener('resize',schedule);if(window.ResizeObserver)new ResizeObserver(schedule).observe(stage);
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();notice.style.display='block';notice.textContent='图形渲染中断，请刷新页面。';});
+window.__newtonianDebug={renderer:'native-webgl2-fallback',get state(){return{mode,view,angle,delta,raysOn,planeOn,triangles,drawCount,glVersion:gl.getParameter(gl.VERSION)}},rayTrace,render,get imageY(){return IMAGE_Y},get mirrorFocusX(){return FOCUS_X},get foldedFocusY(){return IMAGE_Y},get eyeY(){return BASE_EYE_Y+delta/100},get cutParts(){return batches.filter(b=>b.side==='near'&&(b.part==='eye'||b.part==='focusBase')).map(b=>({part:b.part,count:b.count}))},get imageTreeCount(){return batches.filter(b=>b.part==='focalTree').reduce((a,b)=>a+b.count,0)},get aperture(){return{flangeBoreRadius:.240,flangeBottom:CY+.88,flangeTop:CY+1.02,mirrorCenter:[SX,CY,0],spiderHub:[SX-.425,CY,0]}},get modelParts(){return batches.map(b=>({part:b.part,mat:b.mat,count:b.count,side:b.side}))}};
+updateUI();schedule();console.info('NEWTON 3D repaired ready',{triangles,batches:batches.length,version:gl.getParameter(gl.VERSION)});
+})();</script></body></html>
