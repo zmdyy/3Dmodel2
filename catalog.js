@@ -403,5 +403,22 @@ window.MODEL_CATALOG = [
     "path": "models/eye-accommodation.html",
     "symbol": "👁",
     "accent": "blue"
+  },
+  {
+    "id": "car-speed",
+    "cover": "assets/covers/car-speed.png?v=20261012-v13",
+    "title": "测量小车的平均速度",
+    "subtitle": "斜面小车、机械秒表与误差探究",
+    "category": "力学实验",
+    "summary": "手动停表并读取机械秒表，比较实测点与理论数据；支持全程／半程、80至640 cm木板、降低坡度及等时运动带，各条件分别记录。",
+    "tags": [
+      "平均速度",
+      "时间测量",
+      "实验误差",
+      "运动带"
+    ],
+    "path": "models/car-speed.html",
+    "symbol": "v",
+    "accent": "blue"
   }
 ];
