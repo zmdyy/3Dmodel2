@@ -221,6 +221,10 @@
 
   #scene{touch-action:none}.theme-toggle.active{background:#286eae;color:#fff;border-color:#71b4f8}.head{max-width:650px;flex-wrap:wrap}.head h1{flex:1 1 auto}.head p{display:none}
   @media(max-width:680px){.head{max-width:calc(100% - 64px);gap:6px}.head h1{flex:1 1 100%}.head .theme-toggle{padding:6px 8px}.panel{top:100px;max-height:calc(100vh - 340px)}}
+
+  body.solo .full-only,body.solo .full-diagram{display:none!important}
+  body.solo .schematic-card{display:block}body.solo .schematic-heading{margin-bottom:3px}body.solo #schematicSvg{width:100%;height:185px}
+  @media(max-width:680px){body.solo #schematicSvg{height:170px}}
 </style>
 </head>
 <body>
@@ -251,14 +255,14 @@
   </section>
 
   <div class="head">
-    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="moveComponents" class="theme-toggle" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
+    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="soloView" class="theme-toggle" aria-pressed="false">仅看变阻器</button><button id="moveComponents" class="theme-toggle full-only" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
     <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
   </div>
 
   <div class="panel" id="panel">
     <button id="panelClose" title="收起面板">›</button>
 
-    <div class="grp layout-controls"><div class="toggles"><button id="resetLayout">恢复布局</button></div><div class="mini" id="layoutHint">开启左上角“移动元件”，可拖动六个元件，外接导线自动跟随。</div></div>
+    <div class="grp layout-controls full-only"><div class="toggles"><button id="resetLayout">恢复布局</button></div><div class="mini" id="layoutHint">开启左上角“移动元件”，可拖动六个元件，外接导线自动跟随。</div></div>
     <div class="grp">
       <div class="lbl">滑片 P 位置 <b id="posLabel">居中</b></div>
       <input id="sliderP" type="range" min="0" max="1000" step="1" value="500" />
@@ -357,6 +361,7 @@
    ========================================================= */
 (function () {
   'use strict';
+  let standaloneView=false;
 
   /* ================= 渲染器 / 场景 / 相机 ================= */
   if (THREE.ColorManagement) THREE.ColorManagement.legacyMode = false;
@@ -960,7 +965,7 @@
     }
     while (f.arrows.length < want) {
       const m = new THREE.Mesh(arrowGeo, arrowMat);
-      m.scale.setScalar(1.875);
+      m.scale.setScalar(standaloneView?1:1.875);
       m.castShadow = false;
       m.receiveShadow = false;
       f.group.add(m);
@@ -1004,7 +1009,7 @@
     // 否则螺旋线圈会占走几乎全部箭头，导致横梁和外接导线只剩 1~2 个。
     const counts = FLOW_STYLE.allocateCounts(
       active.map(function (f) { return Math.max(0.001, f.displayLength || f.length); }),
-      140
+      standaloneView?26:140
     );
 
     FLOW_ALL.forEach(function (f) { f.want = 0; });
@@ -1014,7 +1019,7 @@
       // 整条通路统一分配，总计 140 个，不叠加各段的最低数量。
       f.want = n;
     });
-    FLOW_ALL.forEach(syncArrows);
+    FLOW_ALL.forEach(function(f){syncArrows(f);f.arrows.forEach(m=>m.scale.setScalar(standaloneView?1:1.875));});
   }
 
   const BAR_SEG_Y = BAR_Y + 0.30;              // 箭头浮在滑杆上方
@@ -1906,6 +1911,7 @@
   }
   function resetLayout(){layoutItems.forEach(item=>item.g.position.copy(item.home));layoutMove.revision++;finishLabDrag();syncLabConnections();document.getElementById('layoutHint').textContent='已恢复初始布局。';}
   function fitLayoutView(mode){
+    if(standaloneView){view.fitWidth=20;view.fitBase=20.5;view.theta=mode?0:.56;view.phi=mode==='top'?.34:mode==='front'?1.5:1.16;view.dist=view.distTarget=view.baseDist=20.5;view.target.set(rheostatRoot.position.x+.35,3.9,rheostatRoot.position.z);return;}
     let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity;
     layoutItems.forEach(item=>{const p=item.g.position,r=item.rect;minX=Math.min(minX,p.x+r[0]);maxX=Math.max(maxX,p.x+r[1]);minZ=Math.min(minZ,p.z+r[2]);maxZ=Math.max(maxZ,p.z+r[3]);});
     const span=Math.max(42,maxX-minX+5),dist=Math.max(54,span*1.29,(maxZ-minZ)*2.1);
@@ -1913,9 +1919,10 @@
   }
   let labConnectionKey='';
   function syncLabConnections(){
-    const key=state.wire+'|'+state.dir+'|'+lab.aRange+'|'+lab.vRange+'|'+layoutMove.revision;
+    const key=state.wire+'|'+state.dir+'|'+lab.aRange+'|'+lab.vRange+'|'+layoutMove.revision+'|'+standaloneView;
     if(key===labConnectionKey)return;labConnectionKey=key;
     const ends=wireEnds(),fs={A:fLeadA,B:fLeadB,C:fLeadC,D:fLeadD};
+    if(standaloneView){routeLead(fLeadA,leadPointsTerminal(-1));routeLead(fLeadB,leadPointsTerminal(1));routeLead(fLeadC,leadPointsNut(-1));routeLead(fLeadD,leadPointsNut(1));return;}
     Object.keys(fs).forEach(k=>{
       const f=fs[k],fromSwitch=k===ends[state.dir>0?0:1];
       const start=k==='A'?terminalTop(-1):k==='B'?terminalTop(1):leadPointsNut(k==='C'?-1:1)[0];
@@ -1944,7 +1951,7 @@
     if(!lab.closed||state.explodeShown>.04){lab.current=0;lab.voltage=0;return;}
     let lo=0,hi=lab.supply;for(let k=0;k<40;k++){const v=(lo+hi)/2,i=.3*Math.pow(v/2.5,.55);if(v+i*lab.resistance>lab.supply)hi=v;else lo=v;}lab.voltage=(lo+hi)/2;lab.current=.3*Math.pow(lab.voltage/2.5,.55);
   }
-  const circuitUI=document.createElement('div');circuitUI.className='grp';circuitUI.innerHTML='<div class="lbl">完整电路 · 电源 3 V</div><button id="labSwitch" class="lab-main">合上开关</button><div class="readout"><div class="rv"><span>电流表 A</span><b id="labI">0.000 A</b></div><div class="rv"><span>灯泡电压 V</span><b id="labU">0.00 V</b></div><div class="rv"><span>灯泡功率</span><b id="labPower">0.00 W</b></div></div><div class="lab-ranges"><label>电流表量程<select id="labARange"><option value="0.6">0～0.6 A</option><option value="3">0～3 A</option></select></label><label>电压表量程<select id="labVRange"><option value="3">0～3 V</option><option value="15">0～15 V</option></select></label></div><div class="toggles lab-views"><button id="focusA">放大电流表</button><button id="focusV">放大电压表</button><button id="focusR">观察变阻器</button><button id="focusLamp">观察灯泡</button></div><div class="mini" id="labStatus">开关断开 · 电压表并联在灯泡两端</div>';
+  const circuitUI=document.createElement('div');circuitUI.className='grp full-only';circuitUI.innerHTML='<div class="lbl">完整电路 · 电源 3 V</div><button id="labSwitch" class="lab-main">合上开关</button><div class="readout"><div class="rv"><span>电流表 A</span><b id="labI">0.000 A</b></div><div class="rv"><span>灯泡电压 V</span><b id="labU">0.00 V</b></div><div class="rv"><span>灯泡功率</span><b id="labPower">0.00 W</b></div></div><div class="lab-ranges"><label>电流表量程<select id="labARange"><option value="0.6">0～0.6 A</option><option value="3">0～3 A</option></select></label><label>电压表量程<select id="labVRange"><option value="3">0～3 V</option><option value="15">0～15 V</option></select></label></div><div class="toggles lab-views"><button id="focusA">放大电流表</button><button id="focusV">放大电压表</button><button id="focusR">观察变阻器</button><button id="focusLamp">观察灯泡</button></div><div class="mini" id="labStatus">开关断开 · 电压表并联在灯泡两端</div>';
   el.panel.insertBefore(circuitUI,el.panel.querySelector('.grp'));
   function toggleSwitch(){lab.closed=!lab.closed;document.getElementById('labSwitch').textContent=lab.closed?'断开开关':'合上开关';document.getElementById('labSwitch').classList.toggle('active',lab.closed);}
   document.getElementById('labSwitch').onclick=toggleSwitch;
@@ -1956,7 +1963,7 @@
   // 完整回路原理图，与右侧四接线柱细图使用同一状态。
   const full=document.createElement('div');full.className='full-diagram';full.innerHTML='<svg id="fullCircuit" viewBox="0 0 650 245" role="img" aria-label="电源、开关、滑动变阻器、灯泡、电流表依次串联，电压表并联在灯泡两端"><g fill="none" stroke="#303b48" stroke-width="3"><path d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><path d="M210 9 V51 M235 18 V42"/><path id="fullSwitchBlade" d="M60 80 L80 112"/><circle cx="60" cy="80" r="4"/><circle cx="60" cy="120" r="4"/><rect x="145" y="168" width="70" height="24"/><path d="M165 153 L195 201 M187 194 L195 201 L195 190"/><circle cx="400" cy="180" r="24"/><path d="M383 163 L417 197 M383 197 L417 163"/><circle cx="400" cy="60" r="22"/><path d="M350 180 V225 H550 V202 M450 130 H550 V158"/><circle cx="550" cy="180" r="22"/></g><g fill="#263544" font-family="sans-serif" font-size="24" text-anchor="middle"><text x="400" y="68">A</text><text x="550" y="188">V</text><text x="225" y="77">3 V</text><text x="28" y="108">S</text><text x="180" y="140">R</text><text x="400" y="146">L</text><text x="189" y="20">+</text><text x="255" y="20">−</text></g><path id="fullFlow" fill="none" stroke="#dd4131" stroke-width="4" stroke-dasharray="10 20" d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><text id="fullValues" x="65" y="235" font-size="17" fill="#245b7d"></text></svg><div class="mini">主回路：电源 → S → R → L → A；V 并联在灯泡两端。</div>';
   const card=document.querySelector('.schematic-card');card.insertBefore(full,schematicSvg);document.querySelector('.schematic-heading span').textContent='完整电路 / 变阻器接线细图';
-  function updateLab(dt, lightDt){syncLabConnections();solveLab();const powered=lab.closed&&state.explodeShown<.04;
+  function updateLab(dt, lightDt){syncLabConnections();solveLab();const powered=(standaloneView||lab.closed)&&state.explodeShown<.04;
     blade.rotation.z=lab.closed?0:.48;
     ammeter.ratio+=(lab.current/lab.aRange-ammeter.ratio)*Math.min(1,dt*9);voltmeter.ratio+=(lab.voltage/lab.vRange-voltmeter.ratio)*Math.min(1,dt*9);
     [ammeter,voltmeter].forEach(m=>{m.needle.rotation.z=(150-120*clamp(m.ratio,0,1.04))*Math.PI/180;});
@@ -1964,7 +1971,7 @@
     document.getElementById('labI').textContent=lab.current.toFixed(3)+' A';document.getElementById('labU').textContent=lab.voltage.toFixed(2)+' V';document.getElementById('labPower').textContent=(lab.current*lab.voltage).toFixed(2)+' W';
     document.getElementById('labStatus').textContent=state.explodeShown>.04?'分解观察中 · 暂停通电':!lab.closed?'开关断开 · 回路无电流':state.wire==='CD'?'仅接滑杆，变阻器近似零阻；灯泡仍串联在回路中':state.wire==='AB'?'全部电阻丝接入 · 移动滑片不改变读数':'电流表串联 · 电压表测灯泡两端电压';
     fLeadA.wireMesh.visible=state.wire.includes('A');fLeadB.wireMesh.visible=state.wire.includes('B');fLeadC.wireMesh.visible=state.wire.includes('C');fLeadD.wireMesh.visible=state.wire.includes('D');
-    labFlows.forEach(f=>{f.on=powered;f.sign=1;f.group.visible=powered&&state.showFlow;});
+    labFlows.forEach(f=>{f.on=powered&&!standaloneView;f.sign=1;f.group.visible=f.on&&state.showFlow;});
     // 正反接只改变变阻器两个端子的接法，电表极性保持正确。
     if(!powered)FLOW_ALL.forEach(f=>{f.group.visible=false;});
     schematicPath.style.display=powered&&state.showFlow?'':'none';schematicArrows.style.display=powered&&state.showFlow?'':'none';
@@ -1978,9 +1985,25 @@
   document.getElementById('btnReset').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=.90;view.distTarget=view.baseDist=54;view.target.set(4,2,-3);});
   document.getElementById('btnFront').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=1.24;view.distTarget=view.baseDist=62;view.target.set(4,2,-3);});
   document.getElementById('btnTop').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=.16;view.distTarget=view.baseDist=64;view.target.set(4,0,-3);});
+  let fullViewSaved=null;
+  function toggleStandalone(){
+    if(!standaloneView){
+      fullViewSaved={theta:view.theta,phi:view.phi,dist:view.dist,distTarget:view.distTarget,baseDist:view.baseDist,fitWidth:view.fitWidth,fitBase:view.fitBase,scrollTop:el.panel.scrollTop,target:view.target.clone()};
+      if(layoutMove.enabled)toggleMoveMode();
+    }
+    standaloneView=!standaloneView;document.body.classList.toggle('solo',standaloneView);labGroup.visible=!standaloneView;
+    const button=document.getElementById('soloView');button.textContent=standaloneView?'完整电路':'仅看变阻器';button.setAttribute('aria-pressed',String(standaloneView));
+    document.querySelector('.head h1 span').textContent=standaloneView?'· 3D 交互演示':'· 完整电路实验';
+    document.querySelector('.schematic-heading span').textContent=standaloneView?'原理图 · 滑片 P 可拖动':'完整电路 / 变阻器接线细图';
+    labFlows.forEach(f=>{f.on=false;f.group.visible=false;});syncLabConnections();
+    if(standaloneView){fitLayoutView();el.panel.scrollTop=0;}
+    else if(fullViewSaved){const saved=fullViewSaved;['theta','phi','dist','distTarget','baseDist','fitWidth','fitBase'].forEach(k=>view[k]=saved[k]);view.target.copy(saved.target);el.panel.scrollTop=saved.scrollTop;}
+    resize();applyCamera();updateFlows();updateSchematic(0);updateLab(0,0);
+  }
+  document.getElementById('soloView').onclick=toggleStandalone;
   document.getElementById('moveComponents').onclick=toggleMoveMode;document.getElementById('resetLayout').onclick=resetLayout;
   document.getElementById('btnReset').addEventListener('click',()=>fitLayoutView());document.getElementById('btnFront').addEventListener('click',()=>fitLayoutView('front'));document.getElementById('btnTop').addEventListener('click',()=>fitLayoutView('top'));
-  window.__lab={layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-movable-components-v4'};
+  window.__lab={get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-standalone-toggle-v5'};
 
   /* ================= 启动 ================= */
   resize();
