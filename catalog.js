@@ -35,15 +35,15 @@ window.MODEL_CATALOG = [
     "id": "rheostat",
     "cover": "assets/covers/rheostat.png?v=20261008-schematic",
     "title": "滑动变阻器",
-    "subtitle": "接线、滑片与电流方向",
+    "subtitle": "完整电路、指针电表与灯泡亮度",
     "category": "电学元件",
-    "summary": "3D 实物与原理图同步显示：拖动任一图中的滑片 P，观察接入电阻、电流路径和方向共同变化；可切换接线组合，并使用爆炸视图理解内部结构。",
+    "summary": "三维电源、开关、电流表、滑动变阻器和灯泡组成完整电路，电压表测灯泡电压。拖动滑片观察亮度、指针与原理图同步变化，支持双量程读表和分解观察。",
     "tags": [
       "变阻器",
       "接线",
       "电流"
     ],
-    "path": "models/rheostat.html",
+    "path": "models/rheostat.html?v=20261015-complete-circuit",
     "symbol": "R",
     "accent": "violet"
   },
