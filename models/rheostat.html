@@ -163,14 +163,10 @@
     opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;
   }
   #toast.show{opacity:1;transform:translate(-50%,0);}
-  /* 原理图与模型各有独立区域，避免遮住导线和滑片。 */
-  #stage{right:352px;bottom:264px;}
+  /* 实物图占满可用高度，原理图收在右侧面板。 */
+  #stage{right:352px;bottom:0;}
   .head{max-width:550px;padding:10px 15px;}
-  .head p{display:none;}
-  .head h1{margin:0;}
-  .schematic-card{position:fixed;left:22px;right:352px;bottom:20px;height:230px;
-    z-index:5;background:#fff;border:1px solid var(--line);border-radius:16px;
-    box-shadow:var(--shadow);padding:12px 18px;}
+  .head p{display:none;}.head h1{margin:0;}
   .schematic-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:17px;font-weight:700;}
   #schematicRoute{color:#c0392b;font-size:17px;}
   #schematicSvg{display:block;width:100%;height:180px;touch-action:none;user-select:none;}
@@ -183,23 +179,18 @@
   #schematicSvg .current-arrow{fill:#e8372a;stroke:white;stroke-width:.65;}
   #schematicCurrent,#schematicArrows{pointer-events:none;}
   #schematicSlider{cursor:ew-resize;}
-  .hint{bottom:264px;padding:5px 12px;font-size:11px;left:calc((100% - 352px)/2);}
-  body.controls-hidden #stage,body.controls-hidden .schematic-card{right:22px;}
+  .hint{bottom:18px;padding:5px 12px;font-size:11px;left:calc((100% - 352px)/2);}
+  body.controls-hidden #stage{right:0;}
   body.controls-hidden .hint{left:50%;}
-  @media(max-height:780px){#stage{bottom:240px;}.schematic-card{height:206px;}#schematicSvg{height:158px;}.hint{bottom:240px;}}
-  @media(max-width:900px){#stage,.schematic-card{right:300px;}.panel{width:260px;right:18px;padding:12px;}.hint{left:calc((100% - 300px)/2);}}
-  @media(max-width:680px){#stage,body.controls-hidden #stage{right:0;bottom:222px;}
-    .schematic-card,body.controls-hidden .schematic-card{left:10px;right:10px;bottom:10px;height:202px;padding:10px;}
-    #schematicSvg{height:154px;}.schematic-heading,#schematicRoute{font-size:14px;}
-    .head{left:10px;top:10px;max-width:calc(100% - 64px);}.head p{display:none;}
-    .panel{top:58px;right:10px;width:240px;max-height:calc(100vh - 284px);}
+  @media(max-width:900px){#stage{right:300px;}.panel{width:260px;right:18px;padding:12px;}.hint{left:calc((100% - 300px)/2);}}
+  @media(max-width:680px){#stage,body.controls-hidden #stage{right:0;bottom:0;}
+    .head{left:10px;top:10px;max-width:calc(100% - 64px);}
+    .panel{top:100px;right:10px;width:240px;max-height:calc(100vh - 112px);}
     #panelOpen{right:10px;top:12px;}.hint{display:none;}}
 
   .lab-main{width:100%;padding:12px;border:0;border-radius:10px;background:#246eac;color:white;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer}.lab-main.active{background:#ac4b32}
   .lab-ranges{display:flex;gap:10px;margin:10px 0}.lab-ranges label{flex:1;font-size:12px;color:#465b70}.lab-ranges select{display:block;width:100%;margin-top:5px;padding:7px 2px;border:1px solid #ccd6e1;border-radius:6px;background:white}
-  .schematic-card{display:grid;grid-template-columns:1.15fr 1fr;gap:0 18px;height:240px;padding:10px 16px}.schematic-heading{grid-column:1/-1;font-size:15px}#schematicRoute{font-size:15px}#schematicSvg{height:182px;align-self:center}.full-diagram{min-width:0;border-right:1px solid #e0e6ed;padding-right:12px}.full-diagram svg{width:100%;height:165px;display:block}.full-diagram .mini{font-size:10px;margin-top:0}#stage{bottom:272px}.hint{bottom:270px}
-  @media(max-width:1050px){.full-diagram svg{height:155px}.schematic-card{gap:0 4px;padding:8px}.schematic-heading{font-size:12px}#schematicRoute{font-size:12px}}
-  @media(max-width:680px){.head h1{font-size:15px}.head h1 span{font-size:11px}.schematic-card,body.controls-hidden .schematic-card{height:222px;grid-template-columns:1.1fr 1fr;bottom:8px}.full-diagram svg{height:145px}#schematicSvg{height:145px}.full-diagram .mini{font-size:9px}#stage,body.controls-hidden #stage{bottom:240px}}
+
 
 
   .head{display:flex;align-items:center;gap:12px}.head h1{flex:1;min-width:0}.theme-toggle{flex-shrink:0;border:1px solid var(--line);border-radius:9px;background:var(--brand-soft);color:var(--ink);padding:8px 10px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}.lab-views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.lab-views button{min-width:0}
@@ -213,25 +204,43 @@
   body.dark .rv b,body.dark .tip b,body.dark .tip em{color:#abd6ff}
   body.dark .mini{color:#a9bfd7}body.dark .lab-ranges label{color:#b7c8dc}body.dark .verdict{border-color:#49617b}body.dark .verdict.good,body.dark .tip .ok{color:#85dca9}body.dark .verdict.bad,body.dark .tip .bad{color:#ff9c8c}
   body.dark .hint kbd{background:#263e59;color:#dfedff;border-color:#45607f}
-  body.dark .full-diagram{border-color:#40536b}body.dark #fullCircuit g[stroke]{stroke:#d7e4f4}body.dark #fullCircuit g[fill]:not([fill="none"]){fill:#d7e4f4}body.dark #fullValues{fill:#a6d4ff}
   body.dark #schematicSvg .conductor{stroke:#d7e4f4}body.dark #schematicSvg text{fill:#e5edf8}body.dark #schematicSvg .port{fill:#182535;stroke:#d7e4f4}body.dark #schematicSvg .port.connected{stroke:#ff7866}body.dark #schematicTip{fill:#d7e4f4}
   body.dark #schematicRoute{color:#ff9b87!important}
   @media(max-width:680px){.head{gap:7px}.theme-toggle{padding:7px;font-size:11px}}
 
 
   #scene{touch-action:none}.theme-toggle.active{background:#286eae;color:#fff;border-color:#71b4f8}.head{max-width:650px;flex-wrap:wrap}.head h1{flex:1 1 auto}.head p{display:none}
-  @media(max-width:680px){.head{max-width:calc(100% - 64px);gap:6px}.head h1{flex:1 1 100%}.head .theme-toggle{padding:6px 8px}.panel{top:100px;max-height:calc(100vh - 340px)}}
+  @media(max-width:680px){.head{max-width:calc(100% - 64px);gap:6px}.head h1{flex:1 1 100%}.head .theme-toggle{padding:6px 8px}.panel{top:100px;max-height:calc(100vh - 112px)}}
 
-  body.solo .full-only,body.solo .full-diagram{display:none!important}
-  body.solo .schematic-card{display:block}body.solo .schematic-heading{margin-bottom:3px}body.solo #schematicSvg{width:100%;height:185px}
-  @media(max-width:680px){body.solo #schematicSvg{height:170px}}
+  body.solo .full-only{display:none!important}
+  .schematic-card{position:static;margin:24px 0 14px;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--brand-soft);overflow:hidden;}
+  .schematic-card summary{cursor:pointer;padding:11px 30px 11px 10px;font-size:13px;font-weight:700;position:relative;list-style:none;}
+  .schematic-card summary::-webkit-details-marker{display:none;}
+  .diagram-action{position:absolute;right:10px;color:var(--brand);font-weight:500;}
+  .diagram-action::after{content:'打开';}.schematic-card[open] .diagram-action::after{content:'关闭';}
+  .schematic-heading{display:flex;flex-wrap:wrap;gap:4px;padding:2px 10px;font-size:11px;}
+  #schematicRoute{font-size:12px;margin-left:auto;}
+  #schematicSvg{width:100%;height:auto;aspect-ratio:600/220;margin:8px 0 10px;}
+  .schematic-card summary:focus-visible{outline:2px solid var(--brand);outline-offset:-3px;}
+
 
   .coil-legend{display:flex;gap:16px;margin-top:9px;font-size:12px;color:var(--ink2)}.coil-legend span{display:flex;align-items:center;gap:5px}.coil-legend i{display:inline-block;width:13px;height:13px;border-radius:3px}.coil-legend .current-coil{background:#007eaa}.coil-legend .idle-coil{background:#59351f;border:1px solid #92715a}
 </style>
 </head>
 <body>
   <div id="stage"><canvas id="scene"></canvas></div>
-  <section class="schematic-card" aria-label="滑动变阻器同步原理图">
+
+
+  <div class="head">
+    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="soloView" class="theme-toggle" aria-pressed="false">仅看变阻器</button><button id="moveComponents" class="theme-toggle full-only" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
+    <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+  <details id="schematicToggle" class="schematic-card" aria-label="滑动变阻器同步原理图">
+    <summary>变阻器原理图<span class="diagram-action"></span></summary>
     <div class="schematic-heading"><span>原理图 · 滑片 P 可拖动</span><span id="schematicRoute" aria-live="polite">A → P → D</span></div>
     <svg id="schematicSvg" viewBox="0 0 600 220" role="img" aria-labelledby="schematicTitle schematicDesc">
       <title id="schematicTitle">滑动变阻器原理图</title>
@@ -254,15 +263,7 @@
       <text x="42" y="172">A</text><text x="544" y="172">B</text>
       <text x="42" y="63">C</text><text x="544" y="63">D</text>
     </svg>
-  </section>
-
-  <div class="head">
-    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="soloView" class="theme-toggle" aria-pressed="false">仅看变阻器</button><button id="moveComponents" class="theme-toggle full-only" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
-    <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
-  </div>
-
-  <div class="panel" id="panel">
-    <button id="panelClose" title="收起面板">›</button>
+  </details>
 
     <div class="grp layout-controls full-only"><div class="toggles"><button id="resetLayout">恢复布局</button></div><div class="mini" id="layoutHint">开启左上角“移动元件”，可拖动六个元件，外接导线自动跟随。</div></div>
     <div class="grp">
@@ -1959,9 +1960,6 @@
   document.getElementById('focusA').onclick=()=>focusMeter(ammeter);document.getElementById('focusV').onclick=()=>focusMeter(voltmeter);document.getElementById('focusR').onclick=()=>{view.fitWidth=20;view.fitBase=25;view.target.set(rheostatRoot.position.x,3.9,rheostatRoot.position.z);view.theta=.4;view.phi=1.15;view.distTarget=view.baseDist=25;};
   document.getElementById('focusLamp').onclick=()=>{view.fitWidth=8;view.fitBase=14;view.target.set(bulb.position.x,2.2,bulb.position.z);view.theta=.15;view.phi=1.15;view.distTarget=view.baseDist=14;};
   canvas.addEventListener('pointerdown',e=>{if(layoutMove.enabled)return;raycaster.setFromCamera(pointerNDC(e),camera);const h=raycaster.intersectObjects(switchPick,true);if(h.length){toggleSwitch();dragging=false;dragMode=null;} });
-  // 完整回路原理图，与右侧四接线柱细图使用同一状态。
-  const full=document.createElement('div');full.className='full-diagram';full.innerHTML='<svg id="fullCircuit" viewBox="0 0 650 245" role="img" aria-label="电源、开关、滑动变阻器、灯泡、电流表依次串联，电压表并联在灯泡两端"><g fill="none" stroke="#303b48" stroke-width="3"><path d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><path d="M210 9 V51 M235 18 V42"/><path id="fullSwitchBlade" d="M60 80 L80 112"/><circle cx="60" cy="80" r="4"/><circle cx="60" cy="120" r="4"/><rect x="145" y="168" width="70" height="24"/><path d="M165 153 L195 201 M187 194 L195 201 L195 190"/><circle cx="400" cy="180" r="24"/><path d="M383 163 L417 197 M383 197 L417 163"/><circle cx="400" cy="60" r="22"/><path d="M350 180 V225 H550 V202 M450 130 H550 V158"/><circle cx="550" cy="180" r="22"/></g><g fill="#263544" font-family="sans-serif" font-size="24" text-anchor="middle"><text x="400" y="68">A</text><text x="550" y="188">V</text><text x="225" y="77">3 V</text><text x="28" y="108">S</text><text x="180" y="140">R</text><text x="400" y="146">L</text><text x="189" y="20">+</text><text x="255" y="20">−</text></g><path id="fullFlow" fill="none" stroke="#dd4131" stroke-width="4" stroke-dasharray="10 20" d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><text id="fullValues" x="65" y="235" font-size="17" fill="#245b7d"></text></svg><div class="mini">主回路：电源 → S → R → L → A；V 并联在灯泡两端。</div>';
-  const card=document.querySelector('.schematic-card');card.insertBefore(full,schematicSvg);document.querySelector('.schematic-heading span').textContent='完整电路 / 变阻器接线细图';
   function updateLab(dt, lightDt){syncLabConnections();solveLab();
     const colorKey=[standaloneView,lab.closed,state.explodeShown<.04].join('|');if(coil.userData.powerKey!==colorKey){coil.userData.powerKey=colorKey;updateCoilGlow();}
     const powered=(standaloneView||lab.closed)&&state.explodeShown<.04;
@@ -1976,8 +1974,7 @@
     // 正反接只改变变阻器两个端子的接法，电表极性保持正确。
     if(!powered)FLOW_ALL.forEach(f=>{f.group.visible=false;});
     schematicPath.style.display=powered&&state.showFlow?'':'none';schematicArrows.style.display=powered&&state.showFlow?'':'none';
-    const flow=document.getElementById('fullFlow');flow.style.display=powered&&state.showFlow?'':'none';flow.style.strokeDashoffset=String(-travel*9);document.getElementById('fullSwitchBlade').setAttribute('d',lab.closed?'M60 80 V120':'M60 80 L80 112');
-    document.getElementById('fullValues').textContent='I = '+lab.current.toFixed(3)+' A   U灯 = '+lab.voltage.toFixed(2)+' V';
+
   }
   // 回路导线实体不会随“电流箭头”关闭而消失。
   syncLabConnections();
@@ -1995,7 +1992,6 @@
     standaloneView=!standaloneView;document.body.classList.toggle('solo',standaloneView);labGroup.visible=!standaloneView;
     const button=document.getElementById('soloView');button.textContent=standaloneView?'完整电路':'仅看变阻器';button.setAttribute('aria-pressed',String(standaloneView));
     document.querySelector('.head h1 span').textContent=standaloneView?'· 3D 交互演示':'· 完整电路实验';
-    document.querySelector('.schematic-heading span').textContent=standaloneView?'原理图 · 滑片 P 可拖动':'完整电路 / 变阻器接线细图';
     labFlows.forEach(f=>{f.on=false;f.group.visible=false;});syncLabConnections();
     if(standaloneView){fitLayoutView();el.panel.scrollTop=0;}
     else if(fullViewSaved){const saved=fullViewSaved;['theta','phi','dist','distTarget','baseDist','fitWidth','fitBase'].forEach(k=>view[k]=saved[k]);view.target.copy(saved.target);el.panel.scrollTop=saved.scrollTop;}
@@ -2004,7 +2000,7 @@
   document.getElementById('soloView').onclick=toggleStandalone;
   document.getElementById('moveComponents').onclick=toggleMoveMode;document.getElementById('resetLayout').onclick=resetLayout;
   document.getElementById('btnReset').addEventListener('click',()=>fitLayoutView());document.getElementById('btnFront').addEventListener('click',()=>fitLayoutView('front'));document.getElementById('btnTop').addEventListener('click',()=>fitLayoutView('top'));
-  window.__lab={coil,flowStyle:{scale:FLOW_ARROW_SCALE,spacing:FLOW_ARROW_SPACING},get arrowSpacing(){return circuitArrowSpacing;},get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-clear-current-v6'};
+  window.__lab={coil,flowStyle:{scale:FLOW_ARROW_SCALE,spacing:FLOW_ARROW_SPACING},get arrowSpacing(){return circuitArrowSpacing;},get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-roomy-stage-v7'};
 
   /* ================= 启动 ================= */
   resize();
