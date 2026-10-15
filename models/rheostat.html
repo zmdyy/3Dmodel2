@@ -201,6 +201,23 @@
   @media(max-width:1050px){.full-diagram svg{height:155px}.schematic-card{gap:0 4px;padding:8px}.schematic-heading{font-size:12px}#schematicRoute{font-size:12px}}
   @media(max-width:680px){.head h1{font-size:15px}.head h1 span{font-size:11px}.schematic-card,body.controls-hidden .schematic-card{height:222px;grid-template-columns:1.1fr 1fr;bottom:8px}.full-diagram svg{height:145px}#schematicSvg{height:145px}.full-diagram .mini{font-size:9px}#stage,body.controls-hidden #stage{bottom:240px}}
 
+
+  .head{display:flex;align-items:center;gap:12px}.head h1{flex:1;min-width:0}.theme-toggle{flex-shrink:0;border:1px solid var(--line);border-radius:9px;background:var(--brand-soft);color:var(--ink);padding:8px 10px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}.lab-views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.lab-views button{min-width:0}
+  body.dark{--bg:#111925;--ink:#e3edf9;--ink2:#b7c8dc;--line:#36465b;--brand:#75b6ff;--brand-soft:#253a55;--shadow:0 10px 34px #0005;background:#111925;color:var(--ink);color-scheme:dark}
+  body.dark .panel,body.dark .head,body.dark .hint{background:rgba(22,33,48,.95)}
+  body.dark .schematic-card{background:#182535}
+  body.dark .seg button,body.dark .toggles button,body.dark #panelClose,body.dark #panelOpen,body.dark .lab-ranges select{background:#223246;color:#dbe8f9;border-color:#40526a}
+  body.dark .seg button.active,body.dark .toggles button.active{background:#387dc1;color:#fff;border-color:#72b8ff}
+  body.dark .seg button.warn.active{background:#ae4937;border-color:#ff907c}
+  body.dark .readout,body.dark .tip{background:#203147;border-color:#384f69}
+  body.dark .rv b,body.dark .tip b,body.dark .tip em{color:#abd6ff}
+  body.dark .mini{color:#a9bfd7}body.dark .lab-ranges label{color:#b7c8dc}body.dark .verdict{border-color:#49617b}body.dark .verdict.good,body.dark .tip .ok{color:#85dca9}body.dark .verdict.bad,body.dark .tip .bad{color:#ff9c8c}
+  body.dark .hint kbd{background:#263e59;color:#dfedff;border-color:#45607f}
+  body.dark .full-diagram{border-color:#40536b}body.dark #fullCircuit g[stroke]{stroke:#d7e4f4}body.dark #fullCircuit g[fill]:not([fill="none"]){fill:#d7e4f4}body.dark #fullValues{fill:#a6d4ff}
+  body.dark #schematicSvg .conductor{stroke:#d7e4f4}body.dark #schematicSvg text{fill:#e5edf8}body.dark #schematicSvg .port{fill:#182535;stroke:#d7e4f4}body.dark #schematicSvg .port.connected{stroke:#ff7866}body.dark #schematicTip{fill:#d7e4f4}
+  body.dark #schematicRoute{color:#ff9b87!important}
+  @media(max-width:680px){.head{gap:7px}.theme-toggle{padding:7px;font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -231,7 +248,7 @@
   </section>
 
   <div class="head">
-    <h1>滑动变阻器 <span>· 完整电路实验</span></h1>
+    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
     <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
   </div>
 
@@ -929,7 +946,7 @@
   }
 
   // 每一段的箭头数量由整条有效通路统一分配。
-  // 本案例将箭头总数控制在 14 个，再按各段可见长度分配。
+  // 本案例将箭头总数调整为 140 个（上版的 10 倍），再按各段可见长度分配。
   function syncArrows(f) {
     const want = Math.max(0, Math.round(f.want == null ? 0 : f.want));
     while (f.arrows.length > want) {
@@ -938,7 +955,7 @@
     }
     while (f.arrows.length < want) {
       const m = new THREE.Mesh(arrowGeo, arrowMat);
-      m.scale.setScalar(1.25);
+      m.scale.setScalar(1.875);
       m.castShadow = false;
       m.receiveShadow = false;
       f.group.add(m);
@@ -982,14 +999,14 @@
     // 否则螺旋线圈会占走几乎全部箭头，导致横梁和外接导线只剩 1~2 个。
     const counts = FLOW_STYLE.allocateCounts(
       active.map(function (f) { return Math.max(0.001, f.displayLength || f.length); }),
-      14
+      140
     );
 
     FLOW_ALL.forEach(function (f) { f.want = 0; });
     active.forEach(function (f, i) {
       let n = counts[i];
-      // 每根有效外接导线至少保留 1 个箭头，减少视觉拥挤。
-      if (f.id.indexOf('lead') === 0) n = Math.max(1, n);
+      // 外接导线按可见长度分配，数量与内部导体共同计入总数。
+      // 整条通路统一分配，总计 140 个，不叠加各段的最低数量。
       f.want = n;
     });
     FLOW_ALL.forEach(syncArrows);
@@ -1630,7 +1647,8 @@
   let prevT = performance.now();
   function tick() {
     const now = performance.now();
-    const dt = Math.min(0.05, (now - prevT) / 1000);
+    const elapsed = Math.max(0, (now - prevT) / 1000);
+    const dt = Math.min(0.05, elapsed);
     prevT = now;
 
     // 平滑
@@ -1658,7 +1676,7 @@
     applyCamera();
     updateFlows();
     updateSchematic(dt);
-    updateLab(dt);
+    updateLab(dt, elapsed);
     updateArrowPositions();
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
@@ -1689,7 +1707,7 @@
 
   /* 完整实验电路：灯泡采用额定 2.5 V / 0.3 A 的稳态近似模型。
      I/I额 = (U/U额)^0.55，体现灯丝温升后电阻增大；电表按理想表处理。 */
-  const lab = {closed:false, supply:3, aRange:0.6, vRange:3, current:0, voltage:0, resistance:10};
+  const lab = {dark:false,visualLevel:0,luminousTarget:0,closed:false, supply:3, aRange:0.6, vRange:3, current:0, voltage:0, resistance:10};
   const labGroup = new THREE.Group(); scene.add(labGroup);
   const labFlows = [], labWires = [], switchPick = [];
   const paint = new THREE.MeshStandardMaterial({color:0x536f8e,roughness:0.77,metalness:0.18});
@@ -1701,7 +1719,14 @@
   function box(g,w,h,d,x,y,z,mat){return put(g,new THREE.BoxGeometry(w,h,d),mat,[x,y,z]);}
   function cyl(g,r,h,x,y,z,mat){return put(g,new THREE.CylinderGeometry(r,r,h,32),mat,[x,y,z]);}
   function segment(g,a,b,r,mat){const av=new THREE.Vector3(...a),bv=new THREE.Vector3(...b),d=bv.clone().sub(av);const m=put(g,new THREE.CylinderGeometry(r,r,d.length(),12),mat,av.clone().add(bv).multiplyScalar(.5).toArray());m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return m;}
-  function face(g,w,h,x,y,z,draw){const c=document.createElement('canvas');c.width=1024;c.height=Math.round(1024*h/w);draw(c.getContext('2d'),c.width,c.height);const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;const m=put(g,new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}),[x,y,z]);return m;}
+  function face(g,w,h,x,y,z,draw,crisp){
+    const c=document.createElement('canvas'),resolution=crisp?2048:1024;
+    c.width=resolution;c.height=Math.round(resolution*h/w);
+    const ctx=c.getContext('2d');ctx.scale(resolution/1024,resolution/1024);draw(ctx,1024,1024*h/w);
+    const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+    const mat=new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide,toneMapped:!crisp,fog:!crisp});
+    const m=put(g,new THREE.PlaneGeometry(w,h),mat,[x,y,z]);return m;
+  }
   function caption(g,text,w,x,y,z){return face(g,w,.65,x,y,z,(c,cw,ch)=>{c.fillStyle='#f5f3ec';c.fillRect(0,0,cw,ch);c.fillStyle='#253342';c.textAlign='center';c.textBaseline='middle';c.font='bold '+Math.round(ch*.68)+'px sans-serif';c.fillText(text,cw/2,ch/2);});}
   function post(g,x,y,z,positive){cyl(g,.28,.09,x,y,z,M.metalSoft);cyl(g,.13,.42,x,y+.23,z,M.metal);cyl(g,.22,.30,x,y+.50,z,positive?M.red:black);for(let i=0;i<12;i++){const a=i/12*Math.PI*2;cyl(g,.025,.26,x+.215*Math.cos(a),y+.5,z+.215*Math.sin(a),positive?M.redDark:black);}return [x,y+.24,z];}
   function component(x,z){const g=new THREE.Group();g.position.set(x,0,z);labGroup.add(g);return g;}
@@ -1717,20 +1742,31 @@
   function meter(x,z,unit,labels){const g=component(x,z);box(g,5.3,.6,3.5,0,.42,0,paint);box(g,4.8,.06,1.8,0,.75,.65,white);box(g,4.5,.07,1.5,0,.79,.65,green);
     const mount=new THREE.Group();mount.position.set(0,.77,-.7);mount.rotation.x=-.13;g.add(mount);
     box(mount,5.4,4.8,.48,0,2.4,0,M.metalSoft);box(mount,5.16,4.56,.12,0,2.4,.27,white);
-    face(mount,5,4.4,0,2.4,.343,(c,w,h)=>{c.fillStyle='#f9f8f2';c.fillRect(0,0,w,h);const cx=w*.5,cy=h*.79,r=w*.44;
-      c.strokeStyle='#202a32';c.fillStyle='#17222c';c.textAlign='center';c.textBaseline='middle';
-      for(let i=0;i<=30;i++){const a=(-140+i*100/30)*Math.PI/180,rr=r-(i%5===0?27:15);c.lineWidth=i%5===0?4:2.5;c.beginPath();c.moveTo(cx+rr*Math.cos(a),cy+rr*Math.sin(a));c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));c.stroke();}
-      for(let i=0;i<=3;i++){const a=(-140+i*100/3)*Math.PI/180;c.font='bold 56px sans-serif';c.fillText(String(i*(unit==='A'?1:5)),cx+(r+44)*Math.cos(a),cy+(r+44)*Math.sin(a));c.font='48px sans-serif';c.fillText(unit==='A'?(i*.2).toFixed(1).replace('.0','') :String(i),cx+(r-68)*Math.cos(a),cy+(r-68)*Math.sin(a));}
-      c.font='bold 96px sans-serif';c.fillText(unit,cx,h*.49);c.fillRect(cx-28,h*.56,56,3);
-      c.fillStyle='#bbc0c3';c.fillRect(w*.37,h*.80,w*.26,h*.20);c.strokeStyle='#858c91';c.lineWidth=1;for(let i=0;i<20;i++){let yy=h*.8+i*h*.01;c.beginPath();c.moveTo(w*.37,yy);c.lineTo(w*.63,yy);c.stroke();}
-    });
+    // 刻度使用 2048 像素独立表盘；保持黑白对比，不受场景雾效和曝光冲淡。
+    const dial=face(mount,5,4.4,0,2.4,.343,(c,w,h)=>{
+      c.fillStyle='#fffef9';c.fillRect(0,0,w,h);
+      const cx=w*.5,cy=h*.79,r=w*.445;
+      c.strokeStyle='#080e16';c.fillStyle='#080e16';c.textAlign='center';c.textBaseline='middle';c.lineCap='butt';
+      for(let i=0;i<=30;i++){
+        const a=(-150+i*4)*Math.PI/180,major=i%5===0,rr=r-(major?46:29);
+        c.lineWidth=major?9:6;c.beginPath();c.moveTo(cx+rr*Math.cos(a),cy+rr*Math.sin(a));c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));c.stroke();
+      }
+      for(let i=0;i<=3;i++){
+        const a=(-150+i*40)*Math.PI/180;
+        c.fillStyle='#080e16';c.font='700 94px sans-serif';c.fillText(String(i*(unit==='A'?1:5)),cx+(r+62)*Math.cos(a),cy+(r+62)*Math.sin(a));
+        c.fillStyle='#183545';c.font='700 82px sans-serif';c.fillText(unit==='A'?(i*.2).toFixed(1).replace('.0',''):String(i),cx+(r-108)*Math.cos(a),cy+(r-108)*Math.sin(a));
+      }
+      c.fillStyle='#080e16';c.font='700 124px sans-serif';c.fillText(unit,cx,h*.54);c.fillRect(cx-38,h*.62,76,5);
+      c.fillStyle='#bbc0c3';c.fillRect(w*.37,h*.80,w*.26,h*.20);c.strokeStyle='#858c91';c.lineWidth=1;
+      for(let i=0;i<20;i++){const yy=h*.8+i*h*.01;c.beginPath();c.moveTo(w*.37,yy);c.lineTo(w*.63,yy);c.stroke();}
+    },true);
     [-2.1,2.1].forEach(xx=>{put(mount,new THREE.CylinderGeometry(.13,.13,.08,28),M.metalSoft,[xx,.65,.39],[Math.PI/2,0,0]);box(mount,.13,.018,.016,xx,.65,.442,black);box(g,.6,.22,2.9,xx,.08,0,black);});
     const needle=new THREE.Group();needle.position.set(0,1.124,.37);mount.add(needle);
     // 从枢轴出发，针尖落在同一量程刻度弧线上。
-    const shape=new THREE.Shape();shape.moveTo(0,0);shape.lineTo(2.18,-.015);shape.lineTo(2.2,0);shape.lineTo(.35,.035);shape.lineTo(0,.06);shape.closePath();put(needle,new THREE.ShapeGeometry(shape),black);
+    const shape=new THREE.Shape();shape.moveTo(0,0);shape.lineTo(2.18,-.012);shape.lineTo(2.225,0);shape.lineTo(.35,.045);shape.lineTo(0,.07);shape.closePath();put(needle,new THREE.ShapeGeometry(shape),new THREE.MeshBasicMaterial({color:0x080e16,toneMapped:false,fog:false}));
     const hub=put(mount,new THREE.CylinderGeometry(.14,.14,.06,28),black,[0,1.124,.41],[Math.PI/2,0,0]);
     [-1.7,0,1.7].forEach((xx,i)=>{post(g,xx,.84,.75,i>0);const p=caption(g,labels[i],1.2,xx,.43,1.762);});
-    return {g,needle,minus:[x-1.7,1.08,z+.75],low:[x,1.08,z+.75],high:[x+1.7,1.08,z+.75],ratio:0};
+    return {g,needle,dial,minus:[x-1.7,1.08,z+.75],low:[x,1.08,z+.75],high:[x+1.7,1.08,z+.75],ratio:0};
   }
   const ammeter=meter(12,-10,'A',['−','0.6','3']);const voltmeter=meter(21,2,'V',['−','3','15']);
   const bulb=component(13,2);box(bulb,4.8,.4,3.1,0,.3,0,paint);post(bulb,-1.8,.52,.45,true);post(bulb,1.8,.52,.45,true);
@@ -1739,9 +1775,48 @@
   const glassMat=new THREE.MeshPhysicalMaterial({color:0x9ab8cb,roughness:.16,metalness:0,transparent:true,opacity:.33,depthWrite:false,side:THREE.DoubleSide});
   put(bulb,new THREE.SphereGeometry(1.16,40,28),glassMat,[0,2.8,0]);cyl(bulb,.48,.65,0,1.85,0,glassMat);
   segment(bulb,[-.22,1.65,0],[-.4,2.85,0],.025,M.metal);segment(bulb,[.22,1.65,0],[.4,2.85,0],.025,M.metal);
-  const filamentMat=new THREE.MeshStandardMaterial({color:0x4b4031,roughness:.8,emissive:0xff991d,emissiveIntensity:0});
+  const filamentMat=new THREE.MeshStandardMaterial({color:0x34291e,roughness:.8,emissive:0xff991d,emissiveIntensity:0});filamentMat.userData.noMaterialFinish=true;
   const fp=[];for(let i=0;i<=150;i++){const t=i/150;fp.push([-.4+.8*t,2.86+.055*Math.sin(t*Math.PI*20),.055*Math.cos(t*Math.PI*20)]);}put(bulb,tube(fp,.025,150),filamentMat);
-  const bulbLight=new THREE.PointLight(0xffbe65,0,7,2);bulbLight.position.set(0,2.7,0);bulb.add(bulbLight);caption(bulb,'L · 2.5 V / 0.3 A',4.4,0,.34,1.562);
+  const bulbLight=new THREE.PointLight(0xffb950,0,12,2);bulbLight.position.set(0,2.8,.15);bulb.add(bulbLight);caption(bulb,'L · 2.5 V / 0.3 A',4.4,0,.34,1.562);
+  // 透亮的灯泡内部与外侧柔光共同显示连续亮度，避免仅靠细灯丝难以辨认。
+  const glowCanvas=document.createElement('canvas');glowCanvas.width=glowCanvas.height=256;
+  const gc=glowCanvas.getContext('2d'),gradient=gc.createRadialGradient(128,128,0,128,128,128);
+  gradient.addColorStop(0,'rgba(255,249,214,1)');gradient.addColorStop(.22,'rgba(255,222,139,.9)');gradient.addColorStop(.48,'rgba(255,172,58,.35)');gradient.addColorStop(1,'rgba(255,135,25,0)');
+  gc.fillStyle=gradient;gc.fillRect(0,0,256,256);
+  const glowTexture=new THREE.CanvasTexture(glowCanvas);glowTexture.encoding=THREE.sRGBEncoding;
+  const bulbHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}));
+  bulbHalo.position.set(0,2.8,0);bulbHalo.scale.set(4.5,4.5,1);bulb.add(bulbHalo);
+  const innerGlowMat=new THREE.MeshBasicMaterial({color:0xffc76b,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,fog:false});
+  put(bulb,new THREE.SphereGeometry(.94,32,20),innerGlowMat,[0,2.8,0]);
+  const coldFilament=new THREE.Color(0x34291e),hotFilament=new THREE.Color(0xffd891),warmEmission=new THREE.Color(0xff8c24),hotEmission=new THREE.Color(0xffefbc);
+  function updateBulbLight(dt){
+    const power=Math.max(0,lab.current*lab.voltage),target=Math.pow(clamp(power/.75,0,1.6),1.35);
+    lab.luminousTarget=target;
+    // 光学显示采用短暂热惯性；电流、电压仍显示实时电路解。
+    const alpha=1-Math.exp(-Math.max(0,dt)/(target > lab.visualLevel ? .085 : .12));
+    lab.visualLevel+=(target-lab.visualLevel)*alpha;
+    if(target===0&&lab.visualLevel<.0001)lab.visualLevel=0;
+    const v=lab.visualLevel,heat=clamp(v/1.35,0,1);
+    filamentMat.color.copy(coldFilament).lerp(hotFilament,heat);
+    filamentMat.emissive.copy(warmEmission).lerp(hotEmission,heat);filamentMat.emissiveIntensity=v*8;
+    glassMat.emissive.copy(warmEmission).lerp(hotEmission,heat);glassMat.emissiveIntensity=v*.8;
+    innerGlowMat.color.copy(warmEmission).lerp(hotEmission,heat);innerGlowMat.opacity=clamp(v*.38,0,.64);
+    bulbHalo.material.opacity=clamp(v*(lab.dark ? .78 : .52),0,.95);
+    bulbHalo.scale.setScalar(4.1+heat*1.4);bulbLight.color.copy(warmEmission).lerp(hotEmission,heat);bulbLight.intensity=v*(lab.dark?22:13);
+  }
+  function applyTheme(dark){
+    lab.dark=!!dark;document.body.classList.toggle('dark',lab.dark);
+    const bg=lab.dark?0x111925:0xeef3f9;scene.background.set(bg);scene.fog.color.set(bg);
+    ground.material.color.set(lab.dark?0x253344:0xdce4ec);grid.material.opacity=lab.dark ? .16 : .5;grid.material.color.set(lab.dark?0x8b9eaf:0xffffff);
+    const hemi=scene.children.find(o=>o.isHemisphereLight);hemi.intensity=lab.dark ? .25 : .46;
+    keyLight.intensity=lab.dark ? .5 : 1.02;fillLight.intensity=lab.dark ? .17 : .3;rimLight.intensity=lab.dark ? .22 : .34;warmBounce.intensity=lab.dark ? .07 : .16;
+    renderer.toneMappingExposure=lab.dark ? .94 : 1.08;
+    wireBlack.color.set(lab.dark?0x8092a7:0x313c49);wireRed.color.set(lab.dark?0xdc6050:0xad342c);leadMat.color.set(lab.dark?0x92a2b6:0x3b424e);
+    const button=document.getElementById('themeToggle');button.textContent=lab.dark?'浅色模式':'暗色模式';button.setAttribute('aria-pressed',String(lab.dark));
+    try{localStorage.setItem('rheostat-theme',lab.dark?'dark':'light');}catch(e){}
+  }
+  document.getElementById('themeToggle').onclick=()=>applyTheme(!lab.dark);
+  let initialDark=false;try{initialDark=localStorage.getItem('rheostat-theme')==='dark';}catch(e){}applyTheme(initialDark);
   segment(bulb,[-1.8,.76,.45],[-.4,.62,0],.07,wireRed);segment(bulb,[1.8,.76,.45],[.5,1.22,0],.07,wireBlack);
   const lampIn=[11.2,.76,2.45],lampOut=[14.8,.76,2.45];
   function pathWire(id,points,mat,flow){const f=makeFlow({id,parent:labGroup});f.curve=curveOf(points);f.length=f.displayLength=f.curve.getLength();f.surfaceRadius=.085;f.on=!!flow;f.labExternal=true;const m=put(labGroup,new THREE.TubeGeometry(f.curve,96,.085,10,false),mat);labWires.push(m);if(flow){labFlows.push(f);FLOW_ALL.push(f);}return {f,mesh:m};}
@@ -1786,22 +1861,23 @@
     if(!lab.closed||state.explodeShown>.04){lab.current=0;lab.voltage=0;return;}
     let lo=0,hi=lab.supply;for(let k=0;k<40;k++){const v=(lo+hi)/2,i=.3*Math.pow(v/2.5,.55);if(v+i*lab.resistance>lab.supply)hi=v;else lo=v;}lab.voltage=(lo+hi)/2;lab.current=.3*Math.pow(lab.voltage/2.5,.55);
   }
-  const circuitUI=document.createElement('div');circuitUI.className='grp';circuitUI.innerHTML='<div class="lbl">完整电路 · 电源 3 V</div><button id="labSwitch" class="lab-main">合上开关</button><div class="readout"><div class="rv"><span>电流表 A</span><b id="labI">0.000 A</b></div><div class="rv"><span>灯泡电压 V</span><b id="labU">0.00 V</b></div><div class="rv"><span>灯泡功率</span><b id="labPower">0.00 W</b></div></div><div class="lab-ranges"><label>电流表量程<select id="labARange"><option value="0.6">0～0.6 A</option><option value="3">0～3 A</option></select></label><label>电压表量程<select id="labVRange"><option value="3">0～3 V</option><option value="15">0～15 V</option></select></label></div><div class="toggles"><button id="focusA">放大电流表</button><button id="focusV">放大电压表</button><button id="focusR">观察变阻器</button></div><div class="mini" id="labStatus">开关断开 · 电压表并联在灯泡两端</div>';
+  const circuitUI=document.createElement('div');circuitUI.className='grp';circuitUI.innerHTML='<div class="lbl">完整电路 · 电源 3 V</div><button id="labSwitch" class="lab-main">合上开关</button><div class="readout"><div class="rv"><span>电流表 A</span><b id="labI">0.000 A</b></div><div class="rv"><span>灯泡电压 V</span><b id="labU">0.00 V</b></div><div class="rv"><span>灯泡功率</span><b id="labPower">0.00 W</b></div></div><div class="lab-ranges"><label>电流表量程<select id="labARange"><option value="0.6">0～0.6 A</option><option value="3">0～3 A</option></select></label><label>电压表量程<select id="labVRange"><option value="3">0～3 V</option><option value="15">0～15 V</option></select></label></div><div class="toggles lab-views"><button id="focusA">放大电流表</button><button id="focusV">放大电压表</button><button id="focusR">观察变阻器</button><button id="focusLamp">观察灯泡</button></div><div class="mini" id="labStatus">开关断开 · 电压表并联在灯泡两端</div>';
   el.panel.insertBefore(circuitUI,el.panel.querySelector('.grp'));
   function toggleSwitch(){lab.closed=!lab.closed;document.getElementById('labSwitch').textContent=lab.closed?'断开开关':'合上开关';document.getElementById('labSwitch').classList.toggle('active',lab.closed);}
   document.getElementById('labSwitch').onclick=toggleSwitch;
   document.getElementById('labARange').onchange=e=>{lab.aRange=Number(e.target.value);};document.getElementById('labVRange').onchange=e=>{lab.vRange=Number(e.target.value);};
   function focusMeter(m){view.fitWidth=7;view.fitBase=13;view.target.set(m.g.position.x,2.4,m.g.position.z);view.theta=0;view.phi=1.32;view.distTarget=view.baseDist=13;}
   document.getElementById('focusA').onclick=()=>focusMeter(ammeter);document.getElementById('focusV').onclick=()=>focusMeter(voltmeter);document.getElementById('focusR').onclick=()=>{view.fitWidth=20;view.fitBase=25;view.target.set(0,3.9,0);view.theta=.4;view.phi=1.15;view.distTarget=view.baseDist=25;};
+  document.getElementById('focusLamp').onclick=()=>{view.fitWidth=8;view.fitBase=14;view.target.set(13,2.2,2);view.theta=.15;view.phi=1.15;view.distTarget=view.baseDist=14;};
   canvas.addEventListener('pointerdown',e=>{raycaster.setFromCamera(pointerNDC(e),camera);const h=raycaster.intersectObjects(switchPick,true);if(h.length){toggleSwitch();dragging=false;dragMode=null;} });
   // 完整回路原理图，与右侧四接线柱细图使用同一状态。
   const full=document.createElement('div');full.className='full-diagram';full.innerHTML='<svg id="fullCircuit" viewBox="0 0 650 245" role="img" aria-label="电源、开关、滑动变阻器、灯泡、电流表依次串联，电压表并联在灯泡两端"><g fill="none" stroke="#303b48" stroke-width="3"><path d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><path d="M210 9 V51 M235 18 V42"/><path id="fullSwitchBlade" d="M60 80 L80 112"/><circle cx="60" cy="80" r="4"/><circle cx="60" cy="120" r="4"/><rect x="145" y="168" width="70" height="24"/><path d="M165 153 L195 201 M187 194 L195 201 L195 190"/><circle cx="400" cy="180" r="24"/><path d="M383 163 L417 197 M383 197 L417 163"/><circle cx="400" cy="60" r="22"/><path d="M350 180 V225 H550 V202 M450 130 H550 V158"/><circle cx="550" cy="180" r="22"/></g><g fill="#263544" font-family="sans-serif" font-size="24" text-anchor="middle"><text x="400" y="68">A</text><text x="550" y="188">V</text><text x="225" y="77">3 V</text><text x="28" y="108">S</text><text x="180" y="140">R</text><text x="400" y="146">L</text><text x="189" y="20">+</text><text x="255" y="20">−</text></g><path id="fullFlow" fill="none" stroke="#dd4131" stroke-width="4" stroke-dasharray="10 20" d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><text id="fullValues" x="65" y="235" font-size="17" fill="#245b7d"></text></svg><div class="mini">主回路：电源 → S → R → L → A；V 并联在灯泡两端。</div>';
   const card=document.querySelector('.schematic-card');card.insertBefore(full,schematicSvg);document.querySelector('.schematic-heading span').textContent='完整电路 / 变阻器接线细图';
-  function updateLab(dt){syncLabConnections();solveLab();const powered=lab.closed&&state.explodeShown<.04;
+  function updateLab(dt, lightDt){syncLabConnections();solveLab();const powered=lab.closed&&state.explodeShown<.04;
     blade.rotation.z=lab.closed?0:.48;
     ammeter.ratio+=(lab.current/lab.aRange-ammeter.ratio)*Math.min(1,dt*9);voltmeter.ratio+=(lab.voltage/lab.vRange-voltmeter.ratio)*Math.min(1,dt*9);
-    [ammeter,voltmeter].forEach(m=>{m.needle.rotation.z=(140-100*clamp(m.ratio,0,1.04))*Math.PI/180;});
-    const bright=lab.current*lab.voltage/.75;filamentMat.emissiveIntensity=bright*5;filamentMat.color.set(bright>0?'#a26c32':'#4b4031');bulbLight.intensity=bright*1.8;
+    [ammeter,voltmeter].forEach(m=>{m.needle.rotation.z=(150-120*clamp(m.ratio,0,1.04))*Math.PI/180;});
+    updateBulbLight(Math.min(.5, lightDt === undefined ? dt : lightDt));
     document.getElementById('labI').textContent=lab.current.toFixed(3)+' A';document.getElementById('labU').textContent=lab.voltage.toFixed(2)+' V';document.getElementById('labPower').textContent=(lab.current*lab.voltage).toFixed(2)+' W';
     document.getElementById('labStatus').textContent=state.explodeShown>.04?'分解观察中 · 暂停通电':!lab.closed?'开关断开 · 回路无电流':state.wire==='CD'?'仅接滑杆，变阻器近似零阻；灯泡仍串联在回路中':state.wire==='AB'?'全部电阻丝接入 · 移动滑片不改变读数':'电流表串联 · 电压表测灯泡两端电压';
     fLeadA.wireMesh.visible=state.wire.includes('A');fLeadB.wireMesh.visible=state.wire.includes('B');fLeadC.wireMesh.visible=state.wire.includes('C');fLeadD.wireMesh.visible=state.wire.includes('D');
@@ -1819,7 +1895,7 @@
   document.getElementById('btnReset').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=.90;view.distTarget=view.baseDist=54;view.target.set(4,2,-3);});
   document.getElementById('btnFront').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=1.24;view.distTarget=view.baseDist=62;view.target.set(4,2,-3);});
   document.getElementById('btnTop').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=.16;view.distTarget=view.baseDist=64;view.target.set(4,0,-3);});
-  window.__lab={lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-clean-wiring-v2'};
+  window.__lab={lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-dark-smooth-dials-v3'};
 
   /* ================= 启动 ================= */
   resize();

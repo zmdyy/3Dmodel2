@@ -37,13 +37,13 @@ window.MODEL_CATALOG = [
     "title": "滑动变阻器",
     "subtitle": "清晰环形接线、指针读表与灯泡亮度",
     "category": "电学元件",
-    "summary": "三维电源、开关、电流表、滑动变阻器和灯泡组成完整电路，电压表测灯泡电压。拖动滑片观察亮度、指针与原理图同步变化，支持双量程读表和分解观察。",
+    "summary": "三维电源、开关、电流表、滑动变阻器和灯泡组成完整电路，电压表测灯泡电压。拖动滑片观察亮度、指针与原理图同步变化，支持清晰双量程读表、明暗模式、灯泡连续明暗变化和分解观察。",
     "tags": [
       "变阻器",
       "接线",
       "电流"
     ],
-    "path": "models/rheostat.html?v=20261015-clean-wiring-v2",
+    "path": "models/rheostat.html?v=20261015-dark-smooth-dials-v3",
     "symbol": "R",
     "accent": "violet"
   },
