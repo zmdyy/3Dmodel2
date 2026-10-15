@@ -43,7 +43,7 @@ window.MODEL_CATALOG = [
       "接线",
       "电流"
     ],
-    "path": "models/rheostat.html?v=20261015-standalone-toggle-v5",
+    "path": "models/rheostat.html?v=20261015-clear-current-v6",
     "symbol": "R",
     "accent": "violet"
   },

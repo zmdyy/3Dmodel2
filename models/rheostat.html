@@ -225,6 +225,8 @@
   body.solo .full-only,body.solo .full-diagram{display:none!important}
   body.solo .schematic-card{display:block}body.solo .schematic-heading{margin-bottom:3px}body.solo #schematicSvg{width:100%;height:185px}
   @media(max-width:680px){body.solo #schematicSvg{height:170px}}
+
+  .coil-legend{display:flex;gap:16px;margin-top:9px;font-size:12px;color:var(--ink2)}.coil-legend span{display:flex;align-items:center;gap:5px}.coil-legend i{display:inline-block;width:13px;height:13px;border-radius:3px}.coil-legend .current-coil{background:#007eaa}.coil-legend .idle-coil{background:#59351f;border:1px solid #92715a}
 </style>
 </head>
 <body>
@@ -292,7 +294,7 @@
       <div class="readout">
         <div class="rv"><span>接入电阻</span><b id="ohmValue">—</b></div>
         <div class="rv"><span>接入丝长</span><b id="lenValue">—</b></div>
-        <div class="verdict" id="verdict"></div>
+        <div class="coil-legend"><span><i class="current-coil"></i>电流经过</span><span><i class="idle-coil"></i>未经过</span></div><div class="verdict" id="verdict"></div>
       </div>
     </div>
 
@@ -734,32 +736,22 @@
   const TURNS = 48;
   const ringGeo = new THREE.TorusGeometry(COIL_R, WIRE_R, 8, 44);
   ringGeo.rotateY(Math.PI / 2);
-  const coil = new THREE.InstancedMesh(ringGeo, M.wire, TURNS);
+  // 每一匝直接着色，保留同一份表面纹理；不用半透明叠层，避免高亮被铜色冲淡。
+  const coilMaterial=M.wire.clone();coilMaterial.color.set(0xffffff);coilMaterial.roughness=.68;coilMaterial.metalness=.42;coilMaterial.envMapIntensity=.50;
+  const coil = new THREE.InstancedMesh(ringGeo, coilMaterial, TURNS);
+  const conductingCoilColor=new THREE.Color(0x007eaa),idleCoilColor=new THREE.Color(0x59351f);
   coil.castShadow = true;
   coil.receiveShadow = true;
   const _m4 = new THREE.Matrix4();
   const coilXs = [];
   for (let i = 0; i < TURNS; i++) {
     const x = COIL_X0 + (i + 0.5) * (COIL_L / TURNS);
-    coilXs.push(x);
+    coilXs.push(x);coil.setColorAt(i,idleCoilColor);
     _m4.makeTranslation(x, CORE_Y, 0);
     coil.setMatrixAt(i, _m4);
   }
-  coil.instanceMatrix.needsUpdate = true;
+  coil.instanceMatrix.needsUpdate = true;coil.instanceColor.needsUpdate=true;
   gCoil.add(coil);
-
-  // 有效电阻段只做轻微暖色提亮，不再把整片线圈染成亮黄。
-  const hotGeo = new THREE.TorusGeometry(COIL_R + 0.006, WIRE_R * 1.035, 8, 44);
-  hotGeo.rotateY(Math.PI / 2);
-  const coilHot = new THREE.InstancedMesh(hotGeo, new THREE.MeshStandardMaterial({
-    color: 0xc98549, emissive: 0x3d1306, emissiveIntensity: 0.20,
-    roughness: 0.30, metalness: 0.74, envMapIntensity: 0.92,
-    transparent: true, opacity: 0.42
-  }), TURNS);
-  for (let i = 0; i < TURNS; i++) coilHot.setMatrixAt(i, _m4.makeTranslation(0, -999, 0));
-  coilHot.instanceMatrix.needsUpdate = true;
-  coilHot.frustumCulled = false;
-  gCoil.add(coilHot);
 
   // 滑片移动轨迹处的绝缘漆被磨去：不是一大片裸露，而是每一匝前表面
   // 只有一个很窄的金属接触点。相邻匝的这些点视觉上连成一条细直线，
@@ -914,6 +906,9 @@
   const FLOW_AXIS = FLOW_STYLE.createAxis(THREE);
   const FLOW_SPEED = FLOW_STYLE.speed;       // 与油量测量装置统一
   let travel = 0;
+  const FLOW_ARROW_SCALE=1.875,FLOW_ARROW_SPACING=1.60;
+  const flowArrowPool=[];
+  let circuitArrowSpacing=FLOW_ARROW_SPACING;
 
   function curveOf(pts) {
     return new THREE.CatmullRomCurve3(pts.map(function (p) {
@@ -955,17 +950,16 @@
     };
   }
 
-  // 每一段的箭头数量由整条有效通路统一分配。
-  // 本案例将箭头总数调整为 140 个（上版的 10 倍），再按各段可见长度分配。
+  // 所有模式共用同一箭头样式；全路径按弧长等间距排布，共用运动相位。
   function syncArrows(f) {
     const want = Math.max(0, Math.round(f.want == null ? 0 : f.want));
     while (f.arrows.length > want) {
       const m = f.arrows.pop();
-      f.group.remove(m);
+      f.group.remove(m);flowArrowPool.push(m);
     }
     while (f.arrows.length < want) {
-      const m = new THREE.Mesh(arrowGeo, arrowMat);
-      m.scale.setScalar(standaloneView?1:1.875);
+      const m = flowArrowPool.pop()||new THREE.Mesh(arrowGeo,arrowMat);
+      m.scale.setScalar(FLOW_ARROW_SCALE);
       m.castShadow = false;
       m.receiveShadow = false;
       f.group.add(m);
@@ -1002,24 +996,30 @@
 
   const FLOW_ALL = [fLeadA, fLeadB, fLeadC, fLeadD, fCoil, fBar, fSld];
 
-  function rebalanceFlowArrows() {
-    const active = FLOW_ALL.filter(function (f) { return f.on && f.length > 0.001; });
-
-    // 关键：视觉密度按画面中的“可见长度”分配，而不是按真实电阻丝螺旋弧长。
-    // 否则螺旋线圈会占走几乎全部箭头，导致横梁和外接导线只剩 1~2 个。
-    const counts = FLOW_STYLE.allocateCounts(
-      active.map(function (f) { return Math.max(0.001, f.displayLength || f.length); }),
-      standaloneView?26:140
-    );
-
-    FLOW_ALL.forEach(function (f) { f.want = 0; });
-    active.forEach(function (f, i) {
-      let n = counts[i];
-      // 外接导线按可见长度分配，数量与内部导体共同计入总数。
-      // 整条通路统一分配，总计 140 个，不叠加各段的最低数量。
-      f.want = n;
+  function rebalanceFlowArrows(){
+    const ends=wireEnds(),leads={A:fLeadA,B:fLeadB,C:fLeadC,D:fLeadD};
+    let inside=state.wire==='AB'?[fCoil]:state.wire==='CD'?[fBar]:[fCoil,fSld,fBar];
+    if(state.dir<0)inside=inside.slice().reverse();
+    const find=id=>FLOW_ALL.find(f=>f.id===id);
+    const ordered=(standaloneView?[]:[find('supply-switch')])
+      .concat([leads[ends[state.dir>0?0:1]]],inside,[leads[ends[state.dir>0?1:0]]],standaloneView?[]:[find('lamp-ammeter'),find('ammeter-return')])
+      .filter(f=>f&&f.on&&f.length>.001);
+    const total=ordered.reduce((sum,f)=>sum+f.length,0),count=Math.max(1,Math.round(total/FLOW_ARROW_SPACING));
+    circuitArrowSpacing=total>0?total/count:FLOW_ARROW_SPACING;
+    const phase=travel%circuitArrowSpacing;
+    FLOW_ALL.forEach(f=>{f.want=0;f.arrowDistances=[];});
+    let offset=0;
+    ordered.forEach(f=>{
+      f.pathOffset=offset;
+      const first=Math.ceil((offset-phase)/circuitArrowSpacing-1e-9);
+      for(let k=first;;k++){
+        const d=phase+k*circuitArrowSpacing-offset;
+        if(d>=f.length-1e-8)break;
+        if(d>=-1e-8)f.arrowDistances.push(Math.max(0,d));
+      }
+      f.want=f.arrowDistances.length;offset+=f.length;
     });
-    FLOW_ALL.forEach(function(f){syncArrows(f);f.arrows.forEach(m=>m.scale.setScalar(standaloneView?1:1.875));});
+    FLOW_ALL.forEach(f=>{syncArrows(f);f.arrows.forEach(m=>m.scale.setScalar(FLOW_ARROW_SCALE));});
   }
 
   const BAR_SEG_Y = BAR_Y + 0.30;              // 箭头浮在滑杆上方
@@ -1057,8 +1057,8 @@
     // 这里先保证曲线被建立。
     const want = turns < 0.5 ? 0 : 1;
     setFlowCurve(f, 'h' + xa.toFixed(2) + '|' + xb.toFixed(2), helixPoints(xa, xb), want);
-    // 视觉密度只按电阻丝在画面中的左右跨度计算，不按绕线真实弧长计算。
-    f.displayLength = Math.max(0.45, Math.abs(xb - xa));
+    // 与外接导线、滑杆统一按真实导电路径的弧长计算间距。
+    f.displayLength=f.length;
   }
 
   // 滑片段：从电阻丝表面（触片压住的那点）沿触片向上接到滑杆（滑片局部坐标固定）
@@ -1077,7 +1077,6 @@
     f.b.set(bx, by, bz);
     f.length = Math.max(0.001, f.a.distanceTo(f.b));
     f.displayLength = f.length;
-    syncArrows(f);
   }
 
   const _fp = new THREE.Vector3(), _ft = new THREE.Vector3();
@@ -1219,7 +1218,8 @@
   }
 
   function updateCoilGlow() {
-    const p = state.pShown;
+    const p = state.pShown,conducting=(standaloneView||lab.closed)&&state.explodeShown<.04;
+    let activeTurns=0;
     for (let i = 0; i < TURNS; i++) {
       const x = coilXs[i];
       let hot = false;
@@ -1231,10 +1231,9 @@
         case 'AB': hot = true; break;
         case 'CD': hot = false; break;
       }
-      _m4.makeTranslation(hot ? x : 0, hot ? CORE_Y : -999, 0);
-      coilHot.setMatrixAt(i, _m4);
+      hot=hot&&conducting;coil.setColorAt(i,hot?conductingCoilColor:idleCoilColor);if(hot)activeTurns++;
     }
-    coilHot.instanceMatrix.needsUpdate = true;
+    coil.instanceColor.needsUpdate=true;coil.userData.activeTurns=activeTurns;
   }
 
   function updateCircuit() {
@@ -1352,8 +1351,8 @@
         f.group.worldToLocal(leadCamera.copy(camera.position));
       }
       for (let i = 0; i < n; i++) {
-        let u = base + i / n;
-        u -= Math.floor(u);
+        let u=(f.arrowDistances&&f.arrowDistances[i]!=null)?f.arrowDistances[i]/f.length:(base+i/n)%1;
+        if(sgn<0)u=1-u;
         const m = f.arrows[i];
         m.position.copy(flowPoint(f, u));
         const tangent = flowTangent(f, u).clone().multiplyScalar(sgn);
@@ -1963,7 +1962,9 @@
   // 完整回路原理图，与右侧四接线柱细图使用同一状态。
   const full=document.createElement('div');full.className='full-diagram';full.innerHTML='<svg id="fullCircuit" viewBox="0 0 650 245" role="img" aria-label="电源、开关、滑动变阻器、灯泡、电流表依次串联，电压表并联在灯泡两端"><g fill="none" stroke="#303b48" stroke-width="3"><path d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><path d="M210 9 V51 M235 18 V42"/><path id="fullSwitchBlade" d="M60 80 L80 112"/><circle cx="60" cy="80" r="4"/><circle cx="60" cy="120" r="4"/><rect x="145" y="168" width="70" height="24"/><path d="M165 153 L195 201 M187 194 L195 201 L195 190"/><circle cx="400" cy="180" r="24"/><path d="M383 163 L417 197 M383 197 L417 163"/><circle cx="400" cy="60" r="22"/><path d="M350 180 V225 H550 V202 M450 130 H550 V158"/><circle cx="550" cy="180" r="22"/></g><g fill="#263544" font-family="sans-serif" font-size="24" text-anchor="middle"><text x="400" y="68">A</text><text x="550" y="188">V</text><text x="225" y="77">3 V</text><text x="28" y="108">S</text><text x="180" y="140">R</text><text x="400" y="146">L</text><text x="189" y="20">+</text><text x="255" y="20">−</text></g><path id="fullFlow" fill="none" stroke="#dd4131" stroke-width="4" stroke-dasharray="10 20" d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><text id="fullValues" x="65" y="235" font-size="17" fill="#245b7d"></text></svg><div class="mini">主回路：电源 → S → R → L → A；V 并联在灯泡两端。</div>';
   const card=document.querySelector('.schematic-card');card.insertBefore(full,schematicSvg);document.querySelector('.schematic-heading span').textContent='完整电路 / 变阻器接线细图';
-  function updateLab(dt, lightDt){syncLabConnections();solveLab();const powered=(standaloneView||lab.closed)&&state.explodeShown<.04;
+  function updateLab(dt, lightDt){syncLabConnections();solveLab();
+    const colorKey=[standaloneView,lab.closed,state.explodeShown<.04].join('|');if(coil.userData.powerKey!==colorKey){coil.userData.powerKey=colorKey;updateCoilGlow();}
+    const powered=(standaloneView||lab.closed)&&state.explodeShown<.04;
     blade.rotation.z=lab.closed?0:.48;
     ammeter.ratio+=(lab.current/lab.aRange-ammeter.ratio)*Math.min(1,dt*9);voltmeter.ratio+=(lab.voltage/lab.vRange-voltmeter.ratio)*Math.min(1,dt*9);
     [ammeter,voltmeter].forEach(m=>{m.needle.rotation.z=(150-120*clamp(m.ratio,0,1.04))*Math.PI/180;});
@@ -2003,7 +2004,7 @@
   document.getElementById('soloView').onclick=toggleStandalone;
   document.getElementById('moveComponents').onclick=toggleMoveMode;document.getElementById('resetLayout').onclick=resetLayout;
   document.getElementById('btnReset').addEventListener('click',()=>fitLayoutView());document.getElementById('btnFront').addEventListener('click',()=>fitLayoutView('front'));document.getElementById('btnTop').addEventListener('click',()=>fitLayoutView('top'));
-  window.__lab={get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-standalone-toggle-v5'};
+  window.__lab={coil,flowStyle:{scale:FLOW_ARROW_SCALE,spacing:FLOW_ARROW_SPACING},get arrowSpacing(){return circuitArrowSpacing;},get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-clear-current-v6'};
 
   /* ================= 启动 ================= */
   resize();
@@ -2045,7 +2046,7 @@
         // 路径中点处的实际电流方向（含 sign / 正反接），比单个箭头位移更稳定
         const dv = flowTangent(f, 0.5).clone().multiplyScalar(f.sign * state.dir);
         return {
-          id: f.id, on: f.on, vis: f.group.visible,
+          id: f.id, on: f.on, vis: f.group.visible,pathOffset:f.pathOffset,distances:(f.arrowDistances||[]).slice(),
           n: f.arrows.length, len: +f.length.toFixed(2), sign: f.sign, head: head,
           surfaceRadius: f.surfaceRadius || 0,
           surfaceOffsets: f.arrows.map(function (m) { return m.userData.surfaceOffset || 0; }),
