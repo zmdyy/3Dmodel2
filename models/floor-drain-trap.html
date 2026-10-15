@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>地漏水封 · 三维剖切与排水演示</title>
+<style>
+  :root {
+    --bg: #f2f6fb; --panel: #ffffff; --ink: #24313f; --sub: #5b6b7c;
+    --line: #dbe4ee; --blue: #2f7de1; --ok: #1d9e6b; --bad: #d94436;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: var(--bg); color: var(--ink); }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+  .head { position: fixed; left: 18px; top: 14px; z-index: 5; pointer-events: none; }
+  .head h1 { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  .head h1 span { color: var(--sub); font-weight: 400; font-size: 14px; }
+  .head p { margin-top: 3px; font-size: 12.5px; color: var(--sub); }
+
+  .panel {
+    position: fixed; right: 14px; top: 14px; bottom: 14px; width: 292px; z-index: 6;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(30,50,80,.10); padding: 14px 14px 10px; overflow-y: auto;
+    transition: transform .25s ease;
+  }
+  .panel.collapsed { transform: translateX(320px); }
+  #panelClose { position: absolute; right: 8px; top: 8px; border: 0; background: none; font-size: 18px; color: var(--sub); cursor: pointer; }
+  #panelOpen {
+    position: fixed; right: 14px; top: 14px; z-index: 5; width: 34px; height: 34px; border-radius: 9px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--sub); font-size: 17px; cursor: pointer; display: none;
+  }
+  #panelOpen.show { display: block; }
+
+  .grp { margin: 0 0 13px; }
+  .lbl { font-size: 12px; color: var(--sub); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .lbl b { color: var(--blue); font-weight: 600; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg button {
+    flex: 1 1 auto; padding: 6px 8px; font-size: 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: #f7fafd; color: var(--ink); white-space: nowrap;
+  }
+  .seg button:hover { border-color: var(--blue); }
+  .seg button.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .seg button.go.active { background: var(--ok); border-color: var(--ok); }
+  .seg button.warn.active { background: var(--bad); border-color: var(--bad); }
+
+  input[type=range] { width: 100%; accent-color: var(--blue); margin: 4px 0 8px; }
+
+  .readout { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .rv { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; font-size: 12.5px; }
+  .rv + .rv { border-top: 1px dashed var(--line); }
+  .rv span { color: var(--sub); }
+  .rv b { font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .verdict { margin-top: 8px; padding: 8px 10px; border-radius: 9px; font-size: 12.5px; line-height: 1.55;
+    background: #eef6ff; border: 1px solid #d4e6fb; color: #24517e; }
+  .verdict.bad { background: #fdf0ee; border-color: #f5d2cd; color: #a33225; }
+  .mini { font-size: 11.5px; color: var(--sub); margin-top: 6px; line-height: 1.55; }
+
+  #prof { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #f7fafc; }
+
+  .tip { margin-top: 2px; border-top: 1px dashed var(--line); padding-top: 10px; font-size: 12px; line-height: 1.7; color: var(--sub); }
+  .tip b { color: var(--ink); display: block; margin-bottom: 3px; }
+  .tip span { display: block; }
+  .tip .ok { color: var(--ok); }
+  .tip .bad { color: var(--bad); }
+
+  .hint { position: fixed; left: 18px; bottom: 12px; z-index: 5; font-size: 11.5px; color: var(--sub); pointer-events: none; }
+  #toast {
+    position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(20px); z-index: 9;
+    background: rgba(36,49,63,.92); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px;
+    opacity: 0; transition: all .25s ease; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+
+<canvas id="scene" aria-label="可旋转缩放的三维实验装置"></canvas>
+
+<div class="head">
+  <h1>地漏存水杯 <span>· 三维结构演示（人教版八下 图9.2-13）</span></h1>
+  <p>建筑构件 · 卫生间排水防臭部件 —— 连通器与水封原理的空间结构</p>
+</div>
+
+<div class="panel" id="panel">
+  <button id="panelClose" title="收起面板">›</button>
+
+  <div class="grp">
+    <div class="lbl">水位（手动观察与排水演示） <b id="pLabel">正常水封</b></div>
+    <input id="pSlider" type="range" min="0" max="100" value="83">
+    <div class="seg">
+      <button data-p="0">干涸失效</button>
+      <button data-p="65">水封50mm</button>
+      <button data-p="83">正常运行</button>
+      <button data-p="100">注满</button>
+    </div>
+    <div class="seg" style="margin-top:6px">
+      <button id="btnFlow" style="flex:2 1 auto;background:#eef6ff;border-color:#b9d7f7;color:#1d6bb8;font-weight:600">▶ 模拟排水（注水→满溢→排走→回落）</button>
+    </div>
+    <div class="mini">拖动水位比较不同水封状态；高于溢流管口的水位仅在注水过程中短暂出现。</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">实时读数</div>
+    <div class="readout">
+      <div class="rv"><span>水面高度（相对地面）</span><b id="valA">—</b></div>
+      <div class="rv"><span>水封深度（水面−扣碗下缘）</span><b id="valB">—</b></div>
+      <div class="rv"><span>内圈 / 外圈水面</span><b id="valC">—</b></div>
+    </div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">动画 <b id="runLabel">播放中</b></div>
+    <div class="seg">
+      <button id="btnPlay" class="go active">播放</button>
+      <button id="btnPause" class="warn">暂停</button>
+      <button id="btnReset">重置</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">显示</div>
+    <div class="seg toggles">
+      <button id="btnCut" class="active">剖切</button>
+      <button id="btnMarks" class="active">部件标注</button>
+      <button id="btnAux" class="active">尺寸/坐标系</button>
+      <button id="btnGas" class="active">异味气体</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">主视图剖面（随水位联动）</div>
+    <canvas id="prof" width="516" height="304"></canvas>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">视角</div>
+    <div class="seg">
+      <button id="btnResetView">轴测</button>
+      <button id="btnSide">正视图</button>
+      <button id="btnTop">俯视图</button>
+    </div>
+    <div class="seg">
+      <button id="btnShot">导出 PNG</button>
+    </div>
+  </div>
+
+  <div class="tip">
+    <b>原理一句话</b>
+    <span>杯壁与倒扣隔离罩构成相连通的水路；同种液体静止且两侧与大气相通时，水面相平。</span>
+    <span>排水后，水面回落至溢流管口附近，隔离罩下缘仍没入水中，形成<b>水封</b>（尺寸为教学示意）。</span>
+    <span>下水管中的异味气体被水封挡住，无法进入室内。</span>
+    <span class="ok">✓ 水面高于隔离罩下缘时，气体在水面上方被阻挡；水面低于下缘后，气体才可能经过连通空隙进入室内。</span>
+    <span class="bad">✗ 误解：异味是"被扣碗盖住的"。其实是被水层挡住，扣碗只负责围出这段水。</span>
+  </div>
+</div>
+
+<button id="panelOpen" title="展开面板">‹</button>
+<div class="hint">拖动旋转 · 滚轮缩放 · 单位：mm · 坐标系：X 右 / Y 前 / Z 上（竖直）</div>
+<div id="toast"></div>
+
+
+  <script src="../shared/vendor/three-r144.min.js"></script>
+<script src="../shared/material-finish.js"></script>
+
+<script>
+  /* 全局错误陷阱（离线诊断用）：出错时把堆栈写入标题 */
+  window.addEventListener('error', function (e) {
+    try {
+      const s = (e.error && e.error.stack) || e.message || 'unknown';
+      document.title = 'ERR: ' + String(s).replace(/\s+/g, ' ').slice(0, 400);
+    } catch (_) {}
+  });
+  /* ================= 渲染器、场景、灯光、材质、工具、标注层 ================= */
+  const canvas = document.getElementById('scene') ||
+    (function () {
+      const c = document.createElement('canvas');
+      c.id = 'scene';
+      document.body.insertBefore(c, document.body.firstChild);
+      return c;
+    })();
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+  } catch (e) {
+    const g = canvas.getContext('2d');
+    if (g) {
+      canvas.width = 800; canvas.height = 200;
+      g.fillStyle = '#5b6b7c'; g.font = '18px "Microsoft YaHei", sans-serif';
+      g.fillText('当前环境不支持 WebGL（3D 渲染被禁用）。请改用浏览器直接打开本文件。', 30, 90);
+    }
+    throw e;
+  }
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+  renderer.localClippingEnabled = true;
+  renderer.shadowMap.enabled = true;               // 真实光影
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf2f6fb);
+
+  const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 1, 8000);
+
+  (function env() {
+    const c = document.createElement('canvas');
+    c.width = 32; c.height = 32;
+    const g = c.getContext('2d');
+    const grd = g.createLinearGradient(0, 0, 0, 32);
+    grd.addColorStop(0, '#eaf2fb'); grd.addColorStop(1, '#c9d8e8');
+    g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+    const tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pm = new THREE.PMREMGenerator(renderer);
+    scene.environment = pm.fromEquirectangular(tex).texture;
+  })();
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb9c6d4, 0.75));
+  (function () {
+    const key = new THREE.DirectionalLight(0xfff4e0, 0.85);        // 主光（暖白，投影）
+    key.position.set(300, 420, 260);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.left = -450; key.shadow.camera.right = 450;
+    key.shadow.camera.top = 450; key.shadow.camera.bottom = -450;
+    key.shadow.camera.near = 1; key.shadow.camera.far = 1600;
+    key.shadow.bias = -0.0006;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xdfeaff, 0.28);       // 冷色补光
+    fill.position.set(-360, 160, 300);
+    scene.add(fill);
+    const back = new THREE.DirectionalLight(0xffffff, 0.22);       // 背光勾勒
+    back.position.set(-100, -80, -420);
+    scene.add(back);
+  })();
+
+  /* 剖切平面：默认保留 z<=0（去掉靠观察者的一半，露出内部） */
+  const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+  function setCut(on) {
+    clipPlane.constant = on ? 0 : 1e9;   // 1e9 => 永不裁剪
+  }
+
+  /* 材质库：金属实体质感；全部挂剖切面，DoubleSide 保证切开后内壁可见 */
+  function stdMat(color, rough, metal, opacity) {
+    const o = { color: color, roughness: rough, metalness: metal, side: THREE.DoubleSide,
+      clippingPlanes: [clipPlane], clipShadows: true };
+    if (opacity !== undefined) { o.transparent = true; o.opacity = opacity; o.depthWrite = opacity >= 0.95; }
+    return new THREE.MeshStandardMaterial(o);
+  }
+  const M = {
+    slab:  stdMat(0xb7bfc9, 0.95, 0.0),
+    brass: stdMat(0xb6a18a, 0.64, 0.7),
+    copper: stdMat(0xb4ada3, 0.66, 0.68),
+    pvc:   stdMat(0x6d7a85, 0.82, 0.04),
+    steel: stdMat(0xc4cbd1, 0.56, 0.78),
+    water: new THREE.MeshPhysicalMaterial({ color: 0x2b86e8, roughness: 0.05, metalness: 0.0,
+      transparent: true, opacity: 0.58, clearcoat: 0.7, clearcoatRoughness: 0.18,
+      side: THREE.DoubleSide, clippingPlanes: [clipPlane], clipShadows: true, depthWrite: false }),
+    gas:   new THREE.MeshBasicMaterial({ color: 0xe23b2e, transparent: true, opacity: 0.9,
+            clippingPlanes: [clipPlane] }),
+    /* 剖切面填充（实心截面）：不参与剖切 */
+    cutBrass: new THREE.MeshStandardMaterial({ color: 0x8f7230, roughness: 0.6, metalness: 0.4 }),
+    cutCopper: new THREE.MeshStandardMaterial({ color: 0x7e4430, roughness: 0.62, metalness: 0.35 }),
+    cutPvc: new THREE.MeshStandardMaterial({ color: 0x454f58, roughness: 0.7, metalness: 0.1 }),
+    cutSlab: new THREE.MeshStandardMaterial({ color: 0x99a2ac, roughness: 0.95, metalness: 0 }),
+    cutWater: new THREE.MeshStandardMaterial({ color: 0x63b4f5, roughness: 0.08, metalness: 0,
+      transparent: true, opacity: 0.92 }),
+    flow: new THREE.MeshStandardMaterial({ color: 0x3ba0f5, roughness: 0.1, metalness: 0,
+      transparent: true, opacity: 0.8 })
+  };
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function put(parent, geo, mat, pos, rot, scl) {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(pos[0], pos[1], pos[2] || 0);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2] || 0);
+    if (scl) m.scale.set(scl[0], scl[1], scl[2] || 1);
+    m.castShadow = true; m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  }
+
+  /* 环形截面拉伸体：外半径 rOut、内半径 rIn、高 h（沿 +Y），底部位于 y=0 */
+  function annulusGeo(rOut, rIn, h) {
+    const sh = new THREE.Shape();
+    sh.absarc(0, 0, rOut, 0, Math.PI * 2, false);
+    if (rIn > 0.01) {
+      const hole = new THREE.Path();
+      hole.absarc(0, 0, rIn, 0, Math.PI * 2, true);
+      sh.holes.push(hole);
+    }
+    const g = new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false, curveSegments: 48 });
+    g.rotateX(-Math.PI / 2);
+    return g;
+  }
+  /* 环形平面盖（水平放置，法线朝上） */
+  function annulusCapGeo(rOut, rIn) {
+    const sh = new THREE.Shape();
+    sh.absarc(0, 0, rOut, 0, Math.PI * 2, false);
+    if (rIn > 0.01) {
+      const hole = new THREE.Path();
+      hole.absarc(0, 0, rIn, 0, Math.PI * 2, true);
+      sh.holes.push(hole);
+    }
+    const g = new THREE.ShapeGeometry(sh, 48);
+    g.rotateX(-Math.PI / 2);
+    return g;
+  }
+
+  /* ---- 标注层 ---- */
+  const labelGroup = new THREE.Group();   // 部件名称标注
+  const gAux = new THREE.Group();         // 尺寸线 + 坐标系
+  const gGas = new THREE.Group();         // 异味气体
+  const gMain = new THREE.Group();        // 主体结构
+  const gCaps = new THREE.Group();        // 剖切实心截面
+  const gFlow = new THREE.Group();        // 排水动画
+  scene.add(gMain, gAux, gGas, labelGroup, gCaps, gFlow);
+  const LABELS = {};
+
+  function makeLabel(text, color, scale) {
+    const fs = 76;
+    const c = document.createElement('canvas');
+    let g = c.getContext('2d');
+    g.font = '600 ' + fs + 'px "Microsoft YaHei", sans-serif';
+    const w = Math.ceil(g.measureText(text).width) + 28;
+    c.width = w; c.height = 112;
+    g = c.getContext('2d');
+    g.font = '600 ' + fs + 'px "Microsoft YaHei", sans-serif';
+    g.textBaseline = 'middle';
+    g.lineWidth = 11; g.strokeStyle = 'rgba(255,255,255,0.94)';
+    g.strokeText(text, 14, 56);
+    g.fillStyle = color; g.fillText(text, 14, 56);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(c), depthTest: false, transparent: true, toneMapped: false
+    }));
+    sp.scale.set(w / 112 * scale, scale, 1);
+    sp.renderOrder = 30;
+    return sp;
+  }
+
+  function addLabel(key, text, color, scale, pos) {
+    const sp = makeLabel(text, color, scale || 10);
+    sp.position.set(pos[0], pos[1], pos[2] || 0);
+    labelGroup.add(sp);
+    LABELS[key] = sp;
+    return sp;
+  }
+  /* 动态文字标注（如水封深度数值）：文本不变时复用，避免每帧重建纹理 */
+  function setLabel(key, text, color, scale, pos) {
+    const old = LABELS[key];
+    if (old && old.userData.text === text) {
+      if (pos) old.position.set(pos[0], pos[1], pos[2] || 0);
+      return old;
+    }
+    if (old) { labelGroup.remove(old); if(old.material.map) old.material.map.dispose(); old.material.dispose(); }
+    const sp = addLabel(key, text, color, scale, pos);
+    sp.userData.text = text;
+    return sp;
+  }
+
+  /* 引线：从标注文字指向部件 */
+  function leader(from, to, color) {
+    const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(from[0], from[1], from[2]), new THREE.Vector3(to[0], to[1], to[2])]);
+    const ln = new THREE.Line(g, new THREE.LineBasicMaterial({ color: color || 0x51606f }));
+    labelGroup.add(ln);
+    return ln;
+  }
+
+  /* 地面：承接投影，增强实体感 */
+  (function () {
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(5000, 5000),
+      new THREE.MeshStandardMaterial({ color: 0xe4eaf1, roughness: 1, metalness: 0 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -342;
+    ground.receiveShadow = true;
+    scene.add(ground);
+  })();
+  /* ================= 地漏结构几何、水位物理、异味粒子、剖面图 ================= */
+
+  /* ---- 结构参数（单位：mm，坐标：Z 竖直向上，原点在楼板面上、地漏中心） ---- */
+  const GEO = {
+    slabW: 360, slabT: 100,          // 楼板 360x360x100，中央开孔 R55
+    openR: 55,
+    cupRout: 50, cupRin: 42,         // 存水杯外壁 R50 / 内壁 R42
+    cupTop: 2, cupBot: -160,         // 杯壁 +2 .. -160
+    cupBotT: 12,                     // 杯底板 -160 .. -172（中央孔 R30）
+    grateW: 130, grateT: 8,          // 篦子 130x130x8
+    domeRout: 36, domeRin: 32,       // 隔离板(扣碗) 外R36 / 内R32
+    domeTop: -15, domeCapT: 5,       // 扣碗顶面 -15，顶板厚5（-20）
+    domeEdge: -105,                  // 扣碗下缘 -105  ← 水封的关键高度
+    pipeRout: 28, pipeRin: 24,       // 下水管 外R28 / 内R24（De50）
+    pipeRim: -25,                    // 下水管口 -25（静止水面与此相平）
+    pipeEnd: -330
+  };
+  const LEVEL_MIN = -160, LEVEL_MAX = 2;
+  const SEAL_OK_Y = GEO.domeEdge;      // 水面高于此线 => 水封有效
+
+  function sealDepth(L) { return L - GEO.domeEdge; }          // 水封深度
+  function sealValid(L) { return L > GEO.domeEdge + 0.5; }
+
+  /* ---- 楼板：360x360x100，中央开孔 ---- */
+  (function buildSlab() {
+    const sh = new THREE.Shape();
+    const w = GEO.slabW / 2;
+    sh.moveTo(-w, -w); sh.lineTo(w, -w); sh.lineTo(w, w); sh.lineTo(-w, w); sh.closePath();
+    const hole = new THREE.Path();
+    hole.absarc(0, 0, GEO.openR, 0, Math.PI * 2, true);
+    sh.holes.push(hole);
+    const g = new THREE.ExtrudeGeometry(sh, { depth: GEO.slabT, bevelEnabled: false });
+    g.rotateX(-Math.PI / 2);
+    const m = put(gMain, g, M.slab, [0, -GEO.slabT, 0]);
+    m.name = 'slab';
+  })();
+
+  /* ---- 篦子：方框 + 三根横条 ---- */
+  (function buildGrate() {
+    const s = M.steel, t = GEO.grateT, hw = GEO.grateW / 2, y0 = GEO.cupTop;
+    put(gMain, new THREE.BoxGeometry(GEO.grateW, t, 10), s, [0, y0 + t / 2, hw - 5]);
+    put(gMain, new THREE.BoxGeometry(GEO.grateW, t, 10), s, [0, y0 + t / 2, -hw + 5]);
+    put(gMain, new THREE.BoxGeometry(10, t, GEO.grateW - 20), s, [hw - 5, y0 + t / 2, 0]);
+    put(gMain, new THREE.BoxGeometry(10, t, GEO.grateW - 20), s, [-hw + 5, y0 + t / 2, 0]);
+    [-34, 0, 34].forEach(function (z) {
+      put(gMain, new THREE.BoxGeometry(GEO.grateW - 20, 4, 7), s, [0, y0 + 2, z]);
+    });
+  })();
+
+  /* ---- 存水杯（黄铜外壁 + 底板） ---- */
+  put(gMain, annulusGeo(GEO.cupRout, GEO.cupRin, GEO.cupTop - GEO.cupBot), M.brass, [0, GEO.cupBot, 0]);
+  put(gMain, annulusGeo(GEO.cupRout, 30, GEO.cupBotT), M.brass, [0, GEO.cupBot - GEO.cupBotT, 0]);
+  /* 杯口沿环 */
+  const cupRim = put(gMain, new THREE.TorusGeometry(GEO.cupRout - 2, 2.4, 10, 60), M.brass, [0, GEO.cupTop, 0]);
+  cupRim.rotation.x = Math.PI / 2;
+
+  /* ---- 隔离板（扣碗）：圆顶 + 筒壁，下缘敞口浸没于水 ---- */
+  put(gMain, new THREE.CylinderGeometry(GEO.domeRout, GEO.domeRout, GEO.domeCapT, 48), M.copper,
+      [0, GEO.domeTop - GEO.domeCapT / 2, 0]);
+  const domeRim = put(gMain, new THREE.TorusGeometry(GEO.domeRout, 2.4, 10, 60), M.copper, [0, GEO.domeTop, 0]);
+  domeRim.rotation.x = Math.PI / 2;
+  put(gMain, annulusGeo(GEO.domeRout, GEO.domeRin, GEO.domeTop - GEO.domeCapT - GEO.domeEdge), M.copper,
+      [0, GEO.domeEdge, 0]);
+  /* 隔离罩通过三段短支撑桥搭在杯口，敞开下缘供水绕行 */
+  for(let i=0;i<3;i++){
+    const a=i*Math.PI*2/3;
+    const bridge=put(gMain,new THREE.BoxGeometry(18,4,5),M.steel,
+      [Math.cos(a)*43,GEO.domeTop-1,Math.sin(a)*43]);
+    bridge.rotation.y=-a;
+  }
+
+  /* ---- 下水管（De50）：从管口直落地下 ---- */
+  put(gMain, annulusGeo(GEO.pipeRout, GEO.pipeRin, GEO.pipeRim - GEO.pipeEnd), M.pvc, [0, GEO.pipeEnd, 0]);
+  put(gMain, annulusGeo(36, GEO.pipeRout, 14), M.pvc, [0, GEO.cupBot - GEO.cupBotT - 2, 0]); // 与杯底接头
+
+  /* ---- 水（三段环形容积，水位可变）---- */
+  const water = {};
+  water.outer = put(gMain, annulusGeo(GEO.cupRin, GEO.domeRout, 1), M.water, [0, GEO.domeEdge, 0]);   // 外圈上段
+  water.inner = put(gMain, annulusGeo(GEO.domeRin, GEO.pipeRout, 1), M.water, [0, GEO.domeEdge, 0]);  // 内圈（扣碗内）
+  water.lower = put(gMain, annulusGeo(GEO.cupRin, GEO.pipeRout, 1), M.water, [0, GEO.cupBot, 0]);     // 底部连通环
+  [water.outer, water.inner, water.lower].forEach(function (m) { m.castShadow = false; m.receiveShadow = false; });
+  water.capO = put(gMain, annulusCapGeo(GEO.cupRin, GEO.domeRout), M.water, [0, 0, 0]);
+  water.capI = put(gMain, annulusCapGeo(GEO.domeRin, GEO.pipeRout), M.water, [0, 0, 0]);
+  water.capL = put(gMain, annulusCapGeo(GEO.cupRin, GEO.pipeRout), M.water, [0, 0, 0]);
+  [water.capO, water.capI, water.capL].forEach(function (m) { m.castShadow = false; m.receiveShadow = false; });
+  /* 亮色水面线圈，突出"内外相平" */
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xbfe1ff, clippingPlanes: [clipPlane] });
+  water.ringO = put(gMain, new THREE.TorusGeometry((GEO.cupRin + GEO.domeRout) / 2, 0.9, 6, 60), ringMat, [0, 0, 0]);
+  water.ringO.rotation.x = Math.PI / 2;
+  water.ringI = put(gMain, new THREE.TorusGeometry((GEO.domeRin + GEO.pipeRout) / 2, 0.9, 6, 60), ringMat, [0, 0, 0]);
+  water.ringI.rotation.x = Math.PI / 2;
+  [water.ringO, water.ringI].forEach(function (m) { m.castShadow = false; m.receiveShadow = false; });
+
+  /* ---- 剖切实心截面：让切口处呈现"实体剖面"而非空壳 ---- */
+  const wc = {};
+  (function buildCaps() {
+    function cap(w, h, x, y, mat) {
+      const m = put(gCaps, new THREE.BoxGeometry(w, h, 1.2), mat, [x, y, -0.5]);
+      m.castShadow = false; m.receiveShadow = false;
+      return m;
+    }
+    cap(8, 162, -46, -79, M.cutBrass);   cap(8, 162, 46, -79, M.cutBrass);        // 存水杯壁
+    cap(22, 12, -39, -166, M.cutBrass);  cap(22, 12, 39, -166, M.cutBrass);       // 杯底
+    cap(8, 14, -32, -169, M.cutPvc);     cap(8, 14, 32, -169, M.cutPvc);          // 管接头
+    cap(4, 85, -34, -62.5, M.cutCopper); cap(4, 85, 34, -62.5, M.cutCopper);      // 扣碗壁
+    cap(72, 5, 0, -17.5, M.cutCopper);                                            // 扣碗顶
+    cap(4, 305, -26, -177.5, M.cutPvc);  cap(4, 305, 26, -177.5, M.cutPvc);       // 下水管壁
+    cap(125, 100, -117.5, -50, M.cutSlab); cap(125, 100, 117.5, -50, M.cutSlab);  // 楼板
+    /* 水体截面（高度随水位） */
+    wc.outL = cap(6, 1, -39, 0, M.cutWater); wc.outR = cap(6, 1, 39, 0, M.cutWater);
+    wc.inL  = cap(4, 1, -30, 0, M.cutWater); wc.inR  = cap(4, 1, 30, 0, M.cutWater);
+    wc.lowL = cap(14, 1, -35, 0, M.cutWater); wc.lowR = cap(14, 1, 35, 0, M.cutWater);
+  })();
+
+  /* 水位更新：连通器——内外圈水面同步为 L */
+  function updateWater(L) {
+    const upperH = Math.max(0.001, L - GEO.domeEdge);       // 扣碗下缘以上
+    const lowerTop = Math.min(L, GEO.domeEdge);
+    const lowerH = Math.max(0.001, lowerTop - GEO.cupBot);
+    const upperVisible = L > GEO.domeEdge + 0.01;
+    water.outer.visible = upperVisible; water.inner.visible = upperVisible;
+    water.capO.visible = upperVisible;  water.capI.visible = upperVisible;
+    water.ringO.visible = upperVisible; water.ringI.visible = upperVisible;
+    water.outer.scale.y = upperH;  water.inner.scale.y = upperH;
+    water.lower.scale.y = lowerH;
+    water.capO.position.y = L; water.capI.position.y = L;
+    water.capL.position.y = lowerTop;
+    water.ringO.position.y = L; water.ringI.position.y = L;
+    water.lower.visible = lowerTop > GEO.cupBot + 0.01;
+    water.capL.visible = water.lower.visible && L < GEO.domeEdge - 0.01;
+    /* 水体实心截面 */
+    wc.outL.visible = wc.outR.visible = upperVisible;
+    wc.inL.visible  = wc.inR.visible  = upperVisible;
+    wc.outL.scale.y = wc.outR.scale.y = upperH;
+    wc.inL.scale.y  = wc.inR.scale.y  = upperH;
+    wc.outL.position.y = wc.outR.position.y = GEO.domeEdge + upperH / 2;
+    wc.inL.position.y  = wc.inR.position.y  = GEO.domeEdge + upperH / 2;
+    wc.lowL.visible = wc.lowR.visible = water.lower.visible;
+    wc.lowL.scale.y = wc.lowR.scale.y = lowerH;
+    wc.lowL.position.y = wc.lowR.position.y = GEO.cupBot + lowerH / 2;
+  }
+
+  /* ---- 异味气体：沿"真实路径"运动 ----
+     管内上行 → 管口冒出 → 扣碗顶盖下的薄气腔向外绕 → 沿扣碗内壁夹缝下行
+     → 绕过扣碗下缘 → 沿外圈上行：水封有效=在水中消散(被挡)；失效=冲出箅子入室 */
+  const GAS_N = 30;
+  const gas = [];
+  const gasArrow = new THREE.Group();
+  gGas.add(gasArrow);
+  function gasMesh(geo) {
+    const m = new THREE.Mesh(geo, M.gas.clone());
+    m.castShadow = false; m.receiveShadow = false;
+    gGas.add(m);
+    return m;
+  }
+  (function buildGas() {
+    const geo = new THREE.SphereGeometry(3.6, 8, 6);
+    for (let i = 0; i < GAS_N; i++) {
+      const m = gasMesh(geo);
+      m.userData = { seed: i / GAS_N, w: 0.55 + Math.random() * 0.5, ang: Math.random() * Math.PI * 2 };
+      gas.push(m);
+    }
+    /* 教科书式红色上行箭头（画在下水管内，略移出剖切面） */
+    function arrow(x, z, h, r) {
+      const grp = new THREE.Group();
+      const c = put(grp, new THREE.CylinderGeometry(r, r, h, 8), M.gas, [0, 0, 0]);
+      const k = put(grp, new THREE.ConeGeometry(r * 2.6, 14, 10), M.gas, [0, h / 2 + 7, 0]);
+      c.castShadow = k.castShadow = false;
+      grp.position.set(x, GEO.pipeEnd + 130 + h / 2, z);
+      gasArrow.add(grp);
+    }
+    arrow(0, -2, 150, 1.8);
+    arrow(-13, -6, 100, 1.3);
+    arrow(13, 4, 100, 1.3);
+  })();
+
+  /* 路径箭头：夹缝下行 + 外圈上行（顶端带"阻挡"横杠，随水位伸缩） */
+  const pArr = {};
+  (function buildPathArrows() {
+    const c1 = put(gGas, new THREE.CylinderGeometry(1.5, 1.5, 40, 8), M.gas, [30, -65, -2]);
+    const k1 = put(gGas, new THREE.ConeGeometry(4.2, 10, 10), M.gas, [30, -91, -2]);
+    k1.rotation.x = Math.PI;
+    pArr.c2 = put(gGas, new THREE.CylinderGeometry(1.5, 1.5, 1, 8), M.gas, [39, 0, -2]);
+    pArr.k2 = put(gGas, new THREE.ConeGeometry(4.2, 10, 10), M.gas, [39, 0, -2]);
+    pArr.bar = put(gGas, new THREE.BoxGeometry(14, 2.6, 2.6), M.gas, [39, 0, -2]);
+    [c1, k1, pArr.c2, pArr.k2, pArr.bar].forEach(function (m) { m.castShadow = false; m.receiveShadow = false; });
+  })();
+  function pathArrowUpdate(L){
+    const sealed=sealValid(L);
+    pArr.c2.visible=pArr.k2.visible=!sealed;
+    pArr.bar.visible=sealed;
+    pArr.bar.position.set(30,Math.min(-24,L+4),-2);
+    if(!sealed){
+      const botY=-108,topY=12;
+      pArr.c2.scale.y=topY-botY;
+      pArr.c2.position.y=(topY+botY)/2;
+      pArr.k2.position.y=topY+5;
+    }
+  }
+
+  /* 路径采样：返回控制点列（末段随水位与水封状态变化） */
+  function gasPath(L){
+    // Water seal intact: gas cannot enter the annular water layer.
+    const pts=[[10,-300],[10,-80],[10,-30]];
+    if(L<=GEO.pipeRim) pts.push([10,-23.5],[30,-23.5]);
+    if(sealValid(L)) pts.push(L>GEO.pipeRim?[10,-27]:[30,Math.min(-24,L+3)]);
+    else pts.push([30,-55],[30,-104],[30,-113],[39,-113],[39,-95],
+                  [39,-55],[39,14],[48,66]);
+    let total=0;const cum=[0];
+    for(let i=1;i<pts.length;i++){
+      total+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+      cum.push(total);
+    }
+    return {pts:pts,cum:cum,total:total};
+  }
+  function samplePath(gp, s) {
+    s = Math.min(s, gp.total * 0.999);
+    let i = 1;
+    while (gp.cum[i] < s) i++;
+    const t = (s - gp.cum[i - 1]) / ((gp.cum[i] - gp.cum[i - 1]) || 1);
+    return [lerp(gp.pts[i - 1][0], gp.pts[i][0], t), lerp(gp.pts[i - 1][1], gp.pts[i][1], t)];
+  }
+
+  function updateGas(t, L) {
+    const sealed = sealValid(L);
+    const gp = gasPath(L);
+    for (let i = 0; i < gas.length; i++) {
+      const p = gas[i], u = p.userData;
+      const ph = (t * u.w / 7.5 + u.seed) % 1;
+      const rp = samplePath(gp, ph * gp.total);
+      const a = u.ang;
+      const jr = 1.6 * Math.sin(t * 3 + u.seed * 17);          // 轻微抖动，像气流
+      const jy = 1.3 * Math.sin(t * 2.3 + u.seed * 9);
+      p.position.set(Math.cos(a) * (rp[0] + jr), rp[1] + jy, Math.sin(a) * (rp[0] + jr));
+      let op = 0.8;
+      if (ph < 0.05) op *= ph / 0.05;                          // 管底渐现
+      if (sealed && ph > 0.8) op *= Math.max(0, (1 - ph) / 0.2);        // 被挡：水中消散
+      if (!sealed && ph > 0.9) op *= Math.max(0, (1 - ph) / 0.1);       // 逃逸：入室渐隐
+      p.material.opacity = Math.max(0.04, op);
+      p.visible = true;
+    }
+    pathArrowUpdate(L);
+  }
+
+  /* ---- 坐标系（X 右 / Y 前 / Z 上），置于角落 ---- */
+  (function buildAxes() {
+    const org = new THREE.Vector3(-190, 6, 190), len = 70;
+    const ax = new THREE.AxesHelper(len * 1.35);
+    ax.position.copy(org); gAux.add(ax);
+    addLabel('axX', 'X', '#d94436', 5.5, [org.x + len + 14, org.y, org.z]);
+    addLabel('axY', 'Y', '#1d9e6b', 5.5, [org.x, org.y, org.z + len + 14]);
+    addLabel('axZ', 'Z 上', '#2f7de1', 5.5, [org.x, org.y + len + 16, org.z]);
+    addLabel('axU', '单位: mm', '#5b6b7c', 5, [org.x, org.y - 30, org.z]);
+    ['axX', 'axY', 'axZ', 'axU'].forEach(function (k) {         // 坐标标注允许被遮挡，避免浮在最上层
+      LABELS[k].material.depthTest = true;
+      LABELS[k].renderOrder = 0;
+    });
+  })();
+
+  /* ---- 尺寸标注线 ---- */
+  function dimV(x, y0, y1, key, color) {           // 竖直尺寸线（带两端箭头）
+    const pts = [new THREE.Vector3(x, y0, 0), new THREE.Vector3(x, y1, 0)];
+    gAux.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: color || 0x2f7de1 })));
+    [y0, y1].forEach(function (y) {
+      const cone = put(gAux, new THREE.ConeGeometry(2.4, 8, 8),
+        new THREE.MeshBasicMaterial({ color: color || 0x2f7de1 }), [x, y, 0]);
+      if (y === y0) cone.rotation.x = Math.PI;      // 下端箭头朝下
+    });
+  }
+  function dimH(y, x0, x1, color) {                // 水平尺寸线
+    const pts = [new THREE.Vector3(x0, y, 0), new THREE.Vector3(x1, y, 0)];
+    gAux.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: color || 0x2f7de1 })));
+  }
+  function dashY(y, x0, x1, color) {               // 高度参考虚线
+    const g = new THREE.BufferGeometry().setFromPoints(
+      [new THREE.Vector3(x0, y, 0), new THREE.Vector3(x1, y, 0)]);
+    const ln = new THREE.Line(g, new THREE.LineDashedMaterial(
+      { color: color || 0x8a6d3b, dashSize: 6, gapSize: 5 }));
+    ln.computeLineDistances();
+    gAux.add(ln);
+  }
+
+  dashY(GEO.domeEdge, -70, 70, 0x8a4a2a);
+  dashY(GEO.pipeRim, -46, 46, 0x2f7de1);
+  const sealDimension=new THREE.Group();gAux.add(sealDimension);
+  let lastSealY=null;
+  function drawSealGuide(L){
+    const currentY=Math.round(L);
+    if(currentY===lastSealY)return;
+    lastSealY=currentY;
+    while(sealDimension.children.length){
+      const m=sealDimension.children[0];sealDimension.remove(m);
+      if(m.geometry)m.geometry.dispose();
+      if(m.material)m.material.dispose();
+    }
+    const lo=GEO.domeEdge,hi=Math.max(lo,L);
+    if(hi<=lo+0.5)return;
+    const color=0x247bc6,x=58;
+    const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x,lo,-1.5),new THREE.Vector3(x,hi,-1.5)
+    ]),new THREE.LineBasicMaterial({color:color}));
+    sealDimension.add(ln);
+    [[lo,Math.PI],[hi,0]].forEach(p=>{
+      const a=new THREE.Mesh(new THREE.ConeGeometry(2.8,8,10),new THREE.MeshBasicMaterial({color:color}));
+      a.position.set(x,p[0],-1.5);a.rotation.z=p[1];sealDimension.add(a);
+    });
+  }
+  dimH(GEO.cupTop + 22, -GEO.grateW / 2, GEO.grateW / 2, 0x51606f);
+  addLabel('dimGrate', '面板 130×130', '#51606f', 7.5, [0, GEO.cupTop + 36, 0]);
+  addLabel('dimSlab', '楼板 360×360×100', '#7c8894', 7.5, [-118, -40, 118]);
+  dimV(-96, GEO.pipeEnd + 30, GEO.pipeRim - 60, 'pipe', 0x66727e);
+  addLabel('dimPipe', '下水管 De50 (R24)', '#5b6670', 7.5, [66, -290, 0]);
+
+  /* 动态尺寸文字：水封深度（随水位变化） */
+  function updateSealDim(L) {
+    const d = sealDepth(L);
+    drawSealGuide(L);
+    const txt = d > 0 ? ('水封深度 ' + d.toFixed(0) + ' mm') : '水封深度 0（失效）';
+    setLabel('dimSeal', txt, d > 0 ? '#1d6bb8' : '#d94436', 8, [104, (GEO.domeEdge + Math.min(L, GEO.pipeRim)) / 2, 0]);
+    setLabel('dimRim', L > GEO.pipeRim+1 ? '溢流管口（注水中）' : '溢流管口（静态水面）', '#2f7de1', 7, [74, GEO.pipeRim + 6, 0]);
+    setLabel('dimEdge', '扣碗下缘 -105', '#8a4a2a', 7, [-110, GEO.domeEdge - 14, 0]);
+  }
+
+  /* ---- 部件名称标注 + 引线 ---- */
+  addLabel('nCup', '存水杯（外圈）', '#7a5b16', 10, [104, -60, 0]);
+  leader([94, -62, 0], [46, -62, 0], 0x7a5b16);
+  addLabel('nDome', '隔离板（扣碗）', '#8a4020', 10, [-132, -48, 0]);
+  leader([-108, -50, 0], [-34, -50, 0], 0x8a4020);
+  addLabel('nPipe', '下水管', '#4a5560', 10, [104, -250, 0]);
+  leader([92, -250, 0], [28, -250, 0], 0x4a5560);
+  addLabel('nGrate', '篦子（进水口）', '#3c4650', 9, [0, 40, 84]);
+  leader([12, 28, 74], [30, 10, 30], 0x3c4650);
+  addLabel('nSlab', '楼板', '#7c8894', 9, [-136, 14, 136]);
+  addLabel('nWater', '水封（内外水面相平）', '#1d6bb8', 9, [-136, -22, 44]);
+  leader([-100, -24, 34], [-46, -25, 8], 0x1d6bb8);
+  addLabel('nGas', '异味气体（沿真实路径被水封挡住）', '#c2352a', 9, [-140, -92, -52]);
+  leader([-78, -94, -28], [-12, -85, -6], 0xc2352a);
+  addLabel('nPath', '异味真实路径', '#c2352a', 7, [98, -150, 0]);
+  leader([88, -148, 0], [36, -114, 0], 0xc2352a);
+
+  /* ---- 主视图剖面图（2D canvas，随水位联动） ---- */
+  function drawSection(L) {
+    const c = document.getElementById('prof');
+    const g = c.getContext('2d');
+    const W = c.width, H = c.height;
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = '#f7fafc'; g.fillRect(0, 0, W, H);
+    const sc = 0.62, cx = W * 0.46, cy = 52;         // 世界y=+30 映射到 cy
+    function X(x) { return cx + x * sc; }
+    function Y(y) { return cy + (30 - y) * sc; }
+    g.lineWidth = 1.5;
+    /* 楼板（剖面线） */
+    g.strokeStyle = '#9aa5b1'; g.fillStyle = '#e8edf2';
+    [[-180, 0, -55, -100], [55, 0, 180, -100]].forEach(function (r) {
+      g.fillRect(X(r[0]), Y(r[3]), (r[2] - r[0]) * sc, (r[3] - r[1]) * -sc);
+      g.strokeRect(X(r[0]), Y(r[3]), (r[2] - r[0]) * sc, (r[3] - r[1]) * -sc);
+    });
+    /* 存水杯壁 + 底 */
+    g.strokeStyle = '#a5822e'; g.fillStyle = '#f3e6c4';
+    g.fillRect(X(-50), Y(2), 8 * sc, 162 * sc);  g.strokeRect(X(-50), Y(2), 8 * sc, 162 * sc);
+    g.fillRect(X(42), Y(2), 8 * sc, 162 * sc);   g.strokeRect(X(42), Y(2), 8 * sc, 162 * sc);
+    g.fillRect(X(-50), Y(-160), 100 * sc, 12 * sc); g.strokeRect(X(-50), Y(-160), 100 * sc, 12 * sc);
+    /* 扣碗 */
+    g.strokeStyle = '#a05038'; g.fillStyle = '#f5ddd2';
+    g.fillRect(X(-36), Y(-20), 4 * sc, 85 * sc);  g.strokeRect(X(-36), Y(-20), 4 * sc, 85 * sc);
+    g.fillRect(X(32), Y(-20), 4 * sc, 85 * sc);   g.strokeRect(X(32), Y(-20), 4 * sc, 85 * sc);
+    g.fillRect(X(-36), Y(-15), 72 * sc, 5 * sc);  g.strokeRect(X(-36), Y(-15), 72 * sc, 5 * sc);
+    /* 下水管（管壁，从杯底直落 -330） */
+    g.strokeStyle = '#5b6670'; g.fillStyle = '#dde3e9';
+    g.fillRect(X(-28), Y(-160), 4 * sc, 170 * sc); g.strokeRect(X(-28), Y(-160), 4 * sc, 170 * sc);
+    g.fillRect(X(24), Y(-160), 4 * sc, 170 * sc);  g.strokeRect(X(24), Y(-160), 4 * sc, 170 * sc);
+    /* 水（底部连通环 + 扣碗下缘以上的内外圈） */
+    if (L > -160) {
+      g.fillStyle = 'rgba(63,155,245,0.45)';
+      const lowerTop = Math.min(L, -105);
+      g.fillRect(X(-42), Y(lowerTop), 14 * sc, (lowerTop + 160) * sc);   // 左：杯壁-管壁
+      g.fillRect(X(28), Y(lowerTop), 14 * sc, (lowerTop + 160) * sc);    // 右
+      if (L > -105) {
+        g.fillRect(X(-42), Y(L), 6 * sc, (L + 105) * sc);                // 左外圈（杯壁-扣碗）
+        g.fillRect(X(36), Y(L), 6 * sc, (L + 105) * sc);                 // 右外圈
+        g.fillRect(X(-32), Y(L), 4 * sc, (L + 105) * sc);                // 扣碗内圈（扣碗-管壁）
+        g.fillRect(X(28), Y(L), 4 * sc, (L + 105) * sc);
+      }
+      /* 水面线 */
+      g.strokeStyle = '#1d6bb8'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(X(-42), Y(L)); g.lineTo(X(42), Y(L)); g.stroke();
+      g.beginPath(); g.moveTo(X(-32), Y(L)); g.lineTo(X(32), Y(L)); g.stroke();
+    }
+    /* 标注 */
+    g.fillStyle = '#24313f'; g.font = '11px "Microsoft YaHei"';
+    g.fillText('主视图（剖切）  单位: mm', 12, 16);
+    g.fillStyle = '#8a4a2a'; g.fillText('扣碗下缘 -105', X(46), Y(-105) + 4);
+    g.fillStyle = '#2f7de1'; g.fillText('管口/水面 ' + L.toFixed(0), X(46), Y(L) - 4);
+    const d = sealDepth(L);
+    g.strokeStyle = d > 0 ? '#1d6bb8' : '#d94436'; g.fillStyle = g.strokeStyle; g.lineWidth = 1.4;
+    g.beginPath(); g.moveTo(X(52), Y(L)); g.lineTo(X(52), Y(-105)); g.stroke();
+    g.fillText('水封 ' + (d > 0 ? d.toFixed(0) : '0'), X(56), Y((L + (-105)) / 2) + 4);
+    g.strokeStyle = '#c2352a'; g.fillStyle = '#c2352a';
+    g.beginPath(); g.moveTo(X(0), Y(-300)); g.lineTo(X(0), Y(-40)); g.stroke();
+    g.beginPath(); g.moveTo(X(0), Y(-40)); g.lineTo(X(-4), Y(-50)); g.lineTo(X(4), Y(-50)); g.closePath(); g.fill();
+  }
+
+  /* ---- 重建入口 ---- */
+  function rebuild(L) {
+    updateWater(L);
+    updateSealDim(L);
+  }
+
+  /* ---- 排水过程动画：注水 → 满溢经管口下排 → 水面回落至管口 ---- */
+  const FLOW = { pour: 4.5, drain: 5.5, hold: 2.5 };
+  const stream = put(gFlow, new THREE.CylinderGeometry(5, 5, 1, 14), M.flow, [39, 0, 0]);
+  stream.castShadow = false; stream.receiveShadow = false;
+  stream.visible = false;
+  const drops = [];
+  (function () {
+    const geo = new THREE.SphereGeometry(3.6, 8, 6);
+    for (let i = 0; i < 12; i++) {
+      const m = new THREE.Mesh(geo, M.flow.clone());
+      m.userData = { seed: i / 12, r: Math.random() * 14, a: Math.random() * Math.PI * 2 };
+      m.castShadow = false;
+      m.visible = false;
+      gFlow.add(m); drops.push(m);
+    }
+  })();
+  /* mode: 'off' | 'pour' | 'drain' | 'hold' */
+  function updateFlowVisual(mode, t, L) {
+    stream.visible = (mode === 'pour' && L < 1.5);
+    if (stream.visible) {
+      const h = Math.max(1, 2 - L);
+      stream.scale.y = h;
+      stream.position.set(39, (2 + L) / 2, 0);
+    }
+    const dropsOn = (mode === 'drain' || mode === 'hold');
+    for (let i = 0; i < drops.length; i++) {
+      const d = drops[i], u = d.userData;
+      d.visible = dropsOn;
+      if (dropsOn) {
+        const ph = (t * 0.5 + u.seed) % 1;
+        d.position.set(Math.cos(u.a) * u.r * 0.5, GEO.pipeRim - 5 - ph * 295, Math.sin(u.a) * u.r * 0.5);
+        d.material.opacity = 0.8 * (1 - ph * 0.55);
+      }
+    }
+  }
+  /* ================= 状态、面板接线、相机、主循环 ================= */
+  const $ = function (id) { return document.getElementById(id); };
+  const el = {
+    panel: $('panel'), verdict: $('verdict'), valA: $('valA'), valB: $('valB'), valC: $('valC'),
+    pSlider: $('pSlider'), pLabel: $('pLabel'), runLabel: $('runLabel'), prof: $('prof'), toast: $('toast')
+  };
+
+  const state = {
+    play: true, t: 0,
+    p: 0.83,                      // 水位参数 0..1 → L ∈ [-160, +2] mm
+    showCut: true, showAux: true, showMarks: true, showGas: true,
+    flow: null                    // 排水动画：{ t, L0 } 或 null
+  };
+
+  function levelOf(p) { return lerp(LEVEL_MIN, LEVEL_MAX, p); }
+  function pOf(L) { return clamp((L - LEVEL_MIN) / (LEVEL_MAX - LEVEL_MIN), 0, 1); }
+  function slider2p(v) { return v / 100; }
+
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.toast.classList.remove('show'); }, 2600);
+  }
+
+  function levelLabel(p) {
+    if (p <= 0.02) return '干涸失效';
+    if (p < 0.6) return '水位过低';
+    if (p < 0.72) return '接近临界';
+    if (p < 0.97) return '正常运行';
+    return '注满排水中';
+  }
+
+  function setP(p, fromSlider) {
+    state.p = clamp(p, 0, 1);
+    if (!fromSlider) el.pSlider.value = Math.round(state.p * 100);
+    el.pLabel.textContent = levelLabel(state.p);
+    rebuild(levelOf(state.p));
+    updateReadout();
+    drawSection(levelOf(state.p));
+  }
+
+  /* ---- 读数与判定 ---- */
+  function updateReadout() {
+    const L = levelOf(state.p), d = sealDepth(L);
+    el.valA.textContent = L.toFixed(0) + ' mm' + (L > GEO.pipeRim+1 ? '（瞬时）' : '');
+    el.valB.textContent = d > 0 ? d.toFixed(0) + ' mm' : '0 mm（失效）';
+    el.valC.textContent = sealValid(L) ? '相平 ✓' : '仅底部残水';
+    const v = el.verdict;
+    if (sealValid(L)) {
+      v.classList.remove('bad');
+      v.textContent = d < 55
+        ? '△ 水封仍有效，但深度仅 ' + d.toFixed(0) + ' mm；若作为规范水封设计，应校验不小于50 mm的要求。'
+        : '✓ 水封有效：扣碗下缘浸没于水中 ' + d.toFixed(0) + ' mm，异味气体被水层挡住，无法进入室内。';
+    } else {
+      v.classList.add('bad');
+      v.textContent = '✗ 水封失效：水面低于扣碗下缘，扣碗内腔与室内直通，下水管异味长驱直入——地漏干涸是卫生间返臭的常见原因。';
+    }
+  }
+
+  /* ---- 显隐 ---- */
+  function applyVisibility() {
+    gAux.visible = state.showAux;
+    labelGroup.visible = state.showMarks;
+    gGas.visible = state.showGas;
+    gCaps.visible = state.showCut;
+  }
+  function bindToggle(id, key, onMsg, offMsg) {
+    const b = $(id);
+    if (!b) return;
+    b.addEventListener('click', function () {
+      state[key] = !state[key];
+      b.classList.toggle('active', state[key]);
+      if (key === 'showCut') setCut(state.showCut);
+      applyVisibility();
+      toast(state[key] ? onMsg : offMsg);
+    });
+  }
+
+  /* ---- 相机 ---- */
+  const view = {
+    theta: 0.55, phi: 1.22, dist: 820, distTarget: 820,
+    target: new THREE.Vector3(0, -80, 0), fov: 38, fovTarget: 38
+  };
+  function applyCamera() {
+    camera.fov = view.fov;
+    camera.position.set(
+      view.target.x + view.dist * Math.sin(view.phi) * Math.sin(view.theta),
+      view.target.y + view.dist * Math.cos(view.phi),
+      view.target.z + view.dist * Math.sin(view.phi) * Math.cos(view.theta)
+    );
+    camera.lookAt(view.target);
+    camera.updateProjectionMatrix();
+  }
+  function setView(o) {
+    if (o.theta !== undefined) view.theta = o.theta;
+    if (o.phi !== undefined) view.phi = o.phi;
+    if (o.dist !== undefined) view.distTarget = o.dist;
+    if (o.fov !== undefined) view.fovTarget = o.fov;
+    if (o.tx !== undefined) view.target.set(o.tx, o.ty || 0, o.tz || 0);
+  }
+
+  (function bindCamera() {
+    let drag = null;
+    const cv = renderer.domElement;
+    cv.addEventListener('pointerdown', function (e) {
+      drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId);
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      view.theta -= (e.clientX - drag.x) * 0.006;
+      view.phi = clamp(view.phi - (e.clientY - drag.y) * 0.005, 0.12, Math.PI - 0.12);
+      drag = { x: e.clientX, y: e.clientY };
+    });
+    cv.addEventListener('pointerup', function () { drag = null; });
+    cv.addEventListener('wheel', function (e) {
+      view.distTarget = clamp(view.distTarget * (1 + (e.deltaY > 0 ? 0.10 : -0.10)), 200, 2200);
+    }, { passive: true });
+  })();
+
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  }
+  window.addEventListener('resize', resize);
+
+  /* ---- 面板接线 ---- */
+  el.pSlider.addEventListener('input', function () {
+    setP(slider2p(+el.pSlider.value), true);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-p]'), function (b) {
+    b.addEventListener('click', function () { setP(slider2p(+b.getAttribute('data-p')), false); });
+  });
+  $('btnPlay').addEventListener('click', function () { setPlaying(true); });
+  $('btnPause').addEventListener('click', function () { setPlaying(false); });
+  $('btnReset').addEventListener('click', function () {
+    state.t = 0; setP(0.83, false);
+    setView({ theta: 0.55, phi: 1.22, dist: 820, fov: 38, tx: 0, ty: -80 });
+    toast('已重置');
+  });
+  function setPlaying(on) {
+    state.play = on;
+    el.runLabel.textContent = on ? '播放中' : '已暂停';
+    $('btnPlay').classList.toggle('active', on);
+    $('btnPause').classList.toggle('active', !on);
+  }
+  bindToggle('btnCut', 'showCut', '开启剖切：移去靠近你的一半结构（并显示实心剖面）', '关闭剖切：显示完整外形');
+  bindToggle('btnMarks', 'showMarks', '显示部件标注', '隐藏部件标注');
+  bindToggle('btnAux', 'showAux', '显示尺寸与坐标系', '隐藏尺寸与坐标系');
+  bindToggle('btnGas', 'showGas', '显示异味气体', '隐藏异味气体');
+  $('btnSide').addEventListener('click', function () {
+    setView({ theta: 0.0001, phi: Math.PI / 2 - 0.02, dist: 760, fov: 36, tx: 0, ty: -90 });
+  });
+  $('btnTop').addEventListener('click', function () {
+    setView({ theta: 0.55, phi: 0.18, dist: 820, fov: 36, tx: 0, ty: -40 });
+  });
+  $('btnResetView').addEventListener('click', function () {
+    setView({ theta: 0.55, phi: 1.22, dist: 820, fov: 38, tx: 0, ty: -80 });
+  });
+  $('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const a = document.createElement('a');
+    a.href = renderer.domElement.toDataURL('image/png');
+    a.download = '地漏存水杯三维图.png'; a.click();
+    toast('已导出 PNG');
+  });
+  $('panelClose').addEventListener('click', function () {
+    el.panel.classList.add('collapsed'); $('panelOpen').classList.add('show');
+  });
+  $('panelOpen').addEventListener('click', function () {
+    el.panel.classList.remove('collapsed'); $('panelOpen').classList.remove('show');
+  });
+
+  /* ---- 模拟排水：注水 → 满溢 → 经管口下排 → 水面回落至管口 ---- */
+  const flowBtn = $('btnFlow');
+  flowBtn.addEventListener('click', function () {
+    if (state.flow) {                    // 再次点击 = 中止
+      state.flow = null;
+      flowBtn.textContent = '▶ 模拟排水（注水→满溢→排走→回落）';
+      updateFlowVisual('off', 0, levelOf(state.p));
+      toast('已停止排水演示');
+      return;
+    }
+    state.flow = { t: 0, L0: levelOf(state.p) };
+    setPlaying(true);
+    flowBtn.textContent = '■ 停止演示';
+    toast('开始演示：注水 → 满溢 → 经下水管排走 → 水面回落至管口');
+  });  function stepFlow(dt) {
+    const f = state.flow;
+    if (!f) return;
+    f.t += dt;
+    const pourFrom = Math.min(f.L0, 2);
+    let L, mode;
+    if (f.t < FLOW.pour && pourFrom < 1.9) {
+      const k = f.t / FLOW.pour;
+      L = lerp(pourFrom, 2, k * k * (3 - 2 * k));
+      mode = 'pour';
+    } else if (f.t < FLOW.pour + FLOW.drain) {
+      const k = clamp((f.t - FLOW.pour) / FLOW.drain, 0, 1);
+      L = lerp(2, GEO.pipeRim, k * k * (3 - 2 * k));
+      mode = 'drain';
+    } else {
+      L = GEO.pipeRim;
+      mode = 'hold';
+      if (f.t > FLOW.pour + FLOW.drain + FLOW.hold) {
+        state.flow = null;
+        flowBtn.textContent = '▶ 模拟排水（注水→满溢→排走→回落）';
+        updateFlowVisual('off', 0, L);
+        toast('排水完成：水面回落至与下水管口相平，扣碗下缘仍被浸没——水封保留，异味被挡');
+        setP(pOf(L), false);
+        return;
+      }
+    }
+    updateFlowVisual(mode, f.t, L);
+    setP(pOf(L), false);
+  }
+
+  /* ---- 主循环 ---- */
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (state.play) state.t += dt;
+    stepFlow(dt);
+
+    view.dist += (view.distTarget - view.dist) * 0.12;
+    view.fov += (view.fovTarget - view.fov) * 0.12;
+    applyCamera();
+
+    updateGas(state.t, levelOf(state.p));
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+
+  /* ---- 启动 ---- */
+  setP(state.p, false);
+  setPlaying(state.play);
+  setCut(state.showCut);
+  applyVisibility();
+  applyCamera();
+  try {
+    renderer.render(scene, camera);   // 同步首渲染：不依赖首帧 rAF
+    document.title += ' · 首帧OK';
+  } catch (e) {
+    document.title = 'RENDER_ERR: ' + e.message;
+  }
+  requestAnimationFrame(tick);
+
+  /* ---- 验证入口 ---- */
+  window.__dbg = {
+    state: state, view: view, camera: camera, scene: scene,
+    get LEVEL() { return levelOf(state.p); },
+    get GEO() { return GEO; },
+    get water() { return water; },
+    get gasMeshes() { return gas; },
+    sealDepth: sealDepth, sealValid: sealValid,
+    rebuild: rebuild, setP: setP, setView: setView, applyCamera: applyCamera,
+    setCut: setCut, drawSection: drawSection
+  };
+
+</script>
+</body>
+</html>

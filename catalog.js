@@ -420,5 +420,43 @@ window.MODEL_CATALOG = [
     "path": "models/car-speed.html",
     "symbol": "v",
     "accent": "blue"
+  },
+  {
+    "id": "friction-belt",
+    "cover": "assets/covers/friction-belt.svg",
+    "title": "滑动摩擦力演示仪",
+    "subtitle": "传送带 · 二力平衡 · 弹簧测力计",
+    "category": "力学实验",
+    "summary": "真实哑光主机、橡胶传送带、木块、砝码与弹簧测力计；改变砝码、皮带速度和接触面，观察滑动摩擦力与受力箭头、力—质量关系曲线。",
+    "tags": [
+      "滑动摩擦力",
+      "二力平衡",
+      "压力",
+      "弹簧测力计",
+      "传送带",
+      "受力分析"
+    ],
+    "path": "models/friction-belt.html",
+    "symbol": "f",
+    "accent": "blue"
+  },
+  {
+    "id": "floor-drain-trap",
+    "cover": "assets/covers/floor-drain-trap.svg",
+    "title": "地漏存水杯与水封",
+    "subtitle": "连通器 · 剖面 · 排水防臭",
+    "category": "生活中的物理",
+    "summary": "观察存水杯、倒扣隔离罩、溢流管、进水箅子的装配关系；调节水位并模拟排水，显示动态水封深度、气体受阻与干涸失效时的逃逸路径。",
+    "tags": [
+      "连通器",
+      "水封",
+      "地漏",
+      "液体压强",
+      "排水",
+      "剖切"
+    ],
+    "path": "models/floor-drain-trap.html",
+    "symbol": "水",
+    "accent": "green"
   }
 ];

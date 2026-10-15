@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>滑动摩擦力演示仪 · 装配与定量探究</title>
+<style>
+  :root {
+    --bg: #f2f6fb; --panel: #ffffff; --ink: #24313f; --sub: #5b6b7c;
+    --line: #dbe4ee; --blue: #2f7de1; --ok: #1d9e6b; --bad: #d94436;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: var(--bg); color: var(--ink); }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+  .head { position: fixed; left: 18px; top: 14px; z-index: 5; pointer-events: none; }
+  .head h1 { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  .head h1 span { color: var(--sub); font-weight: 400; font-size: 14px; }
+  .head p { margin-top: 3px; font-size: 12.5px; color: var(--sub); }
+
+  .panel {
+    position: fixed; right: 14px; top: 14px; bottom: 14px; width: 292px; z-index: 6;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(30,50,80,.10); padding: 14px 14px 10px; overflow-y: auto;
+    transition: transform .25s ease;
+  }
+  .panel.collapsed { transform: translateX(320px); }
+  #panelClose { position: absolute; right: 8px; top: 8px; border: 0; background: none; font-size: 18px; color: var(--sub); cursor: pointer; }
+  #panelOpen {
+    position: fixed; right: 14px; top: 14px; z-index: 5; width: 34px; height: 34px; border-radius: 9px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--sub); font-size: 17px; cursor: pointer; display: none;
+  }
+  #panelOpen.show { display: block; }
+
+  .grp { margin: 0 0 13px; }
+  .lbl { font-size: 12px; color: var(--sub); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .lbl b { color: var(--blue); font-weight: 600; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg button {
+    flex: 1 1 auto; padding: 6px 8px; font-size: 12px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: #f7fafd; color: var(--ink); white-space: nowrap;
+  }
+  .seg button:hover { border-color: var(--blue); }
+  .seg button.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .seg button.go.active { background: var(--ok); border-color: var(--ok); }
+  .seg button.warn.active { background: var(--bad); border-color: var(--bad); }
+
+  input[type=range] { width: 100%; accent-color: var(--blue); margin: 4px 0 8px; }
+
+  .readout { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .rv { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; font-size: 12.5px; }
+  .rv + .rv { border-top: 1px dashed var(--line); }
+  .rv span { color: var(--sub); }
+  .rv b { font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .verdict { margin-top: 8px; padding: 8px 10px; border-radius: 9px; font-size: 12.5px; line-height: 1.55;
+    background: #eef6ff; border: 1px solid #d4e6fb; color: #24517e; }
+  .verdict.bad { background: #fdf0ee; border-color: #f5d2cd; color: #a33225; }
+  .mini { font-size: 11.5px; color: var(--sub); margin-top: 6px; line-height: 1.55; }
+
+  #prof { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #f7fafc; }
+
+  .tip { margin-top: 2px; border-top: 1px dashed var(--line); padding-top: 10px; font-size: 12px; line-height: 1.7; color: var(--sub); }
+  .tip b { color: var(--ink); display: block; margin-bottom: 3px; }
+  .tip span { display: block; }
+  .tip .ok { color: var(--ok); }
+  .tip .bad { color: var(--bad); }
+
+  .hint { position: fixed; left: 18px; bottom: 12px; z-index: 5; font-size: 11.5px; color: var(--sub); pointer-events: none; }
+  #toast {
+    position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(20px); z-index: 9;
+    background: rgba(36,49,63,.92); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px;
+    opacity: 0; transition: all .25s ease; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+
+<div class="head">
+  <h1>滑动摩擦力演示仪 <span>· 3D 实验（传送带式）</span></h1>
+  <p>皮带匀速转动，木块保持静止 —— 二力平衡测出滑动摩擦力</p>
+</div>
+
+<canvas id="scene" aria-label="可旋转缩放的三维实验装置"></canvas>
+
+<div class="panel" id="panel">
+  <button id="panelClose" title="收起面板">›</button>
+
+  <div class="grp">
+    <div class="lbl">砝码质量（加在木块上） <b id="mLabel">100 g</b></div>
+    <input id="mSlider" type="range" min="0" max="100" value="50">
+    <div class="seg">
+      <button data-m="0">0 g</button>
+      <button data-m="50">50 g</button>
+      <button data-m="100">100 g</button>
+      <button data-m="200">200 g</button>
+    </div>
+    <div class="mini">增大压力 N，观察示数如何变化。</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">皮带速度 <b id="vLabel">0.30 m/s</b></div>
+    <input id="vSlider" type="range" min="0" max="100" value="50">
+    <div class="seg">
+      <button data-v="0">停转</button>
+      <button data-v="30">慢</button>
+      <button data-v="100">快</button>
+    </div>
+    <div class="mini">皮带上表面向左运动，木块受摩擦向左、细绳拉力向右；比较不同速度时的稳态示数。</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">接触面粗糙程度 μ <b id="muLabel">0.30</b></div>
+    <input id="muSlider" type="range" min="0" max="100" value="43">
+    <div class="mini">模拟换更粗糙/更光滑的接触面。</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">实时读数（稳态模型）</div>
+    <div class="readout">
+      <div class="rv"><span>正压力 N = (m木+m砝)g</span><b id="valA">—</b></div>
+      <div class="rv"><span>滑动时预测 f = μN</span><b id="valB">—</b></div>
+      <div class="rv"><span>测力计示数 T</span><b id="valC">—</b></div>
+      <div class="rv"><span>皮带速度 v</span><b id="valD">—</b></div>
+    </div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">动画 <b id="runLabel">播放中</b></div>
+    <div class="seg">
+      <button id="btnPlay" class="go active">播放</button>
+      <button id="btnPause" class="warn">暂停</button>
+      <button id="btnReset">重置</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">显示</div>
+    <div class="seg toggles">
+      <button id="btnMarks" class="active">部件标注</button>
+      <button id="btnAux" class="active">坐标系</button>
+      <button id="btnForces" class="active">受力箭头</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">f – 砝码质量 关系（当前 μ）</div>
+    <canvas id="prof" width="516" height="260"></canvas>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">视角</div>
+    <div class="seg">
+      <button id="btnResetView">轴测</button>
+      <button id="btnSide">正视</button>
+      <button id="btnTop">俯视</button>
+    </div>
+    <div class="seg">
+      <button id="btnShot">导出 PNG</button>
+    </div>
+  </div>
+
+  <div class="tip">
+    <b>原理一句话</b>
+    <span>皮带匀速转动，木块相对地面<b>保持静止</b>——受重力、支持力、绳的拉力 T 和滑动摩擦力 f，处于平衡。</span>
+    <span>水平方向二力平衡：<b>T = f</b>，所以弹簧测力计示数就是滑动摩擦力。</span>
+    <span class="ok">✓ 本模型采用理想干摩擦关系：增大正压力，滑动摩擦力增大；接触面不变时，改变相对速度不改变稳态摩擦力。</span>
+    <span class="bad">注意：真实橡胶、高速或润滑条件下，摩擦力可能随速度变化；模型仅用于初中物理理想化探究。</span>
+  </div>
+</div>
+
+<button id="panelOpen" title="展开面板">‹</button>
+<div class="hint">拖动旋转 · 滚轮缩放 · 单位：mm · g 取 10 N/kg</div>
+<div id="toast"></div>
+
+
+  <script src="../shared/vendor/three-r144.min.js"></script>
+<script src="../shared/material-finish.js"></script>
+
+<script>
+  /* 全局错误陷阱（诊断用） */
+  window.addEventListener('error', function (e) {
+    try {
+      const s = (e.error && e.error.stack) || e.message || 'unknown';
+      document.title = 'ERR: ' + String(s).replace(/\s+/g, ' ').slice(0, 300);
+    } catch (_) {}
+  });
+  /* ================= 渲染器、场景、灯光、材质、工具、标注层 ================= */
+  const canvas = document.getElementById('scene') ||
+    (function () {
+      const c = document.createElement('canvas');
+      c.id = 'scene';
+      document.body.insertBefore(c, document.body.firstChild);
+      return c;
+    })();
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+  } catch (e) {
+    const g = canvas.getContext('2d');
+    if (g) {
+      canvas.width = 800; canvas.height = 200;
+      g.fillStyle = '#5b6b7c'; g.font = '18px "Microsoft YaHei", sans-serif';
+      g.fillText('当前环境不支持 WebGL（3D 渲染被禁用）。请改用浏览器直接打开本文件。', 30, 90);
+    }
+    throw e;
+  }
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf2f6fb);
+
+  const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 1, 12000);
+
+  (function env() {
+    const c = document.createElement('canvas');
+    c.width = 32; c.height = 32;
+    const g = c.getContext('2d');
+    const grd = g.createLinearGradient(0, 0, 0, 32);
+    grd.addColorStop(0, '#eaf2fb'); grd.addColorStop(1, '#c9d8e8');
+    g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+    const tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const pm = new THREE.PMREMGenerator(renderer);
+    scene.environment = pm.fromEquirectangular(tex).texture;
+  })();
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb9c6d4, 0.72));
+  (function () {
+    const key = new THREE.DirectionalLight(0xfff4e0, 0.9);
+    key.position.set(500, 700, 480);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.left = -800; key.shadow.camera.right = 800;
+    key.shadow.camera.top = 800; key.shadow.camera.bottom = -800;
+    key.shadow.camera.near = 1; key.shadow.camera.far = 2600;
+    key.shadow.bias = -0.0006;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xdfeaff, 0.3);
+    fill.position.set(-520, 300, 420);
+    scene.add(fill);
+    const back = new THREE.DirectionalLight(0xffffff, 0.22);
+    back.position.set(-80, -60, -520);
+    scene.add(back);
+  })();
+
+  /* ---- 程序化纹理：木纹 / 皮带橡胶 / 拉丝钢 ---- */
+  function canvasTex(draw, w, h, rx, ry) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.encoding = THREE.sRGBEncoding;          // 画布是 sRGB 色，否则线性管线洗白
+    t.repeat.set(rx || 1, ry || 1);
+    return t;
+  }
+  const woodTex = canvasTex(function (g, w, h) {
+    g.fillStyle = '#c28426'; g.fillRect(0, 0, w, h);
+    let seed = 7;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    for (let i = 0; i < 46; i++) {
+      const dark = i % 2 === 0;
+      g.strokeStyle = dark ? 'rgba(96,54,8,' + (0.16 + rnd() * 0.18) + ')' : 'rgba(238,196,120,' + (0.12 + rnd() * 0.15) + ')';
+      g.lineWidth = 1.5 + rnd() * 3.2;
+      const y = rnd() * h;
+      g.beginPath(); g.moveTo(0, y);
+      for (let x = 0; x <= w; x += 12) g.lineTo(x, y + Math.sin(x * 0.04 + i * 1.9) * 5 + (rnd() - 0.5) * 3);
+      g.stroke();
+    }
+    for (let i = 0; i < 3; i++) {
+      g.fillStyle = 'rgba(90,48,6,0.4)';
+      g.beginPath(); g.ellipse(rnd() * w, rnd() * h, 7 + rnd() * 6, 3.5 + rnd() * 3, 0, 0, Math.PI * 2); g.fill();
+    }
+  }, 256, 256, 1.4, 1.1);
+  const steelTex = canvasTex(function (g, w, h) {
+    g.fillStyle = '#c8d0d8'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 170; i++) {
+      g.strokeStyle = 'rgba(70,88,105,' + (Math.random() * 0.12) + ')'; g.lineWidth = 1;
+      const y = Math.random() * h;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y + (Math.random() - 0.5) * 7); g.stroke();
+    }
+  }, 256, 256, 2, 1);
+
+  /* ---- 真实木纹（Poly Haven CC0）：04_js_tex.js 提供数据并在其后完成加载 ---- */
+  const WOOD = { tex: null, mats: [] };
+
+  /* 传送带橡胶：程序化黑色橡胶纹理（细颗粒 + 横向帘线肋纹 + 边缘磨暗）+ 凹凸贴图 */
+  const beltTex = canvasTex(function (g, w, h) {
+    g.fillStyle = '#1e2124'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2600; i++) {
+      const a = Math.random() * 0.10;
+      g.fillStyle = Math.random() < 0.5 ? 'rgba(62,68,76,' + a + ')' : 'rgba(8,10,12,' + a + ')';
+      g.fillRect(Math.random() * w, Math.random() * h, 1.6, 1.6);
+    }
+    for (let y = 4; y < h; y += 7) {
+      g.strokeStyle = 'rgba(0,0,0,0.17)'; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+      g.strokeStyle = 'rgba(130,138,148,0.06)';
+      g.beginPath(); g.moveTo(0, y + 3); g.lineTo(w, y + 3); g.stroke();
+    }
+    const eg = g.createLinearGradient(0, 0, 0, h);
+    eg.addColorStop(0, 'rgba(0,0,0,0.4)'); eg.addColorStop(0.12, 'rgba(0,0,0,0)');
+    eg.addColorStop(0.88, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(0,0,0,0.4)');
+    g.fillStyle = eg; g.fillRect(0, 0, w, h);
+  }, 512, 256, 6, 1);
+  const beltBump = canvasTex(function (g, w, h) {
+    g.fillStyle = '#808080'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2200; i++) {
+      const v = 96 + Math.floor(Math.random() * 64);
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.5)';
+      g.fillRect(Math.random() * w, Math.random() * h, 1.6, 1.6);
+    }
+    for (let y = 4; y < h; y += 7) {
+      g.strokeStyle = 'rgba(40,40,40,0.5)'; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+    }
+  }, 512, 256, 6, 1);
+
+  /* 材质库 */
+  const M = {
+    table:  new THREE.MeshStandardMaterial({ color: 0xbcc9d4, roughness: 0.85, metalness: 0 }),
+    board:  new THREE.MeshStandardMaterial({ color: 0x1e4d3a, roughness: 0.92, metalness: 0 }),
+    blue:   new THREE.MeshStandardMaterial({ color: 0x2865a7, roughness: 0.70, metalness: 0.22 }),
+    blueDk: new THREE.MeshStandardMaterial({ color: 0x224a76, roughness: 0.78, metalness: 0.20 }),
+    belt:   new THREE.MeshStandardMaterial({ map: beltTex, bumpMap: beltBump, bumpScale: 0.7,
+              color: 0xffffff, roughness: 0.92, metalness: 0.02, side: THREE.DoubleSide }),
+    strip:  new THREE.MeshStandardMaterial({ color: 0x2c3238, roughness: 0.85, metalness: 0.05 }),
+    wood:   new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.68, metalness: 0 }),
+    brass:  new THREE.MeshStandardMaterial({ color: 0xba995e, roughness: 0.62, metalness: 0.76 }),
+    steel:  new THREE.MeshStandardMaterial({ map: steelTex, color: 0xe2e8ec, roughness: 0.58, metalness: 0.76 }),
+    spring: new THREE.MeshStandardMaterial({ color: 0xb6bfc9, roughness: 0.50, metalness: 0.8 }),
+    white:  new THREE.MeshStandardMaterial({ color: 0xf4f6f8, roughness: 0.55, metalness: 0 }),
+    pink:   new THREE.MeshStandardMaterial({ color: 0xc74973, roughness: 0.75, metalness: 0 }),
+    pulleyB:new THREE.MeshStandardMaterial({ color: 0x9ec6ea, roughness: 0.42, metalness: 0.05 }),
+    slotDk: new THREE.MeshStandardMaterial({ color: 0x0e1a2c, roughness: 0.6, metalness: 0.1 }),
+    ledRed: new THREE.MeshStandardMaterial({ color: 0x7a1410, emissive: 0xff2a1e, emissiveIntensity: 0.85, roughness: 0.3 }),
+    knobG:  new THREE.MeshStandardMaterial({ color: 0x2fa864, roughness: 0.42, metalness: 0.05 }),
+    red:    new THREE.MeshStandardMaterial({ color: 0xd94436, roughness: 0.45, metalness: 0.1 }),
+    dark:   new THREE.MeshStandardMaterial({ color: 0x2a3038, roughness: 0.6, metalness: 0.3 })
+  };
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function put(parent, geo, mat, pos, rot, scl) {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(pos[0], pos[1], pos[2] || 0);
+    if (rot) m.rotation.set(rot[0], rot[1], rot[2] || 0);
+    if (scl) m.scale.set(scl[0], scl[1], scl[2] || 1);
+    m.castShadow = true; m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  }
+  /* 两点间圆柱（细线、拉杆） */
+  function strut(parent, a, b, r, mat) {
+    const A = new THREE.Vector3(a[0], a[1], a[2] || 0), B = new THREE.Vector3(b[0], b[1], b[2] || 0);
+    const d = Math.max(0.01, A.distanceTo(B));
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 10), mat);
+    m.position.copy(A).add(B).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+    m.scale.y = d;
+    m.castShadow = true;
+    parent.add(m);
+    return m;
+  }
+  function updateStrut(m, a, b) {
+    const A = new THREE.Vector3(a[0], a[1], a[2] || 0), B = new THREE.Vector3(b[0], b[1], b[2] || 0);
+    m.position.copy(A).add(B).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+    m.scale.y = Math.max(0.01, A.distanceTo(B));
+  }
+
+  /* ---- 标注层 ---- */
+  const labelGroup = new THREE.Group();
+  const gAux = new THREE.Group();
+  const gAnim = new THREE.Group();
+  const gMain = new THREE.Group();
+  scene.add(gMain, gAux, gAnim, labelGroup);
+  const LABELS = {};
+
+  function makeLabel(text, color, scale) {
+    const fs = 76;
+    const c = document.createElement('canvas');
+    let g = c.getContext('2d');
+    g.font = '600 ' + fs + 'px "Microsoft YaHei", sans-serif';
+    const w = Math.ceil(g.measureText(text).width) + 28;
+    c.width = w; c.height = 112;
+    g = c.getContext('2d');
+    g.font = '600 ' + fs + 'px "Microsoft YaHei", sans-serif';
+    g.textBaseline = 'middle';
+    g.lineWidth = 11; g.strokeStyle = 'rgba(255,255,255,0.94)';
+    g.strokeText(text, 14, 56);
+    g.fillStyle = color; g.fillText(text, 14, 56);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(c), depthTest: false, transparent: true, toneMapped: false
+    }));
+    sp.scale.set(w / 112 * scale, scale, 1);
+    sp.renderOrder = 30;
+    return sp;
+  }
+  function addLabel(key, text, color, scale, pos) {
+    const sp = makeLabel(text, color, scale || 10);
+    sp.position.set(pos[0], pos[1], pos[2] || 0);
+    labelGroup.add(sp);
+    LABELS[key] = sp;
+    return sp;
+  }
+  function leader(from, to, color) {
+    const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(from[0], from[1], from[2]), new THREE.Vector3(to[0], to[1], to[2])]);
+    const ln = new THREE.Line(g, new THREE.LineBasicMaterial({ color: color || 0x51606f }));
+    labelGroup.add(ln);
+    return ln;
+  }
+
+  /* 地面 */
+  (function () {
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(6000, 6000),
+      new THREE.MeshStandardMaterial({ color: 0xe4eaf1, roughness: 1, metalness: 0 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -38;
+    ground.receiveShadow = true;
+    scene.add(ground);
+  })();
+  /* ================= 装置几何（严格对照实物照片布局）、力学模型、皮带动画、测力计 ================= */
+
+  /* ---- 结构参数（mm；力学量：kg / N / m·s⁻¹，g 取 10） ----
+     照片布局要点：蓝色主机在左、传送带在主机前方且皮带面低于箱顶并伸到主机右侧；
+     木块在皮带上；右侧蓝色立柱上端固定大面板弹簧测力计，立柱中段装浅色定滑轮；
+     细线水平过滑轮后竖直向上，系在测力计槽内下挂钩上。 */
+  const GEO = {
+    mWood: 0.18, g: 10,
+    rollerX1: -300, rollerX2: 215, rollerY: 64, rollerR: 32,
+    beltTop: 100, beltZ: 65, beltW: 90,
+    blockX: 40, blockW: 120, blockH: 55, blockD: 70,          // blockX 为绳松弛（T=0）时的静止位
+    pulley: [250, 132, 45],
+    boardX: 250, boardW: 130, boardBot: 330, boardTop: 760,   // 测力计大面板
+    zeroY: 700, mmPerN: 140, springTop: 730,                  // 刻度 0 线 / 每牛顿行程 / 弹簧上锚点
+    mAddMax: 0.2, muMin: 0.15, muMax: 0.5, vMax: 0.6,
+    LOOP: 2 * (215 - (-300)) + 2 * Math.PI * 36
+  };
+  /* f = μN；只有皮带转动（有相对滑动）时绳子才需要提供摩擦力 */
+  function frictionOf(mu, mAdd) { return mu * (GEO.mWood + mAdd) * GEO.g; }
+  function tensionOf(mu, mAdd, v) { return v > 0.004 ? frictionOf(mu, mAdd) : 0; }
+  function pointerYOf(T) { return GEO.zeroY - T * GEO.mmPerN; }
+  function hookYOf(T) { return pointerYOf(T) - 37; }
+
+  /* ---- 桌面、黑板 ---- */
+  put(gMain, new THREE.BoxGeometry(1400, 36, 640), M.table, [0, -18, 0]);
+  put(gMain, new THREE.BoxGeometry(1700, 980, 26), M.board, [0, 360, -330]);
+
+  /* ================= 蓝色主机（J2108，左置箱体） =================
+     箱体 x∈[-340,-90]，y∈[0,135]，z∈[-85,15]；前面板带丝印 + 红色电源灯 + 绿色调速旋钮 */
+  put(gMain, new THREE.BoxGeometry(250, 135, 100), M.blue, [-215, 67.5, -35]);
+  /* 前面板丝印（Canvas 贴图：型号、指示灯与旋钮标注、安装螺钉） */
+  const panelTex = canvasTex(function (g, w, h) {
+    const grad = g.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#2056a8'); grad.addColorStop(1, '#1a4896');
+    g.fillStyle = grad; g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(255,255,255,0.16)'; g.lineWidth = 3; g.strokeRect(6, 6, w - 12, h - 12);
+    /* 四角螺钉 */
+    g.fillStyle = '#cfd8e2';
+    [[26, 26], [w - 26, 26], [26, h - 26], [w - 26, h - 26]].forEach(function (p) {
+      g.beginPath(); g.arc(p[0], p[1], 7, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#5a6a7c'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(p[0] - 4, p[1]); g.lineTo(p[0] + 4, p[1]); g.stroke();
+    });
+    /* 红色电源灯 + 标注（世界(-300,108) → 面板(80,54)，位于传送带侧板上方） */
+    g.fillStyle = '#e8eef5'; g.font = '600 21px "Microsoft YaHei", Arial'; g.textAlign = 'center';
+    g.fillText('电源指示', 80, 88);
+    /* 型号 */
+    g.textAlign = 'left'; g.fillStyle = '#f2f6fb'; g.font = '700 44px Arial';
+    g.fillText('J2108', 118, 78);
+    g.font = '600 20px "Microsoft YaHei", Arial'; g.fillStyle = 'rgba(232,238,245,0.85)';
+    g.fillText('摩擦力演示器', 118, 110);
+    /* 调速旋钮标注（世界(-300,78) → 面板(80,114)） */
+    g.textAlign = 'center'; g.fillText('调速', 80, 152);
+    g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 2;
+    g.beginPath(); g.arc(80, 114, 24, 0, Math.PI * 2); g.stroke();
+  }, 500, 270);
+  put(gMain, new THREE.PlaneGeometry(250, 135), new THREE.MeshBasicMaterial({ map: panelTex }), [-215, 67.5, 15.6]);
+  /* 红色电源指示灯 + 绿色调速旋钮（实体件，均在传送带侧板之上） */
+  put(gMain, new THREE.CylinderGeometry(6, 6.5, 6, 16), M.ledRed, [-300, 108, 17]).rotation.x = Math.PI / 2;
+  const knob = put(gMain, new THREE.CylinderGeometry(10, 11, 10, 20), M.knobG, [-300, 78, 19]);
+  knob.rotation.x = Math.PI / 2;
+  put(gMain, new THREE.BoxGeometry(2.4, 8, 2), M.white, [-300, 84, 24.5]);
+
+  /* ================= 传送带（主机前方、低于箱顶、右伸） =================
+     前后两根深色侧板 + 双滚轮 + 闭环皮带；左滚轮白色塑料鼓、右滚轮金属轴承盖 */
+  put(gMain, new THREE.BoxGeometry(520, 38, 5), M.blueDk, [-45, 41, 20]);    // 后侧板
+  put(gMain, new THREE.BoxGeometry(520, 38, 5), M.blueDk, [-45, 41, 110]);   // 前侧板
+  /* 滚轮（轴沿 Z 水平横置，整组绕 Z 自转） */
+  const rollerWraps = [];
+  [GEO.rollerX1, GEO.rollerX2].forEach(function (x, idx) {
+    const grp = new THREE.Group();
+    grp.position.set(x, GEO.rollerY, GEO.beltZ);
+    gMain.add(grp);
+    const bodyMat = idx === 0 ? M.white : M.steel;                 // 左白塑鼓 / 右钢轮
+    const r = put(grp, new THREE.CylinderGeometry(GEO.rollerR, GEO.rollerR, 96, 36), bodyMat, [0, 0, 0]);
+    r.rotation.x = Math.PI / 2;
+    if (idx === 0) {                                               // 左滚轮：白色大端盖 + 中心螺钉
+      const cap = put(grp, new THREE.CylinderGeometry(33, 33, 5, 36), M.white, [0, 0, 51]);
+      cap.rotation.x = Math.PI / 2;
+      const scr = put(grp, new THREE.CylinderGeometry(4, 4, 4, 12), M.dark, [0, 0, 54]);
+      scr.rotation.x = Math.PI / 2;
+    } else {                                                       // 右滚轮：金属轴承盖 + 六角螺母
+      const hub = put(grp, new THREE.CylinderGeometry(16, 16, 5, 28), M.steel, [0, 0, 51]);
+      hub.rotation.x = Math.PI / 2;
+      const ring = put(grp, new THREE.TorusGeometry(11, 1.6, 8, 28), M.dark, [0, 0, 54]);
+      const nut = put(grp, new THREE.CylinderGeometry(7, 7, 7, 6), M.dark, [0, 0, 55]);
+      nut.rotation.x = Math.PI / 2;
+    }
+    rollerWraps.push(grp);
+  });
+  /* 皮带：顶面 / 底面 / 两端半圆包络（包住滚轮，r = 32 + 4） */
+  const beltMat = M.belt;
+  put(gMain, new THREE.BoxGeometry(GEO.rollerX2 - GEO.rollerX1, 8, GEO.beltW), beltMat,
+      [(GEO.rollerX1 + GEO.rollerX2) / 2, 96, GEO.beltZ]);
+  put(gMain, new THREE.BoxGeometry(GEO.rollerX2 - GEO.rollerX1, 8, GEO.beltW), beltMat,
+      [(GEO.rollerX1 + GEO.rollerX2) / 2, 32, GEO.beltZ]);
+  put(gMain, new THREE.CylinderGeometry(36, 36, GEO.beltW, 32, 1, true, 0, Math.PI), beltMat,
+      [GEO.rollerX2, GEO.rollerY, GEO.beltZ]).rotation.x = Math.PI / 2;
+  put(gMain, new THREE.CylinderGeometry(36, 36, GEO.beltW, 32, 1, true, Math.PI, Math.PI), beltMat,
+      [GEO.rollerX1, GEO.rollerY, GEO.beltZ]).rotation.x = Math.PI / 2;
+  /* 皮带亮纹（随皮带循环移动，呈现"转动"） */
+  const strips = [];
+  for (let i = 0; i < 9; i++) {
+    strips.push(put(gAnim, new THREE.BoxGeometry(20, 9.6, GEO.beltW - 2), M.strip, [0, 0, 0]));
+  }
+  function beltPoint(s) {                       // 沿皮带 loop 参数取点
+    const L1 = GEO.rollerX2 - GEO.rollerX1, Lw = Math.PI * 36;
+    if (s < L1) return { x: GEO.rollerX2 - s, y: 100, r: 0 };
+    s -= L1;
+    if (s < Lw) { const f = s / Lw * Math.PI; return { x: GEO.rollerX2 + 36 * Math.sin(f), y: GEO.rollerY + 36 * Math.cos(f), r: -f }; }
+    s -= Lw;
+    if (s < L1) return { x: GEO.rollerX1 + s, y: 28, r: 0 };
+    s -= L1;
+    const f = s / Lw * Math.PI; return { x: GEO.rollerX1 - 36 * Math.sin(f), y: GEO.rollerY - 36 * Math.cos(f), r: Math.PI - f };
+  }
+  function updateBelt(phase) {
+    for (let i = 0; i < strips.length; i++) {
+      const p = beltPoint((i * GEO.LOOP / 9 + phase) % GEO.LOOP);
+      strips[i].position.set(p.x, p.y, GEO.beltZ);
+      strips[i].rotation.z = p.r;
+    }
+    rollerWraps[0].rotation.z = phase / GEO.rollerR;
+    rollerWraps[1].rotation.z = phase / GEO.rollerR;
+  }
+
+  /* ================= 木块（圆角 + 真实木纹）+ 挂线螺环 + 带柄砝码 =================
+     木块整体挂入 gBlock：绳不可伸长 ⇒ 弹簧伸长 e = T·mmPerN 时木块向左同步位移 e */
+  const gBlock = new THREE.Group();
+  gMain.add(gBlock);
+  (function buildBlock() {
+    const w = GEO.blockW, h = GEO.blockH, d = GEO.blockD, r = 6;
+    const sh = new THREE.Shape();
+    const x0 = -w / 2 + r, y0 = -h / 2 + r, ww = w - 2 * r, hh = h - 2 * r;
+    sh.moveTo(x0, y0 - r);
+    sh.lineTo(x0 + ww, y0 - r); sh.absarc(x0 + ww, y0, r, -Math.PI / 2, 0, false);
+    sh.lineTo(x0 + ww + r, y0 + hh); sh.absarc(x0 + ww, y0 + hh, r, 0, Math.PI / 2, false);
+    sh.lineTo(x0, y0 + hh + r); sh.absarc(x0, y0 + hh, r, Math.PI / 2, Math.PI, false);
+    sh.lineTo(x0 - r, y0); sh.absarc(x0, y0, r, Math.PI, Math.PI * 1.5, false);
+    const g = new THREE.ExtrudeGeometry(sh, { depth: d - 2 * r, bevelEnabled: true, bevelThickness: r, bevelSize: r - 0.01, bevelSegments: 2, curveSegments: 5 });
+    g.translate(0, 0, -(d - 2 * r) / 2);
+    const texCap = woodTex.clone(); texCap.needsUpdate = true; texCap.repeat.set(1 / w, 1 / h);
+    const texSide = woodTex.clone(); texSide.needsUpdate = true; texSide.repeat.set(1 / 46, 1 / 46);
+    const capMat = new THREE.MeshPhysicalMaterial({ map: texCap, color: 0xffffff, roughness: 0.6,
+      clearcoat: 0.35, clearcoatRoughness: 0.4 });
+    const sideMat = new THREE.MeshPhysicalMaterial({ map: texSide, color: 0xffffff, roughness: 0.62,
+      clearcoat: 0.35, clearcoatRoughness: 0.4 });
+    WOOD.mats.push({ mat: capMat, rx: 1 / w, ry: 1 / h });
+    WOOD.mats.push({ mat: sideMat, rx: 1 / 46, ry: 1 / 46 });
+    const m = new THREE.Mesh(g, [capMat, sideMat]);
+    m.position.set(GEO.blockX, GEO.beltTop + h / 2, GEO.beltZ);
+    m.castShadow = true; m.receiveShadow = true;
+    gBlock.add(m);
+    /* 顶面圆形标记（实物木块上的圆痕） */
+    const mark = put(gBlock, new THREE.TorusGeometry(13, 1.1, 6, 24),
+      new THREE.MeshStandardMaterial({ color: 0x9a6a22, roughness: 0.7 }), [GEO.blockX + 28, GEO.beltTop + h + 0.6, GEO.beltZ + 18]);
+    mark.rotation.x = Math.PI / 2;
+    /* 右侧面挂线螺环 */
+    const eye = put(gBlock, new THREE.TorusGeometry(5.5, 1.5, 8, 18), M.steel, [GEO.blockX + w / 2 + 3, GEO.beltTop + 30, GEO.pulley[2]]);
+    eye.rotation.y = Math.PI / 2;
+  })();
+  /* 砝码：黄铜圆盘叠放，最顶端带柄（照片同款钩码造型） */
+  const gWeights = new THREE.Group();
+  gBlock.add(gWeights);
+  function updateWeights(mAdd) {
+    while (gWeights.children.length) { const m = gWeights.children[gWeights.children.length - 1]; gWeights.remove(m); if (m.geometry) m.geometry.dispose(); }
+    const n = Math.round(mAdd / 0.05);
+    const baseY = GEO.beltTop + GEO.blockH;                 // 木块顶面 155
+    for (let i = 0; i < n; i++) {
+      put(gWeights, new THREE.CylinderGeometry(20, 20, 14, 28), M.brass, [GEO.blockX, baseY + 7 + i * 15, GEO.beltZ]);
+    }
+    if (n > 0) {                                            // 顶部柄 + 圆头
+      const topY = baseY + n * 15;
+      put(gWeights, new THREE.CylinderGeometry(4, 4, 12, 12), M.brass, [GEO.blockX, topY + 5, GEO.beltZ]);
+      put(gWeights, new THREE.SphereGeometry(7, 16, 12), M.brass, [GEO.blockX, topY + 14, GEO.beltZ]);
+    }
+  }
+
+  /* ================= 右侧：蓝色立柱 + 浅色定滑轮 + 大面板弹簧测力计 ================= */
+  put(gMain, new THREE.BoxGeometry(120, 16, 120), M.blueDk, [GEO.boardX, 8, 0]);   // 立柱底座
+  put(gMain, new THREE.BoxGeometry(34, 770, 34), M.blue, [GEO.boardX, 385, 0]);    // 立柱（直通测力计背后）
+  /* 定滑轮（浅色塑料轮，臂架挑出立柱前面，轮面在 XY 平面） */
+  put(gMain, new THREE.BoxGeometry(12, 12, 30), M.blueDk, [GEO.boardX, 132, 28]);  // 滑轮臂
+  const pulleyGrp = new THREE.Group();
+  gMain.add(pulleyGrp);
+  pulleyGrp.position.set(GEO.pulley[0], GEO.pulley[1], GEO.pulley[2]);
+  put(pulleyGrp, new THREE.CylinderGeometry(4, 4, 16, 12), M.dark, [0, 0, 0]).rotation.x = Math.PI / 2;
+  put(pulleyGrp, new THREE.CylinderGeometry(17, 17, 10, 48), M.pulleyB, [0, 0, 0]).rotation.x = Math.PI / 2;
+  put(pulleyGrp, new THREE.TorusGeometry(16, 3, 12, 48), M.dark, [0, 0, 0]);
+  put(pulleyGrp, new THREE.CylinderGeometry(6, 6, 12, 16), M.white, [0, 0, 0]).rotation.x = Math.PI / 2;
+
+  /* ---- 测力计大面板：白底蓝字印刷 + 中央黑色滑槽 + 顶部黑色夹头 ---- */
+  const bH = GEO.boardTop - GEO.boardBot, bCy = (GEO.boardTop + GEO.boardBot) / 2;
+  const boardMesh = put(gMain, new THREE.BoxGeometry(GEO.boardW, bH, 12),
+    new THREE.MeshPhysicalMaterial({ color: 0xf2f3f5, roughness: 0.4, clearcoat: 0.5, clearcoatRoughness: 0.3 }),
+    [GEO.boardX, bCy, 24]);                                       // z 18..30
+  boardMesh.castShadow = true;
+  put(gMain, new THREE.BoxGeometry(GEO.boardW + 6, 18, 16), M.dark, [GEO.boardX, GEO.boardTop + 6, 24]); // 顶部夹头
+  put(gMain, new THREE.CylinderGeometry(3.5, 3.5, 10, 10), M.steel, [GEO.boardX, GEO.boardTop + 8, 32]).rotation.x = Math.PI / 2;
+  /* 印刷面板（实物为蓝色油墨：N、双列数字、密刻度） */
+  const printTex = canvasTex(function (g, w, h) {
+    g.fillStyle = '#f6f7f9'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(30,60,110,0.35)'; g.lineWidth = 2; g.strokeRect(3, 3, w - 6, h - 6);
+    const BLUE = '#1b4fa0';
+    const cx = w / 2, slotHalf = 26 / GEO.boardW * w / 2;         // 中央槽半宽（px）
+    const y0 = (GEO.boardTop - GEO.zeroY) / bH * h;               // 0 N 的 canvas y
+    const pxPerN = GEO.mmPerN / bH * h;
+    g.fillStyle = BLUE; g.strokeStyle = BLUE;
+    g.textAlign = 'center'; g.font = '700 34px Arial';
+    g.fillText('N', cx - w * 0.33, 44);
+    g.fillText('N', cx + w * 0.33, 44);
+    for (let i = 0; i <= 40; i++) {                               // 0.05 N 细分
+      const v = i * 0.05, y = y0 + v * pxPerN;
+      const isMajor = (i % 10 === 0), isMid = (i % 5 === 0), is2 = (i % 2 === 0);
+      const len = isMajor ? 46 : isMid ? 34 : is2 ? 24 : 15;
+      g.lineWidth = isMajor ? 4 : isMid ? 3 : 2;
+      g.beginPath();
+      g.moveTo(cx - slotHalf - 6 - len, y); g.lineTo(cx - slotHalf - 6, y);
+      g.moveTo(cx + slotHalf + 6, y); g.lineTo(cx + slotHalf + 6 + len, y);
+      g.stroke();
+      if (isMajor) {
+        g.font = '700 30px Arial';
+        g.textAlign = 'right'; g.fillText(v.toFixed(1), cx - slotHalf - 6 - len - 10, y + 10);
+        g.textAlign = 'left';  g.fillText(v.toFixed(1), cx + slotHalf + 6 + len + 10, y + 10);
+      }
+    }
+  }, 416, 1376);
+  put(gMain, new THREE.PlaneGeometry(GEO.boardW, bH), new THREE.MeshBasicMaterial({ map: printTex }),
+      [GEO.boardX, bCy, 30.4]);
+  /* 中央黑色滑槽（弹簧/指针/挂钩在其中滑动） */
+  put(gMain, new THREE.BoxGeometry(26, 400, 2.4), M.slotDk, [GEO.boardX, bCy, 30.9]);  // z 面 32.1
+  put(gMain, new THREE.CylinderGeometry(2.5, 2.5, 30, 10), M.steel, [GEO.boardX, GEO.springTop + 2, 32]).rotation.z = Math.PI / 2;  // 上锚销
+
+  /* ---- 弹簧 + 指示线 + 挂钩 + 细线（gAnim，随示数联动） ---- */
+  let springMesh = null, lastPY = -1;
+  const indBar = put(gAnim, new THREE.BoxGeometry(34, 3, 2), M.steel, [GEO.boardX, 700, 32.5]);   // 银色指示线
+  const hookRod = strut(gAnim, [GEO.boardX, 699, 32.5], [GEO.boardX, 675, 42], 1.6, M.spring);
+  const hookRing = put(gAnim, new THREE.TorusGeometry(6, 1.7, 8, 20), M.spring, [GEO.boardX, 669, 42]);
+  const strString = strut(gAnim, [GEO.pulley[0], GEO.pulley[1] + 17, GEO.pulley[2]], [GEO.boardX, 663, GEO.pulley[2]], 1.4, M.pink);
+  const strString1 = strut(gAnim, [GEO.blockX + GEO.blockW / 2 + 4, GEO.beltTop + 30, GEO.pulley[2]],
+                                 [GEO.pulley[0] - 17, GEO.pulley[1], GEO.pulley[2]], 1.4, M.pink);
+  function buildSpring(botY) {
+    const top = GEO.springTop, pitch = 8, R = 6, zc = 31.5;
+    const seg = Math.max(10, Math.round(Math.max(20, top - botY) / pitch)) * 8;
+    const pts = [];
+    for (let k = 0; k <= seg; k++) {
+      const a = k / 8 * Math.PI * 2;
+      pts.push(new THREE.Vector3(GEO.boardX + R * Math.cos(a), top - (k / seg) * (top - botY), zc + R * Math.sin(a)));
+    }
+    if (springMesh) { gAnim.remove(springMesh); springMesh.geometry.dispose(); }
+    springMesh = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.min(400, seg), 1.5, 6), M.spring);
+    springMesh.castShadow = false;
+    gAnim.add(springMesh);
+  }
+  /* 示数更新：指示线/弹簧/挂钩/细线；绳长守恒 ⇒ 木块与滑轮同步联动 */
+  let T = 0;
+  function updateScale(Tnew) {
+    T = Tnew;
+    const py = pointerYOf(T);
+    indBar.position.y = py;
+    updateStrut(hookRod, [GEO.boardX, py - 1, 32.5], [GEO.boardX, py - 25, 42]);
+    hookRing.position.set(GEO.boardX, py - 31, 42);
+    updateStrut(strString, [GEO.pulley[0], GEO.pulley[1] + 17, GEO.pulley[2]], [GEO.boardX, py - 37, GEO.pulley[2]]);
+    const ext = T * GEO.mmPerN;                       // 弹簧伸长量 = 绳的竖直段缩短量
+    gBlock.position.x = -ext;
+    updateForceArrows(T);                          // ⇒ 水平段等量伸长：木块左移
+    pulleyGrp.rotation.z = ext / 16;                   // 绳在滑轮上滑动 ⇒ 滑轮转动
+    updateStrut(strString1, [GEO.blockX + GEO.blockW / 2 + 4 - ext, GEO.beltTop + 30, GEO.pulley[2]],
+                            [GEO.pulley[0] - 17, GEO.pulley[1], GEO.pulley[2]]);
+    if (LABELS.nBlock) LABELS.nBlock.position.x = nBlockX0 - ext;
+    if (LABELS.nWeight) LABELS.nWeight.position.x = nWeightX0 - ext;
+    if (ldBlock) ldBlock.position.x = -ext;
+    if (ldWeight) ldWeight.position.x = -ext;
+    if (Math.abs(py - lastPY) > 0.8) { buildSpring(py + 3); lastPY = py; }
+  }
+
+  /* 教学受力箭头：与木块同步移动。箭头长度代表当前摩擦力与张力大小。 */
+  const gForces = new THREE.Group(); gAnim.add(gForces);
+  const arrowF = new THREE.ArrowHelper(new THREE.Vector3(-1,0,0),new THREE.Vector3(GEO.blockX,GEO.beltTop+44,116),85,0xcc4937,14,8);
+  const arrowT = new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(GEO.blockX,GEO.beltTop+68,116),85,0x246dbd,14,8);
+  gForces.add(arrowF,arrowT);
+  const forceFText = makeLabel('f：皮带对木块','#a72e24',17);
+  const forceTText = makeLabel('T：细绳拉力','#225fa4',17);
+  forceFText.position.set(GEO.blockX-92,GEO.beltTop+58,116);
+  forceTText.position.set(GEO.blockX+96,GEO.beltTop+87,116);
+  gForces.add(forceFText,forceTText);
+  function updateForceArrows(Tv){
+    gForces.position.x=-Tv*GEO.mmPerN;
+    const len=50+35*clamp(Tv/2,0,1);
+    arrowF.setLength(len,13,8);arrowT.setLength(len,13,8);
+    gForces.visible=state.showForces && Tv>0.025;
+  }
+
+  /* ---- 坐标系 ---- */
+  (function buildAxes() {
+    const org = new THREE.Vector3(-500, 40, 250), len = 70;
+    const ax = new THREE.AxesHelper(len * 1.35);
+    ax.position.copy(org); gAux.add(ax);
+    addLabel('axX', 'X', '#d94436', 5.5, [org.x + len + 14, org.y, org.z]);
+    addLabel('axY', 'Y', '#1d9e6b', 5.5, [org.x, org.y, org.z + len + 14]);
+    addLabel('axZ', 'Z 上', '#2f7de1', 5.5, [org.x, org.y + len + 16, org.z]);
+    ['axX', 'axY', 'axZ'].forEach(function (k) { LABELS[k].material.depthTest = true; LABELS[k].renderOrder = 0; });
+  })();
+
+  /* ---- 部件标注 ---- */
+  addLabel('nScale', '弹簧测力计（量程 0~2 N）', '#24313f', 9, [GEO.boardX + 130, 750, 30]);
+  leader([GEO.boardX + 75, 745, 30], [GEO.boardX + 66, 720, 32], 0x24313f);
+  addLabel('nPulley', '定滑轮', '#24313f', 7, [GEO.boardX + 110, 160, 60]);
+  leader([GEO.boardX + 72, 155, 55], [GEO.boardX + 14, 138, 48], 0x24313f);
+  const nBlockX0 = GEO.blockX - 10, nWeightX0 = GEO.blockX - 150;
+  addLabel('nBlock', '木块（绳长守恒，随示数微移）', '#7a5b16', 8, [nBlockX0, 235, 130]);
+  const ldBlock = leader([GEO.blockX - 8, 218, 100], [GEO.blockX - 8, 165, 80], 0x7a5b16);
+  addLabel('nWeight', '砝码（可增减）', '#7a5b16', 8, [nWeightX0, 275, 65]);
+  const ldWeight = leader([GEO.blockX - 96, 268, 65], [GEO.blockX - 22, 185, 65], 0x7a5b16);
+  addLabel('nBelt', '传送带（匀速转动）', '#2c3a48', 8, [-270, 180, 120]);
+  leader([-262, 162, 95], [-215, 102, 70], 0x2c3a48);
+  addLabel('nMachine', 'J2108 摩擦力演示器', '#dbe6f4', 7, [-215, 45, 130]);
+  addLabel('nString', '细线', '#c2356b', 6.5, [130, 190, 80]);
+  leader([140, 175, 62], [170, 132, 55], 0xc2356b);
+
+  /* ---- 主视图：f–m 关系图（当前 μ） ---- */
+  function drawChart(mu, mAdd) {
+    const c = document.getElementById('prof');
+    const g = c.getContext('2d');
+    const W = c.width, H = c.height;
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = '#f7fafc'; g.fillRect(0, 0, W, H);
+    const x0 = 58, y0 = H - 46, w = W - 90, h = H - 78;
+    const mMax = 0.2, fMax = 2.0;
+    g.strokeStyle = '#51606f'; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + w, y0); g.moveTo(x0, y0); g.lineTo(x0, y0 - h); g.stroke();
+    g.fillStyle = '#51606f'; g.font = '11px "Microsoft YaHei"';
+    g.fillText('砝码质量 m (g)', x0 + w - 90, y0 + 18);
+    g.fillText('f (N)', x0 - 40, y0 - h - 6);
+    [0, 50, 100, 150, 200].forEach(function (m) {
+      const x = x0 + m / mMax * w;
+      g.fillText(String(m), x - 8, y0 + 14);
+    });
+    [0.5, 1.0, 1.5, 2.0].forEach(function (f) {
+      const y = y0 - f / fMax * h;
+      g.fillText(f.toFixed(1), x0 - 30, y + 4);
+    });
+    g.strokeStyle = '#2f7de1'; g.lineWidth = 2.4;
+    g.beginPath();
+    g.moveTo(x0, y0 - frictionOf(mu, 0) / fMax * h);
+    g.lineTo(x0 + w, y0 - frictionOf(mu, mMax) / fMax * h);
+    g.stroke();
+    const px = x0 + mAdd / mMax * w, py = y0 - frictionOf(mu, mAdd) / fMax * h;
+    g.fillStyle = '#d94436';
+    g.beginPath(); g.arc(px, py, 5, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#24313f'; g.font = '12px "Microsoft YaHei"';
+    g.fillText('f = ' + frictionOf(mu, mAdd).toFixed(2) + ' N', px + 10, py - 8);
+    g.fillStyle = '#8a93a0'; g.font = '11px "Microsoft YaHei"';
+    g.fillText('μ = ' + mu.toFixed(2) + '，m木 = 180 g，g = 10 N/kg', 12, 18);
+  }
+
+  function rebuild(mu, mAdd) { updateWeights(mAdd); }
+window.WOOD_DATA_URI = "../assets/textures/friction-oak-color.jpg";
+window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
+
+/* 加载真实橡木贴图（颜色+法线），旋转90°使木纹沿木块长度方向，并应用到已注册材质 */
+(function loadWood() {
+  if (!window.WOOD_DATA_URI || typeof Image === 'undefined') return;
+  let colImg = null, nrmImg = null;
+  function tryApply() {
+    if (!colImg || !nrmImg) return;
+    /* 颜色图：轻微提亮，旋转使纹理横向 */
+    const c = document.createElement('canvas');
+    c.width = colImg.height; c.height = colImg.width;
+    const g = c.getContext('2d');
+    g.translate(c.width / 2, c.height / 2); g.rotate(Math.PI / 2);
+    g.filter = 'brightness(1.12) saturate(0.92)';
+    g.drawImage(colImg, -colImg.width / 2, -colImg.height / 2);
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.encoding = THREE.sRGBEncoding;
+    /* 法线图：同步旋转 */
+    const c2 = document.createElement('canvas');
+    c2.width = nrmImg.height; c2.height = nrmImg.width;
+    const g2 = c2.getContext('2d');
+    g2.translate(c2.width / 2, c2.height / 2); g2.rotate(Math.PI / 2);
+    g2.drawImage(nrmImg, -nrmImg.width / 2, -nrmImg.height / 2);
+    const tn = new THREE.CanvasTexture(c2);
+    tn.wrapS = tn.wrapT = THREE.RepeatWrapping;
+    WOOD.mats.forEach(function (rec) {
+      const mt = t.clone(); mt.repeat.set(rec.rx, rec.ry); mt.needsUpdate = true;
+      const mn = tn.clone(); mn.repeat.set(rec.rx, rec.ry); mn.needsUpdate = true;
+      rec.mat.map = mt; rec.mat.color.set(0xffffff);
+      rec.mat.normalMap = mn; rec.mat.normalScale.set(0.55, 0.55);
+      rec.mat.needsUpdate = true;
+    });
+  }
+  colImg = new Image(); colImg.onload = tryApply; colImg.src = window.WOOD_DATA_URI;
+  nrmImg = new Image(); nrmImg.onload = tryApply; nrmImg.src = window.WOOD_NRM_URI;
+})();
+  /* ================= 状态、面板接线、相机、主循环 ================= */
+  const $ = function (id) { return document.getElementById(id); };
+  const el = {
+    panel: $('panel'), verdict: $('verdict'), valA: $('valA'), valB: $('valB'), valC: $('valC'), valD: $('valD'),
+    mSlider: $('mSlider'), vSlider: $('vSlider'), muSlider: $('muSlider'),
+    mLabel: $('mLabel'), vLabel: $('vLabel'), muLabel: $('muLabel'),
+    runLabel: $('runLabel'), prof: $('prof'), toast: $('toast')
+  };
+
+  const state = {
+    play: true, t: 0,
+    m: 0.10,        // 砝码质量 kg（0~0.2）
+    v: 0.30,        // 皮带设定速度 m/s（0~0.6）
+    vBelt: 0,       // 皮带实际速度（电机一阶惯性，平缓加速到设定值）
+    mu: 0.30,       // 摩擦系数（0.15~0.5）
+    beltPhase: 0, T: 0,
+    showAux: true, showMarks: true, showForces: true
+  };
+
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.toast.classList.remove('show'); }, 2600);
+  }
+
+  function setM(v, fromSlider) {
+    state.m = v / 100 * GEO.mAddMax;
+    if (!fromSlider) el.mSlider.value = Math.round(v);
+    el.mLabel.textContent = Math.round(state.m * 1000) + ' g';
+    rebuild(state.mu, state.m);
+    updateReadout();
+    drawChart(state.mu, state.m);
+  }
+  function setV(v, fromSlider) {
+    state.v = v / 100 * GEO.vMax;
+    if (!fromSlider) el.vSlider.value = Math.round(v);
+    el.vLabel.textContent = state.v.toFixed(2) + ' m/s';
+    updateReadout();
+  }
+  function setMu(v, fromSlider) {
+    state.mu = GEO.muMin + v / 100 * (GEO.muMax - GEO.muMin);
+    if (!fromSlider) el.muSlider.value = Math.round(v);
+    el.muLabel.textContent = state.mu.toFixed(2);
+    updateReadout();
+    drawChart(state.mu, state.m);
+  }
+
+  function updateReadout() {
+    const N = (GEO.mWood + state.m) * GEO.g;
+    const f = frictionOf(state.mu, state.m);
+    el.valA.textContent = N.toFixed(2) + ' N';
+    el.valB.textContent = f.toFixed(2) + ' N';
+    el.valC.textContent = T.toFixed(2) + ' N';
+    el.valD.textContent = state.v.toFixed(2) + ' m/s';
+    const v2 = el.verdict;
+    if (state.v < 0.005) {
+      v2.classList.add('bad');
+      v2.textContent = '✗ 皮带静止：木块与皮带间无相对滑动，不需要摩擦力维持平衡，测力计示数为 0。';
+    } else {
+      v2.classList.remove('bad');
+      v2.textContent = '✓ 皮带匀速转动、木块保持静止（二力平衡）：示数 T = f = μN = ' + f.toFixed(2) +
+        ' N。加砝码 → 示数变大；改变皮带速度 → 示数不变（滑动摩擦力与速度无关）。';
+    }
+  }
+
+  /* ---- 显隐 ---- */
+  function applyVisibility() {
+    gForces.visible = state.showForces && T > 0.025;
+    gAux.visible = state.showAux;
+    labelGroup.visible = state.showMarks;
+  }
+  function bindToggle(id, key, onMsg, offMsg) {
+    const b = $(id);
+    if (!b) return;
+    b.addEventListener('click', function () {
+      state[key] = !state[key];
+      b.classList.toggle('active', state[key]);
+      applyVisibility();
+      toast(state[key] ? onMsg : offMsg);
+    });
+  }
+
+  /* ---- 相机 ---- */
+  const view = {
+    theta: 0.5, phi: 1.22, dist: 1400, distTarget: 1400,
+    target: new THREE.Vector3(-5, 340, 30), fov: 38, fovTarget: 38
+  };
+  function applyCamera() {
+    camera.fov = view.fov;
+    camera.position.set(
+      view.target.x + view.dist * Math.sin(view.phi) * Math.sin(view.theta),
+      view.target.y + view.dist * Math.cos(view.phi),
+      view.target.z + view.dist * Math.sin(view.phi) * Math.cos(view.theta)
+    );
+    camera.lookAt(view.target);
+    camera.updateProjectionMatrix();
+  }
+  function setView(o) {
+    if (o.theta !== undefined) view.theta = o.theta;
+    if (o.phi !== undefined) view.phi = o.phi;
+    if (o.dist !== undefined) view.distTarget = o.dist;
+    if (o.fov !== undefined) view.fovTarget = o.fov;
+    if (o.tx !== undefined) view.target.set(o.tx, o.ty || 0, o.tz || 0);
+  }
+
+  (function bindCamera() {
+    let drag = null;
+    const cv = renderer.domElement;
+    cv.addEventListener('pointerdown', function (e) {
+      drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId);
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      view.theta -= (e.clientX - drag.x) * 0.006;
+      view.phi = clamp(view.phi - (e.clientY - drag.y) * 0.005, 0.12, Math.PI - 0.12);
+      drag = { x: e.clientX, y: e.clientY };
+    });
+    cv.addEventListener('pointerup', function () { drag = null; });
+    cv.addEventListener('wheel', function (e) {
+      view.distTarget = clamp(view.distTarget * (1 + (e.deltaY > 0 ? 0.10 : -0.10)), 250, 2600);
+    }, { passive: true });
+  })();
+
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  }
+  window.addEventListener('resize', resize);
+
+  /* ---- 面板接线 ---- */
+  el.mSlider.addEventListener('input', function () { setM(+el.mSlider.value, true); });
+  el.vSlider.addEventListener('input', function () { setV(+el.vSlider.value, true); });
+  el.muSlider.addEventListener('input', function () { setMu(+el.muSlider.value, true); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-m]'), function (b) {
+    b.addEventListener('click', function () { setM(+b.getAttribute('data-m'), false); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'), function (b) {
+    b.addEventListener('click', function () { setV(+b.getAttribute('data-v'), false); });
+  });
+  $('btnPlay').addEventListener('click', function () { setPlaying(true); });
+  $('btnPause').addEventListener('click', function () { setPlaying(false); });
+  $('btnReset').addEventListener('click', function () {
+    state.t = 0; state.beltPhase = 0;
+    setM(50, false); setV(50, false); setMu(43, false);
+    setView({ theta: 0.5, phi: 1.22, dist: 1400, fov: 38, tx: -5, ty: 340, tz: 30 });
+    toast('已重置');
+  });
+  function setPlaying(on) {
+    state.play = on;
+    el.runLabel.textContent = on ? '播放中' : '已暂停';
+    $('btnPlay').classList.toggle('active', on);
+    $('btnPause').classList.toggle('active', !on);
+  }
+  bindToggle('btnMarks', 'showMarks', '显示部件标注', '隐藏部件标注');
+  bindToggle('btnForces', 'showForces', '已显示受力箭头', '已隐藏受力箭头');
+  bindToggle('btnAux', 'showAux', '显示坐标系', '隐藏坐标系');
+  $('btnSide').addEventListener('click', function () {
+    setView({ theta: 0.02, phi: Math.PI / 2 - 0.02, dist: 1150, fov: 36, tx: -5, ty: 320, tz: 30 });
+  });
+  $('btnTop').addEventListener('click', function () {
+    setView({ theta: 0.5, phi: 0.18, dist: 1100, fov: 36, tx: -5, ty: 60, tz: 30 });
+  });
+  $('btnResetView').addEventListener('click', function () {
+    setView({ theta: 0.5, phi: 1.22, dist: 1400, fov: 38, tx: -5, ty: 340, tz: 30 });
+  });
+  $('btnShot').addEventListener('click', function () {
+    renderer.render(scene, camera);
+    const a = document.createElement('a');
+    a.href = renderer.domElement.toDataURL('image/png');
+    a.download = '摩擦力实验装置3D.png'; a.click();
+    toast('已导出 PNG');
+  });
+  $('panelClose').addEventListener('click', function () {
+    el.panel.classList.add('collapsed'); $('panelOpen').classList.add('show');
+  });
+  $('panelOpen').addEventListener('click', function () {
+    el.panel.classList.remove('collapsed'); $('panelOpen').classList.remove('show');
+  });
+
+  /* ---- 主循环 ---- */
+  let readoutClock = 0;
+  function tickLive(dt) {                 // 示数缓动期间同步刷新读数（4Hz 节流）
+    readoutClock += dt;
+    if (readoutClock > 0.25) { readoutClock = 0; updateReadout(); }
+  }
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (state.play) {
+      state.t += dt;      /* 电机惯性：实际速度以一阶惯性趋向设定速度（τ≈0.35s），不瞬时跳变 */
+      state.vBelt += (state.v - state.vBelt) * Math.min(1, dt / 0.35);
+      if (Math.abs(state.v - state.vBelt) < 0.0008) state.vBelt = state.v;
+      state.beltPhase = (state.beltPhase + state.vBelt * 1000 * dt) % GEO.LOOP;
+      updateBelt(state.beltPhase);
+    }
+    /* 弹簧缓动到目标示数（张力取决于皮带实际速度） */
+    const Tt = tensionOf(state.mu, state.m, state.vBelt);
+    if (Math.abs(Tt - T) > 0.0015) {
+      T += (Tt - T) * Math.min(1, dt * 6);
+      updateScale(T);
+      tickLive(dt);
+    }
+
+    view.dist += (view.distTarget - view.dist) * 0.12;
+    view.fov += (view.fovTarget - view.fov) * 0.12;
+    applyCamera();
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+
+  /* ---- 启动 ---- */
+  setM(50, false); setV(50, false); setMu(43, false);
+  state.vBelt = state.v;                                   // 加载即处于匀速运行状态
+  T = tensionOf(state.mu, state.m, state.v);   // 加载即处于正确受力状态
+  updateScale(T);
+  updateReadout();
+  setPlaying(state.play);
+  applyVisibility();
+  applyCamera();
+  try {
+    renderer.render(scene, camera);
+    document.title += ' · 首帧OK';
+  } catch (e) {
+    document.title = 'RENDER_ERR: ' + e.message;
+  }
+  requestAnimationFrame(tick);
+
+  /* ---- 验证入口 ---- */
+  window.__dbg = {
+    state: state, view: view, camera: camera, scene: scene,
+    get M() { return state.m; }, get V() { return state.v; }, get MU() { return state.mu; },
+    get T() { return T; },
+    get vBelt() { return state.vBelt; },
+    get blockX() { return GEO.blockX - T * GEO.mmPerN; },
+    get GEO() { return GEO; },
+    get hookY() { return hookYOf(T); },
+    frictionOf: frictionOf, tensionOf: tensionOf,
+    get forces() { return gForces; }, get strips() { return strips; }, get weights() { return gWeights.children.length; },
+    setM: setM, setV: setV, setMu: setMu, setView: setView
+  };
+
+</script>
+</body>
+</html>
