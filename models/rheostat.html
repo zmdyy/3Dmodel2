@@ -218,6 +218,9 @@
   body.dark #schematicRoute{color:#ff9b87!important}
   @media(max-width:680px){.head{gap:7px}.theme-toggle{padding:7px;font-size:11px}}
 
+
+  #scene{touch-action:none}.theme-toggle.active{background:#286eae;color:#fff;border-color:#71b4f8}.head{max-width:650px;flex-wrap:wrap}.head h1{flex:1 1 auto}.head p{display:none}
+  @media(max-width:680px){.head{max-width:calc(100% - 64px);gap:6px}.head h1{flex:1 1 100%}.head .theme-toggle{padding:6px 8px}.panel{top:100px;max-height:calc(100vh - 340px)}}
 </style>
 </head>
 <body>
@@ -248,13 +251,14 @@
   </section>
 
   <div class="head">
-    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
+    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="moveComponents" class="theme-toggle" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
     <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
   </div>
 
   <div class="panel" id="panel">
     <button id="panelClose" title="收起面板">›</button>
 
+    <div class="grp layout-controls"><div class="toggles"><button id="resetLayout">恢复布局</button></div><div class="mini" id="layoutHint">开启左上角“移动元件”，可拖动六个元件，外接导线自动跟随。</div></div>
     <div class="grp">
       <div class="lbl">滑片 P 位置 <b id="posLabel">居中</b></div>
       <input id="sliderP" type="range" min="0" max="1000" step="1" value="500" />
@@ -466,6 +470,7 @@
     blob.rotation.x = -Math.PI / 2;
     blob.position.y = 0.008;
     blob.renderOrder = -1;
+    blob.userData.rheostatShadow=true;
     scene.add(blob);
   })();
 
@@ -1424,9 +1429,9 @@
     raycaster.setFromCamera(pointerNDC(e), camera);
     const n = new THREE.Vector3();
     camera.getWorldDirection(n);
-    dragPlane.setFromNormalAndCoplanarPoint(n, new THREE.Vector3(0, BAR_Y + state.explodeShown * EX.slider, 0));
+    dragPlane.setFromNormalAndCoplanarPoint(n, new THREE.Vector3(rheostatRoot.position.x, BAR_Y + state.explodeShown * EX.slider, rheostatRoot.position.z));
     if (!raycaster.ray.intersectPlane(dragPlane, hitPoint)) return null;
-    return hitPoint.x;
+    return hitPoint.x-rheostatRoot.position.x;
   }
 
   const dragOffset = { v: 0 };
@@ -1436,6 +1441,7 @@
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     if (pointers.size === 1) {
+      if(layoutMove.enabled && e.button===0 && !e.shiftKey){const picked=pickLabComponent(e);if(picked&&beginLabDrag(e,picked)){dragMode='component';dragging=false;state.dragging=false;canvas.style.cursor='grabbing';e.preventDefault();return;}}
       if (pickSlider(e)) {
         dragMode = 'slider';
         state.dragging = true;
@@ -1449,6 +1455,7 @@
       dragging = true;
       last = { x: e.clientX, y: e.clientY };
     } else if (pointers.size === 2) {
+      finishLabDrag();
       dragMode = 'pinch';
       dragging = false;
       state.dragging = false;
@@ -1470,6 +1477,7 @@
     if (!pointers.has(e.pointerId)) {
       // hover 提示：可拖动滑片
       if (pointers.size === 0) {
+        if(layoutMove.enabled){canvas.style.cursor=pickLabComponent(e)?'grab':'default';setHover(false);return;}
         const hit = pickSlider(e);
         canvas.style.cursor = hit ? 'grab' : 'default';
         setHover(hit);
@@ -1481,6 +1489,7 @@
     const dy = e.clientY - prev.y;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
+    if(dragMode==='component'){moveLabComponent(e);e.preventDefault();return;}
     if (dragMode === 'slider') {
       const x = screenToSliderX(e);
       if (x !== null) setSliderP(x + dragOffset.v);
@@ -1511,6 +1520,7 @@
     pointers.delete(e.pointerId);
     if (pointers.size === 0) {
       dragging = false;
+      if(dragMode==='component')finishLabDrag();
       if (dragMode === 'slider') { state.dragging = false; canvas.style.cursor = 'default'; }
       setHover(false);
       dragMode = null;
@@ -1518,6 +1528,7 @@
   }
   canvas.addEventListener('pointerup', endPointer);
   canvas.addEventListener('pointercancel', endPointer);
+  canvas.addEventListener('lostpointercapture', endPointer);
   canvas.addEventListener('pointerleave', function (e) { if (pointers.size) endPointer(e); });
 
   canvas.addEventListener('wheel', function (e) {
@@ -1542,7 +1553,7 @@
     view.fitWidth = 20;view.fitBase = 26.5;
     view.baseDist = 26.5 * (1 + 0.20 * t);
     view.distTarget = view.baseDist;
-    view.target.set(0.35, 3.90 + 1.70 * t, 0);
+    view.target.set(rheostatRoot.position.x + .35, 3.90 + 1.70 * t, rheostatRoot.position.z);
   });
 
   document.querySelectorAll('[data-wire]').forEach(function (b) {
@@ -1709,6 +1720,9 @@
      I/I额 = (U/U额)^0.55，体现灯丝温升后电阻增大；电表按理想表处理。 */
   const lab = {dark:false,visualLevel:0,luminousTarget:0,closed:false, supply:3, aRange:0.6, vRange:3, current:0, voltage:0, resistance:10};
   const labGroup = new THREE.Group(); scene.add(labGroup);
+  const rheostatRoot=new THREE.Group();rheostatRoot.name='滑动变阻器整体';scene.add(rheostatRoot);
+  [gCore,gCoil,gBar,gSlider,axleGroup,labelG].concat(gBrackets.map(o=>o.g)).forEach(o=>rheostatRoot.add(o));
+  const softShadow=scene.children.find(o=>o.userData.rheostatShadow);if(softShadow)rheostatRoot.add(softShadow);
   const labFlows = [], labWires = [], switchPick = [];
   const paint = new THREE.MeshStandardMaterial({color:0x536f8e,roughness:0.77,metalness:0.18});
   const white = new THREE.MeshStandardMaterial({color:0xf0eee7,roughness:0.82,metalness:0.02});
@@ -1817,24 +1831,89 @@
   }
   document.getElementById('themeToggle').onclick=()=>applyTheme(!lab.dark);
   let initialDark=false;try{initialDark=localStorage.getItem('rheostat-theme')==='dark';}catch(e){}applyTheme(initialDark);
-  segment(bulb,[-1.8,.76,.45],[-.4,.62,0],.07,wireRed);segment(bulb,[1.8,.76,.45],[.5,1.22,0],.07,wireBlack);
+  const bulbInternalWiring=new THREE.Group();bulbInternalWiring.name='灯座下方内部接线';bulbInternalWiring.visible=false;bulb.add(bulbInternalWiring);
+  put(bulbInternalWiring,tube([[-1.8,.76,.45],[-1.8,.23,.45],[-.18,.23,0],[-.18,.85,0]],.055),wireRed);
+  put(bulbInternalWiring,tube([[1.8,.76,.45],[1.8,.23,.45],[.4,.23,0],[.4,1.22,0]],.055),wireBlack);
   const lampIn=[11.2,.76,2.45],lampOut=[14.8,.76,2.45];
-  function pathWire(id,points,mat,flow){const f=makeFlow({id,parent:labGroup});f.curve=curveOf(points);f.length=f.displayLength=f.curve.getLength();f.surfaceRadius=.085;f.on=!!flow;f.labExternal=true;const m=put(labGroup,new THREE.TubeGeometry(f.curve,96,.085,10,false),mat);labWires.push(m);if(flow){labFlows.push(f);FLOW_ALL.push(f);}return {f,mesh:m};}
+  function pathWire(id,points,mat,flow){const f=makeFlow({id,parent:labGroup});f.curve=curveOf(points);f.length=f.displayLength=f.curve.getLength();f.surfaceRadius=.085;f.on=!!flow;f.labExternal=true;const m=put(labGroup,new THREE.TubeGeometry(f.curve,96,.085,10,false),mat);m.userData.externalWire=true;labWires.push(m);if(flow){labFlows.push(f);FLOW_ALL.push(f);}return {f,mesh:m};}
   // 台面布局：电源在上，开关在左，R 在左下，灯泡在右下，A 在右上；V 靠近灯泡。
-  pathWire('supply-switch',[powerPlus,[-3.1,3.5,-12],[-4.3,.45,-12],[-9,.35,-10],swIn],wireRed,true);
+  const supplyFeed=pathWire('supply-switch',[powerPlus,[-3.1,3.5,-12],[-4.3,.45,-12],[-9,.35,-10],swIn],wireRed,true);
   const ampInput=()=>lab.aRange===.6?ammeter.low:ammeter.high;
   const aFeed=pathWire('lamp-ammeter',[lampOut,[15.5,.4,1.2],[15.5,.35,-7],[ampInput()[0],1.05,-7.6],ampInput()],wireBlack,true);
-  pathWire('ammeter-return',[ammeter.minus,[10.3,1.05,-7.7],[8.4,.4,-8],[5,.35,-12],[3.4,1.5,-12],[3.1,3.5,-12],powerMinus],wireBlack,true);
+  const returnFeed=pathWire('ammeter-return',[ammeter.minus,[10.3,1.05,-7.7],[8.4,.4,-8],[5,.35,-12],[3.4,1.5,-12],[3.1,3.5,-12],powerMinus],wireBlack,true);
   // 电压表两根支线沿灯泡外侧的独立通道就近连接，不跨越主回路。
   const vMinus=pathWire('voltmeter-minus',[lampOut,[16,.45,3.8],[18.2,.4,4.2],[19.3,1.05,4.2],voltmeter.minus],wireBlack,false);
   const voltInput=()=>lab.vRange===3?voltmeter.low:voltmeter.high;
   const vPlus=pathWire('voltmeter-plus',[lampIn,[11.2,.4,5.4],[20.8,.35,5.4],voltInput()],wireRed,false);
   function replaceWire(obj,points){obj.f.curve=curveOf(points);obj.f.length=obj.f.displayLength=obj.f.curve.getLength();obj.mesh.geometry.dispose();obj.mesh.geometry=new THREE.TubeGeometry(obj.f.curve,96,.085,10,false);}
   // 原有四根悬空短引线改为接至电流表和灯泡；实体导线与箭头独立显示。
-  function routeLead(f,points){f.curve=curveOf(points);f.length=f.displayLength=f.curve.getLength();f.wireMesh=f.wireMesh||f.group.children.find(o=>o.isMesh);f.wireMesh.geometry.dispose();f.wireMesh.geometry=new THREE.TubeGeometry(f.curve,96,LEAD_R,10,false);f.group.children.filter(o=>o!==f.wireMesh).forEach(o=>{if(o.geometry&&o.geometry.type==='SphereGeometry')o.visible=false;});}
+  function routeLead(f,points){f.curve=curveOf(points);f.length=f.displayLength=f.curve.getLength();f.wireMesh=f.wireMesh||f.group.children.find(o=>o.isMesh);f.wireMesh.userData.externalWire=true;f.wireMesh.geometry.dispose();f.wireMesh.geometry=new THREE.TubeGeometry(f.curve,96,LEAD_R,10,false);f.group.children.filter(o=>o!==f.wireMesh).forEach(o=>{if(o.geometry&&o.geometry.type==='SphereGeometry')o.visible=false;});}
+  const layoutItems=[
+    {id:'power',name:'电源',g:power,rect:[-2.5,2.5,-1.8,1.8]},
+    {id:'switch',name:'开关',g:sw,rect:[-2.2,3.1,-1.3,1.3]},
+    {id:'rheostat',name:'滑动变阻器',g:rheostatRoot,rect:[-8.7,8.7,-1.85,3.3]},
+    {id:'lamp',name:'灯泡',g:bulb,rect:[-2.45,2.45,-1.65,1.65]},
+    {id:'ammeter',name:'电流表',g:ammeter.g,rect:[-2.75,2.75,-1.85,1.85]},
+    {id:'voltmeter',name:'电压表',g:voltmeter.g,rect:[-2.75,2.75,-1.85,1.85]}
+  ];
+  const layoutById=Object.create(null),layoutMove={enabled:false,active:null,plane:new THREE.Plane(),offset:new THREE.Vector3(),revision:0};
+  const movePoint=new THREE.Vector3();
+  layoutItems.forEach(item=>{item.home=item.g.position.clone();layoutById[item.id]=item;});
+  // Preserve the tidy original routes and deform their middle sections between their two moving owners.
+  // Stub sections move rigidly with their terminals, keeping wires above the meter/base at the connection.
+  function ownerDelta(id){const item=layoutById[id];return item.g.position.clone().sub(item.home);}
+  function followRoute(points,firstId,lastId){
+    const a=ownerDelta(firstId),b=ownerDelta(lastId),lastIndex=points.length-1;
+    return points.map((point,i)=>{const t=i<=1?0:i>=lastIndex-1?1:(i-1)/Math.max(1,lastIndex-2);return [point[0]+a.x*(1-t)+b.x*t,point[1]+a.y*(1-t)+b.y*t,point[2]+a.z*(1-t)+b.z*t];});
+  }
+  function componentMeshes(item){
+    const out=[],flowGroups=new Set(FLOW_ALL.map(f=>f.group));
+    item.g.traverse(o=>{if(!o.isMesh||!o.visible||o.userData.externalWire||o.userData.rheostatShadow)return;let p=o;while(p){if(flowGroups.has(p)||!p.visible)return;if(p===item.g)break;p=p.parent;}out.push(o);});
+    return out;
+  }
+  function pickLabComponent(e){
+    raycaster.setFromCamera(pointerNDC(e),camera);scene.updateMatrixWorld(true);let best=null;
+    for(const item of layoutItems){const hit=raycaster.intersectObjects(componentMeshes(item),false)[0];if(hit&&(!best||hit.distance<best.hit.distance))best={item,hit};}return best;
+  }
+  function beginLabDrag(e,picked){
+    layoutMove.plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0,1,0),picked.hit.point);
+    if(!raycaster.ray.intersectPlane(layoutMove.plane,movePoint))return false;
+    layoutMove.active=picked.item;layoutMove.offset.copy(movePoint).sub(picked.item.g.position);
+    document.getElementById('layoutHint').textContent='正在移动：'+picked.item.name+' · 导线自动跟随';return true;
+  }
+  function componentFits(item,x,z){
+    const r=item.rect,a=[x+r[0],x+r[1],z+r[2],z+r[3]];
+    if(a[0]<-26||a[1]>28||a[2]<-22||a[3]>18)return false;
+    return layoutItems.every(other=>{if(other===item)return true;const q=other.rect,p=other.g.position,gap=.4;return a[1]+gap<=p.x+q[0]||a[0]-gap>=p.x+q[1]||a[3]+gap<=p.z+q[2]||a[2]-gap>=p.z+q[3];});
+  }
+  function moveLabComponent(e){
+    const item=layoutMove.active;if(!item)return;
+    raycaster.setFromCamera(pointerNDC(e),camera);if(!raycaster.ray.intersectPlane(layoutMove.plane,movePoint))return;
+    const x=movePoint.x-layoutMove.offset.x,z=movePoint.z-layoutMove.offset.z;
+    if(!componentFits(item,x,z))return;
+    item.g.position.set(x,item.home.y,z);layoutMove.revision++;syncLabConnections();
+  }
+  function finishLabDrag(){
+    if(layoutMove.active){document.getElementById('layoutHint').textContent='已移动'+layoutMove.active.name+'；可继续拖动其他元件。';layoutMove.active=null;}
+    canvas.style.cursor=layoutMove.enabled?'grab':'default';
+  }
+  function toggleMoveMode(){
+    layoutMove.enabled=!layoutMove.enabled;finishLabDrag();document.getElementById('moveComponents').classList.toggle('active',layoutMove.enabled);
+    document.getElementById('moveComponents').setAttribute('aria-pressed',String(layoutMove.enabled));
+    document.getElementById('moveComponents').textContent=layoutMove.enabled?'移动元件：开':'移动元件';
+    document.getElementById('layoutHint').textContent=layoutMove.enabled?'拖动元件调整位置；拖动空白处旋转。关闭后可拖动滑片、点击开关。':'开启后可拖动六个元件，外接导线自动跟随。';
+    if(layoutMove.enabled){state.explode=state.explodeShown=0;applyExplode(0);el.explode.value='0';el.exLabel.textContent='装配态';}
+  }
+  function resetLayout(){layoutItems.forEach(item=>item.g.position.copy(item.home));layoutMove.revision++;finishLabDrag();syncLabConnections();document.getElementById('layoutHint').textContent='已恢复初始布局。';}
+  function fitLayoutView(mode){
+    let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity;
+    layoutItems.forEach(item=>{const p=item.g.position,r=item.rect;minX=Math.min(minX,p.x+r[0]);maxX=Math.max(maxX,p.x+r[1]);minZ=Math.min(minZ,p.z+r[2]);maxZ=Math.max(maxZ,p.z+r[3]);});
+    const span=Math.max(42,maxX-minX+5),dist=Math.max(54,span*1.29,(maxZ-minZ)*2.1);
+    view.fitWidth=span;view.fitBase=dist;view.theta=0;view.phi=mode==='top'?.16:mode==='front'?1.24:.9;view.distTarget=view.baseDist=dist;view.target.set((minX+maxX)/2,2,(minZ+maxZ)/2+1.5);
+  }
   let labConnectionKey='';
   function syncLabConnections(){
-    const key=state.wire+'|'+state.dir+'|'+lab.aRange+'|'+lab.vRange;
+    const key=state.wire+'|'+state.dir+'|'+lab.aRange+'|'+lab.vRange+'|'+layoutMove.revision;
     if(key===labConnectionKey)return;labConnectionKey=key;
     const ends=wireEnds(),fs={A:fLeadA,B:fLeadB,C:fLeadC,D:fLeadD};
     Object.keys(fs).forEach(k=>{
@@ -1852,10 +1931,14 @@
         else if(k==='A')points=[start,[-5.6,2.1,2.9],[-6,.4,5.8],[8.3,.35,5.8],[10,.45,3.4],lampIn];
         else points=[start,[-9.5,5.7,.7],[-10.2,.4,5.8],[8.3,.35,5.8],[10,.45,3.4],lampIn];
       }
-      routeLead(f,points);
+      const world=followRoute(points,'rheostat',fromSwitch?'switch':'lamp');
+      routeLead(f,world.map(p=>[p[0]-rheostatRoot.position.x,p[1]-rheostatRoot.position.y,p[2]-rheostatRoot.position.z]));
     });
-    replaceWire(aFeed,[lampOut,[15.5,.4,1.2],[15.5,.35,-7],[ampInput()[0],1.05,-7.6],ampInput()]);
-    const vp=voltInput();replaceWire(vPlus,[lampIn,[11.2,.4,5.4],[vp[0],.35,5.4],vp]);
+    replaceWire(supplyFeed,followRoute([powerPlus,[-3.1,3.5,-12],[-4.3,.45,-12],[-9,.35,-10],swIn],'power','switch'));
+    replaceWire(returnFeed,followRoute([ammeter.minus,[10.3,1.05,-7.7],[8.4,.4,-8],[5,.35,-12],[3.4,1.5,-12],[3.1,3.5,-12],powerMinus],'ammeter','power'));
+    replaceWire(aFeed,followRoute([lampOut,[15.5,.4,1.2],[15.5,.35,-7],[ampInput()[0],1.05,-7.6],ampInput()],'lamp','ammeter'));
+    replaceWire(vMinus,followRoute([lampOut,[16,.45,3.8],[18.2,.4,4.2],[19.3,1.05,4.2],voltmeter.minus],'lamp','voltmeter'));
+    const vp=voltInput();replaceWire(vPlus,followRoute([lampIn,[11.2,.4,5.4],[vp[0],.35,5.4],vp],'lamp','voltmeter'));
   }
   function solveLab(){let f=clamp((state.pShown-COIL_X0)/COIL_L,0,1);lab.resistance=R_TOTAL*(state.wire==='AB'?1:state.wire==='CD'?0:state.wire[0]==='B'?1-f:f);
     if(!lab.closed||state.explodeShown>.04){lab.current=0;lab.voltage=0;return;}
@@ -1867,9 +1950,9 @@
   document.getElementById('labSwitch').onclick=toggleSwitch;
   document.getElementById('labARange').onchange=e=>{lab.aRange=Number(e.target.value);};document.getElementById('labVRange').onchange=e=>{lab.vRange=Number(e.target.value);};
   function focusMeter(m){view.fitWidth=7;view.fitBase=13;view.target.set(m.g.position.x,2.4,m.g.position.z);view.theta=0;view.phi=1.32;view.distTarget=view.baseDist=13;}
-  document.getElementById('focusA').onclick=()=>focusMeter(ammeter);document.getElementById('focusV').onclick=()=>focusMeter(voltmeter);document.getElementById('focusR').onclick=()=>{view.fitWidth=20;view.fitBase=25;view.target.set(0,3.9,0);view.theta=.4;view.phi=1.15;view.distTarget=view.baseDist=25;};
-  document.getElementById('focusLamp').onclick=()=>{view.fitWidth=8;view.fitBase=14;view.target.set(13,2.2,2);view.theta=.15;view.phi=1.15;view.distTarget=view.baseDist=14;};
-  canvas.addEventListener('pointerdown',e=>{raycaster.setFromCamera(pointerNDC(e),camera);const h=raycaster.intersectObjects(switchPick,true);if(h.length){toggleSwitch();dragging=false;dragMode=null;} });
+  document.getElementById('focusA').onclick=()=>focusMeter(ammeter);document.getElementById('focusV').onclick=()=>focusMeter(voltmeter);document.getElementById('focusR').onclick=()=>{view.fitWidth=20;view.fitBase=25;view.target.set(rheostatRoot.position.x,3.9,rheostatRoot.position.z);view.theta=.4;view.phi=1.15;view.distTarget=view.baseDist=25;};
+  document.getElementById('focusLamp').onclick=()=>{view.fitWidth=8;view.fitBase=14;view.target.set(bulb.position.x,2.2,bulb.position.z);view.theta=.15;view.phi=1.15;view.distTarget=view.baseDist=14;};
+  canvas.addEventListener('pointerdown',e=>{if(layoutMove.enabled)return;raycaster.setFromCamera(pointerNDC(e),camera);const h=raycaster.intersectObjects(switchPick,true);if(h.length){toggleSwitch();dragging=false;dragMode=null;} });
   // 完整回路原理图，与右侧四接线柱细图使用同一状态。
   const full=document.createElement('div');full.className='full-diagram';full.innerHTML='<svg id="fullCircuit" viewBox="0 0 650 245" role="img" aria-label="电源、开关、滑动变阻器、灯泡、电流表依次串联，电压表并联在灯泡两端"><g fill="none" stroke="#303b48" stroke-width="3"><path d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><path d="M210 9 V51 M235 18 V42"/><path id="fullSwitchBlade" d="M60 80 L80 112"/><circle cx="60" cy="80" r="4"/><circle cx="60" cy="120" r="4"/><rect x="145" y="168" width="70" height="24"/><path d="M165 153 L195 201 M187 194 L195 201 L195 190"/><circle cx="400" cy="180" r="24"/><path d="M383 163 L417 197 M383 197 L417 163"/><circle cx="400" cy="60" r="22"/><path d="M350 180 V225 H550 V202 M450 130 H550 V158"/><circle cx="550" cy="180" r="22"/></g><g fill="#263544" font-family="sans-serif" font-size="24" text-anchor="middle"><text x="400" y="68">A</text><text x="550" y="188">V</text><text x="225" y="77">3 V</text><text x="28" y="108">S</text><text x="180" y="140">R</text><text x="400" y="146">L</text><text x="189" y="20">+</text><text x="255" y="20">−</text></g><path id="fullFlow" fill="none" stroke="#dd4131" stroke-width="4" stroke-dasharray="10 20" d="M210 30 H60 V80 M60 120 V180 H145 M215 180 H376 M424 180 H450 V60 H422 M378 60 H360 V30 H235"/><text id="fullValues" x="65" y="235" font-size="17" fill="#245b7d"></text></svg><div class="mini">主回路：电源 → S → R → L → A；V 并联在灯泡两端。</div>';
   const card=document.querySelector('.schematic-card');card.insertBefore(full,schematicSvg);document.querySelector('.schematic-heading span').textContent='完整电路 / 变阻器接线细图';
@@ -1895,7 +1978,9 @@
   document.getElementById('btnReset').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=.90;view.distTarget=view.baseDist=54;view.target.set(4,2,-3);});
   document.getElementById('btnFront').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=1.24;view.distTarget=view.baseDist=62;view.target.set(4,2,-3);});
   document.getElementById('btnTop').addEventListener('click',()=>{view.fitWidth=42;view.fitBase=54;view.theta=0;view.phi=.16;view.distTarget=view.baseDist=64;view.target.set(4,0,-3);});
-  window.__lab={lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-dark-smooth-dials-v3'};
+  document.getElementById('moveComponents').onclick=toggleMoveMode;document.getElementById('resetLayout').onclick=resetLayout;
+  document.getElementById('btnReset').addEventListener('click',()=>fitLayoutView());document.getElementById('btnFront').addEventListener('click',()=>fitLayoutView('front'));document.getElementById('btnTop').addEventListener('click',()=>fitLayoutView('top'));
+  window.__lab={layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-movable-components-v4'};
 
   /* ================= 启动 ================= */
   resize();
@@ -1960,7 +2045,7 @@
       };
     },
     sliderScreen: function () {
-      return this.screenOf(state.pShown, BAR_Y + state.explodeShown * EX.slider, 0);
+      return this.screenOf(state.pShown+rheostatRoot.position.x, BAR_Y + state.explodeShown * EX.slider, rheostatRoot.position.z);
     },
     tri: function () { return renderer.info.render.triangles; }
   };
