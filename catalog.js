@@ -43,7 +43,7 @@ window.MODEL_CATALOG = [
       "接线",
       "电流"
     ],
-    "path": "models/rheostat.html?v=20261015-roomy-stage-v7",
+    "path": "models/rheostat.html?v=20261015-optional-diagram-v8",
     "symbol": "R",
     "accent": "violet"
   },

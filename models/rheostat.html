@@ -163,7 +163,7 @@
     opacity:0;pointer-events:none;transition:all .25s ease;z-index:20;
   }
   #toast.show{opacity:1;transform:translate(-50%,0);}
-  /* 实物图占满可用高度，原理图收在右侧面板。 */
+  /* 原理图可独立显示；隐藏时实物图占满可用高度。 */
   #stage{right:352px;bottom:0;}
   .head{max-width:550px;padding:10px 15px;}
   .head p{display:none;}.head h1{margin:0;}
@@ -213,34 +213,28 @@
   @media(max-width:680px){.head{max-width:calc(100% - 64px);gap:6px}.head h1{flex:1 1 100%}.head .theme-toggle{padding:6px 8px}.panel{top:100px;max-height:calc(100vh - 112px)}}
 
   body.solo .full-only{display:none!important}
-  .schematic-card{position:static;margin:24px 0 14px;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--brand-soft);overflow:hidden;}
-  .schematic-card summary{cursor:pointer;padding:11px 30px 11px 10px;font-size:13px;font-weight:700;position:relative;list-style:none;}
-  .schematic-card summary::-webkit-details-marker{display:none;}
-  .diagram-action{position:absolute;right:10px;color:var(--brand);font-weight:500;}
-  .diagram-action::after{content:'打开';}.schematic-card[open] .diagram-action::after{content:'关闭';}
-  .schematic-heading{display:flex;flex-wrap:wrap;gap:4px;padding:2px 10px;font-size:11px;}
-  #schematicRoute{font-size:12px;margin-left:auto;}
-  #schematicSvg{width:100%;height:auto;aspect-ratio:600/220;margin:8px 0 10px;}
-  .schematic-card summary:focus-visible{outline:2px solid var(--brand);outline-offset:-3px;}
+  :root{--diagram-space:240px;--diagram-height:210px;}
+  .diagram-control{margin:24px 0 14px;}.diagram-control button{width:100%;font-size:13px;}
+  .schematic-card{position:fixed;left:22px;right:352px;bottom:18px;height:var(--diagram-height);z-index:5;padding:12px 18px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow);}
+  .schematic-card[hidden]{display:none;}
+  .schematic-heading{display:flex;justify-content:space-between;gap:12px;font-size:15px;}
+  #schematicRoute{font-size:16px;}
+  #schematicSvg{width:100%;height:calc(100% - 24px);margin:0;}
+  body.diagram-visible #stage{bottom:var(--diagram-space);}
+  body.diagram-visible .hint{bottom:calc(var(--diagram-space) + 10px);}
+  body.controls-hidden .schematic-card{right:22px;}
+  @media(max-width:900px){.schematic-card{right:300px;}}
+  @media(max-height:700px){:root{--diagram-space:200px;--diagram-height:170px;}}
+  @media(max-width:680px){:root{--diagram-space:190px;--diagram-height:170px;}.schematic-card,body.controls-hidden .schematic-card{left:10px;right:10px;bottom:10px;padding:10px;}.schematic-heading,#schematicRoute{font-size:13px;}}
+
 
 
   .coil-legend{display:flex;gap:16px;margin-top:9px;font-size:12px;color:var(--ink2)}.coil-legend span{display:flex;align-items:center;gap:5px}.coil-legend i{display:inline-block;width:13px;height:13px;border-radius:3px}.coil-legend .current-coil{background:#007eaa}.coil-legend .idle-coil{background:#59351f;border:1px solid #92715a}
 </style>
 </head>
-<body>
+<body class="diagram-visible">
   <div id="stage"><canvas id="scene"></canvas></div>
-
-
-  <div class="head">
-    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="soloView" class="theme-toggle" aria-pressed="false">仅看变阻器</button><button id="moveComponents" class="theme-toggle full-only" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
-    <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
-  </div>
-
-  <div class="panel" id="panel">
-    <button id="panelClose" title="收起面板">›</button>
-
-  <details id="schematicToggle" class="schematic-card" aria-label="滑动变阻器同步原理图">
-    <summary>变阻器原理图<span class="diagram-action"></span></summary>
+  <section id="schematicCard" class="schematic-card" aria-label="滑动变阻器同步原理图">
     <div class="schematic-heading"><span>原理图 · 滑片 P 可拖动</span><span id="schematicRoute" aria-live="polite">A → P → D</span></div>
     <svg id="schematicSvg" viewBox="0 0 600 220" role="img" aria-labelledby="schematicTitle schematicDesc">
       <title id="schematicTitle">滑动变阻器原理图</title>
@@ -263,7 +257,18 @@
       <text x="42" y="172">A</text><text x="544" y="172">B</text>
       <text x="42" y="63">C</text><text x="544" y="63">D</text>
     </svg>
-  </details>
+  </section>
+
+
+  <div class="head">
+    <h1>滑动变阻器 <span>· 完整电路实验</span></h1><button id="soloView" class="theme-toggle" aria-pressed="false">仅看变阻器</button><button id="moveComponents" class="theme-toggle full-only" aria-pressed="false">移动元件</button><button id="themeToggle" class="theme-toggle" aria-pressed="false">暗色模式</button>
+    <p>A、B 接电阻丝两端，C、D 接滑杆两端；滑片 P 把滑杆与电阻丝连通。<b>一上一下</b>接入才能改变电阻。选定接线柱后自动接上外接导线，用<b>沿真实导体运动的小红箭头</b>显示电流方向。</p>
+  </div>
+
+  <div class="panel" id="panel">
+    <button id="panelClose" title="收起面板">›</button>
+
+    <div class="diagram-control"><button id="schematicToggle" class="theme-toggle active" aria-controls="schematicCard" aria-expanded="true">隐藏变阻器原理图</button></div>
 
     <div class="grp layout-controls full-only"><div class="toggles"><button id="resetLayout">恢复布局</button></div><div class="mini" id="layoutHint">开启左上角“移动元件”，可拖动六个元件，外接导线自动跟随。</div></div>
     <div class="grp">
@@ -1658,6 +1663,14 @@
     camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', resize);
+  document.getElementById('schematicToggle').onclick=function(){
+    const visible=document.body.classList.toggle('diagram-visible');
+    document.getElementById('schematicCard').hidden=!visible;
+    this.textContent=visible?'隐藏变阻器原理图':'显示变阻器原理图';
+    this.setAttribute('aria-expanded',String(visible));this.classList.toggle('active',visible);
+    resize();
+  };
+
 
   /* ================= 主循环 ================= */
   let prevT = performance.now();
@@ -2000,7 +2013,7 @@
   document.getElementById('soloView').onclick=toggleStandalone;
   document.getElementById('moveComponents').onclick=toggleMoveMode;document.getElementById('resetLayout').onclick=resetLayout;
   document.getElementById('btnReset').addEventListener('click',()=>fitLayoutView());document.getElementById('btnFront').addEventListener('click',()=>fitLayoutView('front'));document.getElementById('btnTop').addEventListener('click',()=>fitLayoutView('top'));
-  window.__lab={coil,flowStyle:{scale:FLOW_ARROW_SCALE,spacing:FLOW_ARROW_SPACING},get arrowSpacing(){return circuitArrowSpacing;},get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-roomy-stage-v7'};
+  window.__lab={coil,flowStyle:{scale:FLOW_ARROW_SCALE,spacing:FLOW_ARROW_SPACING},get arrowSpacing(){return circuitArrowSpacing;},get standalone(){return standaloneView;},toggleStandalone,layoutItems,layoutMove,resetLayout,componentFits,hiddenLampWires:bulbInternalWiring,lab,solve:solveLab,toggleSwitch,ammeter,voltmeter,scene,camera,renderer,setTheme:applyTheme,bulbVisual:()=>({level:lab.visualLevel,target:lab.luminousTarget,halo:bulbHalo.material.opacity,inner:innerGlowMat.opacity,point:bulbLight.intensity}),flows:labFlows,branches:[vPlus,vMinus],equipment:labGroup,leads:[fLeadA,fLeadB,fLeadC,fLeadD],wires:labWires,wireInfo:()=>({aRange:lab.aRange,vRange:lab.vRange,aFeed:aFeed.f.curve.getPointAt(1).toArray(),vMinus:vMinus.f.curve.getPointAt(1).toArray(),vPlus:vPlus.f.curve.getPointAt(1).toArray()}),version:'20261015-optional-diagram-v8'};
 
   /* ================= 启动 ================= */
   resize();
