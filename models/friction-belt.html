@@ -553,7 +553,7 @@
     blockX: 40, blockW: 120, blockH: 55, blockD: 70,          // blockX 为绳松弛（T=0）时的静止位
     pulley: [305, 132, 45],
     boardX: 305, boardW: 130, boardBot: 230, boardTop: 660,   // 测力计大面板
-    zeroY: 600, mmPerN: 140, springTop: 630,                  // 刻度 0 线 / 每牛顿行程 / 弹簧上锚点
+    zeroY: 520, mmPerN: 140, springTop: 550,                  // 刻度 0 线 / 每牛顿行程 / 弹簧上锚点
     mAddMax: 0.2, muMin: 0.15, muMax: 0.5, vMax: 0.6,
     LOOP: 2 * (270 - (-390)) + 2 * Math.PI * 36
   };
@@ -859,7 +859,13 @@
   /* GAUGE_V4_END */
   updateGaugeFace(2);
   /* 中央黑色滑槽（弹簧/指针/挂钩在其中滑动） */
-  put(gMain, new THREE.BoxGeometry(26, 400, 2.4), M.slotDk, [GEO.boardX, bCy, 30.9]);  // z 面 32.1
+  /* 滑槽只占据刻度行程，不能向上穿过 2 N/5 N 与「条形盒测力计」标题区。
+     上边缘在零刻度上方 7mm，下边缘在满量程下方 5mm。 */
+  const gaugeSlotTop = GEO.zeroY + 7;
+  const gaugeSlotBottom = GEO.zeroY - GAUGE_SPAN - 5;
+  const gaugeSlotHeight = gaugeSlotTop - gaugeSlotBottom;
+  put(gMain, new THREE.BoxGeometry(26, gaugeSlotHeight, 2.4), M.slotDk,
+      [GEO.boardX, (gaugeSlotTop + gaugeSlotBottom) / 2, 30.9]);  // z 面 32.1
   put(gMain, new THREE.CylinderGeometry(2.5, 2.5, 30, 10), M.steel, [GEO.boardX, GEO.springTop + 2, 32]).rotation.z = Math.PI / 2;  // 上锚销
 
   /* ---- 弹簧 + 指示线 + 挂钩 + 细线（gAnim，随示数联动） ---- */
@@ -867,12 +873,12 @@
   const pointerShape = new THREE.Shape();
   pointerShape.moveTo(-44, 0); pointerShape.lineTo(-12, -8); pointerShape.lineTo(44, 0); pointerShape.lineTo(-12, 8); pointerShape.closePath();
   const indBar = new THREE.Mesh(new THREE.ShapeGeometry(pointerShape), new THREE.MeshBasicMaterial({ color: 0xcc232c }));
-  indBar.position.set(GEO.boardX, 700, 32.7);
+  indBar.position.set(GEO.boardX, GEO.zeroY, 32.7);
   indBar.renderOrder = 5;
   gAnim.add(indBar);   // 红色菱形指针
-  const hookRod = strut(gAnim, [GEO.boardX, 699, 32.5], [GEO.boardX, 675, 42], 1.6, M.spring);
-  const hookRing = put(gAnim, new THREE.TorusGeometry(6, 1.7, 8, 20), M.spring, [GEO.boardX, 669, 42]);
-  const strString = strut(gAnim, [GEO.pulley[0], GEO.pulley[1] + 17, GEO.pulley[2]], [GEO.boardX, 663, GEO.pulley[2]], 1.4, M.pink);
+  const hookRod = strut(gAnim, [GEO.boardX, GEO.zeroY - 1, 32.5], [GEO.boardX, GEO.zeroY - 25, 42], 1.6, M.spring);
+  const hookRing = put(gAnim, new THREE.TorusGeometry(6, 1.7, 8, 20), M.spring, [GEO.boardX, GEO.zeroY - 31, 42]);
+  const strString = strut(gAnim, [GEO.pulley[0], GEO.pulley[1] + 17, GEO.pulley[2]], [GEO.boardX, GEO.zeroY - 37, GEO.pulley[2]], 1.4, M.pink);
   const strString1 = strut(gAnim, [GEO.blockX + GEO.blockW / 2 + 4, GEO.beltTop + 30, GEO.pulley[2]],
                                  [GEO.pulley[0] - 17, GEO.pulley[1], GEO.pulley[2]], 1.4, M.pink);
   function buildSpring(botY) {
