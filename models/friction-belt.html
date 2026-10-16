@@ -62,6 +62,22 @@
   #experimentCharts .seg { margin-top: 7px; }
   #experimentCharts .seg button { font-size: 11.5px; padding: 6px 5px; }
   #chartPoint { min-height: 31px; color:#24517e; }
+  .forceLegend{display:flex;flex-wrap:wrap;gap:7px;margin:7px 0;}
+  .forceLegend button{border:1px solid #b8cbdc;border-radius:7px;background:white;padding:6px 10px;color:#596e80;font-size:12px;cursor:pointer}
+  .forceLegend button.selected{background:#e8f2fe;color:#204976;border-color:#78a5cf}
+  .forceLegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+  .forceLegend .f{background:#2877bf}.forceLegend .t{background:#d64537}
+  #chartOverlay{display:none;position:fixed;inset:0;z-index:90;background:#1021395a;align-items:center;justify-content:center;padding:12px}
+  #chartOverlay.open{display:flex}
+  #chartDialog{background:#fff;border-radius:14px;padding:16px 18px;width:min(1060px,86vw);height:min(690px,84vh);display:flex;flex-direction:column;box-shadow:0 20px 70px #10213955;min-height:320px}
+  #chartDialogHeader{display:flex;justify-content:space-between;gap:12px;align-items:center}
+  #chartDialogHeader h2{font-size:18px}
+  #chartDialogHeader button,#chartDialogTabs button{cursor:pointer;border:1px solid var(--line);padding:7px 11px;border-radius:8px;background:#f5f8fd}
+  #chartDialogTabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  #chartDialogTabs button.active{background:#2f7de1;color:white}
+  #chartLargeArea{flex:1;min-height:0}
+  #profLarge{width:100%;height:100%;display:block;background:#f7fafc;border:1px solid var(--line);border-radius:9px}
+  @media(max-width:700px){#chartDialog{width:98vw;height:78vh;padding:10px}#chartDialogHeader h2{font-size:14px}}
 
   .tip { margin-top: 2px; border-top: 1px dashed var(--line); padding-top: 10px; font-size: 12px; line-height: 1.7; color: var(--sub); }
   .tip b { color: var(--ink); display: block; margin-bottom: 3px; }
@@ -171,8 +187,10 @@
     <div class="seg" role="group" aria-label="切换实验图像">
       <button id="chartTabFT" class="active" type="button" aria-pressed="true">时间—摩擦力 f-t</button>
       <button id="chartTabFM" type="button" aria-pressed="false">砝码质量—摩擦力 f-m</button>
+      <button id="chartExpand" type="button" aria-haspopup="dialog">展开大图 ⤢</button>
     </div>
     <canvas id="prof" width="720" height="400" aria-label="物理实验数据图像，点击查看对应数据"></canvas>
+    <div class="forceLegend" id="legendMini"><button id="legendMiniF" class="selected" aria-pressed="true"><i class="f"></i>摩擦力 f</button><button id="legendMiniT" class="selected" aria-pressed="true"><i class="t"></i>拉力 T</button></div>
     <div class="seg" id="recordTools">
       <button id="btnRecordPause" type="button" class="active" aria-pressed="true">暂停记录</button>
       <button id="btnClearHistory" type="button">清空数据</button>
@@ -180,7 +198,7 @@
     </div>
     <div class="mini" id="chartStatus" aria-live="polite">正在记录 · 最近 20 s · 0 个数据点</div>
     <div class="mini" id="chartPoint" aria-live="polite">点击图像中的曲线或数据点，可查看时间与摩擦力数值。</div>
-    <div class="mini">f-t 图记录理想滑动摩擦力 f（不是弹簧测力计缓动时的瞬时张力 T）；不发生相对滑动时记录 0 N。切换图像不会清除记录。</div>
+    <div class="mini">f-t 图同时记录滑动摩擦力 f 和测力计拉力 T。图例可分别关闭曲线；切换图像不清除记录。</div>
   </div>
 
   <div class="grp">
@@ -215,7 +233,14 @@
   <div class="mini">与主尺同步的 SVG 刻度；红色指针在中央。 <button id="zoomToggle" type="button" style="border:1px solid #ccd9e5;background:#fff;border-radius:6px;padding:2px 8px;margin-left:5px;cursor:pointer">收起放大</button></div>
 </div>
 
-
+<div id="chartOverlay"><section id="chartDialog" role="dialog" aria-modal="true" aria-labelledby="chartLargeTitle">
+  <div id="chartDialogHeader"><h2 id="chartLargeTitle">时间—力 f-t 图</h2><button id="chartClose">关闭 ×</button></div>
+  <div id="chartDialogTabs"><button id="chartLargeFT" class="active">时间—力 f-t</button><button id="chartLargeFM">砝码质量—摩擦力 f-m</button>
+    <div class="forceLegend" id="legendLarge"><button id="legendLargeF" class="selected" aria-pressed="true"><i class="f"></i>摩擦力 f</button><button id="legendLargeT" class="selected" aria-pressed="true"><i class="t"></i>拉力 T</button></div>
+  </div>
+  <div id="chartLargeArea"><canvas id="profLarge" width="1240" height="720"></canvas></div>
+  <div class="mini" id="chartPointLarge">点击图像可查看该时刻力值。</div>
+</section></div>
   <script src="../shared/vendor/three-r144.min.js"></script>
 <script src="../shared/material-finish.js"></script>
 
@@ -523,14 +548,14 @@
      细线水平过滑轮后竖直向上，系在测力计槽内下挂钩上。 */
   const GEO = {
     mWood: 0.18, g: 10,
-    rollerX1: -300, rollerX2: 215, rollerY: 64, rollerR: 32,
+    rollerX1: -390, rollerX2: 270, rollerY: 64, rollerR: 32,
     beltTop: 100, beltZ: 65, beltW: 90,
     blockX: 40, blockW: 120, blockH: 55, blockD: 70,          // blockX 为绳松弛（T=0）时的静止位
-    pulley: [250, 132, 45],
-    boardX: 250, boardW: 130, boardBot: 330, boardTop: 760,   // 测力计大面板
-    zeroY: 700, mmPerN: 140, springTop: 730,                  // 刻度 0 线 / 每牛顿行程 / 弹簧上锚点
+    pulley: [305, 132, 45],
+    boardX: 305, boardW: 130, boardBot: 230, boardTop: 660,   // 测力计大面板
+    zeroY: 600, mmPerN: 140, springTop: 630,                  // 刻度 0 线 / 每牛顿行程 / 弹簧上锚点
     mAddMax: 0.2, muMin: 0.15, muMax: 0.5, vMax: 0.6,
-    LOOP: 2 * (215 - (-300)) + 2 * Math.PI * 36
+    LOOP: 2 * (270 - (-390)) + 2 * Math.PI * 36
   };
   /* f = μN；只有皮带转动（有相对滑动）时绳子才需要提供摩擦力 */
   function frictionOf(mu, mAdd) { return mu * (GEO.mWood + mAdd) * GEO.g; }
@@ -548,8 +573,8 @@
 
   /* ================= 传送带（主机前方、低于箱顶、右伸） =================
      前后两根深色侧板 + 双滚轮 + 闭环皮带；左滚轮白色塑料鼓、右滚轮金属轴承盖 */
-  put(gMain, new THREE.BoxGeometry(520, 38, 5), M.blueDk, [-45, 41, 20]);    // 后侧板
-  put(gMain, new THREE.BoxGeometry(520, 38, 5), M.blueDk, [-45, 41, 110]);   // 前侧板
+  put(gMain, new THREE.BoxGeometry(665, 38, 5), M.blueDk, [-60, 41, 20]);    // 后侧板
+  put(gMain, new THREE.BoxGeometry(665, 38, 5), M.blueDk, [-60, 41, 110]);   // 前侧板
   /* 滚轮（轴沿 Z 水平横置，整组绕 Z 自转） */
   const rollerWraps = [];
   [GEO.rollerX1, GEO.rollerX2].forEach(function (x, idx) {
@@ -654,7 +679,7 @@
 
   /* ================= 右侧：蓝色立柱 + 浅色定滑轮 + 大面板弹簧测力计 ================= */
   put(gMain, new THREE.BoxGeometry(120, 16, 120), M.blueDk, [GEO.boardX, 8, 0]);   // 立柱底座
-  put(gMain, new THREE.BoxGeometry(34, 770, 34), M.blue, [GEO.boardX, 385, 0]);    // 立柱（直通测力计背后）
+  put(gMain, new THREE.BoxGeometry(34, 665, 34), M.blue, [GEO.boardX, 332.5, 0]);    // 立柱（直通测力计背后）
   /* 定滑轮（浅色塑料轮，臂架挑出立柱前面，轮面在 XY 平面） */
   put(gMain, new THREE.BoxGeometry(12, 12, 30), M.blueDk, [GEO.boardX, 132, 28]);  // 滑轮臂
   /* 滑轮实体轮盘与轴承支架：线绳、滑轮槽、挂环位于同一 z=45 工作平面 */
@@ -667,15 +692,15 @@
   put(pulleyGrp, new THREE.CylinderGeometry(6, 6, 12, 16), M.white, [0, 0, 0]).rotation.x = Math.PI / 2;
 
   /* CONTROLBOX_V4_BEGIN: painted metal module mounted to the right of the force gauge */
-  const ctrlCX=GEO.boardX+215, ctrlCY=600, ctrlZ=18;
+  const ctrlCX=GEO.boardX+215, ctrlCY=155, ctrlZ=18;
   const ctrlRoot=new THREE.Group();gMain.add(ctrlRoot);
   const finishRed=new THREE.MeshStandardMaterial({color:0x8d333b,metalness:0.55,roughness:0.79});
   const trimSteel=new THREE.MeshStandardMaterial({color:0x929ba4,metalness:0.72,roughness:0.56});
   const buttonBlack=new THREE.MeshStandardMaterial({color:0x28313a,metalness:0.14,roughness:0.7});
   const powerGreen=new THREE.MeshStandardMaterial({color:0x236d55,metalness:0.24,roughness:0.57});
-  // Two steel beams join the frame rather than allowing a floating box.
-  put(ctrlRoot,new THREE.BoxGeometry(133,13,28),trimSteel,[GEO.boardX+110,690,-8]);
-  put(ctrlRoot,new THREE.BoxGeometry(133,13,28),trimSteel,[GEO.boardX+110,520,-8]);
+  // 底部两只金属支脚与试验台面接触，控制盒不再悬空。
+  put(ctrlRoot,new THREE.BoxGeometry(24,15,36),trimSteel,[ctrlCX-55,7.5,ctrlZ]);
+  put(ctrlRoot,new THREE.BoxGeometry(24,15,36),trimSteel,[ctrlCX+55,7.5,ctrlZ]);
   put(ctrlRoot,new THREE.BoxGeometry(184,296,43),finishRed,[ctrlCX,ctrlCY,ctrlZ]);
   put(ctrlRoot,new THREE.BoxGeometry(172,284,3),new THREE.MeshStandardMaterial({color:0x9a4147,roughness:0.77,metalness:0.47}),[ctrlCX,ctrlCY,ctrlZ+23]);
   const controlCanvas=document.createElement('canvas');controlCanvas.width=650;controlCanvas.height=1050;
@@ -707,7 +732,7 @@
     controlTexture.needsUpdate=true;
   }
   const ctrlButtons=[];
-  [[651,powerGreen,'power'],[600,buttonBlack,'plus'],[549,buttonBlack,'minus']].forEach(function(rec){
+  [[ctrlCY+51,powerGreen,'power'],[ctrlCY,buttonBlack,'plus'],[ctrlCY-51,buttonBlack,'minus']].forEach(function(rec){
     const y=rec[0],mat=rec[1];
     const collar=put(ctrlRoot,new THREE.CylinderGeometry(22,22,7,40),trimSteel,[ctrlCX-48,y,ctrlZ+31]);collar.rotation.x=Math.PI/2;
     const cap=put(ctrlRoot,new THREE.CylinderGeometry(16,16,10,40),mat,[ctrlCX-48,y,ctrlZ+39]);cap.rotation.x=Math.PI/2;
@@ -917,8 +942,8 @@
   })();
 
   /* ---- 部件标注 ---- */
-  addLabel('nScale', '弹簧测力计', '#1b2d42', 42, [GEO.boardX + 48, 812, 42]);
-  leader([GEO.boardX + 110, 740, 34], [GEO.boardX + 70, 718, 32], 0x1b2d42);
+  addLabel('nScale', '弹簧测力计', '#1b2d42', 42, [GEO.boardX + 48, 710, 42]);
+  leader([GEO.boardX + 110, 636, 34], [GEO.boardX + 70, 618, 32], 0x1b2d42);
   addLabel('nPulley', '定滑轮', '#253444', 34, [GEO.boardX + 170, 182, 76]);
   leader([GEO.boardX + 84, 168, 58], [GEO.boardX + 16, 138, 48], 0x253444);
   const nBlockX0 = GEO.blockX + 14, nWeightX0 = GEO.blockX - 168;
@@ -937,6 +962,7 @@
    * 计时仅在实验动画播放时推进，记录开关单独控制是否取样。 */
   const chartState = {
     mode:'ft',recording:true,period:0.10,accum:0,window:20,
+    expanded:false,showF:true,showT:true,
     points:[],maxPoints:12000,breakNext:false,suspended:true,
     plot:null, lastTime:0
   };
@@ -945,11 +971,11 @@
   }
   function sampleFriction(breakBefore=false){
     if(!chartState.recording || chartState.suspended) return;
-    const point={t:Number(state.t.toFixed(3)),f:Number(actualSlidingFriction().toFixed(5)),
+    const point={t:Number(state.t.toFixed(3)),f:Number(actualSlidingFriction().toFixed(5)),T:Number(T.toFixed(5)),
       m:Number((state.m*1000).toFixed(1)),mu:Number(state.mu.toFixed(4)),
       v:Number(state.vBelt.toFixed(4)),breakBefore:Boolean(breakBefore||chartState.breakNext)};
     const lastPoint=chartState.points[chartState.points.length-1];
-    if(lastPoint && lastPoint.t===point.t && lastPoint.f===point.f) return;
+    if(lastPoint && lastPoint.t===point.t && lastPoint.f===point.f && lastPoint.T===point.T) return;
     chartState.points.push(point);
     chartState.breakNext=false;
     if(chartState.points.length>chartState.maxPoints)
@@ -1005,8 +1031,8 @@
   }
   function exportChartCSV(){
     if(!chartState.points.length){toast('当前没有可导出的数据');return;}
-    const lines=['时间/s,摩擦力/N,砝码质量/g,摩擦系数μ,皮带实际速度/(m/s),断点标记'];
-    for(const p of chartState.points)lines.push([p.t.toFixed(3),p.f.toFixed(3),
+    const lines=['时间/s,摩擦力f/N,拉力T/N,砝码质量/g,摩擦系数μ,皮带实际速度/(m/s),断点标记'];
+    for(const p of chartState.points)lines.push([p.t.toFixed(3),p.f.toFixed(3),p.T.toFixed(3),
       p.m.toFixed(1),p.mu.toFixed(3),p.v.toFixed(3),p.breakBefore?1:0].map(csvEscape).join(','));
     const blob=new Blob(['\ufeff',lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -1038,7 +1064,7 @@
     ctx.beginPath();ctx.moveTo(box.x,box.y);ctx.lineTo(box.x,box.y+box.h);ctx.lineTo(box.x+box.w,box.y+box.h);ctx.stroke();
     ctx.font='700 19px "Microsoft YaHei",sans-serif';
     ctx.textAlign='left';ctx.fillStyle='#28435e';
-    ctx.fillText('摩擦力 f / N',box.x,25);
+    ctx.fillText(opts.yLabel||'摩擦力 f / N',box.x,25);
     ctx.textAlign='center';ctx.fillText(opts.xLabel,box.x+box.w/2,H-12);
     return box;
   }
@@ -1226,7 +1252,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     updateReadout();
   }
   /* 第二批：工业控制盒的电机开关、档位按钮和真实加减速状态。 */
-  const MOTOR_ACCEL = 0.30;       // m/s²；目标速度 0.05 m/s 一档
+  const MOTOR_ACCEL = 0.12;       // m/s²；目标速度 0.05 m/s 一档
   const SPEED_STEP = 0.05;
   let motorFaceClock = 0;
   function updateMotorUI(force) {
@@ -1306,8 +1332,8 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
 
   /* ---- 相机 ---- */
   const view = {
-    theta: 0.5, phi: 1.22, dist: 1400, distTarget: 1400,
-    target: new THREE.Vector3(-5, 340, 30), fov: 38, fovTarget: 38
+    theta: 0.5, phi: 1.22, dist: 1480, distTarget: 1480,
+    target: new THREE.Vector3(22, 278, 30), fov: 38, fovTarget: 38
   };
   function applyCamera() {
     camera.fov = view.fov;
@@ -1437,7 +1463,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     T=tensionOf(state.mu,state.m,state.vBelt);updateScale(T);
     updateReadout();
     chartState.suspended=false;
-    setView({ theta: 0.5, phi: 1.22, dist: 1400, fov: 38, tx: -5, ty: 340, tz: 30 });
+    setView({ theta: 0.5, phi: 1.22, dist: 1480, fov: 38, tx: 22, ty: 278, tz: 30 });
     if(chartState.recording)sampleFriction(true);
     refreshChart();
     toast('已重置');
@@ -1455,13 +1481,13 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   bindToggle('btnForces', 'showForces', '已显示受力箭头', '已隐藏受力箭头');
   bindToggle('btnAux', 'showAux', '显示坐标系', '隐藏坐标系');
   $('btnSide').addEventListener('click', function () {
-    setView({ theta: 0.02, phi: Math.PI / 2 - 0.02, dist: 1150, fov: 36, tx: -5, ty: 320, tz: 30 });
+    setView({ theta: 0.02, phi: Math.PI / 2 - 0.02, dist: 1350, fov: 36, tx: 22, ty: 260, tz: 30 });
   });
   $('btnTop').addEventListener('click', function () {
-    setView({ theta: 0.5, phi: 0.18, dist: 1100, fov: 36, tx: -5, ty: 60, tz: 30 });
+    setView({ theta: 0.5, phi: 0.18, dist: 1350, fov: 36, tx: 22, ty: 60, tz: 30 });
   });
   $('btnResetView').addEventListener('click', function () {
-    setView({ theta: 0.5, phi: 1.22, dist: 1400, fov: 38, tx: -5, ty: 340, tz: 30 });
+    setView({ theta: 0.5, phi: 1.22, dist: 1480, fov: 38, tx: 22, ty: 278, tz: 30 });
   });
   $('btnShot').addEventListener('click', function () {
     renderer.render(scene, camera);
