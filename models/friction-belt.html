@@ -118,6 +118,7 @@
       <button data-v="100">快</button>
     </div>
     <div class="mini">皮带上表面向左运行，木块受摩擦向左、细绳拉力向右。比较不同速度下的稳态示数。</div>
+    <div class="mini" id="motorLive" aria-live="polite">电机开启 · 实际速度 0.30 m/s · 加减速步长 0.05 m/s</div>
   </div>
 
   <div class="grp">
@@ -189,7 +190,7 @@
 </div>
 
 <button id="panelOpen" title="展开面板">‹</button>
-<div class="hint">拖动旋转 · 滚轮缩放 · 单位：mm · g 取 10 N/kg</div>
+<div class="hint">左键旋转 · 右键或 Shift+左键平移 · 滚轮缩放 · 单位：mm · g 取 10 N/kg</div>
 
 <div id="toast"></div>
 
@@ -587,6 +588,13 @@
       const nut = put(grp, new THREE.CylinderGeometry(7, 7, 7, 6), M.dark, [0, 0, 55]);
       nut.rotation.x = Math.PI / 2;
     }
+    /* 仅一枚橙黄色转速标记，固定在滚轮端面，跟随滚轮实体旋转。 */
+    const speedStripe = new THREE.Mesh(
+      new THREE.RingGeometry(17, 29, 32, 1, -0.19, 0.38),
+      new THREE.MeshBasicMaterial({color:0xe9a844, side:THREE.DoubleSide, depthWrite:true})
+    );
+    speedStripe.position.set(0, 0, idx===0?57.5:59.5);
+    grp.add(speedStripe);
     rollerWraps.push(grp);
   });
   /* 皮带：顶面 / 底面 / 两端半圆包络（包住滚轮，r = 32 + 4） */
@@ -604,8 +612,9 @@
     const shift = -(phase / GEO.LOOP) * 5.4;
     if (beltTex) beltTex.offset.x = shift;
     if (beltBump) beltBump.offset.x = shift;
-    rollerWraps[0].rotation.z = phase / GEO.rollerR;
-    rollerWraps[1].rotation.z = phase / GEO.rollerR;
+    /* 独立累计转角，避免纹理循环归零时滚轮及标记瞬间跳角。 */
+    rollerWraps[0].rotation.z = state.rollerAngle;
+    rollerWraps[1].rotation.z = state.rollerAngle;
   }
 
   /* ================= 木块（圆角 + 真实木纹）+ 挂线螺环 + 带柄砝码 =================
@@ -690,7 +699,7 @@
   const controlInk=controlCanvas.getContext('2d'),controlTexture=new THREE.CanvasTexture(controlCanvas);
   controlTexture.encoding=THREE.sRGBEncoding;
   const controlPlate=put(ctrlRoot,new THREE.PlaneGeometry(172,284),new THREE.MeshBasicMaterial({map:controlTexture,transparent:false}),[ctrlCX,ctrlCY,ctrlZ+25]);
-  function drawControllerFace(speed){
+  function drawControllerFace(speed, powered=true){
     const g=controlInk;
     g.clearRect(0,0,650,1050);g.fillStyle='#913d44';g.fillRect(0,0,650,1050);
     const grad=g.createLinearGradient(0,0,650,0);grad.addColorStop(0,'#6e2c33');grad.addColorStop(.5,'#a1474b');grad.addColorStop(1,'#733139');
@@ -705,6 +714,8 @@
     g.strokeStyle='#b6bfc5';g.lineWidth=9;g.strokeRect(125,191,400,154);
     g.fillStyle='#a3f5d8';g.font='bold 83px Consolas,monospace';g.fillText(speed.toFixed(2),315,282);
     g.font='bold 32px Arial';g.fillText('m/s',487,325);
+    g.font='bold 26px Arial';g.fillStyle=powered?'#a9f1c5':'#f5b7b1';
+    g.fillText(powered?'运行中':'电机关闭',325,391);
     g.textAlign='left';g.fillStyle='#f8eded';g.font='bold 47px Arial';
     g.fillText('开 / 关',300,487);g.fillText('加  速',300,677);g.fillText('减  速',300,869);
     for(const [x,y] of [[65,71],[585,71],[65,978],[585,978]]){
@@ -1027,8 +1038,11 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   const state = {
     play: true, t: 0,
     m: 0.10,        // 砝码质量 kg（0~0.2）
-    v: 0.30,        // 皮带设定速度 m/s（0~0.6）
-    vBelt: 0,       // 皮带实际速度（电机一阶惯性，平缓加速到设定值）
+    v: 0.30,        // 记忆的速度设定 m/s（0～0.6），开关机后保留
+    vTarget: 0.30,  // 电机当前目标速度，关机为 0
+    power: true,    // 控制盒电机开关，独立于暂停动画
+    vBelt: 0,       // 皮带实际速度，按固定加速度连续过渡
+    rollerAngle: 0, // 滚轮累计转角，不随皮带纹理周期重置
     mu: 0.30,       // 摩擦系数（0.15~0.5）
     beltPhase: 0, T: 0,
     showAux: true, showMarks: true, showForces: true
@@ -1050,11 +1064,47 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     drawChart(state.mu, state.m);
   }
   function setV(v, fromSlider) {
-    state.v = v / 100 * GEO.vMax;
-    if (!fromSlider) el.vSlider.value = Math.round(v);
+    state.v = clamp(v / 100 * GEO.vMax, 0, GEO.vMax);
+    state.vTarget = state.power ? state.v : 0;
+    if (!fromSlider) el.vSlider.value = Math.round(state.v / GEO.vMax * 100);
     el.vLabel.textContent = state.v.toFixed(2) + ' m/s';
-    drawControllerFace(state.v);
+    updateMotorUI(true);
     updateReadout();
+  }
+  /* 第二批：工业控制盒的电机开关、档位按钮和真实加减速状态。 */
+  const MOTOR_ACCEL = 0.30;       // m/s²；目标速度 0.05 m/s 一档
+  const SPEED_STEP = 0.05;
+  let motorFaceClock = 0;
+  function updateMotorUI(force) {
+    if (!force && motorFaceClock < 0.12) return;
+    motorFaceClock = 0;
+    const current = state.vBelt;
+    drawControllerFace(current, state.power);
+    powerGreen.color.setHex(state.power ? 0x236d55 : 0x4c525a);
+    powerGreen.emissive.setHex(state.power ? 0x0a2a1d : 0x000000);
+    powerGreen.emissiveIntensity = state.power ? 0.16 : 0;
+    const note = document.getElementById('motorLive');
+    if (note) note.textContent =
+      (state.power ? '电机开启' : '电机关闭') +
+      ' · 实际速度 ' + current.toFixed(2) + ' m/s' +
+      ' · 目标 ' + state.vTarget.toFixed(2) + ' m/s';
+  }
+  function setMotorPower(on) {
+    state.power = Boolean(on);
+    state.vTarget = state.power ? state.v : 0;
+    updateMotorUI(true);
+    updateReadout();
+    toast(state.power ? '电机开启：逐渐加速至设定速度' : '电机关闭：皮带逐渐减速至停止');
+  }
+  function adjustMotorSpeed(direction) {
+    const next = clamp(Math.round((state.v + Math.sign(direction)*SPEED_STEP)*100)/100, 0, GEO.vMax);
+    setV(next / GEO.vMax * 100, false);
+    toast('目标速度：' + state.v.toFixed(2) + ' m/s' + (state.power ? '（逐渐过渡）' : '（待下次开机）'));
+  }
+  function handleControllerAction(action) {
+    if(action==='power')setMotorPower(!state.power);
+    else if(action==='plus')adjustMotorSpeed(1);
+    else if(action==='minus')adjustMotorSpeed(-1);
   }
   function setMu(v, fromSlider) {
     state.mu = GEO.muMin + v / 100 * (GEO.muMax - GEO.muMin);
@@ -1070,9 +1120,9 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     el.valA.textContent = N.toFixed(2) + ' N';
     el.valB.textContent = f.toFixed(2) + ' N';
     el.valC.textContent = T.toFixed(2) + ' N';
-    el.valD.textContent = state.v.toFixed(2) + ' m/s';
+    el.valD.textContent = state.vBelt.toFixed(2) + ' m/s';
     const v2 = el.verdict;
-    if (state.v < 0.005) {
+    if (state.vBelt < 0.005) {
       v2.classList.add('bad');
       v2.textContent = '✗ 皮带静止：木块与皮带间无相对滑动，不需要摩擦力维持平衡，测力计示数为 0。';
     } else {
@@ -1122,22 +1172,72 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     if (o.tx !== undefined) view.target.set(o.tx, o.ty || 0, o.tz || 0);
   }
 
+  /* 鼠标：左键旋转；右键或 Shift＋左键平移；点击控制盒按钮触发对应操作。 */
   (function bindCamera() {
-    let drag = null;
-    const cv = renderer.domElement;
-    cv.addEventListener('pointerdown', function (e) {
-      drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId);
+    const cv=renderer.domElement;
+    const controlRaycaster=new THREE.Raycaster();
+    const ndc=new THREE.Vector2();
+    let drag=null;
+    function panBy(dx,dy) {
+      applyCamera();
+      camera.updateMatrixWorld();
+      const rect=cv.getBoundingClientRect();
+      const height=Math.max(1,rect.height||window.innerHeight);
+      const worldPerPixel=2*view.dist*Math.tan(THREE.MathUtils.degToRad(camera.fov)*0.5)/height;
+      const right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0);
+      const up=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1);
+      view.target.addScaledVector(right,-dx*worldPerPixel);
+      view.target.addScaledVector(up,dy*worldPerPixel);
+    }
+    function pickController(e) {
+      const rect=cv.getBoundingClientRect();
+      ndc.set((e.clientX-rect.left)/rect.width*2-1,
+              1-(e.clientY-rect.top)/rect.height*2);
+      applyCamera();
+      camera.updateMatrixWorld();
+      controlRaycaster.setFromCamera(ndc,camera);
+      const hits=controlRaycaster.intersectObjects(ctrlButtons,false);
+      if(hits.length && hits[0].object.userData.controlAction) {
+        handleControllerAction(hits[0].object.userData.controlAction);
+        return true;
+      }
+      return false;
+    }
+    cv.addEventListener('contextmenu', e=>e.preventDefault());
+    cv.addEventListener('pointerdown',function(e) {
+      if(drag) return;
+      if(e.button!==0 && e.button!==2) return;
+      drag={pointerId:e.pointerId,button:e.button,x:e.clientX,y:e.clientY,
+            moved:0,mode:(e.button===2||e.shiftKey)?'pan':'orbit'};
+      if(cv.setPointerCapture)cv.setPointerCapture(e.pointerId);
+      if(e.button===2)e.preventDefault();
     });
-    cv.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      view.theta -= (e.clientX - drag.x) * 0.006;
-      view.phi = clamp(view.phi - (e.clientY - drag.y) * 0.005, 0.12, Math.PI - 0.12);
-      drag = { x: e.clientX, y: e.clientY };
+    cv.addEventListener('pointermove',function(e) {
+      if(!drag||e.pointerId!==drag.pointerId) return;
+      const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+      drag.x=e.clientX;drag.y=e.clientY;
+      drag.moved+=Math.hypot(dx,dy);
+      if(drag.mode==='pan')panBy(dx,dy);
+      else{
+        view.theta-=dx*0.006;
+        view.phi=clamp(view.phi-dy*0.005,0.12,Math.PI-0.12);
+      }
     });
-    cv.addEventListener('pointerup', function () { drag = null; });
-    cv.addEventListener('wheel', function (e) {
-      view.distTarget = clamp(view.distTarget * (1 + (e.deltaY > 0 ? 0.10 : -0.10)), 250, 2600);
-    }, { passive: true });
+    cv.addEventListener('pointerup',function(e){
+      if(!drag||e.pointerId!==drag.pointerId)return;
+      if(drag.button===0 && drag.mode==='orbit' && drag.moved<6)pickController(e);
+      drag=null;
+    });
+    cv.addEventListener('pointercancel',function(e){
+      if(drag&&e.pointerId===drag.pointerId)drag=null;
+    });
+    cv.addEventListener('lostpointercapture',function(e){
+      if(drag&&e.pointerId===drag.pointerId)drag=null;
+    });
+    cv.addEventListener('wheel',function(e){
+      e.preventDefault();
+      view.distTarget=clamp(view.distTarget*Math.exp(e.deltaY*0.001),250,2600);
+    },{passive:false});
   })();
 
   function resize() {
@@ -1164,8 +1264,11 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   $('btnPlay').addEventListener('click', function () { setPlaying(true); });
   $('btnPause').addEventListener('click', function () { setPlaying(false); });
   $('btnReset').addEventListener('click', function () {
-    state.t = 0; state.beltPhase = 0;
+    state.t = 0; state.beltPhase = 0; state.rollerAngle=0;
+    state.vBelt=0;state.power=true;
     setM(50, false); setV(50, false); setMu(43, false);
+    updateBelt(0);
+    updateMotorUI(true);
     setView({ theta: 0.5, phi: 1.22, dist: 1400, fov: 38, tx: -5, ty: 340, tz: 30 });
     toast('已重置');
   });
@@ -1209,15 +1312,20 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   }
   let last = performance.now();
   function tick(now) {
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
     last = now;
     if (state.play) {
       state.t += dt;
-      /* 电机惯性：实际速度以一阶惯性趋向设定速度（τ≈0.35s），不瞬时跳变 */
-      state.vBelt += (state.v - state.vBelt) * Math.min(1, dt / 0.35);
-      if (Math.abs(state.v - state.vBelt) < 0.0008) state.vBelt = state.v;
-      state.beltPhase = (state.beltPhase + state.vBelt * 1000 * dt) % GEO.LOOP;
+      state.vTarget = state.power ? state.v : 0;
+      const dv = clamp(state.vTarget-state.vBelt,-MOTOR_ACCEL*dt,MOTOR_ACCEL*dt);
+      state.vBelt = clamp(state.vBelt+dv,0,GEO.vMax);
+      const travel = state.vBelt*1000*dt;
+      state.beltPhase=(state.beltPhase+travel)%GEO.LOOP;
+      state.rollerAngle=(state.rollerAngle+travel/GEO.rollerR)%(Math.PI*2);
       updateBelt(state.beltPhase);
+      motorFaceClock+=dt;
+      updateMotorUI(false);
+      tickLive(dt);
     }
     /* 弹簧缓动到目标示数（张力取决于皮带实际速度） */
     const Tt = tensionOf(state.mu, state.m, state.vBelt);
@@ -1238,7 +1346,10 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   setGaugeRange(2);
   window.__frictionStage='首次计算与渲染';
   setM(50, false); setV(50, false); setMu(43, false);
-  state.vBelt = state.v;                                   // 加载即处于匀速运行状态
+  state.vBelt = state.v;                                   // 首次载入显示稳态演示，后续操作逐渐加减速
+  state.vTarget = state.v;
+  updateBelt(state.beltPhase);
+  updateMotorUI(true);
   T = tensionOf(state.mu, state.m, state.v);   // 加载即处于正确受力状态
   updateScale(T);
   updateReadout();
@@ -1261,12 +1372,17 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     get M() { return state.m; }, get V() { return state.v; }, get MU() { return state.mu; },
     get T() { return T; },
     get vBelt() { return state.vBelt; },
+    get targetSpeed() { return state.vTarget; }, get power() { return state.power; },
+    setMotorPower: setMotorPower, adjustMotorSpeed: adjustMotorSpeed,
+    handleControllerAction: handleControllerAction,
+    get rollerAngle() {return state.rollerAngle;},
     get blockX() { return GEO.blockX - T * GEO.mmPerN; },
     get GEO() { return GEO; },
     get hookY() { return hookYOf(T); },
     get range() { return gaugeV4.range; }, setRange: setGaugeRange,
     get gaugeSvg() { return gaugeSvgSource; },
     frictionOf: frictionOf, tensionOf: tensionOf,
+    get controllerButtons(){ return ctrlButtons; },
     get forces() { return gForces; }, get beltOffset() { return beltTex.offset.x; }, get weights() { return gWeights.children.length; },
     setM: setM, setV: setV, setMu: setMu, setView: setView
   };
