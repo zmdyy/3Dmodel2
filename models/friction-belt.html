@@ -655,6 +655,7 @@
     g.fillStyle = DARK;
     g.font = '700 80px Arial';
     g.fillText('2 N', cx, 110);
+    const yBot = yTop + 2 * pxPerN; // 2 N 刻度底端，与三维指针共用比例
     g.fillStyle = '#fefefe'; g.fillRect(cx - 13, yTop - 24, 26, yBot - yTop + 48);
     g.fillStyle = DARK; g.fillRect(cx - 13, yTop - 24, 26, yBot - yTop + 48);
     g.fillStyle = BLUE; g.strokeStyle = BLUE;
