@@ -38,7 +38,7 @@
   .lbl b { color: var(--blue); font-weight: 600; }
   .seg { display: flex; gap: 6px; flex-wrap: wrap; }
   .seg button {
-    flex: 1 1 auto; padding: 6px 8px; font-size: 12px; border-radius: 8px; cursor: pointer;
+    flex: 1 1 auto; padding: 6px 8px; font-size: 13px; border-radius: 8px; cursor: pointer;
     border: 1px solid var(--line); background: #f7fafd; color: var(--ink); white-space: nowrap;
   }
   .seg button:hover { border-color: var(--blue); }
@@ -72,7 +72,18 @@
     background: rgba(36,49,63,.92); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px;
     opacity: 0; transition: all .25s ease; pointer-events: none;
   }
+
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #scaleZoom {
+    position: fixed; left: 18px; top: 88px; z-index: 6; width: 214px;
+    background: rgba(255,255,255,.94); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(30,50,80,.10); padding: 10px 10px 8px;
+    backdrop-filter: blur(3px);
+  }
+  #scaleZoom .t1 { font-size: 12px; color: var(--sub); display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; }
+  #scaleZoom .t1 b { color: #cb2f2f; font-size: 15px; }
+  #scaleZoom canvas { width: 100%; height: auto; display: block; border: 1px solid #dbe4ee; border-radius: 10px; background: #f8fbff; }
+  #scaleZoom .mini { margin-top: 6px; font-size: 11.5px; color: var(--sub); line-height: 1.45; }
 </style>
 </head>
 
@@ -95,7 +106,7 @@
       <button data-m="100">100 g</button>
       <button data-m="200">200 g</button>
     </div>
-    <div class="mini">增大压力 N，观察示数如何变化。</div>
+    <div class="mini">在木块上叠加砝码；砝码质量按 0～200 g 连续变化。</div>
   </div>
 
   <div class="grp">
@@ -106,7 +117,7 @@
       <button data-v="30">慢</button>
       <button data-v="100">快</button>
     </div>
-    <div class="mini">皮带上表面向左运动，木块受摩擦向左、细绳拉力向右；比较不同速度时的稳态示数。</div>
+    <div class="mini">皮带上表面向左运行，木块受摩擦向左、细绳拉力向右。比较不同速度下的稳态示数。</div>
   </div>
 
   <div class="grp">
@@ -165,18 +176,26 @@
     <b>原理一句话</b>
     <span>皮带匀速转动，木块相对地面<b>保持静止</b>——受重力、支持力、绳的拉力 T 和滑动摩擦力 f，处于平衡。</span>
     <span>水平方向二力平衡：<b>T = f</b>，所以弹簧测力计示数就是滑动摩擦力。</span>
-    <span class="ok">✓ 本模型采用理想干摩擦关系：增大正压力，滑动摩擦力增大；接触面不变时，改变相对速度不改变稳态摩擦力。</span>
-    <span class="bad">注意：真实橡胶、高速或润滑条件下，摩擦力可能随速度变化；模型仅用于初中物理理想化探究。</span>
+    <span class="ok">✓ 在本模型的理想干摩擦条件下：增大正压力会增大滑动摩擦力；保持接触面不变时，改变相对滑动速度，稳态示数不变。</span>
+    <span class="bad">注意：现实橡胶、润滑或高速摩擦时，摩擦可能随速度变化；这里使用初中物理理想化模型。</span>
   </div>
 </div>
 
 <button id="panelOpen" title="展开面板">‹</button>
 <div class="hint">拖动旋转 · 滚轮缩放 · 单位：mm · g 取 10 N/kg</div>
+
 <div id="toast"></div>
+
+<div id="scaleZoom" aria-label="弹簧测力计局部放大读数">
+  <div class="t1"><span>测力计局部放大</span><b id="scaleZoomVal">0.00 N</b></div>
+  <canvas id="scaleZoomCanvas" width="240" height="420"></canvas>
+  <div class="mini">红色指针保持在中央，周围刻度局部放大，便于课堂投影观察。</div>
+</div>
 
 
   <script src="../shared/vendor/three-r144.min.js"></script>
 <script src="../shared/material-finish.js"></script>
+
 
 <script>
   /* 全局错误陷阱（诊断用） */
@@ -288,37 +307,44 @@
   /* ---- 真实木纹（Poly Haven CC0）：04_js_tex.js 提供数据并在其后完成加载 ---- */
   const WOOD = { tex: null, mats: [] };
 
-  /* 传送带橡胶：程序化黑色橡胶纹理（细颗粒 + 横向帘线肋纹 + 边缘磨暗）+ 凹凸贴图 */
+  /* 传送带：改为编织带纹理。表面保持平整，不再使用会与木块干涉的凸起。 */
   const beltTex = canvasTex(function (g, w, h) {
-    g.fillStyle = '#1e2124'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#1c2024'; g.fillRect(0, 0, w, h);
+    for (let y = -h; y < h * 2; y += 12) {
+      g.strokeStyle = 'rgba(88,98,110,0.26)'; g.lineWidth = 4;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y + w * 0.16); g.stroke();
+    }
+    for (let y = -h; y < h * 2; y += 12) {
+      g.strokeStyle = 'rgba(10,12,15,0.32)'; g.lineWidth = 4;
+      g.beginPath(); g.moveTo(0, y + 6); g.lineTo(w, y + 6 - w * 0.16); g.stroke();
+    }
     for (let i = 0; i < 2600; i++) {
-      const a = Math.random() * 0.10;
-      g.fillStyle = Math.random() < 0.5 ? 'rgba(62,68,76,' + a + ')' : 'rgba(8,10,12,' + a + ')';
-      g.fillRect(Math.random() * w, Math.random() * h, 1.6, 1.6);
+      const a = 0.03 + Math.random() * 0.07;
+      const c = Math.random() < 0.5 ? 'rgba(135,145,158,' + a + ')' : 'rgba(0,0,0,' + a + ')';
+      g.fillStyle = c;
+      g.fillRect(Math.random() * w, Math.random() * h, 1.5, 1.5);
     }
-    for (let y = 4; y < h; y += 7) {
-      g.strokeStyle = 'rgba(0,0,0,0.17)'; g.lineWidth = 1;
-      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
-      g.strokeStyle = 'rgba(130,138,148,0.06)';
-      g.beginPath(); g.moveTo(0, y + 3); g.lineTo(w, y + 3); g.stroke();
-    }
-    const eg = g.createLinearGradient(0, 0, 0, h);
-    eg.addColorStop(0, 'rgba(0,0,0,0.4)'); eg.addColorStop(0.12, 'rgba(0,0,0,0)');
-    eg.addColorStop(0.88, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(0,0,0,0.4)');
-    g.fillStyle = eg; g.fillRect(0, 0, w, h);
-  }, 512, 256, 6, 1);
+    const edge = g.createLinearGradient(0, 0, 0, h);
+    edge.addColorStop(0, 'rgba(0,0,0,0.30)'); edge.addColorStop(0.14, 'rgba(0,0,0,0)');
+    edge.addColorStop(0.86, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(0,0,0,0.30)');
+    g.fillStyle = edge; g.fillRect(0, 0, w, h);
+  }, 768, 256, 5.4, 1.0);
   const beltBump = canvasTex(function (g, w, h) {
-    g.fillStyle = '#808080'; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 2200; i++) {
-      const v = 96 + Math.floor(Math.random() * 64);
-      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.5)';
-      g.fillRect(Math.random() * w, Math.random() * h, 1.6, 1.6);
+    g.fillStyle = '#7f7f7f'; g.fillRect(0, 0, w, h);
+    for (let y = -h; y < h * 2; y += 12) {
+      g.strokeStyle = 'rgba(170,170,170,0.24)'; g.lineWidth = 4;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y + w * 0.16); g.stroke();
     }
-    for (let y = 4; y < h; y += 7) {
-      g.strokeStyle = 'rgba(40,40,40,0.5)'; g.lineWidth = 1;
-      g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+    for (let y = -h; y < h * 2; y += 12) {
+      g.strokeStyle = 'rgba(70,70,70,0.24)'; g.lineWidth = 4;
+      g.beginPath(); g.moveTo(0, y + 6); g.lineTo(w, y + 6 - w * 0.16); g.stroke();
     }
-  }, 512, 256, 6, 1);
+    for (let i = 0; i < 1800; i++) {
+      const v = 92 + Math.floor(Math.random() * 70);
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.38)';
+      g.fillRect(Math.random() * w, Math.random() * h, 1.2, 1.2);
+    }
+  }, 768, 256, 5.4, 1.0);
 
   /* 材质库 */
   const M = {
@@ -332,7 +358,7 @@
     wood:   new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.68, metalness: 0 }),
     brass:  new THREE.MeshStandardMaterial({ color: 0xba995e, roughness: 0.62, metalness: 0.76 }),
     steel:  new THREE.MeshStandardMaterial({ map: steelTex, color: 0xe2e8ec, roughness: 0.58, metalness: 0.76 }),
-    spring: new THREE.MeshStandardMaterial({ color: 0xb6bfc9, roughness: 0.50, metalness: 0.8 }),
+    spring: new THREE.MeshStandardMaterial({ color: 0xb6bfc9, roughness: 0.5, metalness: 0.8 }),
     white:  new THREE.MeshStandardMaterial({ color: 0xf4f6f8, roughness: 0.55, metalness: 0 }),
     pink:   new THREE.MeshStandardMaterial({ color: 0xc74973, roughness: 0.75, metalness: 0 }),
     pulleyB:new THREE.MeshStandardMaterial({ color: 0x9ec6ea, roughness: 0.42, metalness: 0.05 }),
@@ -383,22 +409,26 @@
   const LABELS = {};
 
   function makeLabel(text, color, scale) {
-    const fs = 76;
+    const fs = 320;
+    const padX = 44, padY = 34;
     const c = document.createElement('canvas');
     let g = c.getContext('2d');
-    g.font = '600 ' + fs + 'px "Microsoft YaHei", sans-serif';
-    const w = Math.ceil(g.measureText(text).width) + 28;
-    c.width = w; c.height = 112;
+    g.font = '700 ' + fs + 'px "Microsoft YaHei", sans-serif';
+    const w = Math.ceil(g.measureText(text).width) + padX * 2;
+    c.width = w; c.height = fs + padY * 2;
     g = c.getContext('2d');
-    g.font = '600 ' + fs + 'px "Microsoft YaHei", sans-serif';
+    g.font = '700 ' + fs + 'px "Microsoft YaHei", sans-serif';
     g.textBaseline = 'middle';
-    g.lineWidth = 11; g.strokeStyle = 'rgba(255,255,255,0.94)';
-    g.strokeText(text, 14, 56);
-    g.fillStyle = color; g.fillText(text, 14, 56);
+    g.textAlign = 'left';
+    g.fillStyle = color;
+    g.fillText(text, padX, c.height / 2 + 6);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.needsUpdate = true;
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: new THREE.CanvasTexture(c), depthTest: false, transparent: true, toneMapped: false
+      map: tex, depthTest: false, transparent: true, toneMapped: false
     }));
-    sp.scale.set(w / 112 * scale, scale, 1);
+    sp.scale.set(w / c.height * scale, scale, 1);
     sp.renderOrder = 30;
     return sp;
   }
@@ -449,9 +479,9 @@
   function pointerYOf(T) { return GEO.zeroY - T * GEO.mmPerN; }
   function hookYOf(T) { return pointerYOf(T) - 37; }
 
-  /* ---- 桌面、黑板 ---- */
+  /* ---- 桌面（绿色背景墙已移除） ---- */
   put(gMain, new THREE.BoxGeometry(1400, 36, 640), M.table, [0, -18, 0]);
-  put(gMain, new THREE.BoxGeometry(1700, 980, 26), M.board, [0, 360, -330]);
+  /* 背景墙已移除，保留开阔浅色环境，便于投影观察。 */
 
   /* ================= 蓝色主机（J2108，左置箱体） =================
      箱体 x∈[-340,-90]，y∈[0,135]，z∈[-85,15]；前面板带丝印 + 红色电源灯 + 绿色调速旋钮 */
@@ -526,27 +556,11 @@
       [GEO.rollerX2, GEO.rollerY, GEO.beltZ]).rotation.x = Math.PI / 2;
   put(gMain, new THREE.CylinderGeometry(36, 36, GEO.beltW, 32, 1, true, Math.PI, Math.PI), beltMat,
       [GEO.rollerX1, GEO.rollerY, GEO.beltZ]).rotation.x = Math.PI / 2;
-  /* 皮带亮纹（随皮带循环移动，呈现"转动"） */
-  const strips = [];
-  for (let i = 0; i < 9; i++) {
-    strips.push(put(gAnim, new THREE.BoxGeometry(20, 9.6, GEO.beltW - 2), M.strip, [0, 0, 0]));
-  }
-  function beltPoint(s) {                       // 沿皮带 loop 参数取点
-    const L1 = GEO.rollerX2 - GEO.rollerX1, Lw = Math.PI * 36;
-    if (s < L1) return { x: GEO.rollerX2 - s, y: 100, r: 0 };
-    s -= L1;
-    if (s < Lw) { const f = s / Lw * Math.PI; return { x: GEO.rollerX2 + 36 * Math.sin(f), y: GEO.rollerY + 36 * Math.cos(f), r: -f }; }
-    s -= Lw;
-    if (s < L1) return { x: GEO.rollerX1 + s, y: 28, r: 0 };
-    s -= L1;
-    const f = s / Lw * Math.PI; return { x: GEO.rollerX1 - 36 * Math.sin(f), y: GEO.rollerY - 36 * Math.cos(f), r: Math.PI - f };
-  }
+  /* 皮带改为平整编织带：通过纹理偏移呈现转动，不再使用会顶起木块的几何凸条。 */
   function updateBelt(phase) {
-    for (let i = 0; i < strips.length; i++) {
-      const p = beltPoint((i * GEO.LOOP / 9 + phase) % GEO.LOOP);
-      strips[i].position.set(p.x, p.y, GEO.beltZ);
-      strips[i].rotation.z = p.r;
-    }
+    const shift = -(phase / GEO.LOOP) * 5.4;
+    if (beltTex) beltTex.offset.x = shift;
+    if (beltBump) beltBump.offset.x = shift;
     rollerWraps[0].rotation.z = phase / GEO.rollerR;
     rollerWraps[1].rotation.z = phase / GEO.rollerR;
   }
@@ -608,6 +622,7 @@
   put(gMain, new THREE.BoxGeometry(34, 770, 34), M.blue, [GEO.boardX, 385, 0]);    // 立柱（直通测力计背后）
   /* 定滑轮（浅色塑料轮，臂架挑出立柱前面，轮面在 XY 平面） */
   put(gMain, new THREE.BoxGeometry(12, 12, 30), M.blueDk, [GEO.boardX, 132, 28]);  // 滑轮臂
+  /* 滑轮实体轮盘与轴承支架：线绳、滑轮槽、挂环位于同一 z=45 工作平面 */
   const pulleyGrp = new THREE.Group();
   gMain.add(pulleyGrp);
   pulleyGrp.position.set(GEO.pulley[0], GEO.pulley[1], GEO.pulley[2]);
@@ -624,34 +639,42 @@
   boardMesh.castShadow = true;
   put(gMain, new THREE.BoxGeometry(GEO.boardW + 6, 18, 16), M.dark, [GEO.boardX, GEO.boardTop + 6, 24]); // 顶部夹头
   put(gMain, new THREE.CylinderGeometry(3.5, 3.5, 10, 10), M.steel, [GEO.boardX, GEO.boardTop + 8, 32]).rotation.x = Math.PI / 2;
-  /* 印刷面板（实物为蓝色油墨：N、双列数字、密刻度） */
+  /* 印刷面板：参照 measurement-1 的条形盒测力计样式，数字更大、刻度更清晰。 */
   const printTex = canvasTex(function (g, w, h) {
-    g.fillStyle = '#f6f7f9'; g.fillRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(30,60,110,0.35)'; g.lineWidth = 2; g.strokeRect(3, 3, w - 6, h - 6);
-    const BLUE = '#1b4fa0';
-    const cx = w / 2, slotHalf = 26 / GEO.boardW * w / 2;         // 中央槽半宽（px）
-    const y0 = (GEO.boardTop - GEO.zeroY) / bH * h;               // 0 N 的 canvas y
+    g.fillStyle = '#f9fafc'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#97a8bd'; g.lineWidth = 4; g.strokeRect(5, 5, w - 10, h - 10);
+    const BLUE = '#234f9d', DARK = '#232a33';
+    const cx = w / 2, slotHalf = 26 / GEO.boardW * w / 2;
+    const yTop = (GEO.boardTop - GEO.zeroY) / bH * h;
     const pxPerN = GEO.mmPerN / bH * h;
+    g.fillStyle = BLUE;
+    g.textAlign = 'center';
+    g.font = '700 90px Arial';
+    g.fillText('N', cx - w * 0.34, 66);
+    g.fillText('N', cx + w * 0.34, 66);
+    g.fillStyle = DARK;
+    g.font = '700 80px Arial';
+    g.fillText('2 N', cx, 110);
+    g.fillStyle = '#fefefe'; g.fillRect(cx - 13, yTop - 24, 26, yBot - yTop + 48);
+    g.fillStyle = DARK; g.fillRect(cx - 13, yTop - 24, 26, yBot - yTop + 48);
     g.fillStyle = BLUE; g.strokeStyle = BLUE;
-    g.textAlign = 'center'; g.font = '700 34px Arial';
-    g.fillText('N', cx - w * 0.33, 44);
-    g.fillText('N', cx + w * 0.33, 44);
-    for (let i = 0; i <= 40; i++) {                               // 0.05 N 细分
-      const v = i * 0.05, y = y0 + v * pxPerN;
+    for (let i = 0; i <= 40; i++) {
+      const v = i * 0.05;
+      const y = yTop + v * pxPerN;
       const isMajor = (i % 10 === 0), isMid = (i % 5 === 0), is2 = (i % 2 === 0);
-      const len = isMajor ? 46 : isMid ? 34 : is2 ? 24 : 15;
-      g.lineWidth = isMajor ? 4 : isMid ? 3 : 2;
+      const len = isMajor ? 78 : isMid ? 56 : is2 ? 42 : 28;
+      g.lineWidth = isMajor ? 5 : isMid ? 3.8 : 2.7;
       g.beginPath();
-      g.moveTo(cx - slotHalf - 6 - len, y); g.lineTo(cx - slotHalf - 6, y);
-      g.moveTo(cx + slotHalf + 6, y); g.lineTo(cx + slotHalf + 6 + len, y);
+      g.moveTo(cx - slotHalf - len, y); g.lineTo(cx - slotHalf - 10, y);
+      g.moveTo(cx + slotHalf + 10, y); g.lineTo(cx + slotHalf + len, y);
       g.stroke();
       if (isMajor) {
-        g.font = '700 30px Arial';
-        g.textAlign = 'right'; g.fillText(v.toFixed(1), cx - slotHalf - 6 - len - 10, y + 10);
-        g.textAlign = 'left';  g.fillText(v.toFixed(1), cx + slotHalf + 6 + len + 10, y + 10);
+        g.font = '700 138px Arial';
+        g.textAlign = 'right'; g.fillText(v.toFixed(1), cx - slotHalf - len - 14, y + 16);
+        g.textAlign = 'left';  g.fillText(v.toFixed(1), cx + slotHalf + len + 14, y + 16);
       }
     }
-  }, 416, 1376);
+  }, 980, 2100);
   put(gMain, new THREE.PlaneGeometry(GEO.boardW, bH), new THREE.MeshBasicMaterial({ map: printTex }),
       [GEO.boardX, bCy, 30.4]);
   /* 中央黑色滑槽（弹簧/指针/挂钩在其中滑动） */
@@ -660,7 +683,12 @@
 
   /* ---- 弹簧 + 指示线 + 挂钩 + 细线（gAnim，随示数联动） ---- */
   let springMesh = null, lastPY = -1;
-  const indBar = put(gAnim, new THREE.BoxGeometry(34, 3, 2), M.steel, [GEO.boardX, 700, 32.5]);   // 银色指示线
+  const pointerShape = new THREE.Shape();
+  pointerShape.moveTo(-44, 0); pointerShape.lineTo(-12, -8); pointerShape.lineTo(44, 0); pointerShape.lineTo(-12, 8); pointerShape.closePath();
+  const indBar = new THREE.Mesh(new THREE.ShapeGeometry(pointerShape), new THREE.MeshBasicMaterial({ color: 0xcc232c }));
+  indBar.position.set(GEO.boardX, 700, 32.7);
+  indBar.renderOrder = 5;
+  gAnim.add(indBar);   // 红色菱形指针
   const hookRod = strut(gAnim, [GEO.boardX, 699, 32.5], [GEO.boardX, 675, 42], 1.6, M.spring);
   const hookRing = put(gAnim, new THREE.TorusGeometry(6, 1.7, 8, 20), M.spring, [GEO.boardX, 669, 42]);
   const strString = strut(gAnim, [GEO.pulley[0], GEO.pulley[1] + 17, GEO.pulley[2]], [GEO.boardX, 663, GEO.pulley[2]], 1.4, M.pink);
@@ -699,23 +727,26 @@
     if (ldBlock) ldBlock.position.x = -ext;
     if (ldWeight) ldWeight.position.x = -ext;
     if (Math.abs(py - lastPY) > 0.8) { buildSpring(py + 3); lastPY = py; }
+    drawZoomScale(T);
   }
 
-  /* 教学受力箭头：与木块同步移动。箭头长度代表当前摩擦力与张力大小。 */
-  const gForces = new THREE.Group(); gAnim.add(gForces);
-  const arrowF = new THREE.ArrowHelper(new THREE.Vector3(-1,0,0),new THREE.Vector3(GEO.blockX,GEO.beltTop+44,116),85,0xcc4937,14,8);
-  const arrowT = new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(GEO.blockX,GEO.beltTop+68,116),85,0x246dbd,14,8);
-  gForces.add(arrowF,arrowT);
-  const forceFText = makeLabel('f：皮带对木块','#a72e24',17);
-  const forceTText = makeLabel('T：细绳拉力','#225fa4',17);
-  forceFText.position.set(GEO.blockX-92,GEO.beltTop+58,116);
-  forceTText.position.set(GEO.blockX+96,GEO.beltTop+87,116);
-  gForces.add(forceFText,forceTText);
-  function updateForceArrows(Tv){
-    gForces.position.x=-Tv*GEO.mmPerN;
-    const len=50+35*clamp(Tv/2,0,1);
-    arrowF.setLength(len,13,8);arrowT.setLength(len,13,8);
-    gForces.visible=state.showForces && Tv>0.025;
+  /* 木块受力教学层：箭头始终随木块移动，避免与绳、滑轮脱节 */
+  const gForces = new THREE.Group();
+  gAnim.add(gForces);
+  const arrowF = new THREE.ArrowHelper(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(GEO.blockX, GEO.beltTop + 44, 116), 85, 0xcc4937, 14, 8);
+  const arrowT = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(GEO.blockX, GEO.beltTop + 68, 116), 85, 0x246dbd, 14, 8);
+  gForces.add(arrowF, arrowT);
+  const forceFText = makeLabel('f：皮带对木块', '#a72e24', 17);
+  const forceTText = makeLabel('T：细绳拉力', '#225fa4', 17);
+  forceFText.position.set(GEO.blockX - 92, GEO.beltTop + 58, 116);
+  forceTText.position.set(GEO.blockX + 96, GEO.beltTop + 87, 116);
+  gForces.add(forceFText, forceTText);
+  function updateForceArrows(Tv) {
+    gForces.position.x = -Tv * GEO.mmPerN;
+    const len = 50 + 35 * clamp(Tv / 2, 0, 1);
+    arrowF.setLength(len, 13, 8);
+    arrowT.setLength(len, 13, 8);
+    gForces.visible = state.showForces && Tv > 0.025;
   }
 
   /* ---- 坐标系 ---- */
@@ -730,20 +761,20 @@
   })();
 
   /* ---- 部件标注 ---- */
-  addLabel('nScale', '弹簧测力计（量程 0~2 N）', '#24313f', 9, [GEO.boardX + 130, 750, 30]);
-  leader([GEO.boardX + 75, 745, 30], [GEO.boardX + 66, 720, 32], 0x24313f);
-  addLabel('nPulley', '定滑轮', '#24313f', 7, [GEO.boardX + 110, 160, 60]);
-  leader([GEO.boardX + 72, 155, 55], [GEO.boardX + 14, 138, 48], 0x24313f);
-  const nBlockX0 = GEO.blockX - 10, nWeightX0 = GEO.blockX - 150;
-  addLabel('nBlock', '木块（绳长守恒，随示数微移）', '#7a5b16', 8, [nBlockX0, 235, 130]);
-  const ldBlock = leader([GEO.blockX - 8, 218, 100], [GEO.blockX - 8, 165, 80], 0x7a5b16);
-  addLabel('nWeight', '砝码（可增减）', '#7a5b16', 8, [nWeightX0, 275, 65]);
-  const ldWeight = leader([GEO.blockX - 96, 268, 65], [GEO.blockX - 22, 185, 65], 0x7a5b16);
-  addLabel('nBelt', '传送带（匀速转动）', '#2c3a48', 8, [-270, 180, 120]);
-  leader([-262, 162, 95], [-215, 102, 70], 0x2c3a48);
-  addLabel('nMachine', 'J2108 摩擦力演示器', '#dbe6f4', 7, [-215, 45, 130]);
-  addLabel('nString', '细线', '#c2356b', 6.5, [130, 190, 80]);
-  leader([140, 175, 62], [170, 132, 55], 0xc2356b);
+  addLabel('nScale', '弹簧测力计', '#1b2d42', 42, [GEO.boardX + 245, 766, 42]);
+  leader([GEO.boardX + 110, 740, 34], [GEO.boardX + 70, 718, 32], 0x1b2d42);
+  addLabel('nPulley', '定滑轮', '#253444', 34, [GEO.boardX + 170, 182, 76]);
+  leader([GEO.boardX + 84, 168, 58], [GEO.boardX + 16, 138, 48], 0x253444);
+  const nBlockX0 = GEO.blockX + 14, nWeightX0 = GEO.blockX - 168;
+  addLabel('nBlock', '木块', '#7a5b16', 38, [nBlockX0, 242, 148]);
+  const ldBlock = leader([GEO.blockX + 8, 220, 105], [GEO.blockX + 8, 165, 82], 0x7a5b16);
+  addLabel('nWeight', '砝码', '#7a5b16', 36, [nWeightX0, 288, 75]);
+  const ldWeight = leader([GEO.blockX - 104, 274, 70], [GEO.blockX - 26, 186, 68], 0x7a5b16);
+  addLabel('nBelt', '传送带', '#23303d', 38, [-250, 176, 134]);
+  leader([-212, 166, 102], [-172, 103, 72], 0x23303d);
+  addLabel('nMachine', '摩擦力演示器', '#234f9d', 34, [-196, 46, 138]);
+  addLabel('nString', '细线', '#c2356b', 32, [148, 200, 92]);
+  leader([154, 184, 66], [171, 132, 55], 0xc2356b);
 
   /* ---- 主视图：f–m 关系图（当前 μ） ---- */
   function drawChart(mu, mAdd) {
@@ -828,6 +859,63 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     mLabel: $('mLabel'), vLabel: $('vLabel'), muLabel: $('muLabel'),
     runLabel: $('runLabel'), prof: $('prof'), toast: $('toast')
   };
+
+
+  /* ---- 局部放大读数：参照 measurement-1 的双侧刻度与红色指针样式 ---- */
+  const zoomCv = document.getElementById('scaleZoomCanvas');
+  const zoomVal = document.getElementById('scaleZoomVal');
+  function drawZoomScale(Tnow) {
+    if (!zoomCv) return;
+    const g = zoomCv.getContext('2d');
+    const w = zoomCv.width, h = zoomCv.height;
+    g.clearRect(0, 0, w, h);
+    g.fillStyle = '#fbfcfe'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#ced9e6'; g.lineWidth = 2.5; g.strokeRect(1.5, 1.5, w - 3, h - 3);
+    const cx = w / 2, py = h / 2;
+    const slotHalf = 20;
+    const span = 0.60;
+    const pxPerN = (h - 94) / span;
+    const start = Math.max(0, Math.floor((Tnow - span / 2) / 0.05) - 2);
+    const end = Math.min(40, Math.ceil((Tnow + span / 2) / 0.05) + 2);
+    g.fillStyle = '#234f9d';
+    g.font = '700 24px Arial'; g.textAlign = 'center';
+    g.fillText('N', 34, 28); g.fillText('N', w - 34, 28);
+    g.fillStyle = '#1f2730';
+    g.font = '700 24px Arial';
+    g.fillText('指针附近刻度', cx, 28);
+    g.fillStyle = '#f8fbff'; g.fillRect(cx - 15, 50, 30, h - 92);
+    g.fillStyle = '#1f2730'; g.fillRect(cx - 13, 50, 26, h - 92);
+    g.fillStyle = '#234f9d'; g.strokeStyle = '#234f9d';
+    for (let i = start; i <= end; i++) {
+      const v = i * 0.05;
+      const y = py + (v - Tnow) * pxPerN;
+      if (y < 54 || y > h - 46) continue;
+      const isMajor = (i % 10 === 0), isMid = (i % 5 === 0), is2 = (i % 2 === 0);
+      const L = isMajor ? 68 : isMid ? 50 : is2 ? 34 : 22;
+      g.lineWidth = isMajor ? 4.5 : isMid ? 3.3 : 2.3;
+      g.beginPath();
+      g.moveTo(cx - slotHalf - L, y); g.lineTo(cx - slotHalf - 8, y);
+      g.moveTo(cx + slotHalf + 8, y); g.lineTo(cx + slotHalf + L, y);
+      g.stroke();
+      if (isMajor) {
+        g.font = '700 28px Arial';
+        g.textAlign = 'right'; g.fillText(v.toFixed(1), cx - slotHalf - L - 10, y + 10);
+        g.textAlign = 'left';  g.fillText(v.toFixed(1), cx + slotHalf + L + 10, y + 10);
+      }
+    }
+    g.fillStyle = '#cc232c';
+    g.beginPath();
+    g.moveTo(cx - 86, py);
+    g.lineTo(cx - 20, py - 11);
+    g.lineTo(cx + 86, py);
+    g.lineTo(cx - 20, py + 11);
+    g.closePath();
+    g.fill();
+    g.font = '700 18px "Microsoft YaHei", sans-serif';
+    g.textAlign = 'center';
+    g.fillText('红色指针', cx, py - 18);
+    if (zoomVal) zoomVal.textContent = Tnow.toFixed(2) + ' N';
+  }
 
   const state = {
     play: true, t: 0,
@@ -1013,7 +1101,8 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if (state.play) {
-      state.t += dt;      /* 电机惯性：实际速度以一阶惯性趋向设定速度（τ≈0.35s），不瞬时跳变 */
+      state.t += dt;
+      /* 电机惯性：实际速度以一阶惯性趋向设定速度（τ≈0.35s），不瞬时跳变 */
       state.vBelt += (state.v - state.vBelt) * Math.min(1, dt / 0.35);
       if (Math.abs(state.v - state.vBelt) < 0.0008) state.vBelt = state.v;
       state.beltPhase = (state.beltPhase + state.vBelt * 1000 * dt) % GEO.LOOP;
@@ -1061,7 +1150,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     get GEO() { return GEO; },
     get hookY() { return hookYOf(T); },
     frictionOf: frictionOf, tensionOf: tensionOf,
-    get forces() { return gForces; }, get strips() { return strips; }, get weights() { return gWeights.children.length; },
+    get forces() { return gForces; }, get beltOffset() { return beltTex.offset.x; }, get weights() { return gWeights.children.length; },
     setM: setM, setV: setV, setMu: setMu, setView: setView
   };
 
