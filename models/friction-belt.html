@@ -198,13 +198,47 @@
 
 
 <script>
-  /* 全局错误陷阱（诊断用） */
-  window.addEventListener('error', function (e) {
+  /* 三维场景启动监测：在作品集 iframe 内直接显示异常，避免整块空白。 */
+  window.__frictionStage = '开始载入三维脚本';
+  window.__frictionReady = false;
+  function report3DError(message) {
     try {
-      const s = (e.error && e.error.stack) || e.message || 'unknown';
-      document.title = 'ERR: ' + String(s).replace(/\s+/g, ' ').slice(0, 300);
-    } catch (_) {}
-  });
+      const msg = String(message && (message.stack || message.message) || message || '未知错误').slice(0, 1600);
+      if (window.__frictionReady && /WebGL warning/i.test(msg)) return;
+      let card = document.getElementById('friction3DError');
+      if (!card) {
+        card = document.createElement('section');
+        card.id = 'friction3DError';
+        card.setAttribute('role', 'alert');
+        card.style.cssText = 'position:fixed;z-index:500;top:75px;left:50%;transform:translateX(-50%);width:min(690px,90vw);padding:16px 18px;background:#fff8f3;color:#6d241a;border:2px solid #d97762;border-radius:12px;box-shadow:0 8px 30px #172a3a30;font:15px/1.6 sans-serif';
+        document.body.appendChild(card);
+      }
+      card.textContent = '';
+      const title=document.createElement('div');
+      title.style.cssText='font-weight:750;font-size:17px';
+      title.textContent='三维模型加载失败 · '+(window.__frictionStage || '未知阶段');
+      const detail=document.createElement('pre');
+      detail.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.55 Consolas,monospace;margin:8px 0;color:#703b31;max-height:150px;overflow:auto';
+      detail.textContent=msg;
+      const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+      const copy=document.createElement('button');
+      copy.textContent='复制诊断信息';copy.onclick=()=>{const v=title.textContent+'\\n'+msg;if(navigator.clipboard)navigator.clipboard.writeText(v).catch(()=>{});else window.prompt('复制以下错误',v);};
+      const retry=document.createElement('button');
+      retry.textContent='重新加载';retry.onclick=()=>{const u=new URL(location.href);u.searchParams.set('retry',Date.now());location.href=u.toString();};
+      controls.append(copy,retry);card.append(title,detail,controls);
+      document.title='模型错误：'+window.__frictionStage;
+    } catch(_) { /* 不让诊断本身导致再次失败 */ }
+  }
+  window.addEventListener('error', e=>{
+    if (e.target && e.target !== window && e.target.tagName === 'SCRIPT') {
+      report3DError('脚本资源加载失败：'+e.target.src);
+    } else {
+      report3DError(e.error || e.message || '未知 JavaScript 错误');
+    }
+  }, true);
+  window.addEventListener('unhandledrejection',e=>report3DError(e.reason));
+  setTimeout(()=>{if(!window.__frictionReady && !document.getElementById('friction3DError'))report3DError('启动超时，三维渲染器未完成初始化。请检查浏览器的 WebGL 支持与脚本资源。');},8000);
+  window.__frictionStage='初始化 WebGL 渲染器';
   /* ================= 渲染器、场景、灯光、材质、工具、标注层 ================= */
   const canvas = document.getElementById('scene') ||
     (function () {
@@ -230,6 +264,7 @@
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+  window.__frictionStage='创建三维场景';
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf2f6fb);
 
@@ -456,6 +491,7 @@
     ground.receiveShadow = true;
     scene.add(ground);
   })();
+  window.__frictionStage='构建装置几何';
   /* ================= 装置几何（严格对照实物照片布局）、力学模型、皮带动画、测力计 ================= */
 
   /* ---- 结构参数（mm；力学量：kg / N / m·s⁻¹，g 取 10） ----
@@ -852,6 +888,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   colImg = new Image(); colImg.onload = tryApply; colImg.src = window.WOOD_DATA_URI;
   nrmImg = new Image(); nrmImg.onload = tryApply; nrmImg.src = window.WOOD_NRM_URI;
 })();
+  window.__frictionStage='绑定实验数据和交互';
   /* ================= 状态、面板接线、相机、主循环 ================= */
   const $ = function (id) { return document.getElementById(id); };
   const el = {
@@ -1125,6 +1162,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   }
 
   /* ---- 启动 ---- */
+  window.__frictionStage='首次计算与渲染';
   setM(50, false); setV(50, false); setMu(43, false);
   state.vBelt = state.v;                                   // 加载即处于匀速运行状态
   T = tensionOf(state.mu, state.m, state.v);   // 加载即处于正确受力状态
@@ -1137,11 +1175,13 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     renderer.render(scene, camera);
     document.title += ' · 首帧OK';
   } catch (e) {
-    document.title = 'RENDER_ERR: ' + e.message;
+    report3DError(e);
   }
   requestAnimationFrame(tick);
 
   /* ---- 验证入口 ---- */
+  window.__frictionReady = !document.getElementById('friction3DError');
+  if (window.__frictionReady) window.__frictionStage='模型就绪';
   window.__dbg = {
     state: state, view: view, camera: camera, scene: scene,
     get M() { return state.m; }, get V() { return state.v; }, get MU() { return state.mu; },
