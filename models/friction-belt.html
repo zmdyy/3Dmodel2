@@ -969,14 +969,14 @@
    * 计时仅在实验动画播放时推进，记录开关单独控制是否取样。 */
   const chartState = {
     mode:'ft',recording:true,period:0.10,accum:0,window:20,
-    points:[],maxPoints:12000,breakNext:false,
+    points:[],maxPoints:12000,breakNext:false,suspended:true,
     plot:null, lastTime:0
   };
   function actualSlidingFriction(){
     return state.vBelt > 0.004 ? frictionOf(state.mu,state.m) : 0;
   }
   function sampleFriction(breakBefore=false){
-    if(!chartState.recording) return;
+    if(!chartState.recording || chartState.suspended) return;
     const point={t:Number(state.t.toFixed(3)),f:Number(actualSlidingFriction().toFixed(5)),
       m:Number((state.m*1000).toFixed(1)),mu:Number(state.mu.toFixed(4)),
       v:Number(state.vBelt.toFixed(4)),breakBefore:Boolean(breakBefore||chartState.breakNext)};
@@ -1456,11 +1456,17 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   $('btnPause').addEventListener('click', function () { setPlaying(false); });
   $('btnReset').addEventListener('click', function () {
     state.t = 0; state.beltPhase = 0; state.rollerAngle=0;
+    chartState.suspended=true;
     chartState.points.length=0;chartState.accum=0;chartState.breakNext=true;
     state.vBelt=0;state.power=true;
     setM(50, false); setV(50, false); setMu(43, false);
     updateBelt(0);
     updateMotorUI(true);
+    state.vBelt=state.v;state.vTarget=state.v;
+    updateBelt(0);
+    T=tensionOf(state.mu,state.m,state.vBelt);updateScale(T);
+    updateReadout();
+    chartState.suspended=false;
     setView({ theta: 0.5, phi: 1.22, dist: 1400, fov: 38, tx: -5, ty: 340, tz: 30 });
     if(chartState.recording)sampleFriction(true);
     refreshChart();
@@ -1549,6 +1555,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   T = tensionOf(state.mu, state.m, state.v);   // 加载即处于正确受力状态
   updateScale(T);
   updateReadout();
+  chartState.suspended=false;
   sampleFriction(true);
   setChartMode('ft');
   setPlaying(state.play);
