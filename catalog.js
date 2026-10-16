@@ -81,6 +81,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "pressure-scale",
+    "cover": "assets/covers/pressure-scale.png?v=20261016-scene",
     "title": "压力电子秤",
     "subtitle": "压敏电阻、双电表与称重机构联动",
     "category": "综合应用",
@@ -313,6 +314,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "refracting-telescope",
+    "cover": "assets/covers/refracting-telescope.png?v=20261016-scene",
     "title": "折射式天文望远镜",
     "subtitle": "开普勒式 · 焦平面实像与目镜调焦",
     "category": "光学仪器",
@@ -331,6 +333,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "reflecting-telescope",
+    "cover": "assets/covers/reflecting-telescope.png?v=20261016-scene",
     "title": "牛顿式反射望远镜",
     "subtitle": "凹面主镜 · 45°副镜 · 侧置目镜",
     "category": "光学仪器",
@@ -423,7 +426,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "friction-belt",
-    "cover": "assets/covers/friction-belt.svg",
+    "cover": "assets/covers/friction-belt.png?v=20261016-scene",
     "title": "滑动摩擦力演示仪",
     "subtitle": "传送带 · 二力平衡 · 弹簧测力计",
     "category": "力学实验",
@@ -442,7 +445,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "floor-drain-trap",
-    "cover": "assets/covers/floor-drain-trap.svg",
+    "cover": "assets/covers/floor-drain-trap.png?v=20261016-scene",
     "title": "地漏存水杯与水封",
     "subtitle": "连通器 · 剖面 · 排水防臭",
     "category": "生活中的物理",
