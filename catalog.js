@@ -436,7 +436,7 @@ window.MODEL_CATALOG = [
       "传送带",
       "受力分析"
     ],
-    "path": "models/friction-belt.html?v=20261016-gauge-header-clear-runtimefix",
+    "path": "models/friction-belt.html?v=20261016-pointer-zoom-v2",
     "symbol": "f",
     "accent": "blue"
   },
