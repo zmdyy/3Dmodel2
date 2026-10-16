@@ -464,7 +464,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "plane-mirror",
-    "cover": "assets/covers/plane-mirror.svg",
+    "cover": "assets/covers/plane-mirror.png?v=20261017-clear-materials",
     "title": "平面镜成像规律",
     "subtitle": "玻璃板、等大蜡烛与像的位置探究",
     "category": "光学现象",
@@ -475,8 +475,27 @@ window.MODEL_CATALOG = [
       "平面镜成像",
       "物像关系"
     ],
-    "path": "models/plane-mirror.html",
+    "path": "models/plane-mirror.html?v=20261017-clear-materials",
     "symbol": "↔",
     "accent": "blue"
+  },
+  {
+    "id": "convex-lens",
+    "cover": "assets/covers/convex-lens.png",
+    "title": "凸透镜成像规律",
+    "subtitle": "3D光具座与2D光路联动实验",
+    "category": "光学现象",
+    "summary": "调节物距、焦距、光屏及遮光板，联动观察三维光具座与二维成像光路；比较实像和虚像，支持物高、像高测量与三维尺寸标注。",
+    "tags": [
+      "凸透镜",
+      "光具座",
+      "实像",
+      "虚像",
+      "物距",
+      "焦距"
+    ],
+    "path": "models/convex-lens.html",
+    "symbol": "↔",
+    "accent": "violet"
   }
 ];
