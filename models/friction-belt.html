@@ -988,9 +988,11 @@
       chartState.points.splice(0,chartState.points.length-chartState.maxPoints);
     return point;
   }
-  function markBeforeParameterChange(){if(chartState.recording) sampleFriction();}
+  function markBeforeParameterChange(){
+    if(chartState.recording && state.play) sampleFriction();
+  }
   function markAfterParameterChange(){
-    if(chartState.recording) sampleFriction();
+    if(chartState.recording && state.play) sampleFriction();
     refreshChart();
   }
   function setChartMode(mode){
@@ -1473,7 +1475,9 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     toast('已重置');
   });
   function setPlaying(on) {
-    state.play = on;
+    const wasPlaying=state.play;
+    state.play=on;
+    if(on && !wasPlaying && chartState.recording) sampleFriction();
     refreshChart();
     el.runLabel.textContent = on ? '播放中' : '已暂停';
     $('btnPlay').classList.toggle('active', on);
@@ -1529,12 +1533,14 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
       tickLive(dt);
       recordTimeStep(dt);
     }
-    /* 弹簧缓动到目标示数（张力取决于皮带实际速度） */
-    const Tt = tensionOf(state.mu, state.m, state.vBelt);
-    if (Math.abs(Tt - T) > 0.0015) {
-      T += (Tt - T) * Math.min(1, dt * 6);
-      updateScale(T);
-      tickLive(dt);
+    /* 动画暂停时冻结测力计，不在暂停期间悄悄移动指针。 */
+    if (state.play) {
+      const Tt = tensionOf(state.mu, state.m, state.vBelt);
+      if (Math.abs(Tt - T) > 0.0015) {
+        T += (Tt - T) * Math.min(1, dt * 6);
+        updateScale(T);
+        tickLive(dt);
+      }
     }
 
     view.dist += (view.distTarget - view.dist) * 0.12;
