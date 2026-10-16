@@ -994,6 +994,11 @@
     chartState.mode=mode;
     $('chartTabFT').classList.toggle('active',mode==='ft');
     $('chartTabFM').classList.toggle('active',mode==='fm');
+    $('chartLargeFT').classList.toggle('active',mode==='ft');
+    $('chartLargeFM').classList.toggle('active',mode==='fm');
+    $('legendMini').style.display=mode==='ft'?'flex':'none';
+    $('legendLarge').style.display=mode==='ft'?'flex':'none';
+    $('chartLargeTitle').textContent=mode==='ft'?'时间—摩擦力 f / 拉力 T':'砝码质量—摩擦力 f-m';
     $('chartTabFT').setAttribute('aria-pressed',String(mode==='ft'));
     $('chartTabFM').setAttribute('aria-pressed',String(mode==='fm'));
     $('chartModeLabel').textContent=mode==='ft'?'实时 f-t 图':'当前条件 f-m 图';
@@ -1001,7 +1006,7 @@
     $('btnClearHistory').disabled=mode==='fm';
     $('btnExportHistory').disabled=mode==='fm';
     $('chartPoint').textContent=mode==='ft'
-      ? '点击图像中的曲线或数据点，可查看时间与摩擦力数值。'
+      ? '点击图像可查看时间、摩擦力 f 和拉力 T。'
       : '点击图像，查看对应砝码质量下的理论摩擦力。';
     refreshChart();
   }
@@ -1068,9 +1073,10 @@
     ctx.textAlign='center';ctx.fillText(opts.xLabel,box.x+box.w/2,H-12);
     return box;
   }
-  function drawFMChart(){
-    const c=$('prof'),g=c.getContext('2d'),W=c.width,H=c.height,mu=state.mu;
-    const fMax=2.0, massMaxG=GEO.mAddMax*1000;
+  /* 小图与大图共用同一份 f/T 实验记录。 */
+  function drawFMChart(canvas=$('prof')){
+    const c=canvas,g=c.getContext('2d'),W=c.width,H=c.height,mu=state.mu;
+    const fMax=Math.max(2,gaugeV4.range), massMaxG=GEO.mAddMax*1000;
     const box=chartAxis(g,W,H,{maxY:fMax,xLabel:'砝码质量 m / g',
       xValue:i=>String(Math.round(massMaxG*i/4))});
     const toX=grams=>box.x+grams/massMaxG*box.w;
@@ -1085,69 +1091,75 @@
     g.fillText('当前 '+mG.toFixed(0)+' g，'+f.toFixed(2)+' N',box.x+10,box.y+27);
     g.textAlign='right';g.fillStyle='#536479';g.font='15px "Microsoft YaHei",sans-serif';
     g.fillText('μ='+mu.toFixed(2)+'，m木=180 g，g=10 N/kg',W-14,24);
-    chartState.plot={...box,from:0,to:massMaxG,maxY:fMax};
+    if(c.id==='prof')chartState.plot={...box,from:0,to:massMaxG,maxY:fMax};
   }
-  function drawFTChart(){
-    const c=$('prof'),g=c.getContext('2d'),W=c.width,H=c.height;
-    const pts=chartState.points, tEnd=pts.length ? pts[pts.length-1].t : state.t;
+  function drawFTChart(canvas=$('prof')){
+    const c=canvas,g=c.getContext('2d'),W=c.width,H=c.height;
+    const pts=chartState.points,tEnd=pts.length?pts[pts.length-1].t:state.t;
     const end=Math.max(chartState.window,tEnd),start=end-chartState.window;
-    const maxF=Math.max(2, Math.ceil(Math.max(0,...pts.slice(-300).map(p=>p.f))/.5)*.5);
-    const box=chartAxis(g,W,H,{maxY:maxF,xLabel:'时间 t / s',
+    let peak=2;
+    for(const p of pts.slice(-350))peak=Math.max(peak,p.f,p.T);
+    const maxF=Math.max(gaugeV4.range,Math.ceil(peak*2)/2);
+    const box=chartAxis(g,W,H,{maxY:maxF,xLabel:'时间 t / s',yLabel:'力 F / N',
       xValue:i=>(start+chartState.window*i/4).toFixed(start>=100?0:1)});
     const x=t=>box.x+(t-start)/chartState.window*box.w;
     const y=f=>box.y+box.h-Math.max(0,Math.min(maxF,f))/maxF*box.h;
     const visible=pts.filter(p=>p.t>=start-.15&&p.t<=end);
-    g.strokeStyle='#2877bf';g.lineWidth=4;g.lineJoin='round';g.lineCap='round';
-    let started=false;g.beginPath();
-    for(const p of visible){
-      const px=x(p.t),py=y(p.f);
-      if(!started||p.breakBefore){g.moveTo(px,py);started=true;}
-      else g.lineTo(px,py);
+    function series(key,color,show){
+      if(!show)return;
+      g.strokeStyle=color;g.lineWidth=c.id==='profLarge'?4.5:3.2;
+      g.lineJoin='round';g.lineCap='round';g.beginPath();
+      let started=false;
+      for(const p of visible){const px=x(p.t),py=y(p[key]);if(!started||p.breakBefore){g.moveTo(px,py);started=true;}else g.lineTo(px,py);}
+      if(started)g.stroke();
+      if(visible.length){const p=visible[visible.length-1];g.fillStyle=color;g.beginPath();g.arc(x(p.t),y(p[key]),5,0,Math.PI*2);g.fill();}
     }
-    if(started)g.stroke();
-    for(let i=0;i<visible.length;i++){
-      const p=visible[i];
-      if(i!==visible.length-1 && i%10!==0 && !p.breakBefore)continue;
-      g.beginPath();g.fillStyle='#d9473a';g.arc(x(p.t),y(p.f),i===visible.length-1?6:3,0,Math.PI*2);g.fill();
-    }
+    series('f','#2877bf',chartState.showF);
+    series('T','#d64537',chartState.showT);
     const last=pts[pts.length-1];
     g.fillStyle='#27435f';g.font='700 18px "Microsoft YaHei",sans-serif';g.textAlign='left';
-    if(last)g.fillText('t='+last.t.toFixed(1)+' s   f='+last.f.toFixed(2)+' N',box.x+10,box.y+27);
+    if(last)g.fillText('t='+last.t.toFixed(1)+' s    f='+last.f.toFixed(2)+' N    T='+last.T.toFixed(2)+' N',box.x+10,box.y+27);
     else g.fillText('暂无记录',box.x+10,box.y+27);
-    chartState.plot={...box,from:start,to:end,maxY:maxF};
+    if(c.id==='prof')chartState.plot={...box,from:start,to:end,maxY:maxF};
+  }
+  function updateLegendButtons(){
+    for(const id of ['legendMiniF','legendLargeF']){$(id).classList.toggle('selected',chartState.showF);$(id).setAttribute('aria-pressed',String(chartState.showF));}
+    for(const id of ['legendMiniT','legendLargeT']){$(id).classList.toggle('selected',chartState.showT);$(id).setAttribute('aria-pressed',String(chartState.showT));}
+  }
+  function setSeriesVisible(name,visible){
+    if(name==='f')chartState.showF=!!visible;
+    if(name==='T')chartState.showT=!!visible;
+    updateLegendButtons();refreshChart();
+  }
+  function setChartExpanded(open){
+    chartState.expanded=!!open;
+    $('chartOverlay').classList.toggle('open',chartState.expanded);
+    $('chartExpand').setAttribute('aria-expanded',String(chartState.expanded));
+    if(chartState.expanded)refreshChart();
   }
   function refreshChart(){
     if(chartState.mode==='fm')drawFMChart();else drawFTChart();
+    if(chartState.expanded){
+      if(chartState.mode==='fm')drawFMChart($('profLarge'));else drawFTChart($('profLarge'));
+    }
     $('chartStatus').textContent=(chartState.recording?'正在记录':'记录暂停')+
-      ' · 最近 20 s · '+chartState.points.length+' 个数据点'+
-      (state.play?'':' · 实验动画已暂停');
+      ' · 最近 20 s · '+chartState.points.length+' 个数据点'+(state.play?'':' · 实验动画已暂停');
   }
-  function chartPointClick(e){
-    const canvas=$('prof'),box=chartState.plot;if(!box)return;
-    const rect=canvas.getBoundingClientRect();
-    if(!rect.width||!rect.height)return;
+  function chartPointClick(e,canvas=$('prof')){
+    const rect=canvas.getBoundingClientRect();if(!rect.width||!rect.height)return;
+    const box={x:70,y:40,w:canvas.width-96,h:canvas.height-100};
     const x=(e.clientX-rect.left)*canvas.width/rect.width;
     const y=(e.clientY-rect.top)*canvas.height/rect.height;
     if(x<box.x||x>box.x+box.w||y<box.y||y>box.y+box.h)return;
+    const out=canvas.id==='profLarge'?$('chartPointLarge'):$('chartPoint');
     if(chartState.mode==='fm'){
       const mG=Math.max(0,Math.min(GEO.mAddMax*1000,(x-box.x)/box.w*GEO.mAddMax*1000));
-      const f=frictionOf(state.mu,mG/1000);
-      $('chartPoint').textContent='砝码质量 '+mG.toFixed(1)+' g；理论滑动摩擦力 '+f.toFixed(3)+' N；μ='+state.mu.toFixed(2);
+      out.textContent='砝码 '+mG.toFixed(1)+' g；理论摩擦力 '+frictionOf(state.mu,mG/1000).toFixed(3)+' N';
     }else{
-      const target=box.from+(x-box.x)/box.w*(box.to-box.from);
-      let closest=null,best=Infinity;
-      for(const p of chartState.points){
-        if(p.t<box.from||p.t>box.to)continue;
-        const px=box.x+(p.t-box.from)/(box.to-box.from)*box.w;
-        const py=box.y+box.h-p.f/box.maxY*box.h;
-        const d=Math.hypot(px-x,py-y);
-        if(d<best){best=d;closest=p;}
-      }
-      if(closest&&best<=30)
-        $('chartPoint').textContent='t='+closest.t.toFixed(2)+' s，f='+closest.f.toFixed(3)+
-          ' N；砝码 '+closest.m.toFixed(0)+' g，μ='+closest.mu.toFixed(2)+
-          '，速度 '+closest.v.toFixed(2)+' m/s';
-      else $('chartPoint').textContent='请点击曲线或红色数据点附近查看数据。';
+      const ps=chartState.points,end=Math.max(chartState.window,ps.length?ps[ps.length-1].t:state.t),start=end-chartState.window;
+      const target=start+(x-box.x)/box.w*chartState.window;let closest=null,best=Infinity;
+      for(const p of ps){if(p.t<start||p.t>end)continue;const d=Math.abs(p.t-target);if(d<best){best=d;closest=p;}}
+      out.textContent=closest?'t='+closest.t.toFixed(2)+' s，摩擦力 f='+closest.f.toFixed(3)+' N，拉力 T='+closest.T.toFixed(3)+' N；速度 '+closest.v.toFixed(2)+' m/s':'暂无对应数据';
     }
   }
   function recordTimeStep(dt){
@@ -1444,6 +1456,16 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   });
   $('chartTabFT').addEventListener('click',()=>setChartMode('ft'));
   $('chartTabFM').addEventListener('click',()=>setChartMode('fm'));
+  $('chartLargeFT').addEventListener('click',()=>setChartMode('ft'));
+  $('chartLargeFM').addEventListener('click',()=>setChartMode('fm'));
+  $('chartExpand').addEventListener('click',()=>setChartExpanded(true));
+  $('chartClose').addEventListener('click',()=>setChartExpanded(false));
+  $('chartOverlay').addEventListener('click',e=>{if(e.target===$('chartOverlay'))setChartExpanded(false);});
+  for(const [id,series] of [['legendMiniF','f'],['legendLargeF','f'],['legendMiniT','T'],['legendLargeT','T']])
+    $(id).addEventListener('click',()=>setSeriesVisible(series,!(series==='f'?chartState.showF:chartState.showT)));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&chartState.expanded){e.stopPropagation();setChartExpanded(false);}});
+  $('profLarge').addEventListener('click',e=>chartPointClick(e,$('profLarge')));
+  updateLegendButtons();
   $('btnRecordPause').addEventListener('click',()=>setChartRecording(!chartState.recording));
   $('btnClearHistory').addEventListener('click',clearChartHistory);
   $('btnExportHistory').addEventListener('click',exportChartCSV);
@@ -1525,7 +1547,6 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
       motorFaceClock+=dt;
       updateMotorUI(false);
       tickLive(dt);
-      recordTimeStep(dt);
     }
     /* 动画暂停时冻结测力计，不在暂停期间悄悄移动指针。 */
     if (state.play) {
@@ -1537,6 +1558,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
       }
     }
 
+    if(state.play)recordTimeStep(dt);
     view.dist += (view.distTarget - view.dist) * 0.12;
     view.fov += (view.fovTarget - view.fov) * 0.12;
     applyCamera();
@@ -1581,7 +1603,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     setMotorPower: setMotorPower, adjustMotorSpeed: adjustMotorSpeed,
     handleControllerAction: handleControllerAction,
     get rollerAngle() {return state.rollerAngle;},
-    get chartState(){return chartState;}, setChartMode,setChartRecording,clearChartHistory,refreshChart,
+    get chartState(){return chartState;}, setChartMode,setChartRecording,clearChartHistory,refreshChart,setSeriesVisible,setChartExpanded,
     get chartPoints(){return chartState.points;},
     get blockX() { return GEO.blockX - T * GEO.mmPerN; },
     get GEO() { return GEO; },
