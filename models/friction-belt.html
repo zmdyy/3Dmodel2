@@ -518,8 +518,8 @@
   /* ================= 装置几何（严格对照实物照片布局）、力学模型、皮带动画、测力计 ================= */
 
   /* ---- 结构参数（mm；力学量：kg / N / m·s⁻¹，g 取 10） ----
-     照片布局要点：蓝色主机在左、传送带在主机前方且皮带面低于箱顶并伸到主机右侧；
-     木块在皮带上；右侧蓝色立柱上端固定大面板弹簧测力计，立柱中段装浅色定滑轮；
+     结构布局：平整编织传送带由两端滚轮支撑，木块位于皮带顶部；
+     左侧旧 J2108 箱体已取消；右侧立柱安装大面板弹簧测力计与工业控制盒，中段设定滑轮；
      细线水平过滑轮后竖直向上，系在测力计槽内下挂钩上。 */
   const GEO = {
     mWood: 0.18, g: 10,
@@ -542,41 +542,9 @@
   put(gMain, new THREE.BoxGeometry(1400, 36, 640), M.table, [0, -18, 0]);
   /* 背景墙已移除，保留开阔浅色环境，便于投影观察。 */
 
-  /* ================= 蓝色主机（J2108，左置箱体） =================
-     箱体 x∈[-340,-90]，y∈[0,135]，z∈[-85,15]；前面板带丝印 + 红色电源灯 + 绿色调速旋钮 */
-  put(gMain, new THREE.BoxGeometry(250, 135, 100), M.blue, [-215, 67.5, -35]);
-  /* 前面板丝印（Canvas 贴图：型号、指示灯与旋钮标注、安装螺钉） */
-  const panelTex = canvasTex(function (g, w, h) {
-    const grad = g.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#2056a8'); grad.addColorStop(1, '#1a4896');
-    g.fillStyle = grad; g.fillRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(255,255,255,0.16)'; g.lineWidth = 3; g.strokeRect(6, 6, w - 12, h - 12);
-    /* 四角螺钉 */
-    g.fillStyle = '#cfd8e2';
-    [[26, 26], [w - 26, 26], [26, h - 26], [w - 26, h - 26]].forEach(function (p) {
-      g.beginPath(); g.arc(p[0], p[1], 7, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = '#5a6a7c'; g.lineWidth = 2;
-      g.beginPath(); g.moveTo(p[0] - 4, p[1]); g.lineTo(p[0] + 4, p[1]); g.stroke();
-    });
-    /* 红色电源灯 + 标注（世界(-300,108) → 面板(80,54)，位于传送带侧板上方） */
-    g.fillStyle = '#e8eef5'; g.font = '600 21px "Microsoft YaHei", Arial'; g.textAlign = 'center';
-    g.fillText('电源指示', 80, 88);
-    /* 型号 */
-    g.textAlign = 'left'; g.fillStyle = '#f2f6fb'; g.font = '700 44px Arial';
-    g.fillText('J2108', 118, 78);
-    g.font = '600 20px "Microsoft YaHei", Arial'; g.fillStyle = 'rgba(232,238,245,0.85)';
-    g.fillText('摩擦力演示器', 118, 110);
-    /* 调速旋钮标注（世界(-300,78) → 面板(80,114)） */
-    g.textAlign = 'center'; g.fillText('调速', 80, 152);
-    g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 2;
-    g.beginPath(); g.arc(80, 114, 24, 0, Math.PI * 2); g.stroke();
-  }, 500, 270);
-  put(gMain, new THREE.PlaneGeometry(250, 135), new THREE.MeshBasicMaterial({ map: panelTex }), [-215, 67.5, 15.6]);
-  /* 红色电源指示灯 + 绿色调速旋钮（实体件，均在传送带侧板之上） */
-  put(gMain, new THREE.CylinderGeometry(6, 6.5, 6, 16), M.ledRed, [-300, 108, 17]).rotation.x = Math.PI / 2;
-  const knob = put(gMain, new THREE.CylinderGeometry(10, 11, 10, 20), M.knobG, [-300, 78, 19]);
-  knob.rotation.x = Math.PI / 2;
-  put(gMain, new THREE.BoxGeometry(2.4, 8, 2), M.white, [-300, 84, 24.5]);
+  /* 第四批：完全移除左侧 J2108 旧电控箱。
+     传送带与两侧滚轮是独立结构，保留其驱动与受力演示。
+     唯一电机控制入口为测力计右侧工业控制盒。 */
 
   /* ================= 传送带（主机前方、低于箱顶、右伸） =================
      前后两根深色侧板 + 双滚轮 + 闭环皮带；左滚轮白色塑料鼓、右滚轮金属轴承盖 */
@@ -954,15 +922,15 @@
   addLabel('nPulley', '定滑轮', '#253444', 34, [GEO.boardX + 170, 182, 76]);
   leader([GEO.boardX + 84, 168, 58], [GEO.boardX + 16, 138, 48], 0x253444);
   const nBlockX0 = GEO.blockX + 14, nWeightX0 = GEO.blockX - 168;
-  addLabel('nBlock', '木块', '#7a5b16', 38, [nBlockX0, 242, 148]);
+  addLabel('nBlock', '木块', '#7a5b16', 38, [nBlockX0 + 80, 245, 151]);
   const ldBlock = leader([GEO.blockX + 8, 220, 105], [GEO.blockX + 8, 165, 82], 0x7a5b16);
-  addLabel('nWeight', '砝码', '#7a5b16', 36, [nWeightX0, 288, 75]);
+  addLabel('nWeight', '砝码', '#7a5b16', 36, [nWeightX0 + 48, 302, 140]);
   const ldWeight = leader([GEO.blockX - 104, 274, 70], [GEO.blockX - 26, 186, 68], 0x7a5b16);
-  addLabel('nBelt', '传送带', '#23303d', 38, [-250, 176, 134]);
-  leader([-212, 166, 102], [-172, 103, 72], 0x23303d);
-  addLabel('nMachine', '摩擦力演示器', '#234f9d', 34, [-196, 46, 138]);
-  addLabel('nString', '细线', '#c2356b', 32, [148, 200, 92]);
-  leader([154, 184, 66], [171, 132, 55], 0xc2356b);
+  /* 将传送带标注移至左侧上方，避免压在传动侧板上；删除旧电控箱名称。 */
+  addLabel('nBelt', '传送带', '#23303d', 38, [-295, 238, 143]);
+  leader([-270, 207, 125], [-252, 106, 102], 0x23303d);
+  addLabel('nString', '细线', '#c2356b', 32, [148, 251, 103]);
+  leader([152, 230, 87], [171, 132, 55], 0xc2356b);
 
   /* V4 第三批：独立的实验时间、滑动摩擦力数据和双图表。
    * f(t) 采用 f=μN（理想滑动模型）；T(t) 属于缓动的测力计张力，不用于代替 f(t)。
