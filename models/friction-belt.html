@@ -82,7 +82,7 @@
   }
   #scaleZoom .t1 { font-size: 12px; color: var(--sub); display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; }
   #scaleZoom .t1 b { color: #cb2f2f; font-size: 15px; }
-  #scaleZoom canvas { width: 100%; height: auto; display: block; border: 1px solid #dbe4ee; border-radius: 10px; background: #f8fbff; }
+  #scaleZoom svg { width: 100%; height: auto; display: block; border: 1px solid #dbe4ee; border-radius: 10px; background: #f8fbff; }
   #scaleZoom .mini { margin-top: 6px; font-size: 11.5px; color: var(--sub); line-height: 1.45; }
 </style>
 </head>
@@ -125,6 +125,13 @@
     <input id="muSlider" type="range" min="0" max="100" value="43">
     <div class="mini">模拟换更粗糙/更光滑的接触面。</div>
   </div>
+
+  <div class="grp" id="rangePanel">
+    <div class="lbl">弹簧测力计量程 <b id="rangeText">2 N</b></div>
+    <div class="seg" role="group" aria-label="选择测力计量程">
+      <button id="range2" class="active" aria-pressed="true">2 N</button>
+      <button id="range5" aria-pressed="false">5 N</button>
+    </div>
 
   <div class="grp">
     <div class="lbl">实时读数（稳态模型）</div>
@@ -188,8 +195,8 @@
 
 <div id="scaleZoom" aria-label="弹簧测力计局部放大读数">
   <div class="t1"><span>测力计局部放大</span><b id="scaleZoomVal">0.00 N</b></div>
-  <canvas id="scaleZoomCanvas" width="240" height="420"></canvas>
-  <div class="mini">红色指针保持在中央，周围刻度局部放大，便于课堂投影观察。</div>
+  <svg id="scaleZoomSvg" viewBox="0 0 300 420" role="img" aria-label="与测力计主刻度同步的 SVG 局部放大"></svg>
+  <div class="mini">与主尺同步的 SVG 刻度；红色指针在中央。 <button id="zoomToggle" type="button" style="border:1px solid #ccd9e5;background:#fff;border-radius:6px;padding:2px 8px;margin-left:5px;cursor:pointer">收起放大</button></div>
 </div>
 
 
@@ -667,6 +674,54 @@
   put(pulleyGrp, new THREE.TorusGeometry(16, 3, 12, 48), M.dark, [0, 0, 0]);
   put(pulleyGrp, new THREE.CylinderGeometry(6, 6, 12, 16), M.white, [0, 0, 0]).rotation.x = Math.PI / 2;
 
+  /* CONTROLBOX_V4_BEGIN: painted metal module mounted to the right of the force gauge */
+  const ctrlCX=GEO.boardX+215, ctrlCY=600, ctrlZ=18;
+  const ctrlRoot=new THREE.Group();gMain.add(ctrlRoot);
+  const finishRed=new THREE.MeshStandardMaterial({color:0x8d333b,metalness:0.55,roughness:0.79});
+  const trimSteel=new THREE.MeshStandardMaterial({color:0x929ba4,metalness:0.72,roughness:0.56});
+  const buttonBlack=new THREE.MeshStandardMaterial({color:0x28313a,metalness:0.14,roughness:0.7});
+  const powerGreen=new THREE.MeshStandardMaterial({color:0x236d55,metalness:0.24,roughness:0.57});
+  // Two steel beams join the frame rather than allowing a floating box.
+  put(ctrlRoot,new THREE.BoxGeometry(133,13,28),trimSteel,[GEO.boardX+110,690,-8]);
+  put(ctrlRoot,new THREE.BoxGeometry(133,13,28),trimSteel,[GEO.boardX+110,520,-8]);
+  put(ctrlRoot,new THREE.BoxGeometry(184,296,43),finishRed,[ctrlCX,ctrlCY,ctrlZ]);
+  put(ctrlRoot,new THREE.BoxGeometry(172,284,3),new THREE.MeshStandardMaterial({color:0x9a4147,roughness:0.77,metalness:0.47}),[ctrlCX,ctrlCY,ctrlZ+23]);
+  const controlCanvas=document.createElement('canvas');controlCanvas.width=650;controlCanvas.height=1050;
+  const controlInk=controlCanvas.getContext('2d'),controlTexture=new THREE.CanvasTexture(controlCanvas);
+  controlTexture.encoding=THREE.sRGBEncoding;
+  const controlPlate=put(ctrlRoot,new THREE.PlaneGeometry(172,284),new THREE.MeshBasicMaterial({map:controlTexture,transparent:false}),[ctrlCX,ctrlCY,ctrlZ+25]);
+  function drawControllerFace(speed){
+    const g=controlInk;
+    g.clearRect(0,0,650,1050);g.fillStyle='#913d44';g.fillRect(0,0,650,1050);
+    const grad=g.createLinearGradient(0,0,650,0);grad.addColorStop(0,'#6e2c33');grad.addColorStop(.5,'#a1474b');grad.addColorStop(1,'#733139');
+    g.fillStyle=grad;g.fillRect(17,18,616,1014);
+    g.strokeStyle='rgba(230,217,209,.65)';g.lineWidth=5;g.strokeRect(28,28,594,994);
+    for(let i=0;i<360;i++){
+      const y=(i*67)%1050;g.strokeStyle='rgba(22,18,19,.045)';g.lineWidth=1;g.beginPath();g.moveTo(26,y);g.lineTo(622,y+((i%3)-1));g.stroke();
+    }
+    g.fillStyle='#edf1f2';g.textAlign='center';g.font='bold 48px Arial';g.fillText('J2108 CONTROL',325,94);
+    g.font='bold 35px Arial';g.fillText('传送带驱动控制器',325,153);
+    g.fillStyle='#172e32';g.fillRect(125,191,400,154);
+    g.strokeStyle='#b6bfc5';g.lineWidth=9;g.strokeRect(125,191,400,154);
+    g.fillStyle='#a3f5d8';g.font='bold 83px Consolas,monospace';g.fillText(speed.toFixed(2),315,282);
+    g.font='bold 32px Arial';g.fillText('m/s',487,325);
+    g.textAlign='left';g.fillStyle='#f8eded';g.font='bold 47px Arial';
+    g.fillText('开 / 关',300,487);g.fillText('加  速',300,677);g.fillText('减  速',300,869);
+    for(const [x,y] of [[65,71],[585,71],[65,978],[585,978]]){
+      g.fillStyle='#c5c7ca';g.beginPath();g.arc(x,y,16,0,Math.PI*2);g.fill();g.strokeStyle='#646c74';g.lineWidth=4;g.beginPath();g.moveTo(x-10,y-10);g.lineTo(x+10,y+10);g.stroke();
+    }
+    controlTexture.needsUpdate=true;
+  }
+  const ctrlButtons=[];
+  [[651,powerGreen,'power'],[600,buttonBlack,'plus'],[549,buttonBlack,'minus']].forEach(function(rec){
+    const y=rec[0],mat=rec[1];
+    const collar=put(ctrlRoot,new THREE.CylinderGeometry(22,22,7,40),trimSteel,[ctrlCX-48,y,ctrlZ+31]);collar.rotation.x=Math.PI/2;
+    const cap=put(ctrlRoot,new THREE.CylinderGeometry(16,16,10,40),mat,[ctrlCX-48,y,ctrlZ+39]);cap.rotation.x=Math.PI/2;
+    cap.userData.controlAction=rec[2];ctrlButtons.push(cap);
+  });
+  drawControllerFace(0.30);
+  /* CONTROLBOX_V4_END */
+
   /* ---- 测力计大面板：白底蓝字印刷 + 中央黑色滑槽 + 顶部黑色夹头 ---- */
   const bH = GEO.boardTop - GEO.boardBot, bCy = (GEO.boardTop + GEO.boardBot) / 2;
   const boardMesh = put(gMain, new THREE.BoxGeometry(GEO.boardW, bH, 12),
@@ -675,45 +730,115 @@
   boardMesh.castShadow = true;
   put(gMain, new THREE.BoxGeometry(GEO.boardW + 6, 18, 16), M.dark, [GEO.boardX, GEO.boardTop + 6, 24]); // 顶部夹头
   put(gMain, new THREE.CylinderGeometry(3.5, 3.5, 10, 10), M.steel, [GEO.boardX, GEO.boardTop + 8, 32]).rotation.x = Math.PI / 2;
-  /* 印刷面板：参照 measurement-1 的条形盒测力计样式，数字更大、刻度更清晰。 */
-  const printTex = canvasTex(function (g, w, h) {
-    g.fillStyle = '#f9fafc'; g.fillRect(0, 0, w, h);
-    g.strokeStyle = '#97a8bd'; g.lineWidth = 4; g.strokeRect(5, 5, w - 10, h - 10);
-    const BLUE = '#234f9d', DARK = '#232a33';
-    const cx = w / 2, slotHalf = 26 / GEO.boardW * w / 2;
-    const yTop = (GEO.boardTop - GEO.zeroY) / bH * h;
-    const pxPerN = GEO.mmPerN / bH * h;
-    g.fillStyle = BLUE;
-    g.textAlign = 'center';
-    g.font = '700 90px Arial';
-    g.fillText('N', cx - w * 0.34, 66);
-    g.fillText('N', cx + w * 0.34, 66);
-    g.fillStyle = DARK;
-    g.font = '700 80px Arial';
-    g.fillText('2 N', cx, 110);
-    const yBot = yTop + 2 * pxPerN; // 2 N 刻度底端，与三维指针共用比例
-    g.fillStyle = '#fefefe'; g.fillRect(cx - 13, yTop - 24, 26, yBot - yTop + 48);
-    g.fillStyle = DARK; g.fillRect(cx - 13, yTop - 24, 26, yBot - yTop + 48);
-    g.fillStyle = BLUE; g.strokeStyle = BLUE;
-    for (let i = 0; i <= 40; i++) {
-      const v = i * 0.05;
-      const y = yTop + v * pxPerN;
-      const isMajor = (i % 10 === 0), isMid = (i % 5 === 0), is2 = (i % 2 === 0);
-      const len = isMajor ? 78 : isMid ? 56 : is2 ? 42 : 28;
-      g.lineWidth = isMajor ? 5 : isMid ? 3.8 : 2.7;
-      g.beginPath();
-      g.moveTo(cx - slotHalf - len, y); g.lineTo(cx - slotHalf - 10, y);
-      g.moveTo(cx + slotHalf + 10, y); g.lineTo(cx + slotHalf + len, y);
-      g.stroke();
-      if (isMajor) {
-        g.font = '700 138px Arial';
-        g.textAlign = 'right'; g.fillText(v.toFixed(1), cx - slotHalf - len - 14, y + 16);
-        g.textAlign = 'left';  g.fillText(v.toFixed(1), cx + slotHalf + len + 14, y + 16);
+  /* GAUGE_V4_BEGIN: SVG scale source; native vector magnification */
+  const GAUGE_SPAN = 280; // mm of full-scale travel in either range
+  const GAUGE_W = 900;
+  const GAUGE_H = Math.round(GAUGE_W * bH / GEO.boardW);
+  const gaugeV4 = {range:2, zoomVisible:true, revision:0};
+  function gaugeSpec(range) {
+    return range === 5 ? {step:0.1, major:1, middle:0.5} : {step:0.05, major:0.5, middle:0.25};
+  }
+  function gaugeNumber(v, range) {
+    return range === 5 ? String(Math.round(v)) : v.toFixed(1);
+  }
+  function gaugeMainSVG(range) {
+    const spec = gaugeSpec(range), W=GAUGE_W, H=GAUGE_H, cx=W/2, halfSlot=99;
+    const y0=(GEO.boardTop-GEO.zeroY)/bH*H, k=(GAUGE_SPAN/range)/bH*H;
+    const line=[];
+    for(let n=0;n<=Math.round(range/spec.step);n++) {
+      const v=Number((n*spec.step).toFixed(3)), y=y0+k*v;
+      const major=(Math.abs(v/spec.major-Math.round(v/spec.major))<1e-5);
+      const middle=(Math.abs(v/spec.middle-Math.round(v/spec.middle))<1e-5);
+      const len=major?102:middle?77:48;
+      const stroke=major?8:middle?5.8:4.2;
+      line.push(`<path d="M${cx-halfSlot-12-len} ${y.toFixed(3)}H${cx-halfSlot-12} M${cx+halfSlot+12} ${y.toFixed(3)}H${cx+halfSlot+12+len}" stroke="#1e2630" stroke-width="${stroke}"/>`);
+      if (major) {
+        const label=gaugeNumber(v,range);
+        line.push(`<text x="${cx-halfSlot-142}" y="${(y+43).toFixed(3)}" text-anchor="end" class="num">${label}</text>`);
+        line.push(`<text x="${cx+halfSlot+142}" y="${(y+43).toFixed(3)}" text-anchor="start" class="num">${label}</text>`);
       }
     }
-  }, 980, 2100);
-  put(gMain, new THREE.PlaneGeometry(GEO.boardW, bH), new THREE.MeshBasicMaterial({ map: printTex }),
-      [GEO.boardX, bCy, 30.4]);
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <style>.num{font-family:Arial,sans-serif;font-size:138px;font-weight:600;fill:#1b2530}</style>
+    <rect width="${W}" height="${H}" fill="#e7e9ec"/>
+    <rect x="20" y="0" width="${W-40}" height="${H}" fill="#fbfcfe"/>
+    <path d="M20 26H880M20 ${H-26}H880" stroke="#78909e" stroke-width="5"/>
+    <text x="${cx}" y="143" font-family="Arial,sans-serif" font-size="112" text-anchor="middle" font-weight="600" fill="#202831">${range} N</text>
+    <text x="${cx}" y="254" font-family="Arial,'Microsoft YaHei',sans-serif" font-size="80" text-anchor="middle" fill="#28323d">条形盒</text>
+    <text x="${cx}" y="341" font-family="Arial,'Microsoft YaHei',sans-serif" font-size="80" text-anchor="middle" fill="#28323d">测力计</text>
+    <text x="140" y="${(y0-53).toFixed(1)}" font-family="Arial" font-size="101" fill="#1e2630">N</text>
+    <text x="760" y="${(y0-53).toFixed(1)}" font-family="Arial" font-size="101" fill="#1e2630">N</text>
+    <rect x="${cx-halfSlot}" y="${(y0-35).toFixed(1)}" width="${halfSlot*2}" height="${(GAUGE_SPAN/bH*H+70).toFixed(1)}" fill="#292a2c"/>
+    <rect x="${cx-18}" y="${(y0-35).toFixed(1)}" width="36" height="${(GAUGE_SPAN/bH*H+70).toFixed(1)}" fill="#7c8289"/>
+    <g>${line.join('')}</g>
+    </svg>`;
+  }
+  const mainGaugeCanvas=document.createElement('canvas');
+  mainGaugeCanvas.width=GAUGE_W; mainGaugeCanvas.height=GAUGE_H;
+  const mainGaugeCtx=mainGaugeCanvas.getContext('2d');
+  mainGaugeCtx.fillStyle='#fbfcfe';mainGaugeCtx.fillRect(0,0,GAUGE_W,GAUGE_H);
+  const mainGaugeTexture=new THREE.CanvasTexture(mainGaugeCanvas);
+  mainGaugeTexture.encoding=THREE.sRGBEncoding;
+  mainGaugeTexture.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+  mainGaugeTexture.minFilter=THREE.LinearMipmapLinearFilter;
+  const mainGaugeFace=put(gMain,new THREE.PlaneGeometry(GEO.boardW,bH),new THREE.MeshBasicMaterial({map:mainGaugeTexture}),[GEO.boardX,bCy,30.4]);
+  let gaugeSvgSource='';
+  function updateGaugeFace(range) {
+    const rev=++gaugeV4.revision;
+    gaugeSvgSource=gaugeMainSVG(range);
+    const img=new Image();
+    img.onload=function(){
+      if(rev!==gaugeV4.revision) return;
+      mainGaugeCtx.clearRect(0,0,GAUGE_W,GAUGE_H);
+      mainGaugeCtx.drawImage(img,0,0,GAUGE_W,GAUGE_H);
+      mainGaugeTexture.needsUpdate=true;
+    };
+    img.onerror=function(e){ if(typeof report3DError==='function')report3DError('SVG刻度纹理解码失败'); };
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(gaugeSvgSource);
+  }
+  function zoomGaugeSVG(range,value) {
+    const spec=gaugeSpec(range), W=300, H=420, cy=H/2, x=W/2;
+    const pxPerUnit=(range===2?600:260);
+    const ticks=[];
+    for(let i=0;i<=Math.round(range/spec.step);i++){
+      const n=Number((i*spec.step).toFixed(3));
+      const y=cy+(n-value)*pxPerUnit;
+      if(y<34||y>H-32)continue;
+      const isMain=Math.abs(n/spec.major-Math.round(n/spec.major))<1e-5;
+      const isHalf=Math.abs(n/spec.middle-Math.round(n/spec.middle))<1e-5;
+      const len=isMain?55:isHalf?42:28;
+      ticks.push(`<path d="M${x-31-len} ${y.toFixed(2)}H${x-31}M${x+31} ${y.toFixed(2)}H${x+31+len}" stroke="#222d38" stroke-width="${isMain?3.5:2}"/>`);
+      // Closeup numeric graduations use 0.1 N / 0.5 N labels respectively.
+      const digitStep=range===2?0.1:0.5;
+      if(Math.abs(n/digitStep-Math.round(n/digitStep))<1e-5){
+        const str=range===2?n.toFixed(1):n.toFixed(1);
+        ticks.push(`<text x="${x-93}" y="${(y+9).toFixed(2)}" text-anchor="end" font-size="29" fill="#1d2631">${str}</text><text x="${x+93}" y="${(y+9).toFixed(2)}" text-anchor="start" font-size="29" fill="#1d2631">${str}</text>`);
+      }
+    }
+    return `<rect width="${W}" height="${H}" fill="#fbfcfe"/><rect x="132" y="33" width="36" height="${H-65}" fill="#525861"/><g font-family="Arial,sans-serif">${ticks.join('')}</g><path d="M29 ${cy}L131 ${cy-10}L271 ${cy}L131 ${cy+10}Z" fill="#cc2330" stroke="#9b1722" stroke-width="1"/><text x="18" y="25" font-size="21" fill="#27313e">N</text><text x="270" y="25" font-size="21" fill="#27313e">N</text>`;
+  }
+  function drawZoomScale(value) {
+    const target=document.getElementById('scaleZoomSvg');
+    if(target)target.innerHTML=zoomGaugeSVG(gaugeV4.range,value);
+    const val=document.getElementById('scaleZoomVal');
+    if(val)val.textContent=value.toFixed(2)+' N';
+  }
+  function setGaugeRange(range) {
+    if(range!==2&&range!==5) return;
+    gaugeV4.range=range;
+    GEO.mmPerN=GAUGE_SPAN/range;
+    updateGaugeFace(range);
+    // Preserve the actual force; change only the scale calibration and spring travel.
+    updateScale(T);
+    for(const n of [2,5]){
+      const b=document.getElementById('range'+n);
+      if(b){b.classList.toggle('active',n===range);b.setAttribute('aria-pressed',String(n===range));}
+    }
+    const lbl=document.getElementById('rangeText');if(lbl)lbl.textContent=range+' N';
+    if(typeof updateReadout==='function')updateReadout();
+  }
+  /* GAUGE_V4_END */
+  updateGaugeFace(2);
   /* 中央黑色滑槽（弹簧/指针/挂钩在其中滑动） */
   put(gMain, new THREE.BoxGeometry(26, 400, 2.4), M.slotDk, [GEO.boardX, bCy, 30.9]);  // z 面 32.1
   put(gMain, new THREE.CylinderGeometry(2.5, 2.5, 30, 10), M.steel, [GEO.boardX, GEO.springTop + 2, 32]).rotation.z = Math.PI / 2;  // 上锚销
@@ -798,7 +923,7 @@
   })();
 
   /* ---- 部件标注 ---- */
-  addLabel('nScale', '弹簧测力计', '#1b2d42', 42, [GEO.boardX + 245, 766, 42]);
+  addLabel('nScale', '弹簧测力计', '#1b2d42', 42, [GEO.boardX + 48, 812, 42]);
   leader([GEO.boardX + 110, 740, 34], [GEO.boardX + 70, 718, 32], 0x1b2d42);
   addLabel('nPulley', '定滑轮', '#253444', 34, [GEO.boardX + 170, 182, 76]);
   leader([GEO.boardX + 84, 168, 58], [GEO.boardX + 16, 138, 48], 0x253444);
@@ -899,62 +1024,6 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   };
 
 
-  /* ---- 局部放大读数：参照 measurement-1 的双侧刻度与红色指针样式 ---- */
-  const zoomCv = document.getElementById('scaleZoomCanvas');
-  const zoomVal = document.getElementById('scaleZoomVal');
-  function drawZoomScale(Tnow) {
-    if (!zoomCv) return;
-    const g = zoomCv.getContext('2d');
-    const w = zoomCv.width, h = zoomCv.height;
-    g.clearRect(0, 0, w, h);
-    g.fillStyle = '#fbfcfe'; g.fillRect(0, 0, w, h);
-    g.strokeStyle = '#ced9e6'; g.lineWidth = 2.5; g.strokeRect(1.5, 1.5, w - 3, h - 3);
-    const cx = w / 2, py = h / 2;
-    const slotHalf = 20;
-    const span = 0.60;
-    const pxPerN = (h - 94) / span;
-    const start = Math.max(0, Math.floor((Tnow - span / 2) / 0.05) - 2);
-    const end = Math.min(40, Math.ceil((Tnow + span / 2) / 0.05) + 2);
-    g.fillStyle = '#234f9d';
-    g.font = '700 24px Arial'; g.textAlign = 'center';
-    g.fillText('N', 34, 28); g.fillText('N', w - 34, 28);
-    g.fillStyle = '#1f2730';
-    g.font = '700 24px Arial';
-    g.fillText('指针附近刻度', cx, 28);
-    g.fillStyle = '#f8fbff'; g.fillRect(cx - 15, 50, 30, h - 92);
-    g.fillStyle = '#1f2730'; g.fillRect(cx - 13, 50, 26, h - 92);
-    g.fillStyle = '#234f9d'; g.strokeStyle = '#234f9d';
-    for (let i = start; i <= end; i++) {
-      const v = i * 0.05;
-      const y = py + (v - Tnow) * pxPerN;
-      if (y < 54 || y > h - 46) continue;
-      const isMajor = (i % 10 === 0), isMid = (i % 5 === 0), is2 = (i % 2 === 0);
-      const L = isMajor ? 68 : isMid ? 50 : is2 ? 34 : 22;
-      g.lineWidth = isMajor ? 4.5 : isMid ? 3.3 : 2.3;
-      g.beginPath();
-      g.moveTo(cx - slotHalf - L, y); g.lineTo(cx - slotHalf - 8, y);
-      g.moveTo(cx + slotHalf + 8, y); g.lineTo(cx + slotHalf + L, y);
-      g.stroke();
-      if (isMajor) {
-        g.font = '700 28px Arial';
-        g.textAlign = 'right'; g.fillText(v.toFixed(1), cx - slotHalf - L - 10, y + 10);
-        g.textAlign = 'left';  g.fillText(v.toFixed(1), cx + slotHalf + L + 10, y + 10);
-      }
-    }
-    g.fillStyle = '#cc232c';
-    g.beginPath();
-    g.moveTo(cx - 86, py);
-    g.lineTo(cx - 20, py - 11);
-    g.lineTo(cx + 86, py);
-    g.lineTo(cx - 20, py + 11);
-    g.closePath();
-    g.fill();
-    g.font = '700 18px "Microsoft YaHei", sans-serif';
-    g.textAlign = 'center';
-    g.fillText('红色指针', cx, py - 18);
-    if (zoomVal) zoomVal.textContent = Tnow.toFixed(2) + ' N';
-  }
-
   const state = {
     play: true, t: 0,
     m: 0.10,        // 砝码质量 kg（0~0.2）
@@ -984,6 +1053,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     state.v = v / 100 * GEO.vMax;
     if (!fromSlider) el.vSlider.value = Math.round(v);
     el.vLabel.textContent = state.v.toFixed(2) + ' m/s';
+    drawControllerFace(state.v);
     updateReadout();
   }
   function setMu(v, fromSlider) {
@@ -1082,6 +1152,9 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   el.mSlider.addEventListener('input', function () { setM(+el.mSlider.value, true); });
   el.vSlider.addEventListener('input', function () { setV(+el.vSlider.value, true); });
   el.muSlider.addEventListener('input', function () { setMu(+el.muSlider.value, true); });
+  $('range2').addEventListener('click', function(){setGaugeRange(2);});
+  $('range5').addEventListener('click', function(){setGaugeRange(5);});
+  $('zoomToggle').addEventListener('click', function(){gaugeV4.zoomVisible=!gaugeV4.zoomVisible;document.getElementById('scaleZoomSvg').style.display=gaugeV4.zoomVisible?'block':'none';this.textContent=gaugeV4.zoomVisible?'收起放大':'展开放大';});
   Array.prototype.forEach.call(document.querySelectorAll('[data-m]'), function (b) {
     b.addEventListener('click', function () { setM(+b.getAttribute('data-m'), false); });
   });
@@ -1162,6 +1235,7 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
   }
 
   /* ---- 启动 ---- */
+  setGaugeRange(2);
   window.__frictionStage='首次计算与渲染';
   setM(50, false); setV(50, false); setMu(43, false);
   state.vBelt = state.v;                                   // 加载即处于匀速运行状态
@@ -1190,6 +1264,8 @@ window.WOOD_NRM_URI = "../assets/textures/friction-oak-normal.jpg";
     get blockX() { return GEO.blockX - T * GEO.mmPerN; },
     get GEO() { return GEO; },
     get hookY() { return hookYOf(T); },
+    get range() { return gaugeV4.range; }, setRange: setGaugeRange,
+    get gaugeSvg() { return gaugeSvgSource; },
     frictionOf: frictionOf, tensionOf: tensionOf,
     get forces() { return gForces; }, get beltOffset() { return beltTex.offset.x; }, get weights() { return gWeights.children.length; },
     setM: setM, setV: setV, setMu: setMu, setView: setView
