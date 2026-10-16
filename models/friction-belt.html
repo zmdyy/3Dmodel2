@@ -94,7 +94,7 @@
 
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #scaleZoom {
-    position: fixed; left: 18px; top: 88px; z-index: 6; width: 214px;
+    position: fixed; left: 18px; top: 88px; z-index: 6; width: 280px; max-width: calc(100vw - 36px);
     background: rgba(255,255,255,.94); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: 0 8px 28px rgba(30,50,80,.10); padding: 10px 10px 8px;
     backdrop-filter: blur(3px);
@@ -229,7 +229,7 @@
 
 <div id="scaleZoom" aria-label="弹簧测力计局部放大读数">
   <div class="t1"><span>测力计局部放大</span><b id="scaleZoomVal">0.00 N</b></div>
-  <svg id="scaleZoomSvg" viewBox="0 0 300 420" role="img" aria-label="与测力计主刻度同步的 SVG 局部放大"></svg>
+  <svg id="scaleZoomSvg" viewBox="0 0 340 470" role="img" aria-label="与测力计主刻度同步的 SVG 局部放大"></svg>
   <div class="mini">与主尺同步的 SVG 刻度；红色指针在中央。 <button id="zoomToggle" type="button" style="border:1px solid #ccd9e5;background:#fff;border-radius:6px;padding:2px 8px;margin-left:5px;cursor:pointer">收起放大</button></div>
 </div>
 
@@ -816,25 +816,25 @@
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(gaugeSvgSource);
   }
   function zoomGaugeSVG(range,value) {
-    const spec=gaugeSpec(range), W=300, H=420, cy=H/2, x=W/2;
-    const pxPerUnit=(range===2?600:260);
+    const spec=gaugeSpec(range), W=340, H=470, cy=H/2, x=W/2;
+    const pxPerUnit=(range===2?750:325);
     const ticks=[];
     for(let i=0;i<=Math.round(range/spec.step);i++){
       const n=Number((i*spec.step).toFixed(3));
       const y=cy+(n-value)*pxPerUnit;
-      if(y<34||y>H-32)continue;
+      if(y<38||y>H-36)continue;
       const isMain=Math.abs(n/spec.major-Math.round(n/spec.major))<1e-5;
       const isHalf=Math.abs(n/spec.middle-Math.round(n/spec.middle))<1e-5;
-      const len=isMain?55:isHalf?42:28;
-      ticks.push(`<path d="M${x-31-len} ${y.toFixed(2)}H${x-31}M${x+31} ${y.toFixed(2)}H${x+31+len}" stroke="#222d38" stroke-width="${isMain?3.5:2}"/>`);
+      const len=isMain?62:isHalf?48:32;
+      ticks.push(`<path d="M${x-35-len} ${y.toFixed(2)}H${x-35}M${x+35} ${y.toFixed(2)}H${x+35+len}" stroke="#222d38" stroke-width="${isMain?3.8:2.2}"/>`);
       // Closeup numeric graduations use 0.1 N / 0.5 N labels respectively.
       const digitStep=range===2?0.1:0.5;
       if(Math.abs(n/digitStep-Math.round(n/digitStep))<1e-5){
         const str=range===2?n.toFixed(1):n.toFixed(1);
-        ticks.push(`<text x="${x-93}" y="${(y+9).toFixed(2)}" text-anchor="end" font-size="29" fill="#1d2631">${str}</text><text x="${x+93}" y="${(y+9).toFixed(2)}" text-anchor="start" font-size="29" fill="#1d2631">${str}</text>`);
+        ticks.push(`<text x="${x-106}" y="${(y+10).toFixed(2)}" text-anchor="end" font-size="32" fill="#1d2631">${str}</text><text x="${x+106}" y="${(y+10).toFixed(2)}" text-anchor="start" font-size="32" fill="#1d2631">${str}</text>`);
       }
     }
-    return `<rect width="${W}" height="${H}" fill="#fbfcfe"/><rect x="132" y="33" width="36" height="${H-65}" fill="#525861"/><g font-family="Arial,sans-serif">${ticks.join('')}</g><path d="M29 ${cy}L131 ${cy-10}L271 ${cy}L131 ${cy+10}Z" fill="#cc2330" stroke="#9b1722" stroke-width="1"/><text x="18" y="25" font-size="21" fill="#27313e">N</text><text x="270" y="25" font-size="21" fill="#27313e">N</text>`;
+    return `<rect width="${W}" height="${H}" fill="#fbfcfe"/><rect x="149" y="36" width="42" height="${H-72}" fill="#525861"/><g font-family="Arial,sans-serif">${ticks.join('')}</g><path d="M79 ${cy}L170 ${cy-7}L261 ${cy}L170 ${cy+7}Z" fill="#cc2330" stroke="#9b1722" stroke-width="1"/><text x="28" y="30" font-size="24" fill="#27313e">N</text><text x="306" y="30" font-size="24" fill="#27313e">N</text>`;
   }
   function drawZoomScale(value) {
     const target=document.getElementById('scaleZoomSvg');
@@ -871,7 +871,7 @@
   /* ---- 弹簧 + 指示线 + 挂钩 + 细线（gAnim，随示数联动） ---- */
   let springMesh = null, lastPY = -1;
   const pointerShape = new THREE.Shape();
-  pointerShape.moveTo(-44, 0); pointerShape.lineTo(-12, -8); pointerShape.lineTo(44, 0); pointerShape.lineTo(-12, 8); pointerShape.closePath();
+  pointerShape.moveTo(-33, 0); pointerShape.lineTo(-9, -6); pointerShape.lineTo(33, 0); pointerShape.lineTo(-9, 6); pointerShape.closePath();
   const indBar = new THREE.Mesh(new THREE.ShapeGeometry(pointerShape), new THREE.MeshBasicMaterial({ color: 0xcc232c }));
   indBar.position.set(GEO.boardX, GEO.zeroY, 32.7);
   indBar.renderOrder = 5;
