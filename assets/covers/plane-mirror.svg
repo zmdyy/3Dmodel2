@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#e7eef6"/><stop offset="1" stop-color="#f6f8fb"/></linearGradient><linearGradient id="glass"><stop stop-color="#91b8d0" stop-opacity=".45"/><stop offset="1" stop-color="#d5eff6" stop-opacity=".25"/></linearGradient></defs>
+<rect width="960" height="540" fill="url(#bg)"/><text x="48" y="64" font-family="sans-serif" font-size="30" fill="#263d56" font-weight="700">平面镜成像规律</text>
+<text x="48" y="101" font-family="sans-serif" font-size="19" fill="#65788d">等大蜡烛 · 物像位置 · 距离测量</text>
+<path d="M135 320 610 238 843 389 362 484Z" fill="#c5ced8" opacity=".3"/><path d="M130 300 607 223 840 373 358 461Z" fill="#fff" stroke="#c7d2de" stroke-width="2"/>
+<path d="M480 146 683 181 683 362 480 327Z" fill="url(#glass)" stroke="#7396b1" stroke-width="4"/><path d="M480 327 683 362" stroke="#334d66" stroke-width="6"/>
+<path d="M366 371 565 329 704 298" stroke="#6a8aa8" stroke-dasharray="8 7" stroke-width="3" fill="none"/>
+<g fill="#df745d" stroke="#b85443" stroke-width="2"><path d="M346 367V265Q364 253 382 265V367Q364 379 346 367Z"/><ellipse cx="364" cy="265" rx="18" ry="6" fill="#f5b7a2"/></g><path d="M364 258Q342 236 364 214Q386 239 364 258" fill="#f7aa3e"/><path d="M364 254Q354 241 364 233Q373 245 364 254" fill="#ffe8a5"/>
+<g opacity=".5" fill="#df745d" stroke="#b85443" stroke-width="2"><path d="M686 294V192Q704 180 722 192V294Q704 306 686 294Z"/><ellipse cx="704" cy="192" rx="18" ry="6" fill="#f5b7a2"/><path d="M704 185Q682 163 704 141Q726 166 704 185" fill="#f7aa3e" stroke="none"/></g>
+<text x="318" y="414" fill="#3a5068" font-size="21" font-family="sans-serif">物</text><text x="744" y="305" fill="#627b94" font-size="21" font-family="sans-serif">虚像</text><text x="503" y="393" fill="#3a5068" font-size="20" font-family="sans-serif">玻璃板</text>
+</svg>

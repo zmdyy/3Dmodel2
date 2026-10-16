@@ -461,5 +461,22 @@ window.MODEL_CATALOG = [
     "path": "models/floor-drain-trap.html",
     "symbol": "水",
     "accent": "green"
+  },
+  {
+    "id": "plane-mirror",
+    "cover": "assets/covers/plane-mirror.svg",
+    "title": "平面镜成像规律",
+    "subtitle": "玻璃板、等大蜡烛与像的位置探究",
+    "category": "光学现象",
+    "summary": "通过三维实验探究平面镜成像规律，观察物与像的位置关系，比较像与物的大小，并进行位置标记与距离测量。",
+    "tags": [
+      "平面镜",
+      "虚像",
+      "平面镜成像",
+      "物像关系"
+    ],
+    "path": "models/plane-mirror.html",
+    "symbol": "↔",
+    "accent": "blue"
   }
 ];
