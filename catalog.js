@@ -498,7 +498,7 @@ window.MODEL_CATALOG = [
       "远视模型",
       "双透镜"
     ],
-    "path": "models/convex-lens.html?v=20261017-vision-correction",
+    "path": "models/convex-lens.html?v=20261017-corrector-profile-v2",
     "symbol": "↔",
     "accent": "violet"
   }

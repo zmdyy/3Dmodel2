@@ -189,6 +189,7 @@
   html[data-theme="dark"] .scene-label--measure{background:rgba(21,32,48,.97);color:#ff949f;border-color:#ff687b}
   .scene-label--theory{border-style:dashed}
   /* 文字锚点精确锁定在尺寸线上，内部标签向旁侧偏移 10px，不能再离开元件。 */
+  .scene-label--measure:empty{display:none!important}
   .scene-label--measure-anchor{width:0;height:0;overflow:visible}
   .scene-label--measure-anchor>.scene-label--measure{position:absolute;left:14px;top:0;transform:translateY(-50%);display:block}
   #c3d>.label-renderer{position:absolute;inset:0;pointer-events:none;z-index:4}
@@ -231,7 +232,6 @@
   <div id="main">
     <div id="stages">
       <div class="stage" id="stage3d">
-        <div class="stage-label"><span>3D 实验装置 · THREE.JS</span><em>光具座 · 物体 → 凸透镜 → 光屏</em></div>
         <div class="phet-bar">
           <select id="objType" title="选择物体类型">
             <option value="pencil">✏️ 铅笔</option>
@@ -253,7 +253,6 @@
         <h2>拓展 · 让像重新回到光屏</h2>
         <button id="bVision" type="button" aria-expanded="false">进入视力矫正拓展</button>
         <div id="visionControls" hidden>
-          <p class="hint" id="visionBaseline"></p>
           <div class="row"><label>原凸透镜焦距 f <output id="eyeF"></output></label>
             <input id="sEyeF" type="range" step="0.01" aria-label="拓展：原凸透镜焦距"></div>
           <div class="btns" id="visionLensChoices">
@@ -375,6 +374,11 @@ const P = {
 const V = { active:false, type:'none', strength:35, maxPower:.08, distance:5,
   baseline:null, saved:null, compare:false, lastStatus:'' };
 function correctionPower(){ return !V.active||V.type==='none'?0:(V.type==='concave'?-1:1)*V.maxPower*V.strength/100; }
+// Shared profile for the real 3D glass and its 2D schematic cross section.
+function correctorHalfThickness(radiusFraction){
+  const amp=.12+.65*V.strength/100;
+  return V.type==='concave'?.12+amp*radiusFraction**2:.12+amp*Math.sqrt(Math.max(0,1-radiusFraction**2));
+}
 function correctionKey(){return V.active?`${V.type}:${V.strength}:${V.distance}`:'ordinary';}
 function currentSystem(){return lensSystem(P.objDist,P.focal,V.active?V.distance:0,correctionPower());}
 // 物与像共用火焰变化相位，降低物像不同步的风险。
@@ -1237,21 +1241,21 @@ function makeHeightMarker(){
   const caption=document.createElement('span');
   caption.className='scene-label--measure';
   text.element.appendChild(caption);
-  root.add(text);
+  text.visible=false;root.visible=false;root.add(text);
   return {root,bar,dash,tipTop,tipBottom,leadTop,leadBottom,endTop,endBottom,text,caption};
 }
 const objectHeightMarker=makeHeightMarker();
 const imageHeightMarker=makeHeightMarker();
 const overflowHeightText=sharpLabel('','scene-label--measure scene-label--theory');
-scene.add(overflowHeightText);
+overflowHeightText.visible=false;scene.add(overflowHeightText);
 /** 同一 y-z 平面中的真正尺寸线：
  *  zTop/zBottom 必须来自物或像图案的最高/最低端点，而非卡片/光屏边界。
  *  两根引线各自从端点出发，沿 z 延伸至竖直尺寸线。
  */
 function positionHeightMarker(m,xPlane,yBottom,yTop,zTop,zBottom,zDimension,label,dashed=false){
   const height=yTop-yBottom;
-  if(!Number.isFinite(height)||height<=0){m.root.visible=false;m.text.element.style.display='none';return;}
-  m.root.visible=true;
+  if(!Number.isFinite(height)||height<=0){m.root.visible=false;m.text.visible=false;m.text.element.style.display='none';return;}
+  m.root.visible=true;m.text.visible=true;
   m.text.element.style.display='';
   m.root.position.set(xPlane,yBottom,zDimension);
   m.bar.visible=!dashed;m.bar.scale.y=height;m.bar.position.y=height/2;
@@ -1286,6 +1290,7 @@ function updateHeightMarkers(){
   const obj=measuredHeights(),img=lensImage(),lit=uncoverFrac();
   if(!show3DMeasurement){
     objectHeightMarker.root.visible=imageHeightMarker.root.visible=overflowHeightText.visible=false;
+    objectHeightMarker.text.visible=imageHeightMarker.text.visible=false;
     objectHeightMarker.text.element.style.display='none';
     imageHeightMarker.text.element.style.display='none';
     overflowHeightText.element.style.display='none';
@@ -1303,7 +1308,7 @@ function updateHeightMarkers(){
   const objDimensionZ=Math.max(OBJ_W/2+.50,tips.top+.85,tips.bottom+.85);
   positionHeightMarker(objectHeightMarker,objectPlaneX,bottom,top,
     tips.top,tips.bottom,objDimensionZ,`H = ${obj.objectHeight.toFixed(2)} cm`);
-  imageHeightMarker.root.visible=false;overflowHeightText.visible=false;
+  imageHeightMarker.root.visible=false;imageHeightMarker.text.visible=false;overflowHeightText.visible=false;
   imageHeightMarker.text.element.style.display='none';
   overflowHeightText.element.style.display='none';
   if(img.kind==='none'||!Number.isFinite(img.m))return;
@@ -1718,11 +1723,16 @@ function draw2D(){
   ctx2.restore();
 
   if(V.active&&V.type!=='none'){
-    const x=X2(-V.distance),r=lensR2*pxPerCm,w=Math.max(5,rx*.8);
+    const x=X2(-V.distance),r=lensR2*pxPerCm;
+    // Magnify only the schematic thickness to make weak/strong lenses legible;
+    // the convex center / concave edges follow the same profile as the 3D glass.
+    const maxHalf=Math.max(2,V.distance*pxPerCm-rx-4);
+    const halfAt=t=>Math.min(maxHalf,.8+correctorHalfThickness(Math.abs(t))*pxPerCm*3.2);
     ctx2.save();ctx2.fillStyle='rgba(110,190,205,.28)';ctx2.strokeStyle=P.dark?'#a5e4ef':'#16708a';ctx2.lineWidth=2;
     ctx2.beginPath();
-    if(V.type==='convex')ctx2.ellipse(x,ax,w,r,0,0,Math.PI*2);
-    else{ctx2.moveTo(x-w,ax-r);ctx2.quadraticCurveTo(x+w*.6,ax,x-w,ax+r);ctx2.lineTo(x+w,ax+r);ctx2.quadraticCurveTo(x-w*.6,ax,x+w,ax-r);ctx2.closePath();}
+    for(let i=0;i<=48;i++){const t=-1+2*i/48;const xx=x-halfAt(t),yy=ax+t*r;i?ctx2.lineTo(xx,yy):ctx2.moveTo(xx,yy);}
+    for(let i=48;i>=0;i--){const t=-1+2*i/48;ctx2.lineTo(x+halfAt(t),ax+t*r);}
+    ctx2.closePath();
     ctx2.fill();ctx2.stroke();ctx2.fillStyle=c2dText();ctx2.font='bold 12px sans-serif';ctx2.textAlign='center';
     ctx2.fillText(V.type==='convex'?'矫正凸透镜':'矫正凹透镜',x,ax+r+38);ctx2.restore();
   }
@@ -1879,8 +1889,6 @@ const correctorGlass=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshPhy
   transparent:true,opacity:.92,envMapIntensity:.55,clearcoat:.7,side:THREE.DoubleSide
 }));correctorGroup.add(correctorGlass);
 const correctionR=LENS_R+.15;
-const correctorRing=new THREE.Mesh(new THREE.TorusGeometry(correctionR+.15,.13,10,72),cellMat);
-correctorRing.rotation.y=Math.PI/2;correctorGroup.add(correctorRing);
 const correctorYoke=new THREE.Mesh(new THREE.BoxGeometry(.9,.7,.7),cellMat);
 correctorYoke.position.y=-correctionR-.15;correctorGroup.add(correctorYoke);
 addRodClamp(correctorGroup,-correctionR-.92,0);
@@ -1896,16 +1904,16 @@ let visionSceneKey='';
 const ordinaryRayCaptions=[...document.querySelectorAll('.ray-toggle')].map(el=>el.innerHTML);
 function updateVisionScene(){
   const has=V.active&&V.type!=='none';
-  correctorGroup.visible=has;correctorLabel.element.style.display=has?'':'none';
+  correctorGroup.visible=has;correctorLabel.visible=has;correctorLabel.element.style.display=has?'':'none';
   retinaLabel.element.style.display=V.active?'':'none';retinaLabel.visible=V.active;
-  convergenceGroup.visible=false;focusCaption.element.style.display='none';comparisonLine.visible=false;
+  convergenceGroup.visible=false;focusCaption.visible=false;focusCaption.element.style.display='none';comparisonLine.visible=false;
   if(!V.active)return;
   correctorGroup.position.set(X(-V.distance),AX,0);
   const key=`${V.type}:${V.strength}:${P.focal}:${P.objDist}:${V.compare}:${P.objH}`;
   if(key!==visionSceneKey){
     if(has){
-      const pts=[],amp=.12+.65*V.strength/100;
-      const half=r=>V.type==='concave'?.12+amp*(r/correctionR)**2:.12+amp*Math.sqrt(Math.max(0,1-(r/correctionR)**2));
+      const pts=[];
+      const half=r=>correctorHalfThickness(r/correctionR);
       for(let i=0;i<=32;i++){const r=correctionR*i/32;pts.push(new THREE.Vector2(r,-half(r)));}
       for(let i=32;i>=0;i--){const r=correctionR*i/32;pts.push(new THREE.Vector2(r,half(r)));}
       correctorGlass.geometry.dispose();correctorGlass.geometry=new THREE.LatheGeometry(pts,64);correctorGlass.geometry.rotateZ(Math.PI/2);
@@ -1919,7 +1927,7 @@ function updateVisionScene(){
   comparisonLine.visible=V.compare;
   const img=lensImage();
   if(img.kind==='real'&&img.v<=90&&Math.abs(img.h)<35){
-    convergenceGroup.visible=true;focusCaption.element.style.display='';convergenceGroup.position.set(X(img.v),AX+img.h,.15);
+    convergenceGroup.visible=true;focusCaption.visible=true;focusCaption.element.style.display='';convergenceGroup.position.set(X(img.v),AX+img.h,.15);
   }
 }
 function refreshVisionControls(){
@@ -1933,7 +1941,6 @@ function refreshVisionControls(){
   $('bTrack').textContent='📍 光屏追像：'+(P.track?'开':'关');
   $('bPlay').textContent=P.auto?'⏸ 暂停自动演示':'▶ 自动靠近 / 远离';
   $('visionSceneNote').hidden=!active;
-  document.querySelector('#stages .stage-label em').textContent=active?'物体 → 矫正透镜 → 原凸透镜 → 固定光屏':'光具座 · 物体 → 凸透镜 → 光屏';
   document.querySelectorAll('.ray-toggle').forEach((el,i)=>{
     el.innerHTML=active?`<i style="color:${['#fb7185','#fde047','#22d3ee','#c084fc'][i]};background:${['#fb7185','#fde047','#22d3ee','#c084fc'][i]}"></i>${['① 上部采样','② 中部采样','③ 下部采样','④ 边缘采样'][i]}`:ordinaryRayCaptions[i];
   });
@@ -1951,7 +1958,6 @@ function enterVision(){
   $('sEyeF').min=min;$('sEyeF').max=max;$('sEyeF').value=P.focal;
   V.maxPower=Math.max(.015,Math.abs(powerForScreen(P.objDist,min,V.distance,P.screen)),Math.abs(powerForScreen(P.objDist,max,V.distance,P.screen)))*1.65;
   V.active=true;$('sCorrector').value=35;$('cUncorrected').checked=false;$('visionExplanation').open=false;
-  $('visionBaseline').textContent=`物距 ${P.objDist.toFixed(1)} cm · 光屏固定 ${P.screen.toFixed(2)} cm；矫正透镜位于原透镜前 ${V.distance.toFixed(1)} cm。先改变原透镜焦距，再选择并调节矫正透镜。`;
   refreshVisionControls();selectCorrector('none');invalidateVision();
 }
 function exitVision(){
