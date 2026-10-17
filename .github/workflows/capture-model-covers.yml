@@ -1,0 +1,32 @@
+name: Capture actual 3D model covers
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/capture-model-covers.yml'
+      - 'scripts/capture-gallery-covers.cjs'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install screenshot dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/cover-deps" playwright@1.56.1 sharp@0.34.3
+          "$RUNNER_TEMP/cover-deps/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Capture repository scenes with software WebGL
+        env:
+          COVER_NODE_MODULES: ${{ runner.temp }}/cover-deps/node_modules
+        run: node scripts/capture-gallery-covers.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: actual-model-covers
+          path: cover-captures/
+          if-no-files-found: error
