@@ -521,5 +521,24 @@ window.MODEL_CATALOG = [
     "path": "models/convex-lens.html?v=20261017-corrector-profile-v2",
     "symbol": "↔",
     "accent": "violet"
+  },
+  {
+    "id": "ancient-levers",
+    "cover": "assets/covers/ancient-levers.svg?v=20261017",
+    "title": "古代杠杆工坊",
+    "subtitle": "桔槔、踏碓与单碓／四碓水力机械",
+    "category": "力学实验",
+    "summary": "调整桔槔配重、按住踏碓踩踏，观察力矩与重力回落；水碓可切换单碓近看和四碓错相联动。支持慢放、分步、零件说明、独立支点圆点、无遮挡力箭头与碓头轨迹。",
+    "tags": [
+      "杠杆",
+      "力矩",
+      "桔槔",
+      "踏碓",
+      "水碓",
+      "能量转化"
+    ],
+    "path": "models/ancient-levers.html?v=20261017-single-force",
+    "symbol": "⚖",
+    "accent": "green"
   }
 ];
