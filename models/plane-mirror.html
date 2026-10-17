@@ -366,12 +366,19 @@ function makePaperTexture(grid) {
   const c = document.createElement('canvas');
   c.width = c.height = 1024;
   const g = c.getContext('2d');
-  g.fillStyle = '#f5f4ee';
+  // Slight warm gray paper: preserve headroom for lighting and reflections.
+  g.fillStyle = '#d5d2cb';
   g.fillRect(0, 0, 1024, 1024);
+  const fibers = g.getImageData(0, 0, 1024, 1024);
+  for (let i = 0; i < fibers.data.length; i += 4) {
+    const n = Math.sin(i * 0.137) * 0.75;
+    fibers.data[i] += n; fibers.data[i + 1] += n; fibers.data[i + 2] += n;
+  }
+  g.putImageData(fibers, 0, 0);
   if (grid) {
     const stepX = 1024 / PAPER_W;
     const stepZ = 1024 / PAPER_D;
-    g.strokeStyle = '#c5cdd8';
+    g.strokeStyle = '#a9aaa7';
     g.lineWidth = 1;
     for (let i = 0; i <= PAPER_W; i++) {
       const x = i * stepX;
@@ -381,7 +388,7 @@ function makePaperTexture(grid) {
       const y = j * stepZ;
       g.beginPath(); g.moveTo(0, y); g.lineTo(1024, y); g.stroke();
     }
-    g.strokeStyle = '#9aa8b8';
+    g.strokeStyle = '#858b8c';
     g.lineWidth = 1.5;
     for (let i = 0; i <= PAPER_W; i += 5) {
       const x = i * stepX;
@@ -407,7 +414,7 @@ table.receiveShadow = true;
 table.castShadow = true;
 scene.add(table);
 
-const paperMat = new THREE.MeshStandardMaterial({ map: makePaperTexture(false), roughness: 0.94, bumpMap: microTexture, bumpScale: 0.00007, envMapIntensity: 0.12 });
+const paperMat = new THREE.MeshStandardMaterial({ map: makePaperTexture(false), roughness: 0.97, bumpMap: microTexture, bumpScale: 0.00007, envMapIntensity: 0.08 });
 const paper = new THREE.Mesh(new THREE.PlaneGeometry(PAPER_W * CM, PAPER_D * CM), paperMat);
 paper.rotation.x = -Math.PI / 2;
 paper.position.y = PAPER_Y;
@@ -495,7 +502,7 @@ function makeReflector(colorHex) {
     .replace('uniform vec3 color;', 'uniform vec3 color;\n\tuniform float opacity;')
     .replace(
       'gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );',
-      'gl_FragColor = vec4( blendOverlay( base.rgb, color ), opacity );'
+      'gl_FragColor = vec4( base.rgb * color, opacity );'
     );
   ref.userData.setOpacity = (v) => { ref.material.uniforms.opacity.value = v; };
 
@@ -514,6 +521,10 @@ function makeReflector(colorHex) {
     const wasSA = supportA.visible;
     const wasSB = supportB.visible;
     const wasOverlay = overlayRoot.visible;
+    const wasGlass = glassVolume.visible;
+    const wasEdges = glassEdges.visible;
+    const wasOutline = edgeOutline.visible;
+    glassVolume.visible = glassEdges.visible = edgeOutline.visible = false;
     // 平面镜正面绘制反射时暂时藏起深色背板与支架，避免透黑/黑块
     if (state.material === 'mirror') opaqueBack.visible = false;
     supportA.visible = false;
@@ -525,6 +536,9 @@ function makeReflector(colorHex) {
     supportA.visible = wasSA;
     supportB.visible = wasSB;
     overlayRoot.visible = wasOverlay;
+    glassVolume.visible = wasGlass;
+    glassEdges.visible = wasEdges;
+    edgeOutline.visible = wasOutline;
     renderer.setClearColor(prevColor, prevAlpha);
   };
   return ref;
@@ -632,7 +646,7 @@ function createCandle(lit) {
   const g = new THREE.Group();
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(0.028, 0.032, BODY_H, 64),
-    new THREE.MeshStandardMaterial({ color: 0xdfc78e, roughness: 0.58, bumpMap: microTexture, bumpScale: 0.0001, envMapIntensity: 0.3 })
+    new THREE.MeshStandardMaterial({ color: 0xb62d30, roughness: 0.61, bumpMap: microTexture, bumpScale: 0.0001, envMapIntensity: 0.3 })
   );
   body.position.y = BODY_H / 2;
   body.castShadow = true;
@@ -732,9 +746,19 @@ scene.add(drawRoot);
 function applyMaterialVisual() {
   const t = state.thickness;
   const ghost = Math.pow(t, 0.85);
-  glassEdges.visible = state.material !== 'mirror';
-  edgeOutline.material.color.set(state.material === 'tea' ? 0x826232 : 0x418d80);
-  edgeMaterial.color.set(state.material === 'tea' ? 0x826232 : 0x398879);
+  const isMirror = state.material === 'mirror';
+  glassEdges.visible = true;
+  edgeOutline.material.color.set(isMirror ? 0x9ca5aa : state.material === 'tea' ? 0x826232 : 0x418d80);
+  edgeMaterial.color.set(isMirror ? 0xa9b2b8 : state.material === 'tea' ? 0x826232 : 0x398879);
+  edgeMaterial.metalness = isMirror ? 0.75 : 0;
+  edgeMaterial.roughness = isMirror ? 0.38 : 0.19;
+  edgeMaterial.opacity = isMirror ? 1 : 0.82;
+  edgeOutline.material.opacity = isMirror ? 0.88 : 0.72;
+  if (frontReflector.material.transparent === isMirror) {
+    frontReflector.material.transparent = !isMirror;
+    frontReflector.material.needsUpdate = true;
+  }
+  frontReflector.material.depthWrite = isMirror;
 
   if (state.material === 'mirror') {
     glassVolume.visible = false;
@@ -752,8 +776,8 @@ function applyMaterialVisual() {
     glassVolume.material.opacity = 0.055 + t * 0.045;
     frontReflector.userData.setOpacity(0.36 + ghost * 0.12);
     backReflector.userData.setOpacity(0.13 + ghost * 0.27);
-    frontReflector.material.uniforms.color.value.set(0xf4faf8);
-    backReflector.material.uniforms.color.value.set(0xeef7f2);
+    frontReflector.material.uniforms.color.value.set(0xffffff);
+    backReflector.material.uniforms.color.value.set(0xf5faf8);
   } else {
     glassVolume.visible = true;
     opaqueBack.visible = false;
@@ -763,8 +787,8 @@ function applyMaterialVisual() {
     glassVolume.material.opacity = 0.18 + t * 0.16;
     frontReflector.userData.setOpacity(0.32 + ghost * 0.25);
     backReflector.userData.setOpacity(0.22 + ghost * 0.35);
-    frontReflector.material.uniforms.color.value.set(0xc4a050);
-    backReflector.material.uniforms.color.value.set(0xb89040);
+    frontReflector.material.uniforms.color.value.set(0xf0e2c9);
+    backReflector.material.uniforms.color.value.set(0xe7d4af);
   }
 }
 

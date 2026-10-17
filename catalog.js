@@ -464,7 +464,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "plane-mirror",
-    "cover": "assets/covers/plane-mirror.png?v=20261017-clear-materials",
+    "cover": "assets/covers/plane-mirror.png?v=20261017-red-mirror-v2",
     "title": "平面镜成像规律",
     "subtitle": "玻璃板、等大蜡烛与像的位置探究",
     "category": "光学现象",
@@ -475,7 +475,7 @@ window.MODEL_CATALOG = [
       "平面镜成像",
       "物像关系"
     ],
-    "path": "models/plane-mirror.html?v=20261017-clear-materials",
+    "path": "models/plane-mirror.html?v=20261017-red-mirror-v2",
     "symbol": "↔",
     "accent": "blue"
   },
