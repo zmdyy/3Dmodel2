@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<!-- 3Dmodel2 归档：模型文件、木材纹理与 Three.js r165 均走仓库本地相对路径；保留原始实验动力学与交互。 -->
+<head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>滑动摩擦力探究 · 手动拉动 V9 | 3Dmodel2</title>
+<style>
+:root{font-family:system-ui,"Microsoft YaHei","PingFang SC",sans-serif;color:#183240;background:#eef3f5}*{box-sizing:border-box}body{margin:0}button,select{font-family:inherit}button{cursor:pointer;border:1px solid #b4c5cc;background:#fff;color:#254650;border-radius:8px;padding:9px 14px}button:hover{filter:brightness(.965)}button:focus-visible,.pad:focus-visible{outline:3px solid #70bfc0}button.primary{background:#12747d;border-color:#12747d;color:white}button.active{background:#deeff0;border-color:#69a1a4;color:#065b63}.top{display:flex;gap:11px;align-items:center;padding:12px 18px;background:white;border-bottom:1px solid #dce7eb}.top h1{font-size:20px;margin:0;flex:1}.layout{display:grid;grid-template-columns:minmax(480px,1.56fr) minmax(340px,1fr);gap:12px;max-width:1760px;margin:auto;padding:12px}.panel{background:white;border:1px solid #d9e5e9;border-radius:12px;overflow:hidden}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid #e2eaed;font-size:16px;font-weight:750}.heading small{font-weight:500;color:#526b74;font-size:12px}.scene{height:365px;background:radial-gradient(ellipse at 55% 32%,#ffffff,#e6edf0);position:relative;overflow:hidden}.scene>canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}.scene .sceneHint{position:absolute;left:11px;bottom:9px;background:#ffffffdf;border:1px solid #dae5e8;padding:7px 9px;border-radius:6px;font-size:12px;color:#385663;pointer-events:none}.sceneBadge{position:absolute;top:11px;left:12px;background:#fffffff0;border:1px solid #d6e5e8;border-radius:6px;padding:5px 9px;font-size:12px;color:#1b6670;pointer-events:none}.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:9px}.meter{border:1px solid #dfe8ec;border-radius:8px;text-align:center;padding:10px 4px}.meter b{display:block;font-size:24px;font-variant-numeric:tabular-nums;min-height:29px}.meter small{font-size:12px;color:#66808a}.bar{display:flex;align-items:center;flex-wrap:wrap;gap:13px;padding:9px 13px}.bar label{font-size:13px}.bar input{accent-color:#137980}.status{font-size:13px;background:#f6fafb;border-top:1px solid #e1e9ec;padding:10px 13px;min-height:37px;color:#435963}.scaleView{position:absolute;top:10px;right:10px;z-index:4;width:min(43%,370px);margin:0;border:1px solid #cad9dc;border-radius:9px;padding:9px 12px;background:#f7f9f7f5;box-shadow:0 3px 14px #4562}.scaleTitle{font-size:12px;margin-bottom:8px;font-weight:650}.scaleCase{border-radius:25px;border:2px solid #80958e;background:linear-gradient(175deg,#aabdb7 0%,#e8f0e8 22%,#f6f8ef 44%,#dee8df 80%,#a1afa9 100%);padding:16px 22px;box-shadow:inset 0 3px 7px #3454,0 3px 6px #0001}.scaleRuler{height:36px;position:relative;background:linear-gradient(180deg,#fcfbee,#ececdd);border:1px solid #c3c7b4;overflow:visible}.scaleRuler .lines{position:absolute;inset:0;background:repeating-linear-gradient(to right,#334746 0 1px,transparent 1px 2%,transparent 2%);mask-image:linear-gradient(to bottom,#000 0 55%,transparent 55%)}.scaleRuler .needle{position:absolute;top:-4px;bottom:-4px;width:3px;background:#cc3239;box-shadow:0 0 1px #c11;left:0;z-index:2}.scaleNums{display:flex;justify-content:space-between;padding-top:1px;font-size:11px;color:#273e39}.scaleDescription{font-size:11px;color:#63777c;margin-top:6px}.sectionSpace{margin-top:12px}.padArea{padding:12px}.pad{width:100%;height:216px;position:relative;touch-action:none;overflow:hidden;cursor:crosshair;background:linear-gradient(90deg,#dae7e7 0%,#f5f9f9 30%,#ecf5f5 70%,#d9e5e6 100%);border:2px solid #a0b6bc;border-radius:11px}.pad:before{content:"";position:absolute;top:50%;width:100%;border-top:1px dashed #a5b9bd}.pad:after{content:"← 横向 20 cm →";position:absolute;right:9px;bottom:7px;color:#748e95;font-size:11px}.pad svg{position:absolute;width:100%;height:100%;pointer-events:none;inset:0}.handle{position:absolute;top:50%;left:18px;width:54px;height:54px;transform:translate(-50%,-50%);background:#147b80;border:4px solid white;box-shadow:0 2px 10px #1b454d55;border-radius:15px;pointer-events:none;display:grid;place-items:center;color:#fff;font-size:22px;font-weight:700}.padHint{font-size:12px;line-height:1.65;color:#607780;padding-top:6px}.padNums{display:flex;justify-content:space-between;color:#58717a;font-size:12px;padding-bottom:7px}.controls{padding:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13px}.controls select{border:1px solid #c8d6db;border-radius:7px;padding:7px;background:white}.controls .note{color:#526b73;flex:1 1 100%;font-size:12px}.threeSteps{padding:11px 13px;display:flex;gap:8px;flex-wrap:wrap}.threeSteps button{font-size:13px;padding:8px 10px}.graphs{padding:12px;display:grid;gap:12px}.graphbox{min-width:0}.graphhead{font-weight:700;font-size:13px;margin:0 0 6px}.graph{height:165px;width:100%;display:block;border:1px solid #dbe6e9;border-radius:7px;background:#fff}.trace{height:174px}.legend{font-size:12px;color:#536d76;display:flex;gap:17px;padding:6px 0}.swatch{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:4px}.foot{max-width:1760px;margin:auto;color:#58727c;font-size:12px;padding:1px 14px 16px}.hidden{display:none!important}.fileLabel{border:1px solid #b4c5cc;border-radius:8px;padding:9px 13px;background:#fff;font-size:13px;cursor:pointer}.fileLabel input{display:none}@media(max-width:1080px){.layout{grid-template-columns:1fr}.scene{height:400px}}@media(max-width:650px){.scaleView{width:65%;}.top{flex-wrap:wrap}.top h1{width:100%;flex:auto;font-size:18px}.layout{padding:7px;gap:7px}.scene{height:290px}.meter b{font-size:18px}.meter small{font-size:10px}.pad{height:188px}}
+
+/* Classroom layout: apparatus and direct analysis remain on the first screen. */
+.top{height:58px;padding:8px 16px}.top h1{font-size:20px}.viewButtons{display:flex;gap:5px}.top button{padding:7px 12px}
+.layout{max-width:none;grid-template-columns:minmax(0,1.8fr) minmax(490px,1fr);gap:12px;padding:10px 12px}.layout>section{min-width:0}.scene{height:calc(100dvh - 318px);min-height:300px;background:#9baebc}.heading{padding:7px 12px;font-size:15px}.sceneHint{max-width:90%;font-size:11px!important;padding:5px!important}.padArea{padding:6px 10px}.pad{height:128px;border-radius:7px}.padNums{font-size:11px;padding-bottom:3px}.sectionSpace{margin-top:0}.layout>section>.panel:first-child{border-radius:10px 10px 0 0}.layout>section>.panel:nth-child(2){border-radius:0 0 10px 10px;border-top:0}.meters{padding:5px 0;gap:5px}.meter{background:white;padding:4px}.meter b{font-size:23px;min-height:25px}.meter small{font-size:11px}.bar{padding:4px 0;gap:12px}.bar label{font-size:12px}.status{padding:4px 8px;min-height:24px;border-radius:6px;font-size:12px}.conditions{margin-top:6px}.conditions>.heading,.conditions .note{display:none}.threeSteps{padding:5px 8px;gap:5px}.threeSteps button{font-size:11px;padding:5px 7px}.controls{padding:4px 8px;gap:10px;font-size:12px}.controls select{padding:3px}.analysis{height:calc(100dvh - 78px);display:grid;grid-template-columns:142px minmax(0,1fr);gap:8px;min-width:0}.scaleView{position:relative!important;inset:auto!important;width:100%!important;min-width:0;padding:0;background:#e7edf0;border:1px solid #cad6de;box-shadow:none;display:flex;flex-direction:column;overflow:hidden}.zoomTitle{padding:9px 5px;text-align:center;font-weight:750;font-size:14px;flex:none}.zoomTitle small{display:block;font-size:10px;font-weight:500;color:#516a78;margin-top:5px}#zoomScene{flex:1;min-height:0;position:relative}#zoomScene canvas{width:100%;height:100%;display:block}#zoomScene>span{padding:8px;font-size:12px;display:block}.chartPanel{display:flex;flex-direction:column;min-width:0}.chartPanel>.heading{font-size:15px;flex-wrap:wrap;gap:2px}.chartPanel>.heading small{font-size:10px}.graphs{padding:8px;flex:1;min-height:0;display:grid;grid-template-rows:1.2fr 1fr 1fr auto;gap:7px}.graphbox{display:flex;flex-direction:column;min-height:0}.graphhead{font-size:12px;margin-bottom:4px}.graph{height:0;flex:1;min-height:0}.forceLegend{display:flex;gap:13px;font-size:11px;padding:3px}.forceLegend label{cursor:pointer}.forceLegend i{display:inline-block;width:14px;height:3px;vertical-align:middle}.traceSwitch{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.traceSwitch button{font-size:11px;padding:4px 7px}#recordState{font-size:11px;color:#597382}.trajectory{grid-row:1/4;grid-column:1}.graphs.traceMode>.graphbox:not(.trajectory){display:none}.graphs.traceMode{grid-template-rows:1fr auto}.graphs.traceMode .trajectory{grid-row:1}.graphs.traceMode .traceSwitch{grid-row:2}.analysis:has(.scaleView.hidden){grid-template-columns:1fr}
+@media(min-width:1700px){.layout{grid-template-columns:minmax(0,1.95fr) minmax(590px,1fr)}.analysis{grid-template-columns:170px minmax(0,1fr)}.pad{height:144px}.scene{height:calc(100dvh - 334px)}}
+@media(max-width:1150px){.layout{grid-template-columns:minmax(0,1.25fr) minmax(430px,1fr)}.analysis{grid-template-columns:112px minmax(0,1fr)}.top h1{font-size:16px}.top{gap:6px}.top button{font-size:12px;padding:7px}.scene{min-height:260px}}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.analysis{height:680px;grid-template-columns:150px minmax(0,1fr)}.scene{height:400px}.top{height:auto;flex-wrap:wrap}.top h1{font-size:17px}.pad{height:140px}}
+#scaleView{align-self:start;height:min(530px,calc(100dvh - 90px))}.zoomTitle{font-size:13px}#zoomScene{overflow:hidden}#zoomScaleSVG{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;shape-rendering:geometricPrecision}#zoomScaleSVG text{font-family:Arial,"Microsoft YaHei",sans-serif;fill:#101e28;font-weight:600;paint-order:stroke;stroke:#f8faf8;stroke-width:1.4px;stroke-linejoin:round}#zoomScaleSVG .major{stroke:#17232a;stroke-width:1.8}#zoomScaleSVG .minor{stroke:#27363e;stroke-width:1.15}
+.analysisTools{display:flex;gap:6px;justify-content:space-between;align-items:center;padding:5px 8px;font-size:11px}.analysisTools select{font-size:11px;max-width:145px;padding:3px;border:1px solid #c5d4dc;border-radius:5px}.analysisTools button,#analysisFullscreen{font-size:11px;padding:5px 7px}#linkedState{padding:4px 8px;background:#edf4f8;color:#35566b;font-size:11px;line-height:1.5;border-top:1px solid #e0e8ed}.chartPanel.analysisExpanded,.chartPanel:fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:1000;border-radius:0;background:#fff}.chartPanel.analysisExpanded>.heading,.chartPanel:fullscreen>.heading{font-size:21px;padding:10px 18px}.analysisExpanded #analysisFullscreen{font-size:15px;padding:8px 16px}.analysisExpanded .analysisTools,.analysisExpanded .analysisTools select,.analysisExpanded .analysisTools button{font-size:14px}.analysisExpanded #linkedState{font-size:15px;padding:7px 18px}.analysisExpanded .graphs{padding:12px 20px;gap:12px;grid-template-rows:1.12fr 1fr 1fr auto}.analysisExpanded .graphhead{font-size:17px}.analysisExpanded .forceLegend{font-size:14px;gap:20px}.analysisExpanded .traceSwitch button{font-size:14px}.analysisExpanded .graphDataTip{font-size:14px!important;min-width:150px!important}.chartPanel.analysisExpanded .traceSwitch{justify-content:space-between}body.analysisOpen{overflow:hidden}
+
+/* Vector scale uses screen-space SVG, with no bitmap text or CSS scaling. */
+.analysis{grid-template-columns:190px minmax(0,1fr)}#zoomScaleSVG{shape-rendering:crispEdges;text-rendering:geometricPrecision;transform:none;filter:none}#zoomScaleSVG text{font-family:Arial,"Microsoft YaHei",sans-serif;font-weight:700;fill:#101820;stroke:none;paint-order:normal}#zoomScaleSVG .major{stroke:#10212c;stroke-width:3;vector-effect:non-scaling-stroke}#zoomScaleSVG .minor{stroke:#22333e;stroke-width:2;vector-effect:non-scaling-stroke}.zoomTitle{font-size:14px}.zoomTitle small{font-size:12px}
+@media(min-width:1700px){.analysis{grid-template-columns:210px minmax(0,1fr)}}@media(max-width:1150px){.analysis{grid-template-columns:174px minmax(0,1fr)}}.analysis:has(.scaleView.hidden){grid-template-columns:1fr}
+</style><style>.forceLegend i.pullLine{height:4px;background:#2669d4}.forceLegend i.frictionLine{height:0;border-top:2px dashed #d74f59;background:none;width:22px}.followLabel{font-size:13px;white-space:nowrap}#motionState{font-size:12px;font-weight:700;color:#146f73;margin-left:8px}.pad.paused{cursor:not-allowed;opacity:.65}</style><style>.apparatusHeading{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}.apparatusHeading>span{white-space:nowrap}.apparatusControls{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:13px;font-weight:400}.apparatusControls label{display:flex;align-items:center;gap:6px;white-space:nowrap}.apparatusControls select{font:inherit;padding:4px 7px;border:1px solid #b6cbd3;border-radius:6px;color:#163f50;background:white}.resetHint{font-size:11px;color:#607780}@media(max-width:1350px){.apparatusControls{gap:6px 9px;font-size:12px}.resetHint{display:none}}@media(max-width:650px){.apparatusControls{width:100%;margin:0}}</style></head><body>
+<header class="top"><h1>探究滑动摩擦力 · 真实手动拉动实验</h1><button id="reset">重置</button><button class="primary" id="pause">开始实验</button><div class="viewButtons"><button data-camera="overview">全景</button><button data-camera="close">近看</button><button data-camera="top">俯视</button><label class="followLabel"><input id="followCamera" type="checkbox" checked>画面跟随</label></div></header>
+<span id="modeBadge" hidden></span><div class="layout"><section>
+<div class="panel"><div class="heading apparatusHeading"><span>实验装置</span><div class="apparatusControls"><label>附加钩码 <select id="masses"><option value="0.2">2枚 × 100g</option><option value="0.1">1枚 × 100g</option><option value="0">不放钩码</option></select></label><label>接触面 <select id="surface"><option value="0.3333333333">普通木板</option><option value="0.24">较光滑木板</option><option value="0.45">砂纸</option></select></label><span class="resetHint">更改后重置</span></div><small id="assetState" style="font-size:11px;color:#597480;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">正在加载 Blender 模型</small></div><div class="scene" id="scene"><canvas aria-label="离线3D实验装置" id="sceneFallback"></canvas><div class="sceneHint">拖动旋转 · 滚轮缩放；下方手柄控制抓持端 · 松开即撤去拉力</div></div>
+
+
+
+</div><div class="panel sectionSpace"><div class="padArea"><div class="padNums"><span>0 cm</span><span>前进方向 →</span><span>50 cm</span></div><div aria-label="自由二维拖动控制区" class="pad" id="pad" tabindex="0"><svg preserveaspectratio="none" viewbox="0 0 100 100"><polyline fill="none" id="handTrace" stroke="#287aca" stroke-width=".75" vector-effect="non-scaling-stroke"></polyline></svg><div class="handle" id="handle">⠿</div></div></div></div><div class="meters"><div class="meter"><b id="tVal">0.00</b><small>时间 / s</small></div><div class="meter"><b id="readVal">0.00</b><small>测力计 / N</small></div><div class="meter"><b id="vVal">0.00</b><small>速率 / m/s</small></div><div class="meter"><b id="fVal">待揭示</b><small>模型计算的接触摩擦合力 / N</small></div></div><div class="bar"><label><input checked="" id="magnify" type="checkbox"/> 局部放大测力计</label><label><input id="forces" type="checkbox"/> 显示受力示意图（从重心画）</label><label><input checked="" id="reveal" type="checkbox"/> 显示计算摩擦力</label></div><div class="status" id="status">装置已加载。拖动下方绿色手柄即可开始实验。</div>
+
+</section>
+<aside class="analysis"><div class="scaleView" id="scaleView"><div class="zoomTitle">指针局部放大 ×2 <small>量程0–5 N · 每格0.1 N</small></div><div id="zoomScene"><span>正在加载实物测力计…</span></div><span hidden="" id="pointer"></span></div><div class="panel chartPanel" id="analysisPanel"><div class="heading">实验分析 <button id="analysisFullscreen" title="放大全部分析图像">⛶ 分析全屏</button></div><div class="analysisTools"><label>时间范围 <select id="chartRange"><option value="all">全程 · 自动缩放</option><option value="5">最近5秒</option><option value="10">最近10秒</option></select></label><button id="clearCursor">清除游标</button></div><div id="linkedState" aria-live="polite">点击任一图，同步查看该时刻的受力与运动状态</div><div class="graphs"><div class="graphbox"><div class="graphhead">拉力与摩擦力—时间</div><canvas class="graph" id="forceGraph"></canvas><div class="forceLegend"><label><input checked="" id="showPull" type="checkbox"/> <i class="pullLine"></i>拉力</label><label><input checked="" id="showFriction" type="checkbox"/> <i class="frictionLine"></i>摩擦力</label></div></div><div class="graphbox"><div class="graphhead">速度—时间（纵轴自动适应）</div><canvas class="graph" id="speedGraph"></canvas></div><div class="graphbox"><div class="graphhead">位移—时间（纵轴自动适应）</div><canvas class="graph" id="posGraph"></canvas></div><div class="traceSwitch"><button id="traceToggle">查看平面轨迹</button><span id="recordState">等待拉动</span><span id="motionState" aria-live="polite">静止</span></div><div class="graphbox trajectory hidden"><div class="graphhead">两条平面轨迹（相同坐标比例）</div><canvas class="graph trace" id="trace"></canvas><div class="legend"><span><i class="swatch" style="background:#287aca"></i>手柄</span><span><i class="swatch" style="background:#0e917c"></i>木块重心</span></div></div></div></div></aside></div>
+
+<script>
+(function(){'use strict';
+const $=s=>document.getElementById(s), clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const pad=$('pad'),sceneCanvas=$('sceneFallback'),P2=Math.PI*2;
+// Magnified real model stays beside the analysis charts. // Keep the reading loupe in the 3D stage without consuming slider height.
+const sim={started:false,paused:false,gripped:false,recording:false,recordTime:0,segment:0,quiet:0,lastSample:-1,mass:0.75,mu:1/3,k:100,staticRatio:1.2,g:10,rest:.285,physicsHz:120,sampleHz:40,t:0,run:false,accumulator:0,last:performance.now(),elapsed:0,level:1,valid:true, data:[],handPts:[],blockPts:[],
+  hand:{x:-.04,y:0},block:{x:-.395,y:0,vx:0,vy:0,angle:0,w:0,ax:0,ay:0},read:{T:0,f:0,fx:0,fy:0,pullX:1,pullY:0}
+};
+window.FrictionLab=sim;window.__releaseGrip=releaseGrip;
+let cameraAz=-.18,cameraEl=.82,orbitTouch=null,usingThree=false;
+const setStatus=s=>$('status').textContent=s;
+function hookPos(){const b=sim.block,c=Math.cos(b.angle),s=Math.sin(b.angle);return {x:b.x+.07*c,y:b.y+.07*s,z:.067}}
+function startState(){if(typeof selectedGraphData!=='undefined'){for(const k of Object.keys(selectedGraphData))selectedGraphData[k]=null;for(const t of document.querySelectorAll('.graphDataTip'))t.style.display='none';}if($('linkedState'))$('linkedState').textContent='点击任一图，同步查看该时刻的受力与运动状态';sim.started=false;sim.paused=false;pad.classList.remove("paused");sim.gripped=false;sim.t=0;sim.recordTime=0;sim.recording=false;sim.segment=0;sim.quiet=0;sim.lastSample=-1;sim.run=false;sim.accumulator=0;sim.data.length=0;sim.handPts.length=0;sim.blockPts.length=0;sim.hand.x=-.04;sim.hand.y=0;Object.assign(sim.block,{x:-.395,y:0,vx:0,vy:0,angle:0,w:0,ax:0,ay:0});sim.mass=.55+Number($('masses').value);sim.mu=Number($('surface').value);sim.valid=true;sim.ended=false;sim.read={T:0,f:0,fx:0,fy:0,pullX:1,pullY:0};$('pause').textContent='开始实验';setStatus('装置已加载。拖动下方绿色手柄即可开始实验。');syncState();drawPad();drawAll();}
+function relaxHand(){const anchor=hookPos(),ux=sim.read.pullX||1,uy=sim.read.pullY||0;sim.hand.x=clamp(anchor.x+sim.rest*ux,-.04,.46);sim.hand.y=clamp(anchor.y+sim.rest*uy,-.1,.1);}
+function appendRecord(){const B=sim.block;sim.lastSample=sim.recordTime;sim.data.push({t:sim.recordTime,segment:sim.segment,T:sim.read.T,f:sim.read.f,v:Math.hypot(B.vx,B.vy),s:Math.hypot(B.x+.395,B.y),x:B.x,y:B.y,ax:B.ax,ay:B.ay});if(sim.data.length>6000)sim.data.shift();sim.blockPts.push({x:B.x,y:B.y,segment:sim.segment});}
+function releaseGrip(){if(!sim.gripped)return;sim.gripped=false;sim.read.T=0;const moving=Math.hypot(sim.block.vx,sim.block.vy)>.0015||Math.abs(sim.block.w)>.015;if(!moving){sim.read.f=0;sim.read.fx=0;sim.read.fy=0;}relaxHand();if(sim.recording)appendRecord();setStatus(moving?'已松开：拉力为0，木块在摩擦力作用下减速。':'已松开：拉力和摩擦力均为0，记录自动结束。');syncState();drawPad();drawAll();}
+function step(dt){if(!sim.gripped)relaxHand();const B=sim.block,H=sim.hand,anchor=hookPos();const dx=H.x-anchor.x,dy=H.y-anchor.y,dist=Math.hypot(dx,dy),ux=dist>1e-10?dx/dist:1,uy=dist>1e-10?dy/dist:0;
+ const T=sim.gripped?sim.k*Math.max(0,dist-sim.rest):0, Fx=T*ux,Fy=T*uy,N=sim.mass*sim.g,km=sim.mu*N,sm=sim.mu*sim.staticRatio*N;
+ const c=Math.cos(B.angle),s=Math.sin(B.angle),rx=.07*c,ry=.07*s,tau=rx*Fy-ry*Fx,I=sim.mass*(.14*.14+.09*.09)/12;
+ let fX=0,fY=0,fTau=0;
+ const speed=Math.hypot(B.vx,B.vy),still=speed<.0015&&Math.abs(B.w)<.015;
+ // Static friction and contact torque threshold from the same finite support footprint.
+ if(still&&Math.hypot(Fx,Fy)<=sm&&Math.abs(tau)<=sm*.044){B.vx=0;B.vy=0;B.w=0;B.ax=0;B.ay=0;fX=-Fx;fY=-Fy;fTau=-tau;}
+ else {
+  const points=[[-.05,-.032],[0,-.032],[.05,-.032],[-.05,0],[0,0],[.05,0],[-.05,.032],[0,.032],[.05,.032]];
+  const urgent=still&&Math.hypot(Fx,Fy)>sm;
+  if(urgent){fX=-km*ux;fY=-km*uy;}
+  else for(const [px,py] of points){const qx=c*px-s*py,qy=s*px+c*py,vpx=B.vx-B.w*qy,vpy=B.vy+B.w*qx,pv=Math.hypot(vpx,vpy);if(pv>.00001){const coeff=-(km/points.length)/Math.max(pv,.003);const cx=coeff*vpx,cy=coeff*vpy;fX+=cx;fY+=cy;fTau+=qx*cy-qy*cx;}}
+  B.ax=(Fx+fX)/sim.mass;B.ay=(Fy+fY)/sim.mass;
+  const oldVx=B.vx,oldVy=B.vy,oldW=B.w;
+  B.vx+=B.ax*dt;B.vy+=B.ay*dt;
+  B.w+=(tau+fTau)/I*dt;
+  // With no applied force, contact friction cannot reverse the motion or spin.
+  if(!sim.gripped){if(B.vx*oldVx+B.vy*oldVy<=0){B.vx=0;B.vy=0;}if(B.w*oldW<=0)B.w=0;}
+
+  // Keep numerical displacement from exploding if the user drags the spring far beyond range.
+  B.x+=B.vx*dt;B.y+=B.vy*dt;B.angle+=B.w*dt;
+ }
+ if(!sim.gripped&&Math.hypot(B.vx,B.vy)<.0015&&Math.abs(B.w)<.015){B.vx=B.vy=B.w=0;B.ax=B.ay=0;fX=fY=fTau=0;}
+ sim.t+=dt;sim.read={T,f:Math.hypot(fX,fY),fx:fX,fy:fY,pullX:ux,pullY:uy};
+ const moving=Math.hypot(B.vx,B.vy)>.0015||Math.abs(B.w)>.015;
+ const active=sim.gripped&&(T>.025||Math.hypot(fX,fY)>.025)||moving;
+ if(!sim.recording&&sim.gripped&&T>.04){sim.recording=true;sim.segment++;sim.quiet=0;sim.lastSample=-1;}
+ if(sim.recording){
+  if(active){sim.quiet=0;sim.recordTime+=dt;if(sim.lastSample<0||sim.recordTime-sim.lastSample>=.025-1e-9)appendRecord();}
+  else{if(sim.quiet===0){sim.recordTime+=dt;appendRecord();}sim.quiet+=dt;if(sim.quiet>=.18){sim.recording=false;setStatus('本次拉动已结束：木块静止，拉力与摩擦力均为0。可再次抓持手柄。');}}
+ }
+ if(!sim.gripped)relaxHand();
+
+ const halfY=Math.abs(Math.sin(B.angle))*.07+Math.abs(Math.cos(B.angle))*.045;
+ const halfX=Math.abs(Math.cos(B.angle))*.07+Math.abs(Math.sin(B.angle))*.045;
+ if(B.x-halfX<-.585||B.x+halfX>1.175||Math.abs(B.y)+halfY>.155){sim.run=false;$('pause').textContent='继续实验';sim.valid=false;sim.ended=true;setStatus('木块碰到木板边缘，测量结束。请点击“重置”开始新实验。');}
+ }
+function syncState(){const T=sim.read.T,b=sim.block;$('motionState').textContent=Math.hypot(b.vx,b.vy)>=.0015?'滑动':Math.abs(b.w)>=.015?'转动':T>.025?'静止 · 受力平衡':'静止';$('tVal').textContent=sim.recordTime.toFixed(2);$('recordState').textContent=sim.recording?'● 自动记录中':sim.data.length?'已停止 · 等待下一次拉动':'等待拉动';$('readVal').textContent=T>5?'超量程':T.toFixed(2);$('vVal').textContent=Math.hypot(b.vx,b.vy).toFixed(2);$('fVal').textContent=$('reveal').checked?sim.read.f.toFixed(2):'待揭示';$('pointer').style.left=clamp(T/5*100,0,100)+'%';$('pointer').style.background=T>5?'#ff8b00':'#cc3239';if(T>5&&sim.run){sim.valid=false;setStatus('测力计超过5N量程。本段读数不可作为有效测量值；物理运动继续计算。');}}
+function prepareCanvas(canvas){const rect=canvas.getBoundingClientRect();const w=Math.max(2,rect.width),h=Math.max(2,rect.height),dpr=Math.min(2,window.devicePixelRatio||1),rw=Math.round(w*dpr),rh=Math.round(h*dpr);if(canvas.width!==rw||canvas.height!==rh){canvas.width=rw;canvas.height=rh;}const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w,h};}
+function niceAxisMax(value){
+ if(!Number.isFinite(value)||value<=0)return 1;
+ const order=Math.pow(10,Math.floor(Math.log10(value)));
+ for(const v of [1,1.25,1.5,2,2.5,3,4,5,6,8,10])if(v*order>=value)return v*order;
+ return 10*order;
+}
+function graphWindow(){if(!sim.data.length)return null;const last=sim.data[sim.data.length-1].t,span=Number($('chartRange').value)||0,begin=span?Math.max(0,last-span):0;return {begin,finish:Math.max(begin+.25,last+.04),records:sim.data.filter(d=>d.t>=begin)};}
+const selectedGraphData={forceGraph:null,speedGraph:null,posGraph:null};
+function graph(id,keys,colors,unusedMax){
+ const {ctx,w,h}=prepareCanvas($(id));ctx.clearRect(0,0,w,h);
+ const large=$('analysisPanel').classList.contains('analysisExpanded');const l=large?82:51,r=w-(large?28:15),t=large?25:18,b=h-(large?37:28),plotH=b-t;$(id).dataset.plotLeft=l;$(id).dataset.plotRight=r;
+ const windowData=graphWindow();
+ const records=windowData?windowData.records:[];
+ const visibleKeys=keys.filter(k=>k==='T'?$('showPull').checked:k==='f'?$('showFriction').checked&&$('reveal').checked:true);
+ let peak=0;
+ for(const d of records)for(const key of visibleKeys){const val=d[key];if(Number.isFinite(val))peak=Math.max(peak,val)}
+ // Pull readings are drawn on a 0-5N scale only if needed; speed and displacement magnify smaller changes.
+ const emptyMax=id==='forceGraph'?1:id==='speedGraph'?.05:.1;
+ const axisMax=niceAxisMax(peak>0?Math.max(.001,peak*1.08):emptyMax);$(id).dataset.axisMax=axisMax;$(id).dataset.timeBegin=windowData?.begin??0;$(id).dataset.timeEnd=windowData?.finish??5;
+ const begin=windowData?windowData.begin:0,finish=windowData?windowData.finish:5;
+ ctx.save();ctx.font=(large?'17':'12')+'px system-ui';ctx.textBaseline='middle';
+ for(let i=0;i<=4;i++){
+   const py=t+plotH*i/4,y=axisMax*(1-i/4);
+   ctx.strokeStyle='#dce6e9';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(l,py);ctx.lineTo(r,py);ctx.stroke();
+   ctx.fillStyle='#617780';ctx.fillText(y.toFixed(axisMax>=5?1:axisMax>=1?2:3).replace(/\.?0+$/,''),5,py);
+ }
+ ctx.strokeStyle='#8da3a8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(l,t);ctx.lineTo(l,b);ctx.lineTo(r,b);ctx.stroke();
+ ctx.fillStyle='#627984';ctx.textBaseline='alphabetic';
+ for(let i=0;i<=4;i++){
+   const val=begin+(finish-begin)*i/4,x=l+(r-l)*i/4;
+   ctx.textAlign=i===0?'left':i===4?'right':'center';
+   ctx.fillText(val.toFixed(finish-begin<12?1:0),x,b+16);
+ }
+ ctx.textAlign='right';ctx.fillText('s',r,b+27);ctx.textAlign='left';
+ // Clip all curves to the active graph rectangle, never draw outside the axes.
+ ctx.save();ctx.beginPath();ctx.rect(l,t,r-l,b-t);ctx.clip();
+ for(let j=0;j<keys.length;j++){
+   const key=keys[j];if(!visibleKeys.includes(key))continue;
+   ctx.strokeStyle=colors[j];ctx.lineWidth=key==='T'?(large?4.5:3.6):key==='f'?(large?2.8:2.2):2.2;ctx.setLineDash(key==='f'?(large?[10,7]:[7,5]):[]);ctx.beginPath();let started=false,lastSegment=-1;
+   for(const d of records){const value=d[key];if(!Number.isFinite(value))continue;
+     const py=b-value/axisMax*plotH,x=l+(d.t-begin)/(finish-begin)*(r-l);
+     if(!started||d.segment!==lastSegment){ctx.moveTo(x,py);started=true;}else ctx.lineTo(x,py);lastSegment=d.segment;
+   }ctx.stroke();ctx.setLineDash([]);
+ }
+ ctx.restore();
+ const chosen=selectedGraphData[id];$(id).dataset.selectedTime=chosen?.t??'';
+ if(chosen && chosen.t>=begin && chosen.t<=finish){
+   const cx=l+(chosen.t-begin)/(finish-begin)*(r-l);
+   ctx.save();ctx.strokeStyle='#48687e';ctx.lineWidth=large?2:1.5;ctx.setLineDash([6,4]);
+   ctx.beginPath();ctx.moveTo(cx,t);ctx.lineTo(cx,b);ctx.stroke();ctx.setLineDash([]);
+   for(let j=0;j<keys.length;j++){const key=keys[j];if(!visibleKeys.includes(key))continue;
+     const val=chosen[key];if(!Number.isFinite(val))continue;
+     ctx.fillStyle=colors[j];ctx.beginPath();ctx.arc(cx,b-val/axisMax*plotH,key==='T'?6:3.2,0,Math.PI*2);ctx.fill();
+   }ctx.restore();
+ }
+ if(records.length<2){ctx.fillStyle='#9aaeb5';ctx.textAlign='center';ctx.font='12px system-ui';
+  ctx.fillText(sim.run?'请移动下方手柄开始记录':'开始拉动后显示有效数据',l+(r-l)/2,t+plotH/2);ctx.textAlign='left';}
+ ctx.restore();
+}
+function drawTrack(){const {ctx,w,h}=prepareCanvas($('trace'));ctx.clearRect(0,0,w,h);ctx.fillStyle='#f9fcfb';ctx.fillRect(0,0,w,h);const inner={l:30,r:w-12,t:10,b:h-29},unit=Math.min((inner.r-inner.l)/1.77,(inner.b-inner.t)/.32);const cx=(inner.l+inner.r)/2-0.295*unit,cy=(inner.t+inner.b)/2;
+ const scr=q=>({x:cx+q.x*unit,y:cy-q.y*unit});ctx.strokeStyle='#b7c7c9';ctx.setLineDash([4,4]);ctx.strokeRect(cx-.59*unit,cy-.16*unit,1.77*unit,.32*unit);ctx.setLineDash([]);ctx.strokeStyle='#dee6e7';ctx.beginPath();ctx.moveTo(cx,inner.t);ctx.lineTo(cx,inner.b);ctx.stroke();for(const [pts,col] of [[sim.handPts,'#287aca'],[sim.blockPts,'#0e917c']]){ctx.beginPath();ctx.lineWidth=2.2;ctx.strokeStyle=col;pts.forEach((pt,i)=>{let q=scr(pt);if(i===0)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y)});ctx.stroke();}
+ for(const [pt,col] of [[sim.hand,'#287aca'],[sim.block,'#0e917c']]){let q=scr(pt);ctx.beginPath();ctx.arc(q.x,q.y,4,0,P2);ctx.fillStyle=col;ctx.fill();}ctx.fillStyle='#6b8790';ctx.font='12px system-ui';ctx.fillText('木板俯视 · 1:1比例',30,h-9);}
+function drawAll(){graph('forceGraph',['T','f'],['#2669d4','#d74f59'],5.5);graph('speedGraph',['v'],['#0e917c'],2);graph('posGraph',['s'],['#ad7b2d'],1.1);drawTrack();}
+// Student can inspect any recorded data point by clicking the three time charts.
+for(const [chartId,tipName] of [['forceGraph','拉力与摩擦力'],['speedGraph','速率'],['posGraph','位移']]){
+ const cv=$(chartId),panel=cv.closest('.graphbox');
+ panel.style.position='relative';cv.style.cursor='crosshair';
+ const tip=document.createElement('div');tip.className='graphDataTip';
+ tip.style.cssText='position:absolute;display:none;z-index:6;pointer-events:none;background:rgba(255,255,255,.97);border:1px solid #b8cbd1;border-radius:7px;padding:7px 10px;box-shadow:0 3px 12px #0002;font-size:12px;color:#27424a;white-space:pre-line;min-width:125px';
+ panel.appendChild(tip);
+ cv.addEventListener('click',event=>{
+   const win=graphWindow();if(!win||win.records.length===0)return;
+   const rect=cv.getBoundingClientRect(),x=event.clientX-rect.left;
+   const left=Number(cv.dataset.plotLeft)||51,right=Number(cv.dataset.plotRight)||rect.width-15;
+   const secs=win.begin+(Math.max(left,Math.min(right,x))-left)/Math.max(1,right-left)*(win.finish-win.begin);
+   let chosen=win.records[0];
+   for(const d of win.records){if(Math.abs(d.t-secs)<Math.abs(chosen.t-secs))chosen=d;}
+   selectChartTime(chosen);
+
+ });
+}
+
+function selectChartTime(chosen){
+ for(const id of Object.keys(selectedGraphData)){
+  selectedGraphData[id]=chosen;const panel=$(id).closest('.graphbox'),tip=panel.querySelector('.graphDataTip');if(!tip)continue;
+  const lines=['时间 '+chosen.t.toFixed(2)+' s'];
+  if(id==='forceGraph'){if($('showPull').checked)lines.push('拉力 '+chosen.T.toFixed(2)+' N');if($('showFriction').checked&&$('reveal').checked)lines.push('摩擦力 '+chosen.f.toFixed(2)+' N');}
+  if(id==='speedGraph')lines.push('速度 '+chosen.v.toFixed(3)+' m/s');
+  if(id==='posGraph')lines.push('位移 '+chosen.s.toFixed(3)+' m');
+  tip.textContent=lines.join('\n');tip.style.display='block';tip.style.left='auto';tip.style.right='12px';tip.style.top='27px';
+ }
+ const state=chosen.v<.0015?(chosen.T>.025?'受力但静止':'静止'):Math.hypot(chosen.ax,chosen.ay)<.03?'近似匀速':'速度正在变化';
+ $('linkedState').textContent='同一时刻 '+chosen.t.toFixed(2)+' s · 拉力 '+chosen.T.toFixed(2)+' N'+($('reveal').checked?' · 摩擦力 '+chosen.f.toFixed(2)+' N':'')+' · 速度 '+chosen.v.toFixed(3)+' m/s · 位移 '+chosen.s.toFixed(3)+' m · '+state;
+ drawAll();
+}
+function clearChartCursor(){for(const id of Object.keys(selectedGraphData))selectedGraphData[id]=null;for(const tip of document.querySelectorAll('.graphDataTip'))tip.style.display='none';$('linkedState').textContent='点击任一图，同步查看该时刻的受力与运动状态';drawAll();}
+$('clearCursor').onclick=clearChartCursor;$('chartRange').onchange=()=>{clearChartCursor();drawAll();};
+const analysisPanel=$('analysisPanel');let restoringFocus=null;
+function setAnalysisExpanded(on){analysisPanel.classList.toggle('analysisExpanded',on);document.body.classList.toggle('analysisOpen',on);$('analysisFullscreen').textContent=on?'退出全屏':'⛶ 分析全屏';requestAnimationFrame(drawAll);}
+$('analysisFullscreen').onclick=async()=>{const on=!analysisPanel.classList.contains('analysisExpanded');setAnalysisExpanded(on);if(on){restoringFocus=document.activeElement;try{await analysisPanel.requestFullscreen?.()}catch{}}else{if(document.fullscreenElement)try{await document.exitFullscreen()}catch{}restoringFocus?.focus();}};
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)setAnalysisExpanded(false);});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&analysisPanel.classList.contains('analysisExpanded')){if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});setAnalysisExpanded(false);}});
+new ResizeObserver(()=>requestAnimationFrame(drawAll)).observe(analysisPanel);
+window.__chartProbe=()=>({selected:Object.fromEntries(Object.entries(selectedGraphData).map(([id,d])=>[id,d?.t??null])),expanded:analysisPanel.classList.contains('analysisExpanded')});
+
+let grabbing=false,lastPointer=null,pointerId=null;function drawPad(){const a=pad.getBoundingClientRect(),w=a.width,h=a.height,x=16+(.04+sim.hand.x)/.5*(w-32),y=16+(.1-sim.hand.y)/.2*(h-32);$('handle').style.left=x+'px';$('handle').style.top=y+'px';$('handTrace').setAttribute('points',sim.handPts.map(q=>{const px=16+(.04+q.x)/.5*(w-32),py=16+(.1-q.y)/.2*(h-32);return (px/w*100).toFixed(2)+','+(py/h*100).toFixed(2)}).join(' '));}
+pad.onpointerdown=e=>{if(sim.ended||sim.paused)return;if(!sim.started){sim.started=true;sim.run=true;sim.accumulator=0;$('pause').textContent='暂停实验';setStatus('拉动即记录：静止受力阶段也会记录。');}if(!sim.gripped)relaxHand();sim.gripped=true;grabbing=true;pointerId=e.pointerId;lastPointer={x:e.clientX,y:e.clientY};pad.setPointerCapture(e.pointerId);e.preventDefault();};pad.onpointermove=e=>{if(!grabbing||pointerId!==e.pointerId)return;const rect=pad.getBoundingClientRect(),dx=(e.clientX-lastPointer.x)/(rect.width-32)*.5,dy=-(e.clientY-lastPointer.y)/(rect.height-32)*.2;sim.hand.x=clamp(sim.hand.x+dx,-.04,.46);sim.hand.y=clamp(sim.hand.y+dy,-.1,.1);lastPointer={x:e.clientX,y:e.clientY};if(sim.run){sim.handPts.push({x:sim.hand.x,y:sim.hand.y});if(sim.handPts.length>1600)sim.handPts.shift()}drawPad();e.preventDefault();};for(const typ of ['pointercancel','lostpointercapture','pointerup'])pad.addEventListener(typ,e=>{if(e.pointerId===pointerId){grabbing=false;pointerId=null;lastPointer=null;releaseGrip();}});
+for(const id of ['showPull','showFriction'])$(id).onchange=drawAll;$('traceToggle').onclick=()=>{const on=$('trace').closest('.graphs').classList.toggle('traceMode');$('trace').closest('.graphbox').classList.toggle('hidden',!on);$('traceToggle').textContent=on?'返回时间图像':'查看平面轨迹';drawAll();};
+window.addEventListener('blur',()=>{grabbing=false;pointerId=null;lastPointer=null;releaseGrip();});document.addEventListener('visibilitychange',()=>{if(document.hidden){grabbing=false;pointerId=null;lastPointer=null;releaseGrip();}});
+$('pause').onclick=()=>{if(sim.ended){setStatus('木块已到边界，需要点击“重置”开始新实验。');return;}sim.run=!sim.run;sim.started=true;sim.paused=!sim.run;pad.classList.toggle('paused',sim.paused);if(sim.paused){grabbing=false;pointerId=null;lastPointer=null;releaseGrip();}sim.accumulator=0;$('pause').textContent=sim.run?'暂停实验':'继续实验';setStatus(sim.run?'已就绪：拉动即记录，无力且静止后自动停止。':'已暂停：仅显示发生拉动和运动的有效时间段。')};$('reset').onclick=startState;$('magnify').onchange=()=>{$('scaleView').classList.toggle('hidden',!$('magnify').checked)};$('reveal').onchange=()=>{syncState();drawAll()};for(const id of ['masses','surface'])$(id).onchange=startState;
+// Pure Canvas projected three-dimensional model. No network or Three.js is required to display this scene.
+const V=(x,y,z)=>({x,y,z});const faceColors={'board':'#e7e2d6','wood':'#c6945b','woodDark':'#9b683b','groove':'#825e47','metal':'#929ba2','steel':'#bcc3c4','glass':'#a9d4d1','rubber':'#668b8b','skin':'#d7aa88','weight':'#85888c','shadow':'#344c4b'};
+function shade(color,amount=1){const hex=color.replace('#','');return '#'+[0,2,4].map(i=>Math.round(clamp(parseInt(hex.slice(i,i+2),16)*amount,0,255)).toString(16).padStart(2,'0')).join('')}
+const offlineWood=new Image();offlineWood.src='../assets/textures/friction-manual-wood.png';
+const offlineBoard=new Image();offlineBoard.src='../assets/textures/friction-manual-board.png';
+window.__frictionBoardURL=offlineBoard.src;window.__frictionWoodURL=offlineWood.src;
+let drawables=[];const light=V(-.2,-.48,1);const ln=Math.hypot(light.x,light.y,light.z);
+function transformBlock(v){const B=sim.block,c=Math.cos(B.angle),s=Math.sin(B.angle);return V(B.x+v.x*c-v.y*s,B.y+v.x*s+v.y*c,v.z)}
+function planarUV(v){const ca=Math.cos(cameraAz),sa=Math.sin(cameraAz),se=Math.sin(cameraEl),ce=Math.cos(cameraEl);return {x:v.x*ca-v.y*sa,y:(v.x*sa+v.y*ca)*se-v.z*ce,depth:(v.x*sa+v.y*ca)*ce+v.z*se};}
+function makeFace(pts,color,normal,alpha=1,layer=0){const p=pts.map(planarUV),depth=p.reduce((a,v)=>a+v.depth,0)/p.length;const n=normal||V(0,0,1);let brightness=.67+.36*Math.max(0,(n.x*light.x+n.y*light.y+n.z*light.z)/ln);drawables.push({type:'poly',points:p,fill:shade(color,brightness),wood:normal?.z>.9&&[faceColors.board,'#d6a26c'].includes(color),board:color===faceColors.board,depth,alpha,layer});}
+function addStroke(pts,color,width=1.5,layer=.02){drawables.push({type:'stroke',points:pts.map(planarUV),color,width,depth:pts.reduce((a,v)=>a+planarUV(v).depth,0)/pts.length,layer});}
+function addBox(center,dim,colors,rotation=0){const [dx,dy,dz]=dim.map(x=>x/2),cs=Math.cos(rotation),sn=Math.sin(rotation);const tr=([x,y,z])=>V(center.x+x*cs-y*sn,center.y+x*sn+y*cs,center.z+z);const v=[[-dx,-dy,-dz],[dx,-dy,-dz],[dx,dy,-dz],[-dx,dy,-dz],[-dx,-dy,dz],[dx,-dy,dz],[dx,dy,dz],[-dx,dy,dz]].map(tr);
+ let col=Array.isArray(colors)?colors:[colors,colors,colors];makeFace([v[0],v[1],v[5],v[4]],col[1],V(0,-1,0));makeFace([v[1],v[2],v[6],v[5]],col[1],V(1,0,0));makeFace([v[2],v[3],v[7],v[6]],col[2],V(0,1,0));makeFace([v[3],v[0],v[4],v[7]],col[2],V(-1,0,0));makeFace([v[4],v[5],v[6],v[7]],col[0],V(0,0,1));}
+function cylinder(a,b,r,color,segs=18){let dir=V(b.x-a.x,b.y-a.y,b.z-a.z),m=Math.hypot(dir.x,dir.y,dir.z);if(m<1e-7)return;dir=V(dir.x/m,dir.y/m,dir.z/m);let tang=Math.abs(dir.z)>.90?V(1,0,0):V(0,0,1);let vx=V(dir.y*tang.z-dir.z*tang.y,dir.z*tang.x-dir.x*tang.z,dir.x*tang.y-dir.y*tang.x),vlen=Math.hypot(vx.x,vx.y,vx.z);vx=V(vx.x/vlen,vx.y/vlen,vx.z/vlen);let vy=V(dir.y*vx.z-dir.z*vx.y,dir.z*vx.x-dir.x*vx.z,dir.x*vx.y-dir.y*vx.x);
+ let ap=[],bp=[];for(let i=0;i<segs;i++){const t=P2*i/segs,ox=(vx.x*Math.cos(t)+vy.x*Math.sin(t))*r,oy=(vx.y*Math.cos(t)+vy.y*Math.sin(t))*r,oz=(vx.z*Math.cos(t)+vy.z*Math.sin(t))*r;ap.push(V(a.x+ox,a.y+oy,a.z+oz));bp.push(V(b.x+ox,b.y+oy,b.z+oz))}
+ for(let i=0;i<segs;i++){const j=(i+1)%segs;const normal=V((ap[i].x+ap[j].x)/2-a.x,(ap[i].y+ap[j].y)/2-a.y,(ap[i].z+ap[j].z)/2-a.z);const nm=Math.hypot(normal.x,normal.y,normal.z)||1;makeFace([ap[i],bp[i],bp[j],ap[j]],color,V(normal.x/nm,normal.y/nm,normal.z/nm));}makeFace(bp,color,dir);makeFace(ap,color,V(-dir.x,-dir.y,-dir.z));}
+function ring(center,r,axis,col,width=2){const pts=[];for(let i=0;i<=32;i++){const th=P2*i/32;if(axis==='xz')pts.push(V(center.x+r*Math.cos(th),center.y,center.z+r*Math.sin(th)));else if(axis==='yz')pts.push(V(center.x,center.y+r*Math.cos(th),center.z+r*Math.sin(th)));else pts.push(V(center.x+r*Math.cos(th),center.y+r*Math.sin(th),center.z));}addStroke(pts,col,width)}
+function buildFallback(){drawables=[];faceColors.board=$('surface').value==='0.45'?'#655f56':$('surface').value==='0.24'?'#eee5d4':'#e7e2d6';
+ // Broad pale tabletop shadow and board.
+ addBox(V(.295,0,.012),[1.77,.32,.024],[faceColors.board,'#c9c3b7','#d5cec0']);
+ if(!offlineWood.complete)for(let j=0;j<36;j++){const y=-.148+j*.008;addStroke([V(-.575,y,.025),V(1.165,y+.004*Math.sin(j*2.31),.025)],j%3?'#bca083':'#d9b99b',.4)}
+ for(let i=0;i<=35;i++){const x=-.575+i*.05;addStroke([V(x,-.139,.028),V(x,-.119+(i%2===0?.004:0),.028)],'#5b5348',i%5===0?1.4:.75)}
+ const B=sim.block,rot=B.angle;addBox(V(B.x,B.y,.055),[.14,.09,.063],['#d6a26c','#a27042','#b07c49'],rot);
+ // Recess: a dark lowered floor with correctly raised rim; iron weights sit inside the recess.
+ const q=transformBlock;const floor=[[-.046,-.029,.087],[-.046,.029,.087],[.041,.029,.087],[.041,-.029,.087]].map(v=>q(V(...v)));makeFace(floor,faceColors.groove,V(0,0,1));
+ const rim=[[-.048,-.031,.088],[.043,-.031,.088],[.043,.031,.088],[-.048,.031,.088]];const top=[[-.048,-.031,.092],[.043,-.031,.092],[.043,.031,.092],[-.048,.031,.092]]; // recessed edge accent
+ for(let i=0;i<4;i++){addStroke([q(V(...rim[i])),q(V(...rim[(i+1)%4]))],'#734e37',1.6)}
+ for(let i=0;i<Math.round(Number($('masses').value)/.1);i++){const wx=i? .017:-.024,wy=0;const origin=q(V(wx,wy,.098));cylinder(origin,V(origin.x,origin.y,origin.z+.037),.019,faceColors.weight,22);ring(V(origin.x,origin.y,origin.z+.041),.009,'xz','#858b8f',2.8);cylinder(V(origin.x,origin.y,origin.z+.037),V(origin.x,origin.y,origin.z+.04),.013,'#b1b3b4',15);}
+ const hook=hookPos();cylinder(hook,V(hook.x+.012*Math.cos(rot),hook.y+.012*Math.sin(rot),hook.z),.004,'#949b9e',12);ring(V(hook.x+.015*Math.cos(rot),hook.y+.015*Math.sin(rot),hook.z),.010,'xz','#a6b1b4',2.4);
+ const H=sim.hand,vec=V(H.x-hook.x,H.y-hook.y,0),d=Math.hypot(vec.x,vec.y)||1,ux=vec.x/d,uy=vec.y/d;const along=(t,z=.067)=>V(hook.x+ux*t,hook.y+uy*t,z);const bodyA=along(Math.max(.028,d-.196)),bodyB=along(Math.max(.04,d-.015));
+ cylinder(along(.009),bodyA,.0045,'#909da1',10);cylinder(bodyA,bodyB,.0125,'#c5dbd7',20); // tube glass, with metal terminal caps
+ cylinder(along(Math.max(.025,d-.196)),along(Math.max(.032,d-.188)),.014,'#73978f',18);cylinder(along(Math.max(.03,d-.025)),along(Math.max(.035,d-.014)),.014,'#73978f',18);
+ // Spring helix at front of the instrument, following its axis.
+ const coilPts=[],coilBeg=Math.max(.032,d-.175),coilEnd=Math.max(coilBeg+.01,d-.093);
+ for(let i=0;i<=150;i++){const t=i/150,phi=t*P2*15,ax=along(coilBeg+(coilEnd-coilBeg)*t);coilPts.push(V(ax.x-uy*.0075*Math.cos(phi),ax.y+ux*.0075*Math.cos(phi),ax.z+.0075*Math.sin(phi)))}addStroke(coilPts,'#6f8485',1.3);
+ // Graduations on scale body; distinct black ticks and red indicator
+ const ts=Math.max(.04,d-.169),te=Math.max(ts+.02,d-.057);
+ for(let i=0;i<=50;i++){const pp=along(ts+(te-ts)*i/50,.079);const off=i%10===0?.011:i%5===0?.008:.005;addStroke([pp,V(pp.x-uy*off,pp.y+ux*off,pp.z)],'#374e4c',i%10===0?1.3:.65)}
+ const ind=along(ts+(te-ts)*clamp(sim.read.T/5,0,1),.083);addStroke([V(ind.x-uy*.013,ind.y+ux*.013,ind.z),V(ind.x+uy*.004,ind.y-ux*.004,ind.z)],'#d52932',3);
+ // Hand removed: use a colored grip ball to indicate the hook is already being held.
+ cylinder(bodyB,along(d-.002),.004,'#879398',12);const gripRing=along(Math.max(0,d-.001),.067);ring(gripRing,.013,'xz','#88959b',2.2);
+ const ballCenter=along(Math.max(.012,d+.018),.067);cylinder(V(ballCenter.x,ballCenter.y,ballCenter.z-.014),V(ballCenter.x,ballCenter.y,ballCenter.z+.014),.016,'#f18b3f',20);
+ // Large force arrows from centre of mass, not side hook. The actual force is applied at side hook in physics.
+ if($('forces').checked){const z=.13,arrow=(ux,uy,len,color)=>{const a=V(B.x,B.y,z),p=V(B.x+ux*len,B.y+uy*len,z);addStroke([a,p],color,3);const phi=Math.atan2(uy,ux),p1=V(p.x-.012*Math.cos(phi-.52),p.y-.012*Math.sin(phi-.52),z),p2=V(p.x-.012*Math.cos(phi+.52),p.y-.012*Math.sin(phi+.52),z);addStroke([p1,p,p2],color,2.7)};arrow(sim.read.pullX,sim.read.pullY,Math.max(.01,sim.read.T*.044),'#256ad8');if(sim.read.f>.003)arrow(sim.read.fx/(sim.read.f||1),sim.read.fy/(sim.read.f||1),sim.read.f*.044,'#d3425d')}
+}
+function renderFallback(){if(usingThree)return;const {ctx,w,h}=prepareCanvas(sceneCanvas);ctx.clearRect(0,0,w,h);const sky=ctx.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#b7c7d2');sky.addColorStop(1,'#879eaf');ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);buildFallback();
+ // Projected box occupies 78% of width, with apparatus vertically centered.
+ const follow=$('followCamera').checked,center=follow?V((Math.min(sim.block.x-.07,sim.hand.x-.02)+Math.max(sim.block.x+.07,sim.hand.x+.045))/2,(sim.block.y+sim.hand.y)/2,.055):V(.295,0,.045),projected=planarUV(center);const scale=follow?Math.min(w/.80,h/.42):Math.min(w/2.10,h/.85),OX=w*.5-projected.x*scale,OY=h*.5-projected.y*scale;
+ drawables.sort((a,b)=>a.depth-b.depth||a.layer-b.layer);for(const obj of drawables){const pts=obj.points;if(pts.length<2)continue;ctx.globalAlpha=obj.alpha||1;ctx.beginPath();pts.forEach((v,i)=>{const px=OX+v.x*scale,py=OY+v.y*scale;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py)});if(obj.type==='poly'){ctx.closePath();ctx.fillStyle=obj.fill;ctx.fill();if(obj.wood&&$('surface').value!=='0.45'&&offlineWood.complete&&offlineWood.naturalWidth&&pts.length===4){ctx.save();ctx.clip();const tex=obj.board?offlineBoard:offlineWood;const a=pts[0],b=pts[1],d=pts[3];ctx.transform((b.x-a.x)*scale/offlineWood.width,(b.y-a.y)*scale/offlineWood.width,(d.x-a.x)*scale/offlineWood.height,(d.y-a.y)*scale/offlineWood.height,OX+a.x*scale,OY+a.y*scale);ctx.drawImage(tex,0,0);ctx.restore();}ctx.strokeStyle='rgba(67,67,59,.14)';ctx.lineWidth=.7;ctx.stroke()}else{ctx.strokeStyle=obj.color;ctx.lineWidth=obj.width;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}}ctx.globalAlpha=1;
+ // HUD visible in fallback even when offline.
+ ctx.fillStyle='#415b62';ctx.font='12px system-ui';ctx.fillText('真实尺寸长木板 177 × 32 cm',14,25);ctx.font='12px system-ui';ctx.fillStyle='#718a91';ctx.fillText('模型可旋转：鼠标拖动此区域',14,43);
+}
+sceneCanvas.onpointerdown=e=>{orbitTouch={id:e.pointerId,x:e.clientX,y:e.clientY};sceneCanvas.setPointerCapture(e.pointerId)};sceneCanvas.onpointermove=e=>{if(!orbitTouch||orbitTouch.id!==e.pointerId)return;cameraAz+=(e.clientX-orbitTouch.x)*.008;cameraEl=clamp(cameraEl-(e.clientY-orbitTouch.y)*.005,.20,1.45);orbitTouch={id:e.pointerId,x:e.clientX,y:e.clientY};renderFallback();};for(const event of ['pointerup','pointercancel','lostpointercapture'])sceneCanvas.addEventListener(event,()=>{orbitTouch=null});
+window.useOnlineRenderer=function(fn){usingThree=true;sceneCanvas.style.display='none';window.onlineFrame=fn;$('modeBadge').textContent='Three.js 实时3D';$('assetState').textContent='联网3D引擎就绪 · 可导入Blender GLB';};
+window.onlineImport=null;
+$('file')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(typeof window.onlineImport==='function')window.onlineImport(f);else{$('assetState').textContent='当前为离线预览；要导入GLB，请联网后重新打开页面';setStatus('内置3D和全部实验功能可离线使用。联网Three.js模块加载成功后才支持导入Blender GLB。')}});
+let frame=0;function animate(now){requestAnimationFrame(animate);const diff=Math.min(.06,(now-sim.last)/1000);sim.last=now;if(sim.run){sim.accumulator+=diff;let steps=0;while(sim.accumulator>=1/120&&steps++<20){step(1/120);sim.accumulator-=1/120;if(!sim.run)break;}}if(!usingThree)renderFallback();else if(window.onlineFrame)window.onlineFrame();if(frame++%3===0){syncState();drawPad();drawAll();}}startState();window.__simStep=step;window.__simDraw=drawAll;requestAnimationFrame(animate);
+})();
+</script>
+<script type="importmap">{"imports":{"three":"../shared/vendor/three-r165/three.module.js"}}</script>
+<script type="module">
+// 使用仓库自带 Three.js r165 和本地 GLB；若 WebGL 不可用，仍保留 Canvas 演示。
+import * as THREE from 'three';
+import {OrbitControls} from '../shared/vendor/three-r165/addons/controls/OrbitControls.js';
+import {GLTFLoader} from '../shared/vendor/three-r165/addons/loaders/GLTFLoader.js';
+const sim=window.FrictionLab,host=document.getElementById('scene');
+const sc=new THREE.Scene();sc.background=new THREE.Color(0xb4c3ce);const cam=new THREE.PerspectiveCamera(40,1,.015,30);cam.up.set(0,0,1);cam.position.set(-.215,-.52,.405);cam.lookAt(-.215,0,.045);
+const rdr=new THREE.WebGLRenderer({antialias:true,alpha:false});rdr.setPixelRatio(Math.min(devicePixelRatio,2));rdr.shadowMap.enabled=true;rdr.outputColorSpace=THREE.SRGBColorSpace;rdr.toneMapping=THREE.ACESFilmicToneMapping;rdr.toneMappingExposure=1.25;rdr.domElement.style.cssText='position:absolute;inset:0;width:100%;height:100%;touch-action:none;';host.prepend(rdr.domElement);
+const orb=new OrbitControls(cam,rdr.domElement);orb.target.set(-.215,0,.045);orb.enableDamping=true;orb.update();sc.add(new THREE.HemisphereLight(0xffffff,0xbac5ce,3));const sunlight=new THREE.DirectionalLight(0xffffff,3);sunlight.position.set(-.6,-.8,1.6);sunlight.castShadow=true;sc.add(sunlight);
+const woodTexture=new THREE.TextureLoader().load(window.__frictionWoodURL);woodTexture.colorSpace=THREE.SRGBColorSpace;woodTexture.wrapS=woodTexture.wrapT=THREE.RepeatWrapping;woodTexture.anisotropy=Math.min(8,rdr.capabilities.getMaxAnisotropy());
+const boardTexture=new THREE.TextureLoader().load(window.__frictionBoardURL);boardTexture.colorSpace=THREE.SRGBColorSpace;boardTexture.wrapS=boardTexture.wrapT=THREE.RepeatWrapping;boardTexture.anisotropy=Math.min(8,rdr.capabilities.getMaxAnisotropy());
+const mat=(c,m=0,r=.8)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r});const wood=new THREE.MeshStandardMaterial({map:woodTexture,color:0xd6bb96,metalness:0,roughness:.86}),steel=mat(0xaebaba,.8,.55),weight=mat(0x777a7e,.8,.58);
+const built=new THREE.Group();sc.add(built);function cub(parent,w,h,d,material,x=0,y=0,z=0){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
+const gritCanvas=document.createElement('canvas');gritCanvas.width=gritCanvas.height=512;const gritCtx=gritCanvas.getContext('2d'),gritImage=gritCtx.createImageData(512,512);let seed=421;for(let i=0;i<gritImage.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const v=43+(seed>>>24)*.32;gritImage.data[i]=v*1.08;gritImage.data[i+1]=v;gritImage.data[i+2]=v*.9;gritImage.data[i+3]=255;}gritCtx.putImageData(gritImage,0,0);const gritTexture=new THREE.CanvasTexture(gritCanvas);gritTexture.colorSpace=THREE.SRGBColorSpace;gritTexture.wrapS=gritTexture.wrapT=THREE.RepeatWrapping;gritTexture.repeat.set(7,1.3);const paper=new THREE.Mesh(new THREE.PlaneGeometry(1.765,.315),new THREE.MeshStandardMaterial({map:gritTexture,roughness:1,metalness:0,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));paper.position.set(.295,0,.02225);paper.receiveShadow=true;sc.add(paper);let appliedSurface=null;const importedWeights=[];let importedBoard=null;
+function applyConditions(){const value=document.getElementById('surface').value,count=Math.round(Number(document.getElementById('masses').value)*10);for(const item of importedWeights)item.node.visible=item.index<count;paper.visible=value==='0.45';paper.position.z=rigs?.b ? .02225 : .02525;if(appliedSurface===value)return;appliedSurface=value;const smooth=value==='0.24';boardWood.color.set(smooth?0xeee8d9:0xffffff);boardWood.roughness=smooth?.72:.86;if(importedBoard){for(const m of [].concat(importedBoard.material)){m.color.set(smooth?0xe8dfcb:0xffffff);m.roughness=smooth?.72:.86;}}}
+const boardWood=new THREE.MeshStandardMaterial({map:boardTexture,roughness:.86,metalness:0});
+cub(built,1.77,.32,.025,boardWood,.295,0,.0125);const block=new THREE.Group();built.add(block);cub(block,.14,.09,.063,wood,0,0,.0315);cub(block,.09,.055,.004,mat(0x805739),-.006,0,.0635);
+const weights=[];for(let i=0;i<2;i++){const w=new THREE.Mesh(new THREE.CylinderGeometry(.019,.019,.033,24),weight);w.rotation.x=Math.PI/2;w.position.set(-.022+i*.043,0,.087);block.add(w);weights.push(w)}
+const spring=new THREE.Group();built.add(spring);const tube=new THREE.Mesh(new THREE.CylinderGeometry(.013,.013,.19,24),new THREE.MeshPhysicalMaterial({color:0xc5e1d9,metalness:.13,roughness:.17,opacity:.57,transparent:true,depthWrite:false}));tube.rotation.z=Math.PI/2;spring.add(tube);cub(spring,.17,.007,.007,steel);const marker=cub(spring,.004,.026,.026,mat(0xcc3239),-.068,0,0);
+const rings=[new THREE.Mesh(new THREE.TorusGeometry(.011,.002,8,24),steel),new THREE.Mesh(new THREE.TorusGeometry(.011,.002,8,24),steel)];for(let i=0;i<2;i++){rings[i].position.x=i?.108:-.108;rings[i].rotation.y=Math.PI/2;spring.add(rings[i])}
+const gripBall=new THREE.Mesh(new THREE.SphereGeometry(.019,24,16),mat(0xf18b3f,.03,.48));sc.add(gripBall);
+const hook=new THREE.Group();built.add(hook);const hRing=new THREE.Mesh(new THREE.TorusGeometry(.012,.002,8,24),steel);hRing.rotation.y=Math.PI/2;hook.add(hRing);
+const forces=[new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(),.1,0x266bd4,.02,.012),new THREE.ArrowHelper(new THREE.Vector3(-1,0,0),new THREE.Vector3(),.1,0xd74f59,.02,.012)];forces.forEach(o=>sc.add(o));
+const imported=new THREE.Group();imported.rotation.x=Math.PI/2;sc.add(imported);let rigs=null,bases={},importedPointers=[],sliderInitialX=0;
+let cameraInteracting=false;orb.addEventListener('start',()=>{cameraInteracting=true;});orb.addEventListener('end',()=>{cameraInteracting=false;});function workingCenter(){const b=sim.block,H=sim.hand;return new THREE.Vector3((Math.min(b.x-.07,H.x-.02)+Math.max(b.x+.07,H.x+.045))/2,(b.y+H.y)/2,.055);}window.__cameraProbe=()=>({following:document.getElementById('followCamera').checked,target:orb.target.toArray(),center:workingCenter().toArray()});
+const zoomHost=document.getElementById('zoomScene'),zoomScene=new THREE.Scene();zoomScene.background=new THREE.Color(0xd3dce2);
+const zoomRdr=new THREE.WebGLRenderer({antialias:true});zoomRdr.setPixelRatio(Math.min(devicePixelRatio,2));zoomRdr.outputColorSpace=THREE.SRGBColorSpace;zoomRdr.toneMapping=THREE.ACESFilmicToneMapping;zoomRdr.toneMappingExposure=1.25;zoomHost.appendChild(zoomRdr.domElement);const zoomSVG=document.createElementNS('http://www.w3.org/2000/svg','svg');zoomSVG.id='zoomScaleSVG';zoomSVG.setAttribute('aria-label','清晰矢量刻度与实时指针');zoomHost.appendChild(zoomSVG);zoomScene.add(new THREE.HemisphereLight(0xffffff,0x9ba8af,3));const zl=new THREE.DirectionalLight(0xffffff,3);zl.position.set(-.2,1,.3);zoomScene.add(zl);
+const zoomCam=new THREE.OrthographicCamera(-.06,.06,.20,-.20,.001,5);zoomCam.up.set(1,0,0);let zoomRig=null,zoomSlider=null,zoomCenter=new THREE.Vector3(),zoomSpan=.4;
+let zeroX=.183,fullX=.056,zoomY=0,zoomZ=0;
+function meshCenter(node){return new THREE.Box3().setFromObject(node).getCenter(new THREE.Vector3());}
+function setupZoom(){
+ if(zoomRig)zoomScene.remove(zoomRig);zoomRig=rigs.s.clone(true);zoomRig.position.set(0,0,0);zoomRig.rotation.set(0,0,0);zoomScene.add(zoomRig);zoomRig.updateMatrixWorld(true);
+ const zero=zoomRig.getObjectByName('V6_分度_00_上'),full=zoomRig.getObjectByName('V6_分度_50_上');if(zero)zeroX=meshCenter(zero).x;if(full)fullX=meshCenter(full).x;
+ const box=new THREE.Box3().setFromObject(zoomRig);box.getCenter(zoomCenter);zoomY=zoomCenter.y;zoomZ=zoomCenter.z;
+ zoomRig.traverse(n=>{if(n.isMesh&&(n.name.startsWith('V6_分度_')||n.name.startsWith('V6_刻度值')||n.name.startsWith('V6_单位N')||n.name.includes('红色双尖指针')))n.visible=false;});
+ zoomSlider=zoomRig.getObjectByName('RIG_SCALE_SLIDER_V8');zoomHost.querySelector('span')?.remove();
+}
+function renderZoom(){
+ if(!zoomRig||!document.getElementById('magnify').checked)return;const r=zoomHost.getBoundingClientRect();if(r.width<2||r.height<2)return;
+ const T=Math.max(0,Math.min(5,sim.read.T)),range=2.4,center=Math.max(range/2-.16,Math.min(5-range/2+.16,T));
+ const centerX=zeroX+(fullX-zeroX)*center/5,span=Math.abs(fullX-zeroX)*range/5;
+ zoomRdr.setSize(r.width,r.height,false);zoomCam.left=-span*r.width/r.height/2;zoomCam.right=-zoomCam.left;zoomCam.top=span/2;zoomCam.bottom=-span/2;zoomCam.position.set(centerX,zoomY+.8,zoomZ);zoomCam.lookAt(centerX,zoomY,zoomZ);zoomCam.updateProjectionMatrix();
+ if(zoomSlider)zoomSlider.position.x=sliderInitialX-.127*T/5;zoomRdr.render(zoomScene,zoomCam);
+ const w=r.width,h=r.height,Y=v=>h/2+(v-center)*h/range,ix=w*.39,rx=w-ix;
+ let svg=`<defs><linearGradient id="scalePlastic"><stop stop-color="#d4d9d5"/><stop offset=".18" stop-color="#f5f5ed"/><stop offset=".85" stop-color="#eeeee7"/><stop offset="1" stop-color="#bec7c3"/></linearGradient></defs><rect x="0" y="0" width="${ix+2}" height="${h}" fill="url(#scalePlastic)"/><rect x="${rx-2}" y="0" width="${w-rx+2}" height="${h}" fill="url(#scalePlastic)"/>`;for(let i=0;i<=50;i++){const v=i/10,y=Math.round(Y(v))+.5;if(y<-12||y>h+12)continue;const major=i%10===0,half=i%5===0,l=major?30:half?24:18;
+ svg+=`<path class="${major?'major':'minor'}" d="M ${ix-l} ${y} H ${ix} M ${rx} ${y} H ${rx+l}" fill="none"/>`;
+ if(major)svg+=`<text x="${ix-l-5}" y="${y}" font-size="30" text-anchor="end" dominant-baseline="central">${v}</text><text x="${rx+l+5}" y="${y}" font-size="30" text-anchor="start" dominant-baseline="central">${v}</text>`;
+ }
+ const py=Y(T),left=ix-3,right=rx+3,mid=w/2;
+ svg+=`<path d="M ${left} ${py} L ${mid} ${py-6} L ${right} ${py} L ${mid} ${py+6} Z" fill="${sim.read.T>5?'#df6a16':'#bd1830'}" stroke="#821124" stroke-width="1"/><text x="${w/2}" y="${h-13}" font-size="16" text-anchor="middle">N</text>`;
+ zoomSVG.setAttribute('viewBox',`0 0 ${w} ${h}`);zoomSVG.innerHTML=svg;zoomSVG.dataset.direction='increasing-down';zoomSVG.dataset.reading=T;zoomSVG.dataset.zeroY=Y(0);zoomSVG.dataset.oneY=Y(1);
+}
+
+for(const button of document.querySelectorAll('[data-camera]'))button.onclick=()=>{const mode=button.dataset.camera;const target=document.getElementById('followCamera').checked?workingCenter():new THREE.Vector3(.25,0,.045);orb.target.copy(target);cam.position.copy(target).add(mode==='top'?new THREE.Vector3(0,-.02,1.15):mode==='close'?new THREE.Vector3(0,-.40,.32):new THREE.Vector3(.02,-1.02,.72));orb.update();};
+function onlineFrame(){applyConditions();const b=sim.block,H=sim.hand,rx=.07*Math.cos(b.angle),ry=.07*Math.sin(b.angle),hx=b.x+rx,hy=b.y+ry,dx=H.x-hx,dy=H.y-hy,dist=Math.hypot(dx,dy)||1,theta=Math.atan2(dy,dx);block.position.set(b.x,b.y,.025);block.rotation.z=b.angle;weights.forEach((v,i)=>v.visible=Number(document.getElementById('masses').value)>(i*.1+.01));spring.position.set(hx+dx*.51,hy+dy*.51,.065);spring.rotation.z=theta;marker.position.x=-.068+Math.min(sim.read.T,5)/5*.135;gripBall.position.set(H.x+.025,H.y,.065);gripBall.material.color.set(sim.gripped?0xf18b3f:0x8c9eab);hook.position.set(hx,hy,.065);built.visible=!rigs;
+ if(rigs){if(rigs.b){rigs.b.position.x=bases.b.x+(b.x+.395);rigs.b.position.z=bases.b.z-b.y;rigs.b.rotation.y=bases.b.ry+b.angle;}if(rigs.s){rigs.s.position.x=bases.s.x+(spring.position.x+.183);rigs.s.position.z=bases.s.z-spring.position.y;rigs.s.rotation.y=bases.s.ry+theta;}if(rigs.h){rigs.h.visible=false;}if(rigs.slider){rigs.slider.position.x=sliderInitialX-.127*Math.max(0,Math.min(5,sim.read.T))/5;}else{for(const p of importedPointers){p.node.position.x=p.x+Math.min(5,sim.read.T)/5*.143;}}}
+ const F=document.getElementById('forces').checked;for(const f of forces)f.visible=F;forces[0].position.set(b.x,b.y,.14);forces[1].position.set(b.x,b.y,.14);forces[0].setDirection(new THREE.Vector3(sim.read.pullX,sim.read.pullY,0));forces[0].setLength(Math.max(.005,sim.read.T*.045),.018,.012);if(sim.read.f>.001){forces[1].setDirection(new THREE.Vector3(sim.read.fx,sim.read.fy,0).normalize());forces[1].setLength(Math.max(.005,sim.read.f*.045),.018,.012)}else forces[1].visible=false;
+ if(document.getElementById('followCamera').checked&&!cameraInteracting){const desired=workingCenter(),delta=desired.clone().sub(orb.target).multiplyScalar(.12);orb.target.add(delta);cam.position.add(delta);}orb.update();rdr.render(sc,cam);renderZoom();}
+function resize(){const rect=host.getBoundingClientRect();cam.aspect=rect.width/rect.height;cam.updateProjectionMatrix();rdr.setSize(rect.width,rect.height,false)}new ResizeObserver(resize).observe(host);resize();window.useOnlineRenderer(onlineFrame);
+window.onlineImport=file=>{const isExternalUrl=typeof file==='string';const url=isExternalUrl?file:URL.createObjectURL(file);new GLTFLoader().load(url,gltf=>{imported.clear();importedWeights.length=0;importedBoard=null;appliedSurface=null;gltf.scene.traverse(n=>{if(n.isMesh){if([].concat(n.material).some(m=>m.name.includes('布景_暖白工作台'))){n.material=n.material.clone();n.material.color.set(0x718796);n.material.roughness=.94;}n.receiveShadow=true;for(const m of [].concat(n.material)){if(m.map){m.map.anisotropy=Math.min(8,rdr.capabilities.getMaxAnisotropy());m.map.needsUpdate=true;}}}});gltf.scene.traverse(n=>{if(n.name.startsWith('实验长木板_')){n.scale.z*=.32/.38;importedBoard=n;n.material=n.material.clone();}if(/^钩码100g_[AB]_/.test(n.name))importedWeights.push({node:n,index:n.name.includes('_A_')?0:1});if(n.name.startsWith('长木板薄边倒角'))n.position.z*=.32/.38;if(n.name.includes('板边长度刻度')){n.position.z-=.047;n.scale.z*=1.25;}if(n.name.includes('长度数字')){n.position.z=.145;n.scale.multiplyScalar(1.4);}if(n.isMesh&&(n.name.includes('板边长度刻度')||n.name.includes('长度数字'))){n.material=n.material.clone();n.material.color.set(0x233d48);n.material.roughness=.9;}});imported.add(gltf.scene);rigs={};importedPointers=[];gltf.scene.traverse(n=>{if(n.name==='RIG_SCALE_SLIDER_V8')rigs.slider=n;else if(n.name.startsWith('RIG_BLOCK_'))rigs.b=n;else if(n.name==='RIG_SCALE_真实测力计')rigs.s=n;else if(n.name.startsWith('RIG_HAND_'))rigs.h=n;else if(n.name.includes('橙色球_手柄已抓紧挂环'))n.visible=false;else if(n.name==='V7_红色双尖指针_动态基准'||n.name==='V4_正面红指针')importedPointers.push({node:n,x:n.position.x})});if(!rigs.b||!rigs.s){rigs=null;document.getElementById('assetState').textContent='GLB中未找到木块/测力计控制器，继续用内置模型';}else{for(const k of ['b','s','h'])if(rigs[k])bases[k]={x:rigs[k].position.x,z:rigs[k].position.z,ry:rigs[k].rotation.y};sliderInitialX=rigs.slider?.position.x??0;setupZoom();document.getElementById('assetState').textContent='Blender V9 板式测力计已加载 · 双尖指针';document.getElementById('modeBadge').textContent='Blender V9 实物模型';}if(!isExternalUrl)URL.revokeObjectURL(url)},undefined,e=>{document.getElementById('assetState').textContent='GLB无法导入，请检查文件';if(!isExternalUrl)URL.revokeObjectURL(url)})};
+
+window.__rigProbe=()=>({zoom:!!zoomRig,loaded:!!rigs,slider:!!rigs?.slider,slideX:rigs?.slider?.position.x,weightParts:importedWeights.filter(x=>x.node.visible).length,surface:appliedSurface,sandpaper:paper.visible});
+// V9 真实 Blender 模型由仓库本地资源加载；失败时保留内置 Canvas 实验预览。
+const localModelURL='../assets/models/friction-manual-v9.glb';
+document.getElementById('assetState').textContent='正在加载本地 Blender V9 模型…';
+window.onlineImport(localModelURL);
+</script>
+</body></html>

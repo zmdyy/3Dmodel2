@@ -444,6 +444,26 @@ window.MODEL_CATALOG = [
     "accent": "blue"
   },
   {
+    "id": "friction-manual",
+    "cover": "assets/covers/friction-manual-step.svg?v=20261017-v9",
+    "title": "探究滑动摩擦力 · 手动拉动",
+    "subtitle": "Blender V9 · 弹簧测力计 · 静止到滑动",
+    "category": "力学实验",
+    "summary": "抓住弹簧测力计端部拖动，探索静摩擦与滑动摩擦、拉力变化与木块速度；支持更换钩码与接触面、清晰读表、3D视角和拉力/摩擦力、速度、位移同步图像。",
+    "tags": [
+      "滑动摩擦力",
+      "最大静摩擦力",
+      "手动拉动",
+      "弹簧测力计",
+      "受力分析",
+      "数据图像",
+      "Blender"
+    ],
+    "path": "models/friction-manual-step.html?v=20261017-v9",
+    "symbol": "μ",
+    "accent": "green"
+  },
+  {
     "id": "floor-drain-trap",
     "cover": "assets/covers/floor-drain-trap.png?v=20261016-scene",
     "title": "地漏存水杯与水封",

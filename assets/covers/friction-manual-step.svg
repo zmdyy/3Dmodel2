@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="滑动摩擦力手动拉动装置示意封面">
+<defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#bfcfda"/><stop offset="1" stop-color="#869caa"/></linearGradient>
+<linearGradient id="board" x2=".7" y2="1"><stop stop-color="#f3efe3"/><stop offset=".7" stop-color="#ded9cc"/><stop offset="1" stop-color="#bcb8ac"/></linearGradient>
+<linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d3a06b"/><stop offset="1" stop-color="#92603a"/></linearGradient>
+<linearGradient id="steel"><stop stop-color="#62717a"/><stop offset=".28" stop-color="#ced5d7"/><stop offset=".65" stop-color="#889ba2"/><stop offset="1" stop-color="#4e5c65"/></linearGradient>
+<pattern id="grain" width="36" height="14" patternUnits="userSpaceOnUse"><path d="M0 3Q13 1 36 4M0 12Q17 8 36 10" fill="none" stroke="#855e3b" stroke-opacity=".18"/></pattern>
+</defs>
+<rect width="960" height="540" fill="url(#bg)"/>
+<path d="M-25 260L960 115 1010 416 90 538Z" fill="#8599a3" opacity=".27"/>
+<path d="M18 258L960 110 1035 378 78 531Z" fill="url(#board)" stroke="#bbb9af" stroke-width="3"/>
+<path d="M18 258L78 531 1035 378 1015 397 85 541 18 274Z" fill="#b9b9b0"/>
+<path d="M42 286L943 144M50 318L951 175M56 356L959 211M64 400L973 247" stroke="#c1bbaa" stroke-width=".8" opacity=".16"/>
+<g transform="translate(210 261) rotate(-9)">
+  <rect width="170" height="112" rx="4" fill="#8e5e37" stroke="#754a2f" stroke-width="4"/>
+  <rect width="170" height="36" fill="#c99a62"/>
+  <rect width="170" height="112" fill="url(#grain)"/>
+  <path d="M0 39H170" stroke="#e0b27f" stroke-width="3"/>
+  <rect x="27" y="-10" width="115" height="22" rx="3" fill="#bd8551"/>
+  <g fill="url(#steel)" stroke="#78878f" stroke-width="3">
+    <ellipse cx="65" cy="-17" rx="24" ry="10"/><path d="M41 -17v-33c0-15 48-15 48 0v33Z"/><ellipse cx="65" cy="-50" rx="24" ry="10"/>
+    <ellipse cx="116" cy="-25" rx="24" ry="10"/><path d="M92 -25v-33c0-15 48-15 48 0v33Z"/><ellipse cx="116" cy="-58" rx="24" ry="10"/>
+  </g>
+</g>
+<g transform="translate(388 283) rotate(-9)">
+  <ellipse cx="0" cy="0" rx="14" ry="10" fill="#83929c" stroke="#67747a" stroke-width="4"/>
+  <path d="M10 0H100" stroke="url(#steel)" stroke-width="13" stroke-linecap="round"/>
+  <path d="M100 0H396" stroke="#4a5a60" stroke-width="20" opacity=".20" stroke-linecap="round"/>
+  <rect x="102" y="-17" width="293" height="34" rx="8" fill="url(#steel)" stroke="#73858c" stroke-width="3"/>
+  <rect x="122" y="-11" width="244" height="23" rx="4" fill="#d9e3df"/>
+  <g stroke="#334951" stroke-width="1.5">
+    <path d="M138 -10v9 M150 -10v6 M162 -10v9 M174 -10v6 M186 -10v9 M198 -10v6 M210 -10v9 M222 -10v6 M234 -10v9 M246 -10v6 M258 -10v9 M270 -10v6 M282 -10v9 M294 -10v6 M306 -10v9 M318 -10v6 M330 -10v9 M342 -10v6 M354 -10v9"/>
+  </g>
+  <path d="M253 -17v34" stroke="#c9333f" stroke-width="4"/>
+  <path d="M390 0h38" stroke="#73818a" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="439" cy="0" r="23" fill="#ec8c38" stroke="#ce7737" stroke-width="3"/>
+  <circle cx="432" cy="-9" r="7" fill="#ffd5ab" opacity=".4"/>
+</g>
+<text x="38" y="48" font-size="25" font-weight="700" font-family="Microsoft YaHei,sans-serif" fill="#2b5366">手动拉动 · 滑动摩擦力探究</text>
+<text x="39" y="79" font-size="15" font-family="Microsoft YaHei,sans-serif" fill="#547181">木块 · 砝码 · 弹簧测力计 · 静摩擦与滑动摩擦</text>
+</svg>

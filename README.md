@@ -180,3 +180,12 @@ node scripts/capture-motor-cover.cjs
 - 改变原凸透镜焦距，选择位于原透镜前的凸／凹矫正透镜并调节强度；光屏清晰度、3D 光束和 2D 光路共用双薄透镜近轴计算。可切换未矫正光路作对照，移除镜片或恢复基准。
 - 退出拓展恢复进入前的实验参数。普通模式保留单透镜实验；双透镜模式以采样光线替代单透镜特殊光线命名，避免套用不适用的规律。
 - 计算模块为 `shared/vision-correction.js`。此模型以焦距变化模拟屏前／屏后失焦，解释面板说明其与近视、远视矫正的对应关系及眼轴长度因素。
+
+## 探究滑动摩擦力 · 手动拉动（Blender V9）
+
+- 新增独立案例 `models/friction-manual-step.html`，与原有传送带式 `models/friction-belt.html` 并列，避免覆盖原实验。原始文件：`Friction_Lab_V9_TEST_ManualStep (8).html`。
+- 原 Blender 场景解出为 `assets/models/friction-manual-v9.glb`（glTF 2.0）；木材与木板纹理分别位于 `assets/textures/friction-manual-wood.png`、`assets/textures/friction-manual-board.png`，不再作为 base64 内嵌 HTML。
+- Three.js r165、OrbitControls、GLTFLoader 使用 `shared/vendor/three-r165/` 本地模块和 importmap，不依赖 CDN。请经 GitHub Pages / 静态 HTTP 服务打开；WebGL 不可用时保留原来的程序化 Canvas 模型预览和实验逻辑。
+- 保留可抓持的彩色手柄、木块二维运动/转动、测力计 0～5 N 放大读数、钩码/接触面切换、暂/续/复位、拉力及摩擦力随时间变化、速度与位移图以及轨迹点击分析。计算采用原 V9 的教学近似模型，最大静摩擦力阈值为 `1.2 μN`，滑动摩擦力约为 `μN`；不可替代实物实验测量。
+- 首页封面 `assets/covers/friction-manual-step.svg` 为装置布局的矢量示意，不是模型实际截图；后续若补拍实景封面，应替换为场景截图并保持 960×540 比例。
+- 交互与外观验收：检查真实 GLB 加载后无错位或遮挡、木块与测力计连接、钩码可见性和受力值；检查桌面鼠标旋转/缩放与触屏双指操作；检查小屏布局、三张图表点击和全屏状态。素材与代码均按独立案例组织。
