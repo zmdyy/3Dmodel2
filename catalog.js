@@ -540,5 +540,24 @@ window.MODEL_CATALOG = [
     "path": "models/ancient-levers.html?v=20261017-single-force",
     "symbol": "⚖",
     "accent": "green"
+  },
+  {
+    "id": "diving-bell",
+    "cover": "assets/covers/diving-bell.svg?v=20261017",
+    "title": "潜水钟 · 空气与水压",
+    "subtitle": "微缩海景中的存气、补气与水压观察",
+    "category": "力学实验",
+    "summary": "比较无持续供气与水面补气两种敞口潜水钟。下潜观察空气压缩，固定深度补气排水；支持动态波浪、持续运动粒子、起伏海床、触底停止、深度尺、剖视、数据记录与p—V图像。",
+    "tags": [
+      "潜水钟",
+      "液体压强",
+      "气体压缩",
+      "浮力",
+      "供气",
+      "波义耳定律"
+    ],
+    "path": "models/diving-bell.html?v=20261017-diorama",
+    "symbol": "钟",
+    "accent": "blue"
   }
 ];
