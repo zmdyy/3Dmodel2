@@ -445,7 +445,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "friction-manual",
-    "cover": "assets/covers/friction-manual-step.svg?v=20261017-v9",
+    "cover": "assets/covers/friction-manual-step-scene.jpg?v=20261018-actual",
     "title": "探究滑动摩擦力 · 手动拉动",
     "subtitle": "Blender V9 · 弹簧测力计 · 静止到滑动",
     "category": "力学实验",
@@ -524,7 +524,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "ancient-levers",
-    "cover": "assets/covers/ancient-levers.svg?v=20261017",
+    "cover": "assets/covers/ancient-levers-scene.jpg?v=20261018-actual",
     "title": "古代杠杆工坊",
     "subtitle": "桔槔、踏碓与单碓／四碓水力机械",
     "category": "力学实验",
@@ -543,7 +543,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "diving-bell",
-    "cover": "assets/covers/diving-bell.svg?v=20261017",
+    "cover": "assets/covers/diving-bell-scene.jpg?v=20261018-actual",
     "title": "潜水钟 · 空气与水压",
     "subtitle": "前海傍晚海岸中的存气、补气与水压观察",
     "category": "力学实验",
@@ -562,7 +562,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "pulley-lab",
-    "cover": "assets/covers/pulley-lab.svg?v=20261018",
+    "cover": "assets/covers/pulley-lab-scene.jpg?v=20261018-actual",
     "title": "滑轮实验室",
     "subtitle": "定滑轮、动滑轮、滑轮组与等效杠杆",
     "category": "力学实验",
@@ -576,7 +576,7 @@ window.MODEL_CATALOG = [
       "支点",
       "控制变量"
     ],
-    "path": "models/pulley-lab.html?v=20261018-simple-lever",
+    "path": "models/pulley-lab.html?v=20261018-pivot-arms-v5",
     "symbol": "轮",
     "accent": "blue"
   }
