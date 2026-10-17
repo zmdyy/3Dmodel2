@@ -559,5 +559,25 @@ window.MODEL_CATALOG = [
     "path": "models/diving-bell.html?v=20261017-qianhai-v3",
     "symbol": "钟",
     "accent": "blue"
+  },
+  {
+    "id": "pulley-lab",
+    "cover": "assets/covers/pulley-lab.svg?v=20261018",
+    "title": "滑轮实验室",
+    "subtitle": "定滑轮、动滑轮、滑轮组与等效杠杆",
+    "category": "力学实验",
+    "summary": "调节动轮组质量、承重绳段和拉绳方向，探究省力、距离与机械效率。含圆形及五种正多边形轮的等效支点与力臂观察，可一键关闭标注；支持实验记录、图像和CSV导出。",
+    "tags": [
+      "定滑轮",
+      "动滑轮",
+      "滑轮组",
+      "机械效率",
+      "力臂",
+      "支点",
+      "控制变量"
+    ],
+    "path": "models/pulley-lab.html?v=20261018-simple-lever",
+    "symbol": "轮",
+    "accent": "blue"
   }
 ];
