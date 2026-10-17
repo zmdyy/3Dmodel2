@@ -202,6 +202,17 @@
     #stages{min-height:86vh}
     #side{width:auto;border-left:none;border-top:1px solid var(--stroke)}
   }
+
+  .scene-label--vision{font-size:15px;font-weight:800;color:#175c83;background:rgba(255,255,255,.94);border:1px solid #7fb1c9;border-radius:7px;padding:4px 7px;text-shadow:none;-webkit-text-stroke:0}
+  html[data-theme="dark"] .scene-label--vision{color:#cef2ff;background:rgba(15,31,46,.94);border-color:#6eacc7}
+  #visionCard .btns button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  #visionControls .hint{line-height:1.6;margin:8px 0}
+  #visionStatus{font-weight:700;line-height:1.6;padding:9px;border-radius:8px;background:var(--output-bg);border:1px solid var(--stroke);margin:8px 0}
+  #visionStatus[data-success="true"]{color:#087b4c;border-color:#35a875}
+  #visionSceneNote{position:absolute;bottom:12px;left:12px;z-index:5;padding:7px 12px;border-radius:9px;background:var(--panel);border:1px solid var(--stroke);font-size:14px;font-weight:700;color:var(--text);pointer-events:none}
+  #visionControls label.check{display:flex;align-items:center;gap:7px;font-size:13px;margin-top:10px}
+  #visionControls details{font-size:13px;line-height:1.7;margin-top:12px}
+  button:disabled,input:disabled{opacity:.45;cursor:not-allowed}
 </style>
 <script type="importmap">
 {"imports":{"three":"../shared/vendor/three-r160/build/three.module.js","three/addons/":"../shared/vendor/three-r160/examples/jsm/"}}
@@ -230,7 +241,7 @@
             <option value="f">🔴 F 光源</option>
           </select>
         </div>
-        <div id="c3d"></div>
+        <div id="c3d"></div><div id="visionSceneNote" hidden></div>
       </div>
       <div class="stage" id="stage2d">
         <div class="stage-label"><span>2D 光路图</span></div>
@@ -238,7 +249,30 @@
       </div>
     </div>
     <aside id="side">
-      <section class="glass">
+      <section class="glass" id="visionCard">
+        <h2>拓展 · 让像重新回到光屏</h2>
+        <button id="bVision" type="button" aria-expanded="false">进入视力矫正拓展</button>
+        <div id="visionControls" hidden>
+          <p class="hint" id="visionBaseline"></p>
+          <div class="row"><label>原凸透镜焦距 f <output id="eyeF"></output></label>
+            <input id="sEyeF" type="range" step="0.01" aria-label="拓展：原凸透镜焦距"></div>
+          <div class="btns" id="visionLensChoices">
+            <button type="button" data-corrector="none" aria-pressed="true">不加透镜</button>
+            <button type="button" data-corrector="convex" aria-pressed="false">凸透镜</button>
+            <button type="button" data-corrector="concave" aria-pressed="false">凹透镜</button>
+          </div>
+          <div class="row"><label>矫正强度 · 弱 → 强 <output id="correctorF">未加入</output></label>
+            <input id="sCorrector" type="range" min="0" max="100" step="0.1" value="35" disabled aria-label="矫正透镜强度"></div>
+          <div id="visionStatus" role="status" aria-live="polite"></div>
+          <div class="btns"><button id="bRemoveCorrector" type="button">移除矫正透镜</button><button id="bVisionBaseline" type="button">恢复清晰基准</button></div>
+          <label class="check"><input id="cUncorrected" type="checkbox">显示未矫正光路（灰色虚线）</label>
+          <details id="visionExplanation"><summary>完成探究后 · 查看解释</summary>
+            <p>像在屏前，可类比近视眼成像在视网膜前，使用凹透镜矫正；像在屏后，可类比远视眼成像在视网膜后，使用凸透镜矫正。</p>
+            <p>原凸透镜模拟眼睛的会聚作用，光屏模拟视网膜。这里通过改变焦距产生失焦；真实近视、远视也可能与眼球前后长度有关。</p>
+          </details>
+        </div>
+      </section>
+      <section class="glass" id="sharedParams">
         <h2>共享物理参数 · 实时联动</h2>
         <div class="row"><label>物距 u（物体→透镜）<output id="oU">25.0 cm</output></label>
           <input id="sU" type="range" min="5" max="40" step="0.1" value="25"></div>
@@ -307,7 +341,7 @@
         </div>
       </section>
 
-      <section class="glass">
+      <section class="glass" id="autoCard">
         <h2>自动演示 · 过焦点减速</h2>
         <div class="btns">
           <button class="primary" id="bPlay">▶ 自动靠近 / 远离</button>
@@ -322,6 +356,7 @@
 
 <script type="module">
 import * as THREE from 'three';
+import { lensSystem, powerForScreen, traceRay, apertureRay } from '../shared/vision-correction.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
@@ -337,6 +372,11 @@ const P = {
   dark: localStorage.getItem('lensDark')==='1',
   show2d: true,
 };
+const V = { active:false, type:'none', strength:35, maxPower:.08, distance:5,
+  baseline:null, saved:null, compare:false, lastStatus:'' };
+function correctionPower(){ return !V.active||V.type==='none'?0:(V.type==='concave'?-1:1)*V.maxPower*V.strength/100; }
+function correctionKey(){return V.active?`${V.type}:${V.strength}:${V.distance}`:'ordinary';}
+function currentSystem(){return lensSystem(P.objDist,P.focal,V.active?V.distance:0,correctionPower());}
 // 物与像共用火焰变化相位，降低物像不同步的风险。
 let flamePhase=0, flameAccumulator=0;
 const THEME={
@@ -425,6 +465,7 @@ function apertureRaysCm(R,sourceHeight=P.objH){
 }
 
 function lensImage(){
+  if(V.active){const img=currentSystem();return {...img,h:img.m*P.objH};}
   const u=P.objDist, f=P.focal;
   if(Math.abs(u-f)<0.06) return {v:Infinity, m:Infinity, kind:'none'};
   const v = u*f/(u-f);
@@ -433,6 +474,7 @@ function lensImage(){
   return {v, m, h:m*P.objH, kind};
 }
 function natureText(){
+  if(V.active){const img=lensImage();return {t:img.kind==='none'?'出射光近似平行 · 无有限像':`${img.m<0?'倒立':'正立'} · ${Math.abs(img.m)>1.001?'放大':Math.abs(img.m)<.999?'缩小':'等大'} · ${img.kind==='real'?'实像':'虚像'}（双透镜系统）`,k:-1};}
   const u=P.objDist,f=P.focal,{v,kind}=lensImage();
   if(kind==='none') return {t:'不成像（出射光为平行光）',k:3};
   if(kind==='virtual') return {t:'正立 · 放大 · 虚像（屏上无像）',k:4};
@@ -444,6 +486,7 @@ function sharpness(){
   const {v,kind}=lensImage();
   if(kind!=='real') return {s:0, d:Infinity};
   const d=Math.abs(P.screen-v);
+  if(V.active){const blurRadius=LENS_R*Math.abs(1-P.screen/v);return {s:Math.exp(-Math.pow(blurRadius/.10,2)),d,blurRadius};}
   const s=Math.max(0,1-d/14);
   return {s, d};
 }
@@ -490,7 +533,7 @@ document.querySelectorAll('.ray-toggle').forEach(el=>{
 });
 $('bAll').onclick=()=>{P.rays=[true,true,true,true];syncRayToggles();};
 $('bNone').onclick=()=>{P.rays=[false,false,false,false];syncRayToggles();};
-$('bTrack').onclick=()=>{P.track=!P.track;$('bTrack').textContent='📍 光屏追像：'+(P.track?'开':'关');toast(P.track?'光屏将自动对准像距 v':'已解除追像，可手动移动光屏找清晰像');};
+$('bTrack').onclick=()=>{if(V.active)return;P.track=!P.track;$('bTrack').textContent='📍 光屏追像：'+(P.track?'开':'关');toast(P.track?'光屏将自动对准像距 v':'已解除追像，可手动移动光屏找清晰像');};
 $('bBundle').onclick=()=>{
   P.bundle=!P.bundle;
   $('bBundle').textContent='☀ 密集会聚光：'+(P.bundle?'开':'关');
@@ -501,6 +544,7 @@ $('bBundle').onclick=()=>{
 };
 function stopAutoIfUser(){ if(P.auto){P.auto=false;$('bPlay').textContent='▶ 自动靠近 / 远离';} }
 $('bPlay').onclick=()=>{
+  if(V.active)return;
   P.auto=!P.auto;
   $('bPlay').textContent=P.auto?'⏸ 暂停自动演示':'▶ 自动靠近 / 远离';
   if(P.auto) toast('自动演示中：经过焦点 F 附近会自动减速');
@@ -1018,7 +1062,7 @@ function layoutVirtualImage(){
   const show=img.kind==='virtual' && isFinite(img.v) && isFinite(img.m);
   virtGroup.visible=show;
   const virtualCaption=virtGroup.getObjectByName('virtLbl');
-  if(virtualCaption?.isCSS2DObject)virtualCaption.element.style.display=show?'':'none';
+  if(virtualCaption?.isCSS2DObject){virtualCaption.visible=show;virtualCaption.element.style.display=show?'':'none';}
   if(!show) return;
   const mAbs=Math.abs(img.m);
   virtGroup.position.set(X(img.v),AX,0.18);
@@ -1084,7 +1128,7 @@ function drawScreenTexture(){
   const img=lensImage(),{kind,m}=img,{d}=sharpness();
   // 高清纹理不再每秒上传 60 次。发生参数变化立即进入下个绘制时隙，蜡烛约 12 FPS。
   const key=[P.objType,P.objDist.toFixed(2),P.objH.toFixed(2),P.focal.toFixed(2),
-    P.screen.toFixed(2),P.cover.toFixed(3),P.dark?1:0,
+    P.screen.toFixed(2),correctionKey(),P.cover.toFixed(3),P.dark?1:0,
     P.objType==='candle'?Math.floor(flamePhase*6):0].join(':');
   if(drawScreenTexture._key===key)return;
   const now=performance.now();
@@ -1096,9 +1140,10 @@ function drawScreenTexture(){
   x.fillStyle=P.dark?'#eeeef0':'#faf9f5';x.fillRect(0,0,W,H);
   if(P.cover<1 && kind==='real' && Number.isFinite(m)){
     const cm2px=H/SCREEN_H;
-    const blur=Math.min(22,d*2.4);
-    const figH=FIGURE_BASE_CM*Math.abs(m)*cm2px;
-    const yC=H/2-(m*P.objH)*cm2px;
+    const blur=Math.min(28,V.active?(sharpness().blurRadius||0)*cm2px:d*2.4);
+    const screenM=V.active?-P.screen/currentSystem().B:m;
+    const figH=FIGURE_BASE_CM*Math.abs(screenM)*cm2px;
+    const yC=H/2-(screenM*P.objH)*cm2px;
     x.save();
     if(blur>0)x.filter=`blur(${blur.toFixed(1)}px)`;
     x.globalAlpha=Math.pow(uncoverFrac(),.70);
@@ -1248,7 +1293,7 @@ function updateHeightMarkers(){
     return;
   }
   const key=[P.objDist.toFixed(2),P.objH.toFixed(2),P.focal.toFixed(2),
-    P.screen.toFixed(2),P.cover.toFixed(3),P.objType].join('|');
+    P.screen.toFixed(2),correctionKey(),P.cover.toFixed(3),P.objType].join('|');
   if(updateHeightMarkers._key===key)return;
   updateHeightMarkers._key=key;
   const top=AX+obj.objectTop,bottom=AX+obj.objectBottom;
@@ -1329,7 +1374,18 @@ function rayEndX(){
   if(img.kind==='real' && isFinite(img.v) && img.v>0) xf=Math.max(xf, img.v);
   return Math.min(xf, 90);
 }
+function visionRays(power=correctionPower(),height=P.objH,end=rayEndX(),limitCorrector=V.type!=='none'){
+  const u=P.objDist,f=P.focal,d=V.distance,R=LENS_R*.84;
+  return [Math.max(-R,Math.min(R,height)),0,-R*.72,R*.72].map(yL=>{
+    const fwd=apertureRay(u,f,d,power,height,yL,end);
+    if(limitCorrector&&Math.abs(fwd[1][1])>LENS_R+.15)return {fwd:fwd.slice(0,2),back:[]};
+    const sys=lensSystem(u,f,d,power);
+    const back=sys.kind==='virtual'?[[0,yL],[sys.v,sys.m*height]]:[];
+    return {fwd,back};
+  });
+}
 function specialRaysCm(){
+  if(V.active)return visionRays();
   // 物点取卡片中心离轴高度 h；像点 y' = m·h
   const u=P.objDist, f=P.focal, h=P.objH;
   const img=lensImage();
@@ -1364,7 +1420,7 @@ function toWorld(pts){
   const s=WORLD/44;
   return pts.map(([xcm,ycm])=>new THREE.Vector3(xcm*s, AX+ycm, 0));
 }
-const rayFwd=[], rayBack=[], rayDots=[], rayArrIn=[], rayArrOut=[];
+const rayFwd=[], rayBack=[], rayDots=[], rayArrIn=[], rayArrOut=[], rayArrMiddle=[];
 const _arrX=new THREE.Vector3(1,0,0), _arrD=new THREE.Vector3();
 function makeRayArrow(col){
   // 落在光路平面上的扁平箭头，侧视/正视都像课本上的方向三角
@@ -1407,7 +1463,7 @@ for(let i=0;i<4;i++){
   const dot=new THREE.Mesh(new THREE.SphereGeometry(.28,10,10), new THREE.MeshBasicMaterial({color:rayColors[i]}));
   const aIn=makeRayArrow(rayColors[i]), aOut=makeRayArrow(rayColors[i]);
   dot.userData={pts:[],t:Math.random()};
-  scene.add(fwd,back,dot,aIn,aOut);
+  const aMid=makeRayArrow(rayColors[i]);scene.add(fwd,back,dot,aIn,aOut,aMid);rayArrMiddle.push(aMid);
   rayFwd.push(fwd); rayBack.push(back); rayDots.push(dot);
   rayArrIn.push(aIn); rayArrOut.push(aOut);
 }
@@ -1427,7 +1483,22 @@ const bundle=new THREE.LineSegments(bundleGeo, new THREE.LineBasicMaterial({
   color:0xf5b942, transparent:true, opacity:.22, depthWrite:false
 }));
 scene.add(bundle);
+function updateVisionBundle(){
+  const u=P.objDist,f=P.focal,d=V.distance,q=correctionPower(),end=rayEndX();
+  let n=0;const put=(x,y,z)=>{bundlePos[n++]=X(x);bundlePos[n++]=AX+y;bundlePos[n++]=z;};
+  for(let k=0;k<72;k++){
+    const angle=k*2.39996323,r=Math.sqrt((k+.5)/72)*LENS_R*.9;
+    const y=r*Math.sin(angle),z=r*Math.cos(angle);
+    const yo=P.objH+((k%5)/4-.5)*OBJ_H*.78,zo=((k%4)/3-.5)*OBJ_W*.7;
+    const yy=apertureRay(u,f,d,q,yo,y,end),zz=apertureRay(u,f,d,q,zo,z,end);
+    const passes=V.type==='none'||Math.hypot(yy[1][1],zz[1][1])<=LENS_R+.15;
+    for(let j=0;j<(passes?3:1);j++){put(yy[j][0],yy[j][1],zz[j][1]);put(yy[j+1][0],yy[j+1][1],zz[j+1][1]);}
+  }
+  bundleGeo.attributes.position.needsUpdate=true;bundleGeo.setDrawRange(0,n/3);
+  bundle.visible=P.bundle;bundle.material.opacity=.24;
+}
 function updateBundle(){
+  if(V.active){updateVisionBundle();return;}
   const img=lensImage();
   const s=WORLD/44, xO=X(-P.objDist);
   const halfT=lensHalfThick(), R=LENS_R*0.93;
@@ -1494,6 +1565,7 @@ function buildRayLines(){
   rs.forEach((r,i)=>{
     const culled=cullRayByCover(r.fwd, r.back, LENS_R);
     const onFwd=P.rays[i] && !P.bundle;
+    rayArrMiddle[i].visible=false;
     const onBack=P.rays[i] && img.kind==='virtual' && culled.back.length>1;
     rayFwd[i].visible=onFwd && culled.fwd.length>1;
     rayBack[i].visible=onBack;
@@ -1506,7 +1578,12 @@ function buildRayLines(){
     setPts(rayFwd[i], fwd, false);
     rayDots[i].userData.pts=fwd;
     const sp=lensSplit(fwd);
-    if(sp){
+    if(V.active&&fwd.length>=4){
+      placeRayArrow(rayArrIn[i],fwd[0],fwd[1],.58);
+      placeRayArrow(rayArrMiddle[i],fwd[1],fwd[2],.5);
+      rayArrMiddle[i].scale.setScalar(.48);
+      placeRayArrow(rayArrOut[i],fwd[2],fwd[3],.25);
+    }else if(sp){
       placeRayArrow(rayArrIn[i], sp.inc[0], sp.inc[1], 0.58);
       const emLen=sp.em[0].distanceTo(sp.em[1]);
       placeRayArrow(rayArrOut[i], sp.em[0], sp.em[1], Math.min(0.38, 9/Math.max(emLen,1e-3)));
@@ -1538,6 +1615,7 @@ function update3D(dt,t){
   lensMesh.scale.x=lensHalfThick();
   lensGlint.position.x=lensMesh.scale.x*0.9;
   layoutCoverCard();
+  updateVisionScene();
   updateHeightMarkers();
 }
 let markObjs=[];
@@ -1566,6 +1644,7 @@ function resize2D(){
 const C2={平行:'#fb7185',光心:'#fde047',焦点:'#22d3ee','2F':'#c084fc'};
 function draw2D(){
   const W=cv.clientWidth,H=cv.clientHeight;
+  if(W<2||H<48)return; // Hidden or transitioning 2D panel has no drawable viewport.
   ctx2.clearRect(0,0,W,H);
   ctx2.fillStyle=canvas2dBg();ctx2.fillRect(0,0,W,H);
   const u=P.objDist,f=P.focal,h=P.objH;
@@ -1576,8 +1655,8 @@ function draw2D(){
   let xR=Math.max(P.screen, 2*f, rayEndX(), 18)+12;
   if(kind==='virtual' && isFinite(v)) xL=Math.min(xL, v-12);
   const mag= (kind!=='none' && isFinite(m)) ? Math.abs(m) : 1;
-  const hVis=h*2.05; // 2D 物体/像箭头加高，便于看清，3D 仍用真实 h
-  const lensR2=LENS_R*1.5; // 2D 透镜上下高度为当前的 1.5 倍
+  const hVis=V.active?h:h*2.05; // 2D 物体/像箭头加高，便于看清，3D 仍用真实 h
+  const lensR2=V.active?LENS_R:LENS_R*1.5; // 2D 透镜上下高度为当前的 1.5 倍
   const yNeed=Math.max(lensR2+2.5, Math.abs(hVis)+3.3, mag*Math.abs(hVis)+3.3, 11.6);
   const padX=26, padY=42;
   const pxPerCm=Math.min((W-2*padX)/(xR-xL), (H-padY)/(2*yNeed));
@@ -1638,6 +1717,15 @@ function draw2D(){
   }
   ctx2.restore();
 
+  if(V.active&&V.type!=='none'){
+    const x=X2(-V.distance),r=lensR2*pxPerCm,w=Math.max(5,rx*.8);
+    ctx2.save();ctx2.fillStyle='rgba(110,190,205,.28)';ctx2.strokeStyle=P.dark?'#a5e4ef':'#16708a';ctx2.lineWidth=2;
+    ctx2.beginPath();
+    if(V.type==='convex')ctx2.ellipse(x,ax,w,r,0,0,Math.PI*2);
+    else{ctx2.moveTo(x-w,ax-r);ctx2.quadraticCurveTo(x+w*.6,ax,x-w,ax+r);ctx2.lineTo(x+w,ax+r);ctx2.quadraticCurveTo(x-w*.6,ax,x+w,ax-r);ctx2.closePath();}
+    ctx2.fill();ctx2.stroke();ctx2.fillStyle=c2dText();ctx2.font='bold 12px sans-serif';ctx2.textAlign='center';
+    ctx2.fillText(V.type==='convex'?'矫正凸透镜':'矫正凹透镜',x,ax+r+38);ctx2.restore();
+  }
   const toPx=(wx,wy)=>[X2(wx),Y2(wy)];
   function arrowAt(x1,y1,x2,y2,color,t){
     const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
@@ -1684,7 +1772,8 @@ function draw2D(){
     });
   }
   const C2c=['#e11d48','#ca8a04','#0ea5e9','#7c3aed'];
-  const scaleY=pts=>pts.map(([wx,wy])=>[wx, wy===0?0:wy*(hVis/(h||1e-6))]);
+  if(V.active&&V.compare)visionRays(0,P.objH,rayEndX(),false).forEach(r=>strokePts(r.fwd,'#8b929d',true,false));
+  const scaleY=pts=>V.active?pts:pts.map(([wx,wy])=>[wx, wy===0?0:wy*(hVis/(h||1e-6))]);
   specialRaysCm().forEach((r,i)=>{
     if(!P.rays[i])return;
     const culled=cullRayByCover(scaleY(r.fwd), scaleY(r.back), lensR2);
@@ -1769,9 +1858,9 @@ function draw2D(){
   }
   ctx2.restore();
   ctx2.fillStyle=c2dText(); ctx2.font='12px sans-serif';
-  ctx2.fillText(kind==='real'?(s>.6?`✓ 清晰  v₀=${P.screen.toFixed(1)}`:`模糊 Δ=${d.toFixed(1)}  v₀=${P.screen.toFixed(1)}`):`光屏 v₀=${P.screen.toFixed(1)} · 虚像无法承接`, xs, ax+ry+22);
+  ctx2.fillText(kind==='real'?((V.active?d<=.20:s>.6)?`✓ 清晰  v₀=${P.screen.toFixed(1)}`:`模糊 Δ=${d.toFixed(1)}  v₀=${P.screen.toFixed(1)}`):`光屏 v₀=${P.screen.toFixed(1)} · 虚像无法承接`, xs, ax+ry+22);
 
-  const legends=[['① 平行→焦点',C2.平行,0],['② 过光心',C2.光心,1],['③ 过焦点→平行',C2.焦点,2],['④ 过2F',C2['2F'],3]];
+  const legends=V.active?[['① 上部采样',C2.平行,0],['② 中部采样',C2.光心,1],['③ 下部采样',C2.焦点,2],['④ 边缘采样',C2['2F'],3]]:[['① 平行→焦点',C2.平行,0],['② 过光心',C2.光心,1],['③ 过焦点→平行',C2.焦点,2],['④ 过2F',C2['2F'],3]];
   ctx2.textAlign='left';let lx=12;
   ctx2.font='11px sans-serif';
   legends.forEach(([t,c,i])=>{
@@ -1782,6 +1871,125 @@ function draw2D(){
   });
   ctx2.globalAlpha=1;
 }
+
+/* ============ 视力矫正拓展：固定视网膜平面，双透镜近轴追迹 ============ */
+const correctorGroup=new THREE.Group();scene.add(correctorGroup);correctorGroup.visible=false;
+const correctorGlass=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshPhysicalMaterial({
+  color:0xd6eef0,roughness:.07,metalness:0,transmission:.88,ior:1.5,thickness:.55,
+  transparent:true,opacity:.92,envMapIntensity:.55,clearcoat:.7,side:THREE.DoubleSide
+}));correctorGroup.add(correctorGlass);
+const correctionR=LENS_R+.15;
+const correctorRing=new THREE.Mesh(new THREE.TorusGeometry(correctionR+.15,.13,10,72),cellMat);
+correctorRing.rotation.y=Math.PI/2;correctorGroup.add(correctorRing);
+const correctorYoke=new THREE.Mesh(new THREE.BoxGeometry(.9,.7,.7),cellMat);
+correctorYoke.position.y=-correctionR-.15;correctorGroup.add(correctorYoke);
+addRodClamp(correctorGroup,-correctionR-.92,0);
+addChromeRod(correctorGroup,RAIL_Y-AX+.55,-correctionR-.64,0);
+const correctorCarrier=makeCarrier();correctorCarrier.position.y=RAIL_Y-AX;correctorGroup.add(correctorCarrier);
+const correctorLabel=sharpLabel('矫正透镜','scene-label--vision');correctorLabel.position.set(0,correctionR+1.1,0);correctorGroup.add(correctorLabel);
+const retinaLabel=sharpLabel('光屏 · 位置固定','scene-label--vision');retinaLabel.position.set(0,SCREEN_H/2+1.5,0);scrGroup.add(retinaLabel);
+const convergenceGroup=new THREE.Group();scene.add(convergenceGroup);
+const focusDot=new THREE.Mesh(new THREE.SphereGeometry(.24,16,12),new THREE.MeshBasicMaterial({color:0xea580c}));
+const focusCaption=sharpLabel('实际会聚点','scene-label--vision');focusCaption.position.y=1.5;convergenceGroup.add(focusDot,focusCaption);
+const comparisonLine=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineDashedMaterial({color:0x8993a1,dashSize:.8,gapSize:.5,transparent:true,opacity:.62,depthWrite:false}));scene.add(comparisonLine);
+let visionSceneKey='';
+const ordinaryRayCaptions=[...document.querySelectorAll('.ray-toggle')].map(el=>el.innerHTML);
+function updateVisionScene(){
+  const has=V.active&&V.type!=='none';
+  correctorGroup.visible=has;correctorLabel.element.style.display=has?'':'none';
+  retinaLabel.element.style.display=V.active?'':'none';retinaLabel.visible=V.active;
+  convergenceGroup.visible=false;focusCaption.element.style.display='none';comparisonLine.visible=false;
+  if(!V.active)return;
+  correctorGroup.position.set(X(-V.distance),AX,0);
+  const key=`${V.type}:${V.strength}:${P.focal}:${P.objDist}:${V.compare}:${P.objH}`;
+  if(key!==visionSceneKey){
+    if(has){
+      const pts=[],amp=.12+.65*V.strength/100;
+      const half=r=>V.type==='concave'?.12+amp*(r/correctionR)**2:.12+amp*Math.sqrt(Math.max(0,1-(r/correctionR)**2));
+      for(let i=0;i<=32;i++){const r=correctionR*i/32;pts.push(new THREE.Vector2(r,-half(r)));}
+      for(let i=32;i>=0;i--){const r=correctionR*i/32;pts.push(new THREE.Vector2(r,half(r)));}
+      correctorGlass.geometry.dispose();correctorGlass.geometry=new THREE.LatheGeometry(pts,64);correctorGlass.geometry.rotateZ(Math.PI/2);
+      correctorLabel.element.textContent=V.type==='convex'?'矫正凸透镜':'矫正凹透镜';
+    }
+    const comparePoints=[];
+    for(const r of visionRays(0,P.objH,rayEndX(),false))for(let i=0;i<r.fwd.length-1;i++)comparePoints.push(...toWorld([r.fwd[i],r.fwd[i+1]]));
+    comparisonLine.geometry.dispose();comparisonLine.geometry=new THREE.BufferGeometry().setFromPoints(comparePoints);comparisonLine.computeLineDistances();
+    visionSceneKey=key;
+  }
+  comparisonLine.visible=V.compare;
+  const img=lensImage();
+  if(img.kind==='real'&&img.v<=90&&Math.abs(img.h)<35){
+    convergenceGroup.visible=true;focusCaption.element.style.display='';convergenceGroup.position.set(X(img.v),AX+img.h,.15);
+  }
+}
+function refreshVisionControls(){
+  const active=V.active;
+  $('visionControls').hidden=!active;
+  $('bVision').textContent=active?'退出拓展 · 恢复原实验':'进入视力矫正拓展';
+  $('bVision').setAttribute('aria-expanded',String(active));
+  $('sharedParams').hidden=active;$('autoCard').hidden=active;$('ruleTable').hidden=active;
+  for(const id of ['sU','sS','sT','sCover','bTrack','bPlay'])$(id).disabled=active;
+  $('sF').disabled=active;
+  $('bTrack').textContent='📍 光屏追像：'+(P.track?'开':'关');
+  $('bPlay').textContent=P.auto?'⏸ 暂停自动演示':'▶ 自动靠近 / 远离';
+  $('visionSceneNote').hidden=!active;
+  document.querySelector('#stages .stage-label em').textContent=active?'物体 → 矫正透镜 → 原凸透镜 → 固定光屏':'光具座 · 物体 → 凸透镜 → 光屏';
+  document.querySelectorAll('.ray-toggle').forEach((el,i)=>{
+    el.innerHTML=active?`<i style="color:${['#fb7185','#fde047','#22d3ee','#c084fc'][i]};background:${['#fb7185','#fde047','#22d3ee','#c084fc'][i]}"></i>${['① 上部采样','② 中部采样','③ 下部采样','④ 边缘采样'][i]}`:ordinaryRayCaptions[i];
+  });
+  document.querySelector('.rays').closest('section').querySelector('h2').textContent=active?'双透镜光线 · 采样路径':'四条特殊光线 · 独立开关';
+  syncRayToggles();
+}
+function enterVision(){
+  V.saved=JSON.parse(JSON.stringify(P));
+  let img=lensImage();
+  if(P.objDist<12||img.kind!=='real'||img.v<4||img.v>80){P.objDist=25;P.focal=10;P.thick=1;img=lensImage();}
+  P.screen=img.v;P.track=false;P.auto=false;P.cover=0;
+  V.distance=Math.min(5,P.objDist*.25);V.type='none';V.compare=false;V.strength=35;
+  V.baseline={u:P.objDist,f:P.focal,screen:P.screen};
+  const min=Math.max(5,P.focal*.8),max=Math.min(18,P.objDist*.82,P.focal*1.2);
+  $('sEyeF').min=min;$('sEyeF').max=max;$('sEyeF').value=P.focal;
+  V.maxPower=Math.max(.015,Math.abs(powerForScreen(P.objDist,min,V.distance,P.screen)),Math.abs(powerForScreen(P.objDist,max,V.distance,P.screen)))*1.65;
+  V.active=true;$('sCorrector').value=35;$('cUncorrected').checked=false;$('visionExplanation').open=false;
+  $('visionBaseline').textContent=`物距 ${P.objDist.toFixed(1)} cm · 光屏固定 ${P.screen.toFixed(2)} cm；矫正透镜位于原透镜前 ${V.distance.toFixed(1)} cm。先改变原透镜焦距，再选择并调节矫正透镜。`;
+  refreshVisionControls();selectCorrector('none');invalidateVision();
+}
+function exitVision(){
+  const saved=V.saved;V.active=false;V.type='none';V.compare=false;
+  Object.assign(P,saved);V.saved=null;
+  for(const [id,key]of [['sU','objDist'],['sS','screen'],['sF','focal'],['sT','thick'],['sH','objH']])$(id).value=P[key];
+  $('sCover').value=P.cover*100;$('objType').value=P.objType;
+  buildObject();buildVirtualImage();applyTheme();sync2DLayout();
+  refreshVisionControls();invalidateVision();
+}
+function invalidateVision(){
+  drawScreenTexture._key=null;drawScreenTexture._last=0;updateHeightMarkers._key=null;visionSceneKey='';
+  syncLabels();updateVisionUI();updateVisionScene();
+}
+function selectCorrector(type){
+  V.type=type;$('sCorrector').disabled=type==='none';
+  document.querySelectorAll('[data-corrector]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.corrector===type)));
+  invalidateVision();
+}
+function updateVisionUI(){
+  if(!V.active)return;
+  const img=lensImage(),q=correctionPower(),{d,s}=sharpness();
+  $('eyeF').textContent=P.focal.toFixed(2)+' cm';
+  $('correctorF').textContent=V.type==='none'?'未加入':Math.abs(q)<1e-9?'近似平光':`f = ${(1/q).toFixed(1)} cm`;
+  const ok=img.kind==='real'&&d<=.20;
+  const position=img.kind==='none'?'出射光近似平行，有限位置无法成像':img.kind!=='real'?'当前为虚像，不能落在光屏上':ok?(V.type==='none'?'像位于光屏 · 清晰成像':'像已回到光屏 · 清晰成像'):`像在光屏${img.v<P.screen?'前':'后'} ${d.toFixed(2)} cm`;
+  const message=position+(V.type==='none'?'；选择透镜进行探究。':ok?'；可移除透镜比较矫正前后。':'；继续调节强度或更换透镜。');
+  if(message!==V.lastStatus){$('visionStatus').textContent=message;$('visionStatus').dataset.success=String(ok);V.lastStatus=message;}
+  $('visionSceneNote').textContent='光屏位置固定 · '+position;
+}
+$('bVision').onclick=()=>V.active?exitVision():enterVision();
+$('sEyeF').oninput=e=>{P.focal=+e.target.value;P.thick=Math.min(1.8,Math.max(.3,thickFromF(P.focal)));$('sF').value=P.focal;$('sT').value=P.thick;invalidateVision();};
+$('sCorrector').oninput=e=>{V.strength=+e.target.value;invalidateVision();};
+document.querySelectorAll('[data-corrector]').forEach(b=>b.onclick=()=>selectCorrector(b.dataset.corrector));
+$('bRemoveCorrector').onclick=()=>selectCorrector('none');
+$('bVisionBaseline').onclick=()=>{P.focal=V.baseline.f;P.screen=V.baseline.screen;P.thick=Math.min(1.8,Math.max(.3,thickFromF(P.focal)));$('sEyeF').value=P.focal;$('sF').value=P.focal;selectCorrector('none');};
+$('cUncorrected').onchange=e=>{V.compare=e.target.checked;invalidateVision();};
+updateVisionScene();
 
 /* ============ 主循环 + 自动动画（过焦点减速） ============ */
 const clock=new THREE.Clock();
@@ -1799,7 +2007,7 @@ function tick(){
       if(lensImage().kind==='virtual')paintVirtualCard();
     }
   }else flameAccumulator=0;
-  if(P.auto){
+  if(P.auto&&!V.active){
     // 往返 6~38，经过焦点减速到 ~15%
     const distF=Math.abs(P.objDist-P.focal);
     const slow=0.15+0.85*Math.min(1,distF/7); // 焦点附近减速带
@@ -1812,7 +2020,7 @@ function tick(){
   }
   // 光屏追像
   const {v,kind}=lensImage();
-  if(P.track&&kind==='real'){
+  if(P.track&&!V.active&&kind==='real'){
     P.screen+= (THREE.MathUtils.clamp(v,4,80)-P.screen)*Math.min(1,dt*4);
     $('sS').value=P.screen;
   }
@@ -1837,13 +2045,15 @@ function updateInfo(){
   if(kind==='none')detail=`u = <b>${P.objDist.toFixed(1)}</b> = f = <b>${P.focal.toFixed(1)}cm</b>，折射光平行射出，像距 <b>∞</b>。${coverNote}`;
   else if(kind==='virtual')detail=`u=<b>${P.objDist.toFixed(1)}</b> ＜ f=<b>${P.focal.toFixed(1)}</b>，v=<b>${v.toFixed(1)}cm</b>（虚）。眼睛在右侧透过透镜看可观察到正立放大虚像。${coverNote}`;
   else detail=`u=<b>${P.objDist.toFixed(1)}</b>，f=<b>${P.focal.toFixed(1)}</b>，v=<b>${v.toFixed(1)}cm</b>，光屏偏差 <b>${d.toFixed(1)}cm</b>。${coverNote}`;
+  if(V.active)detail=`光屏固定 ${P.screen.toFixed(2)} cm；${kind==='none'?'出射光近似平行':`实际像距 ${v.toFixed(2)} cm，${kind==='real'?`偏差 ${d.toFixed(2)} cm`:'不能由光屏承接'}`}。`;
   $('imgDetail').innerHTML=detail;
   const pct=Math.round(s*100);
+  if(V.active)updateVisionUI();
   $('sharpBar').style.width=(P.cover>=1?0:pct)+'%';
-  $('hSharp').textContent=P.cover>=1?'完全遮挡 · 无像':(kind==='real'?(s>.6?'清晰 ':'模糊 '):'虚像 ')+pct+'%';
+  $('hSharp').textContent=P.cover>=1?'完全遮挡 · 无像':(kind==='real'?((V.active?d<=.20:s>.6)?'清晰 ':'模糊 '):'虚像 ')+pct+'%';
   if(P.cover>=1) $('blurHint').textContent='透镜完全遮挡：清晰度与亮度是不同概念，光屏上无像';
   else if(P.cover>0 && kind==='real') $('blurHint').textContent=`通光面积 ${lit}% · 像保持完整，清晰度与亮度分别变化`;
-  else $('blurHint').textContent=kind!=='real'?'虚像无法用光屏承接，把眼睛放在光屏一侧透过透镜观察':(s>.6?`光屏清晰度 ${pct}% · 对准了，像很锐利 ✓`:`光屏清晰度 ${pct}% · 前后移动光屏寻找清晰像（Δ=${d.toFixed(1)}cm）`);
+  else $('blurHint').textContent=kind!=='real'?'虚像无法用光屏承接，把眼睛放在光屏一侧透过透镜观察':((V.active?d<=.20:s>.6)?`光屏清晰度 ${pct}% · 对准了，像很锐利 ✓`:(V.active?`光屏已固定，选择并调节矫正透镜（Δ=${d.toFixed(2)} cm）`:`光屏清晰度 ${pct}% · 前后移动光屏寻找清晰像（Δ=${d.toFixed(1)}cm）`));
 }
 applyTheme();sync2DLayout();syncLabels();tick();
 </script>
