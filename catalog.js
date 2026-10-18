@@ -562,7 +562,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "pulley-lab",
-    "cover": "assets/covers/pulley-lab-scene.jpg?v=20261018-blender-precision-v1",
+    "cover": "assets/covers/pulley-lab-scene.jpg?v=20261018-mass-metal-v2",
     "title": "滑轮实验室",
     "subtitle": "定滑轮、动滑轮、滑轮组与等效杠杆",
     "category": "力学实验",
@@ -576,7 +576,7 @@ window.MODEL_CATALOG = [
       "支点",
       "控制变量"
     ],
-    "path": "models/pulley-lab.html?v=20261018-blender-precision-v1",
+    "path": "models/pulley-lab.html?v=20261018-mass-metal-v2",
     "symbol": "轮",
     "accent": "blue"
   },
