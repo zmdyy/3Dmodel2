@@ -1,0 +1,26 @@
+{
+  "sourceFile": "Pulley_Laboratory_Precision_Local_V1.blend",
+  "sourceSHA256": "f01c64a3aaee7a138a8248db013ee15af6ead2faac13de490f46d265489337ed",
+  "asset": "assets/models/pulley-precision-v1.glb",
+  "assetSHA256": "0f702cac4d8f5a2cda949210c3b8ba616349c60582cff1128b17a17f9d100af0",
+  "assetBytes": 5099920,
+  "configurationMeshes": {
+    "fixed": 65,
+    "moving": 73,
+    "tackle2": 96,
+    "tackle3": 100,
+    "tackle4": 148
+  },
+  "verification": {
+    "fiveConfigurations": true,
+    "wheelRotatesAxleFixed": true,
+    "actualHandleDrag": true,
+    "slantedPull45Degrees": true,
+    "transparentAndExploded": true,
+    "recordResetTasks": true,
+    "leverExtension": true,
+    "desktopAnd390pxViewport": true,
+    "scriptErrors": 0
+  },
+  "cover": "actual browser WebGL screenshot"
+}
