@@ -14,3 +14,7 @@
 重现方式：运行Capture actual 3D model covers工作流；或准备playwright@1.56.1、sharp@0.34.3与Chromium，设置COVER_NODE_MODULES后运行node scripts/capture-gallery-covers.cjs。输出位于cover-captures，查看截图后再写入assets/covers并更新catalog.js。
 
 运行同时截取了滑轮拓展前侧轮缘与支点力臂的检查画面。浏览器运行未观察到页面错误。
+
+## 新增流体案例封面
+
+烧瓶潜水艇与重力输液同样使用各自实际案例的WebGL画布截图，均为960×540 JPEG。输液封面为玻璃瓶和软袋两个状态并排；详见[流体案例说明](fluid-labs.md)。捕获脚本为`scripts/capture-fluid-covers.cjs`。

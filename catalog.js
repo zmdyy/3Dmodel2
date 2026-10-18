@@ -579,5 +579,43 @@ window.MODEL_CATALOG = [
     "path": "models/pulley-lab.html?v=20261018-pivot-arms-v5",
     "symbol": "轮",
     "accent": "blue"
+  },
+  {
+    "id": "flask-submarine",
+    "title": "烧瓶潜水艇",
+    "subtitle": "双管烧瓶的进排水与浮沉",
+    "category": "力学实验",
+    "summary": "通过吸气进水、吹气排水改变总重力，比较漂浮、悬浮与下沉；观察双孔塞、独立气水玻璃管及乳胶管套接，支持装配剖视、拆解、浮沉数据记录与离线使用。",
+    "tags": [
+      "浮力",
+      "重力",
+      "潜水艇",
+      "液体压强",
+      "气体压缩",
+      "装配剖视"
+    ],
+    "path": "models/flask-submarine.html?v=20261018-v4",
+    "cover": "assets/covers/flask-submarine-scene.jpg?v=20261018-v4",
+    "symbol": "潜",
+    "accent": "blue"
+  },
+  {
+    "id": "gravity-infusion",
+    "title": "重力输液 · 玻璃瓶与软袋",
+    "subtitle": "独立进气、袋壁收缩与压差驱动",
+    "category": "力学实验",
+    "summary": "比较玻璃瓶双通道进气与软袋无进气支路两种结构，改变高度和滚轮位置探究滴速；带定向气流、连续落滴、动态接收杯与初始虚线轮廓的软袋侧视图，支持剖视、拆解和CSV记录。",
+    "tags": [
+      "大气压",
+      "液体压强",
+      "重力输液",
+      "气体流动",
+      "流动阻力",
+      "控制变量"
+    ],
+    "path": "models/gravity-infusion.html?v=20261018-v3",
+    "cover": "assets/covers/gravity-infusion-scene.jpg?v=20261018-v3",
+    "symbol": "滴",
+    "accent": "blue"
   }
 ];
