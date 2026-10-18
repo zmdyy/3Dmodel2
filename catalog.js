@@ -1,5 +1,17 @@
 window.MODEL_CATALOG = [
   {
+    "id": "piston-pump",
+    "cover": "assets/covers/piston-pump-scene.jpg?v=20261018-ui1",
+    "title": "手压抽水机",
+    "subtitle": "引水、密封与两个单向阀的自由探究",
+    "category": "力学实验",
+    "summary": "从空筒漏气开始，主动加入引水，观察下渗、排气、进水和出水。两个核心问题随时切换，保留装置状态；支持真实半剖、慢放、单次按压、近看阀门和定性压强显示。",
+    "tags": ["大气压", "抽水机", "引水", "单向阀", "密封", "液体压强"],
+    "path": "models/piston-pump.html?v=20261018-ui1",
+    "symbol": "泵",
+    "accent": "green"
+  },
+  {
     "id": "battery-box",
     "cover": "assets/covers/battery-box.png?v=20261006",
     "title": "2×AA 电池盒",
