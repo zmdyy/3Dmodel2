@@ -248,3 +248,10 @@ node scripts/capture-motor-cover.cjs
 - 学生主动加入引水，暂停把手展示倒水及间隙渗流，再自行按压观察排气、进水和出水。空筒和已灌水模式分别保留状态。
 - `shared/piston-pump-physics.js` 跟踪上下腔水量、进水及排水，使用简化气体与阀门条件生成定性过程；渗漏量、压力响应及出水次数未实测标定。界面不输出虚构精确压强。
 - 资料和验收说明见 `docs/piston-pump.md`。逻辑校验：`node scripts/tests/piston-pump.mjs`。
+
+
+## 小孔成像 · 双板自由探究
+
+- `models/pinhole-camera.html` 内嵌完整 GLB，采用简洁的蜡烛—孔板—光屏双板滑轨装置。支持 0.6～100 mm 孔径、圆/方/三角孔、物距与像距调节、暗色模式及光路展示。
+- 旋转按仓库统一规则：左键空白旋转、右键或 Shift+左键平移、滚轮缩放，左键拖动孔板或光屏则移动器材。几何成像随参数更新。
+- 首页封面 `assets/covers/pinhole-camera-scene.jpg` 为实际运行场景的 960×540 截图；详情见 [资料与验收](docs/pinhole-camera.md)。

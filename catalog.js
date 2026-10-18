@@ -629,5 +629,27 @@ window.MODEL_CATALOG = [
     "cover": "assets/covers/gravity-infusion-scene.jpg?v=20261018-v3",
     "symbol": "滴",
     "accent": "blue"
+  },
+  {
+    "id": "pinhole-camera",
+    "cover": "assets/covers/pinhole-camera-scene.jpg?v=20261018-v6",
+    "title": "小孔成像 · 自由探究",
+    "subtitle": "孔径、孔形、物距与像距的三维观察",
+    "category": "光学现象",
+    "summary": "双板滑轨实验：真实内嵌 GLB 仪器，发光粒子与典型光线展示直线传播；调节孔径、孔形、物距和像距，观察倒立实像、亮度和模糊的变化。支持暗色模式与直接拖动。",
+    "tags": [
+      "小孔成像",
+      "光的直线传播",
+      "实像",
+      "圆孔",
+      "方孔",
+      "三角孔",
+      "孔径",
+      "光屏",
+      "几何模糊"
+    ],
+    "path": "models/pinhole-camera.html?v=20261018-v6",
+    "symbol": "◉",
+    "accent": "amber"
   }
 ];
