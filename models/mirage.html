@@ -163,6 +163,7 @@
   }
   #toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
+<script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
 <body>
   <div id="stage"><canvas id="scene"></canvas></div>
@@ -1924,10 +1925,7 @@
       view.theta -= dx * 0.0055;
       view.phi = clamp(view.phi - dy * 0.0050, 0.10, Math.PI - 0.10);
     } else {
-      const s = view.dist * 0.0016;
-      const right = new THREE.Vector3(Math.cos(view.theta), 0, -Math.sin(view.theta));
-      view.target.addScaledVector(right, dx * s);
-      view.target.y = clamp(view.target.y - dy * s, -12, 34);
+      Navigation3D.pan(camera, view.target, canvas, dx, dy);
     }
   });
 

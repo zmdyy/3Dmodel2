@@ -101,6 +101,7 @@
       color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 600;
     }
   </style>
+<script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
 <body>
   <div id="canvas-wrap"></div>
@@ -304,7 +305,7 @@ orthoCamera.lookAt(0, 0, 0);
 
 let camera = perspCamera;
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = Navigation3D.configureOrbit(new OrbitControls(camera, renderer.domElement));
 controls.target.copy(OBLIQUE_TARGET);
 controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.48;

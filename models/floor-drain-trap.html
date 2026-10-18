@@ -74,6 +74,7 @@
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
+<script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
 
 <canvas id="scene" aria-label="可旋转缩放的三维实验装置"></canvas>
@@ -931,15 +932,19 @@
     let drag = null;
     const cv = renderer.domElement;
     cv.addEventListener('pointerdown', function (e) {
-      drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId);
+      drag = { x: e.clientX, y: e.clientY, pan: Navigation3D.isPan(e) }; cv.setPointerCapture(e.pointerId);
     });
     cv.addEventListener('pointermove', function (e) {
       if (!drag) return;
+      if (drag.pan) Navigation3D.pan(camera, view.target, cv, e.clientX - drag.x, e.clientY - drag.y);
+      else {
       view.theta -= (e.clientX - drag.x) * 0.006;
       view.phi = clamp(view.phi - (e.clientY - drag.y) * 0.005, 0.12, Math.PI - 0.12);
-      drag = { x: e.clientX, y: e.clientY };
+      }
+      drag.x = e.clientX; drag.y = e.clientY;
     });
     cv.addEventListener('pointerup', function () { drag = null; });
+    cv.addEventListener('pointercancel', function () { drag = null; });
     cv.addEventListener('wheel', function (e) {
       view.distTarget = clamp(view.distTarget * (1 + (e.deltaY > 0 ? 0.10 : -0.10)), 200, 2200);
     }, { passive: true });

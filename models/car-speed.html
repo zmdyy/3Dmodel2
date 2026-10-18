@@ -212,7 +212,8 @@ html,body{scroll-behavior:smooth}
 @media(max-width:800px){.stage>.bar{top:64px}.analysis-grid{display:flex;flex-direction:column}}
 #lengthChoices[hidden]{display:none}
 #lengthChoices button{font-size:14px;padding:9px 5px}
-</style><script type="importmap">{"imports":{"three":"../shared/vendor/three-r165/three.module.js","three/addons/":"../shared/vendor/three-r165/addons/"}}</script></head><body><header class="top"><strong>测量小车的平均速度 · 三维实验</strong><div class="prelab-entry"><span id="reactionSummary">0 / 5 次</span><button id="reactionTest" type="button">视觉反应时间体验</button></div></header>
+</style><script type="importmap">{"imports":{"three":"../shared/vendor/three-r165/three.module.js","three/addons/":"../shared/vendor/three-r165/addons/"}}</script><script src="../shared/navigation-style.js?v=20261018-nav1"></script>
+</head><body><header class="top"><strong>测量小车的平均速度 · 三维实验</strong><div class="prelab-entry"><span id="reactionSummary">0 / 5 次</span><button id="reactionTest" type="button">视觉反应时间体验</button></div></header>
 <main class="main"><div class="work-left"><div class="stage" id="stage"><div id="loader" class="loader">正在加载三维模型…</div>
  <div class="stage-status"><span class="label">小车</span><strong id="state">准备就绪</strong><span class="muted" style="padding-left:12px" id="progressLabel">已行驶 0 cm</span></div>
  <div id="tapeLegend" hidden>蓝线：等时位置 · 橙线：当前车头</div><div class="bar"><div class="flex"><button id="follow" class="active">镜头跟随：开</button><button id="overview" class="secondary">全景</button><button id="readView" class="secondary">读数视角</button></div></div>
@@ -268,7 +269,7 @@ stage.insertBefore(renderer.domElement,stage.firstChild);
 const scene=new THREE.Scene();scene.background=new THREE.Color('#eef2f5');scene.add(new THREE.HemisphereLight(0xffffff,0xbac5ce,3));
 const sun=new THREE.DirectionalLight(0xffffff,3);sun.position.set(1.5,1.8,3);scene.add(sun);
 const camera=new THREE.PerspectiveCamera(43,stage.clientWidth/stage.clientHeight,.005,60);camera.up.set(0,1,0);
-let controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;
+let controls=Navigation3D.configureOrbit(new OrbitControls(camera,renderer.domElement));controls.enableDamping=true;controls.dampingFactor=.08;
 let root,ramp,cart,stop,board,ruler,marks,support,table,wheels=[],wheelBase=[],ready=false;
 let boardLength=.8,angleDeg=8,mu=.060,playing=false,follow=true,reading=false,readSave=null;
 let cameraTween=null,tapeViewSave=null,topView=false;
@@ -395,7 +396,7 @@ function resetExperiment(){experiment='idle';elapsed=0;manualElapsed=0;manualRun
 function stopMotion(){playing=false}
 function sampleNose(){return ramp.localToWorld(new THREE.Vector3(cart.position.x,.019,.039));}
 function positionReadCamera(){if(!cart||!reading)return;scene.updateMatrixWorld(true);const nose=sampleNose();const out=new THREE.Vector3(0,.04,.31);camera.position.copy(nose).add(out);controls.target.copy(nose);camera.fov=26;camera.updateProjectionMatrix();controls.update()}
-function setCameraUp(up){const target=controls.target.clone();controls.dispose();camera.up.copy(up);controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(target);controls.enableDamping=true;controls.dampingFactor=.08;controls.update();}
+function setCameraUp(up){const target=controls.target.clone();controls.dispose();camera.up.copy(up);controls=Navigation3D.configureOrbit(new OrbitControls(camera,renderer.domElement));controls.target.copy(target);controls.enableDamping=true;controls.dampingFactor=.08;controls.update();}
 function cancelCameraTransition(){cameraTween=null;controls.enabled=true;}
 function cameraSnapshot(){return {pos:camera.position.clone(),target:controls.target.clone(),up:camera.up.clone(),q:camera.quaternion.clone(),fov:camera.fov,follow,reading,readSave,cart:cart.getWorldPosition(new THREE.Vector3())};}
 function animateCamera(dest,done){

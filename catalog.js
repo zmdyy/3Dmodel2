@@ -39,7 +39,7 @@ window.MODEL_CATALOG = [
       "滑片",
       "分压"
     ],
-    "path": "models/potentiometer.html",
+    "path": "models/potentiometer.html?v=20261018-nav1",
     "symbol": "Ω",
     "accent": "amber"
   },
@@ -71,7 +71,7 @@ window.MODEL_CATALOG = [
       "安全用电",
       "装配"
     ],
-    "path": "models/e27-bulb.html",
+    "path": "models/e27-bulb.html?v=20261018-nav1",
     "symbol": "☼",
     "accent": "orange"
   },
@@ -87,7 +87,7 @@ window.MODEL_CATALOG = [
       "变阻器",
       "电流表"
     ],
-    "path": "models/fuel-gauge.html",
+    "path": "models/fuel-gauge.html?v=20261018-nav1",
     "symbol": "↕",
     "accent": "green"
   },
@@ -106,7 +106,7 @@ window.MODEL_CATALOG = [
       "传感器",
       "实物接线"
     ],
-    "path": "models/pressure-scale.html",
+    "path": "models/pressure-scale.html?v=20261018-nav1",
     "symbol": "⚖",
     "accent": "green"
   },
@@ -124,7 +124,7 @@ window.MODEL_CATALOG = [
       "欧姆定律",
       "实物接线"
     ],
-    "path": "models/height-weight-meter.html",
+    "path": "models/height-weight-meter.html?v=20261018-nav1",
     "symbol": "↕",
     "accent": "green"
   },
@@ -142,7 +142,7 @@ window.MODEL_CATALOG = [
       "弹簧",
       "电路状态"
     ],
-    "path": "models/museum-alarm.html",
+    "path": "models/museum-alarm.html?v=20261018-nav1",
     "symbol": "🔔",
     "accent": "orange"
   },
@@ -160,7 +160,7 @@ window.MODEL_CATALOG = [
       "控制电路",
       "工作电路"
     ],
-    "path": "models/water-level-alarm.html",
+    "path": "models/water-level-alarm.html?v=20261018-nav1",
     "symbol": "≈",
     "accent": "blue"
   },
@@ -198,7 +198,7 @@ window.MODEL_CATALOG = [
       "换向器",
       "磁感线"
     ],
-    "path": "models/motor-principles.html",
+    "path": "models/motor-principles.html?v=20261018-nav1",
     "symbol": "↻",
     "accent": "blue"
   },
@@ -339,7 +339,7 @@ window.MODEL_CATALOG = [
       "调焦",
       "光路"
     ],
-    "path": "models/refracting-telescope.html",
+    "path": "models/refracting-telescope.html?v=20261018-nav1",
     "symbol": "🔭",
     "accent": "blue"
   },
@@ -358,7 +358,7 @@ window.MODEL_CATALOG = [
       "调焦",
       "光路"
     ],
-    "path": "models/reflecting-telescope.html",
+    "path": "models/reflecting-telescope.html?v=20261018-nav1",
     "symbol": "🔭",
     "accent": "amber"
   },
@@ -394,7 +394,7 @@ window.MODEL_CATALOG = [
       "光的折射",
       "虚像"
     ],
-    "path": "models/mirage.html",
+    "path": "models/mirage.html?v=20261018-nav1",
     "symbol": "↗",
     "accent": "blue"
   },
@@ -432,7 +432,7 @@ window.MODEL_CATALOG = [
       "实验误差",
       "运动带"
     ],
-    "path": "models/car-speed.html",
+    "path": "models/car-speed.html?v=20261018-nav1",
     "symbol": "v",
     "accent": "blue"
   },
@@ -471,7 +471,7 @@ window.MODEL_CATALOG = [
       "数据图像",
       "Blender"
     ],
-    "path": "models/friction-manual-step.html?v=20261017-v9",
+    "path": "models/friction-manual-step.html?v=20261018-nav1",
     "symbol": "μ",
     "accent": "green"
   },
@@ -490,7 +490,7 @@ window.MODEL_CATALOG = [
       "排水",
       "剖切"
     ],
-    "path": "models/floor-drain-trap.html",
+    "path": "models/floor-drain-trap.html?v=20261018-nav1",
     "symbol": "水",
     "accent": "green"
   },
@@ -507,7 +507,7 @@ window.MODEL_CATALOG = [
       "平面镜成像",
       "物像关系"
     ],
-    "path": "models/plane-mirror.html?v=20261017-red-mirror-v2",
+    "path": "models/plane-mirror.html?v=20261018-nav1",
     "symbol": "↔",
     "accent": "blue"
   },
@@ -530,7 +530,7 @@ window.MODEL_CATALOG = [
       "远视模型",
       "双透镜"
     ],
-    "path": "models/convex-lens.html?v=20261017-corrector-profile-v2",
+    "path": "models/convex-lens.html?v=20261018-nav1",
     "symbol": "↔",
     "accent": "violet"
   },
@@ -549,7 +549,7 @@ window.MODEL_CATALOG = [
       "水碓",
       "能量转化"
     ],
-    "path": "models/ancient-levers.html?v=20261017-single-force",
+    "path": "models/ancient-levers.html?v=20261018-nav1",
     "symbol": "⚖",
     "accent": "green"
   },
@@ -568,7 +568,7 @@ window.MODEL_CATALOG = [
       "供气",
       "波义耳定律"
     ],
-    "path": "models/diving-bell.html?v=20261017-qianhai-v3",
+    "path": "models/diving-bell.html?v=20261018-nav1",
     "symbol": "钟",
     "accent": "blue"
   },
@@ -588,7 +588,7 @@ window.MODEL_CATALOG = [
       "支点",
       "控制变量"
     ],
-    "path": "models/pulley-lab.html?v=20261018-mass-metal-v2",
+    "path": "models/pulley-lab.html?v=20261018-nav1",
     "symbol": "轮",
     "accent": "blue"
   },
@@ -606,7 +606,7 @@ window.MODEL_CATALOG = [
       "气体压缩",
       "装配剖视"
     ],
-    "path": "models/flask-submarine.html?v=20261018-v4",
+    "path": "models/flask-submarine.html?v=20261018-nav1",
     "cover": "assets/covers/flask-submarine-scene.jpg?v=20261018-v4",
     "symbol": "潜",
     "accent": "blue"

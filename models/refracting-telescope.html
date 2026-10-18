@@ -748,7 +748,7 @@ for(const [id,key] of [['raysSwitch','rays'],['labelsSwitch','labels']])get(id).
 let pointer=null;canvas.addEventListener('pointerdown',e=>{
  const rect=canvas.getBoundingClientRect(),px=e.clientX-rect.left,py=e.clientY-rect.top;
  const wheel=screen([wheelCX,wheelCY,wheelZ],camera());
- const turnKnob=presetMode==='classic' && mode!=='explode' && e.button===0 && wheel.visible && Math.hypot(px-wheel.x,py-wheel.y)<Math.max(32,110/Math.max(1,distance));
+ const turnKnob=presetMode==='classic' && mode!=='explode' && e.button===0 && !e.shiftKey && wheel.visible && Math.hypot(px-wheel.x,py-wheel.y)<Math.max(32,110/Math.max(1,distance));
  pointer={id:e.pointerId,x:e.clientX,y:e.clientY,btn:e.button,knob:turnKnob};
  canvas.setPointerCapture(e.pointerId);canvas.style.cursor='grabbing';
 });

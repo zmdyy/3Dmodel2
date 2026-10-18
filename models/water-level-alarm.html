@@ -158,6 +158,7 @@
   }
   #toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
+<script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
 <body>
   <div id="stage"><canvas id="scene"></canvas></div>
@@ -1219,13 +1220,13 @@
   let drag0 = null;
   canvas.addEventListener('pointerdown', function (e) {
     canvas.setPointerCapture(e.pointerId);
-    if (hitTank(e)) {
+    if (e.button === 0 && !Navigation3D.isPan(e) && hitTank(e)) {
       state.drag = 'water';
       drag0 = { y: e.clientY, lv: state.level };
       canvas.style.cursor = 'ns-resize';
       return;
     }
-    state.drag = e.shiftKey ? 'pan' : 'orbit';
+    state.drag = Navigation3D.isPan(e) ? 'pan' : 'orbit';
     drag0 = { x: e.clientX, y: e.clientY, theta: view.theta, phi: view.phi, tx: view.target.x, ty: view.target.y };
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -1240,9 +1241,9 @@
       return;
     }
     if (state.drag === 'pan') {
-      const k = view.dist * 0.0011;
-      view.target.x = drag0.tx - (e.clientX - drag0.x) * k;
-      view.tyTarget = drag0.ty + (e.clientY - drag0.y) * k;
+      Navigation3D.pan(camera, view.target, canvas, e.clientX - drag0.x, e.clientY - drag0.y);
+      drag0.x = e.clientX; drag0.y = e.clientY;
+      view.tyTarget = view.target.y;
     }
   });
   function endDrag() { state.drag = 'none'; canvas.style.cursor = 'move'; }

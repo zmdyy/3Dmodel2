@@ -218,6 +218,7 @@
 <script type="importmap">
 {"imports":{"three":"../shared/vendor/three-r160/build/three.module.js","three/addons/":"../shared/vendor/three-r160/examples/jsm/"}}
 </script>
+<script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
 <body>
 <div id="app">
@@ -579,7 +580,7 @@ const camera=new THREE.PerspectiveCamera(46,1,0.1,500);
 // 重置采用更低的构图位置：让光具座落在画面下半部，物/镜/屏成为视觉焦点。
 const DEFAULT_VIEW={camera:[2,18.5,45.5],target:[0,9.2,0]};
 camera.position.set(...DEFAULT_VIEW.camera);
-const controls=new OrbitControls(camera,renderer.domElement);
+const controls=Navigation3D.configureOrbit(new OrbitControls(camera,renderer.domElement));
 controls.target.set(...DEFAULT_VIEW.target);
 controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.52; controls.minDistance=12; controls.maxDistance=110;
 $('bReset').onclick=()=>{
