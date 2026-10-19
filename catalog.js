@@ -1,4 +1,23 @@
 window.MODEL_CATALOG = [
+{
+  "id": "four-stroke-engine",
+  "cover": "assets/covers/four-stroke-engine-scene.jpg?v=20261019-1",
+  "title": "单缸四冲程汽油机",
+  "subtitle": "观察冲程、曲轴转数与能量转化",
+  "category": "能源与发电",
+  "summary": "教材侧置气门剖面模型：混合气吸入、压缩、点火燃烧与废气排出。支持完整循环、单冲程循环、转角拖动及冲程判断，观察曲轴、连杆、活塞和气门的同步运动。",
+  "tags": [
+    "热机",
+    "四冲程",
+    "汽油机",
+    "内能",
+    "能量转化",
+    "曲轴"
+  ],
+  "path": "models/four-stroke-engine.html?v=20261019-1",
+  "symbol": "缸",
+  "accent": "amber"
+},
   {
     "id": "piston-pump",
     "cover": "assets/covers/piston-pump-scene.jpg?v=20261018-ui1",

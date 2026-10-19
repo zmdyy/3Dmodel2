@@ -260,3 +260,8 @@ node scripts/capture-motor-cover.cjs
 
 - `models/resistance-boxes.html` 将两个电阻实验合并为一个可离线 HTML；首页按“电学元件”检索，顶部切换时仅运行当前场景并保留阻值设置。
 - 统一左键旋转、右键或 Shift＋左键平移、滚轮缩放；首页使用两个真实默认视角的场景截图。详细模型边界见 [案例说明](docs/resistance-boxes.md)。
+
+## 单缸四冲程汽油机
+
+- `models/four-stroke-engine.html` 使用已确认的Blender剖面模型，支持混合气粒子、空间电火花、火焰与废气流向，观察曲轴、活塞和气门联动。
+- 可拖动720°时间轴，循环完整过程或单个冲程；提供冲程、曲轴转数与能量转化判断。重播提示放在下方控制区。说明见 `docs/four-stroke-engine.md`。
