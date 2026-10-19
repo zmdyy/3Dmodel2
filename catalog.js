@@ -364,11 +364,11 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "reflection-refraction",
-    "cover": "assets/covers/reflection-refraction.svg?v=20261008",
+    "cover": "assets/covers/reflection-refraction-scene.jpg?v=20261019-solid",
     "title": "光的反射与折射",
     "subtitle": "平面实验、光路可逆与空间拓展",
     "category": "光学现象",
-    "summary": "调节入射角与发光端，观察平面镜、半圆透明块、全反射和空间光路；翻折刻度盘验证三线共面，记录数据并导出 SVG。",
+    "summary": "调节入射角与发光端，对比半圆／半球块与长方体的折射；观察实心透明材料、两次折射、光路可逆、全反射和空间光路，记录数据并导出 SVG。",
     "tags": [
       "光的反射",
       "光的折射",
@@ -376,7 +376,7 @@ window.MODEL_CATALOG = [
       "光路可逆",
       "三线共面"
     ],
-    "path": "models/reflection-refraction.html",
+    "path": "models/reflection-refraction.html?v=20261019-solid",
     "symbol": "↗",
     "accent": "green"
   },
