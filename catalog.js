@@ -14,7 +14,7 @@ window.MODEL_CATALOG = [
     "能量转化",
     "曲轴"
   ],
-  "path": "models/four-stroke-engine.html?v=20261019-1",
+  "path": "models/four-stroke-engine.html?v=20261019-layout2",
   "symbol": "缸",
   "accent": "amber"
 },
