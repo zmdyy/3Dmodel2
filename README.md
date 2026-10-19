@@ -255,3 +255,8 @@ node scripts/capture-motor-cover.cjs
 - `models/pinhole-camera.html` 内嵌完整 GLB，采用简洁的蜡烛—孔板—光屏双板滑轨装置。支持 0.6～100 mm 孔径、圆/方/三角孔、物距与像距调节、暗色模式及光路展示。
 - 旋转按仓库统一规则：左键空白旋转、右键或 Shift+左键平移、滚轮缩放，左键拖动孔板或光屏则移动器材。几何成像随参数更新。
 - 首页封面 `assets/covers/pinhole-camera-scene.jpg` 为实际运行场景的 960×540 截图；详情见 [资料与验收](docs/pinhole-camera.md)。
+
+## 电阻箱与插塞式电阻器
+
+- `models/resistance-boxes.html` 将两个电阻实验合并为一个可离线 HTML；首页按“电学元件”检索，顶部切换时仅运行当前场景并保留阻值设置。
+- 统一左键旋转、右键或 Shift＋左键平移、滚轮缩放；首页使用两个真实默认视角的场景截图。详细模型边界见 [案例说明](docs/resistance-boxes.md)。

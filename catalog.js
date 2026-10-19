@@ -651,5 +651,24 @@ window.MODEL_CATALOG = [
     "path": "models/pinhole-camera.html?v=20261018-v6",
     "symbol": "◉",
     "accent": "amber"
-  }
+  },
+{
+  "id": "resistance-boxes",
+  "cover": "assets/covers/resistance-boxes-scene.jpg?v=20261019",
+  "title": "电阻箱与插塞式电阻器",
+  "subtitle": "旋转触片、插塞短路与接入阻值",
+  "category": "电学元件",
+  "summary": "切换六旋钮电阻箱与插塞式电阻器，观察抽头选择、插塞短路、串联阻值及电流路径；支持内部结构、单组放大、剖切、分解及断路演示。",
+  "tags": [
+    "电阻箱",
+    "插塞式电阻器",
+    "串联电阻",
+    "短路",
+    "电流",
+    "内部结构"
+  ],
+  "path": "models/resistance-boxes.html?v=20261019",
+  "symbol": "Ω",
+  "accent": "green"
+}
 ];
