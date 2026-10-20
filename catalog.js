@@ -1,5 +1,24 @@
 window.MODEL_CATALOG = [
 {
+  "id": "micro-pressure-gauge",
+  "cover": "assets/covers/micro-pressure-gauge-scene.png?v=20261020-1",
+  "title": "微小压强计",
+  "subtitle": "橡皮膜、开口玻璃管与气流侧向取压",
+  "category": "力学实验",
+  "summary": "探究液体压强与深度、密度和方向的关系；拓展开口玻璃管的 d、H 与液面差记录，以及气体流速与静压实验。",
+  "tags": [
+    "液体压强",
+    "微小压强计",
+    "U形管",
+    "密度",
+    "开口玻璃管",
+    "流速与压强"
+  ],
+  "path": "models/micro-pressure-gauge.html?v=20261020-ortho2",
+  "symbol": "压",
+  "accent": "green"
+},
+{
   "id": "four-stroke-engine",
   "cover": "assets/covers/four-stroke-engine-scene.jpg?v=20261019-1",
   "title": "单缸四冲程汽油机",

@@ -265,3 +265,9 @@ node scripts/capture-motor-cover.cjs
 
 - `models/four-stroke-engine.html` 使用已确认的Blender剖面模型，支持混合气粒子、空间电火花、火焰与废气流向，观察曲轴、活塞和气门联动。
 - 可拖动720°时间轴，循环完整过程或单个冲程；提供冲程、曲轴转数与能量转化判断。重播提示放在下方控制区。说明见 `docs/four-stroke-engine.md`。
+
+
+## 微小压强计
+
+- `models/micro-pressure-gauge.html`：橡皮膜液体压强、开口玻璃管和气流侧向取压三个实验；支持调零、液体选择、记录、图像和 CSV 导出。
+- 剖面近景采用正交投影并保持垂直于剖切平面；形变显示倍数不改变物理计算。详细说明与验证范围见 [案例说明](docs/micro-pressure-gauge.md)。
