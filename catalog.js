@@ -1,5 +1,24 @@
 window.MODEL_CATALOG = [
 {
+  "id": "joule-law",
+  "cover": "assets/covers/joule-law-scene.jpg?v=20261020-1",
+  "title": "焦耳定律",
+  "subtitle": "比较电阻与电流对电热的影响",
+  "category": "电学实验",
+  "summary": "两套教材电路共用一套三维装置，观察粒子热运动与 U 形管液面变化；支持闸刀控制、变速、粒子显示调节和液面水平对比。",
+  "tags": [
+    "焦耳定律",
+    "电热",
+    "电阻",
+    "电流",
+    "控制变量",
+    "U形管"
+  ],
+  "path": "models/joule-law.html?v=20261020-shared1",
+  "symbol": "热",
+  "accent": "amber"
+},
+{
   "id": "qiantang-caisson",
   "title": "钱塘江大桥 · 气压沉箱施工",
   "subtitle": "浮运定位、压气排水与上下并进",
@@ -729,3 +748,4 @@ window.MODEL_CATALOG = [
   "accent": "green"
 }
 ];
+
