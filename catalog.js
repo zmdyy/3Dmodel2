@@ -519,14 +519,14 @@ window.MODEL_CATALOG = [
     "title": "平面镜成像规律",
     "subtitle": "玻璃板、等大蜡烛与像的位置探究",
     "category": "光学现象",
-    "summary": "通过三维实验探究平面镜成像规律，观察物与像的位置关系，比较像与物的大小，并进行位置标记与距离测量。",
+    "summary": "通过三维实验探究平面镜成像规律，比较物像位置与大小；可将镜面从中间切开并共面拉开，观察两组光线的反射与虚像。",
     "tags": [
       "平面镜",
       "虚像",
       "平面镜成像",
       "物像关系"
     ],
-    "path": "models/plane-mirror.html?v=20261018-nav1",
+    "path": "models/plane-mirror.html?v=20261020-split-arrows3",
     "symbol": "↔",
     "accent": "blue"
   },
