@@ -1,5 +1,24 @@
 window.MODEL_CATALOG = [
 {
+  "id": "qiantang-caisson",
+  "title": "钱塘江大桥 · 气压沉箱施工",
+  "subtitle": "浮运定位、压气排水与上下并进",
+  "category": "力学实验",
+  "summary": "以1930年代钱塘江大桥基础施工为背景，观察约600吨沉箱落到木桩群、压缩空气排水、下部挖泥与上部筑墩同步进行，以及封底后的基础传力。支持正对剖面、自由观察、手动供气压强和施工进度演示。",
+  "tags": [
+    "钱塘江大桥",
+    "茅以升",
+    "气压沉箱",
+    "液体压强",
+    "大气压",
+    "木桩基础",
+    "桥梁施工"
+  ],
+  "path": "models/qiantang-caisson.html?v=20261020-v2",
+  "symbol": "桥",
+  "accent": "green"
+},
+{
   "id": "micro-pressure-gauge",
   "cover": "assets/covers/micro-pressure-gauge-scene.png?v=20261020-1",
   "title": "微小压强计",
