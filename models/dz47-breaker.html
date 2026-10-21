@@ -1,0 +1,201 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DZ47-63 双极空气开关 · 三维内部结构</title>
+<style>
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#eef0ed;color:#273d38}button,select,input{font:inherit}header{height:69px;padding:0 28px;background:#f8faf6;border-bottom:1px solid #d9deda;display:flex;align-items:center;justify-content:space-between;gap:12px}header small{color:#75867d;font-size:10px;letter-spacing:2px;display:block;margin-bottom:5px}h1{font-size:18px;letter-spacing:.5px;margin:0;font-weight:650}header span{font-size:11px;color:#697d72;background:#e7ece7;border:1px solid #d4dfd7;padding:8px 12px;border-radius:22px}main{display:grid;grid-template-columns:minmax(0,1fr) 316px;height:calc(100dvh - 69px);min-height:420px}#stage{position:relative;min-width:0;background:radial-gradient(ellipse at 45% 30%,#f0f3ef,#cbd6d0);overflow:hidden}#canvasHost{width:100%;height:100%}canvas{display:block;width:100%;height:100%;touch-action:none}.tools{position:absolute;top:18px;left:18px;display:flex;gap:7px;flex-wrap:wrap;max-width:90%}.viewbar{position:absolute;top:67px;left:18px;display:flex;gap:7px}.uiBtn{padding:8px 12px;border:1px solid #cbd8ce;background:#f9fbf8db;color:#476055;border-radius:8px;cursor:pointer;font-size:12px;backdrop-filter:blur(6px)}.uiBtn.active,.chipBtn.active{background:#2c6954;color:white;border-color:#2c6954}.uiBtn:hover,.chipBtn:hover{filter:brightness(.95)}.stage-note{position:absolute;bottom:16px;left:20px;color:#547267;font-size:11px}.warning{position:absolute;right:18px;bottom:16px;padding:7px 11px;border-radius:7px;background:#eef2edcd;color:#76877d;font-size:10px}.statusBoard{position:absolute;left:18px;top:116px;background:#fafff9df;backdrop-filter:blur(6px);border:1px solid #d7e3da;border-radius:10px;padding:11px 14px;max-width:min(310px,60%);box-shadow:0 9px 24px #25382d12}.statusBoard b{font-size:12px}.dot{display:inline-block;width:7px;height:7px;background:#28aa77;border-radius:100%;margin-right:7px}.statusBoard p{font-size:11px;color:#58736a;margin:7px 0 0;line-height:1.55}aside{overflow:auto;border-left:1px solid #d8e0da;background:#f9faf7;padding:22px 22px 30px}section{margin-bottom:24px}h2{font-size:11px;letter-spacing:1.8px;color:#778a7f;margin:0 0 13px;font-weight:600}h3{font-size:14px;margin:0 0 7px}p{line-height:1.65;font-size:12px;color:#68796e;margin:7px 0}.seg{display:flex;gap:6px;flex-wrap:wrap}.chipBtn{padding:10px 12px;font-size:12px;background:#f4f7f2;border:1px solid #d4ded4;color:#3b584b;border-radius:8px;cursor:pointer;flex:1;white-space:nowrap}button:disabled{opacity:.5;cursor:not-allowed}.primary{background:#e87447;border-color:#d25e33;color:white}.btnrow{display:flex;gap:7px;margin:10px 0}.btnrow button{flex:1}label{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:#466054}select{padding:7px 9px;border:1px solid #d5ddd3;border-radius:7px;background:#fff;color:#436153;font-size:12px}input[type=range]{width:100%;accent-color:#3c8265;margin:12px 0 5px}.meter{display:flex;justify-content:space-between;font-size:11px;color:#7c8e82}.partlist{display:grid;grid-template-columns:1fr 1fr;gap:6px}.partlist button{border:1px solid #e2e7e1;border-radius:7px;background:#fff;padding:9px 5px;font-size:11px;color:#597065;cursor:pointer}.partlist button.selected{border-color:#4a9972;background:#eaf5ec;color:#236042}.description{background:#eff4ee;padding:12px 13px;border-radius:9px;border:1px solid #dce8dd;min-height:99px}.description p{line-height:1.75;margin-bottom:0}hr{border:0;border-top:1px solid #e2e9e1;margin:18px 0}.notice{font-size:10px;line-height:1.7;color:#84958c}.legend{font-size:11px;color:#697a70;display:flex;gap:9px;flex-wrap:wrap}.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}a{color:#2b805e}#explodeRow{display:none}
+@media(max-width:800px){header{height:61px;padding:0 15px}header span{display:none}main{display:flex;flex-direction:column;height:auto}#stage{height:58dvh;min-height:380px}aside{padding:18px}h1{font-size:15px}.tools{left:9px;top:9px}.viewbar{left:9px;top:54px}.uiBtn{padding:8px;font-size:11px}.statusBoard{left:9px;top:102px;max-width:64%}.stage-note{left:9px;font-size:9px}.warning{display:none}}
+</style></head><body>
+<header><div><small>APPARATUS LAB / ELECTRICAL PROTECTION</small><h1>DZ47-63 · 双极空气开关内部结构</h1></div><span>2P / C32　热磁脱扣 · 结构还原</span></header>
+<main><div id="stage"><div id="canvasHost"></div><div class="tools"><button class="uiBtn active" data-view="outer">完整外观</button><button class="uiBtn" data-view="cut">单极剖视</button><button class="uiBtn" data-view="inner">隐藏外壳</button><button class="uiBtn" data-view="exploded">分解观察</button></div><div class="viewbar"><button class="uiBtn" id="isoBtn">立体</button><button class="uiBtn" id="frontBtn">正视</button><button class="uiBtn" id="closeBtn">侧视</button><button class="uiBtn" id="fullscreen">全屏</button></div><div class="statusBoard"><b><i class="dot" id="statusDot"></i><span id="statusText">正常合闸 · 电路接通</span></b><p id="eventText">锁扣保持，动静触点贴合。</p></div><div class="stage-note">左键拖动旋转　·　右键 / Shift＋左键平移　·　滚轮缩放　·　点击零件</div><div class="warning">教学结构还原 · 非原厂工程图</div></div>
+<aside><section><h2>01 / 保护情境</h2><div class="seg"><button class="chipBtn active" data-mode="normal">正常操作</button><button class="chipBtn" data-mode="overload">持续过载</button><button class="chipBtn" data-mode="short">短路瞬动</button></div><div class="btnrow"><button class="chipBtn primary" id="mainBtn">手动分闸</button><button class="chipBtn" id="playBtn" disabled>播放</button><button class="chipBtn" id="resetBtn">复位</button></div><div class="meter"><span>过程进度</span><span id="progressValue">0%</span></div><input id="timeline" type="range" min="0" max="1000" step="1" value="0" disabled><label>动画速度 <select id="speed"><option value="0.25">¼ 倍</option><option value="0.5">½ 倍</option><option value="1" selected>正常</option><option value="2">2 倍</option><option value="4">4 倍</option></select></label><p class="notice">过载用加速时间演示，电流与脱扣时间未按厂家实测数据标定。</p></section>
+<hr><section><h2>02 / 结构观察</h2><div class="btnrow"><label><input id="flow" type="checkbox" checked> 电流标记</label><button class="chipBtn" id="shotBtn">保存视图 PNG</button></div><div id="explodeRow"><div class="meter"><span>分解距离</span><span>近 / 远</span></div><input id="explode" type="range" min="0" max="100" value="70"></div><div class="partlist"><button data-part="shell">绝缘外壳</button><button data-part="terminal">接线端子</button><button data-part="handle">联动手柄</button><button data-part="contacts">动静触点</button><button data-part="bimetal">双金属片</button><button data-part="magnet">电磁线圈</button><button data-part="latch">脱扣连杆</button><button data-part="chute">灭弧室</button></div><div class="description" style="margin-top:11px"><h3 id="selected">结构说明</h3><p id="partInfo">点击三维零件或上方名称，观察零件结构与作用。</p></div></section>
+<hr><section><h2>03 / 学习重点</h2><p>为什么过载保护存在延迟，而短路保护能够快速动作？</p><p>两种保护如何通过同一套锁扣、弹簧与触点机构切断电路？</p><div class="legend"><span><i style="background:#ba7643"></i>铜导电件</span><span><i style="background:#879494"></i>钢制机构</span><span><i style="background:#ee523b"></i>电流示意</span></div></section><hr><p class="notice">参考：DZ47-63 系列产品说明书、ABB 小型断路器结构资料及拆解图。结构为可教学演示的合理简化，不对应任何厂家的生产级机械尺寸或可靠性数据。本装置没有保险丝，也不具备漏电保护功能。</p></aside></main>
+<script src="../shared/vendor/three-r160.min.js"></script>
+<script>
+'use strict';
+const stage=document.getElementById('stage'), canvasHost=document.getElementById('canvasHost');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xdce2de);
+const camera=new THREE.PerspectiveCamera(37,1,.05,100);camera.position.set(5.1,3.0,8.7);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setSize(canvasHost.clientWidth,canvasHost.clientHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.26;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;canvasHost.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x758680,2.25));
+function lamp(x,y,z,power,size){let l=new THREE.DirectionalLight(0xffffff,power);l.position.set(x,y,z);l.castShadow=true;l.shadow.mapSize.set(1024,1024);l.shadow.camera.left=-7;l.shadow.camera.right=7;l.shadow.camera.top=7;l.shadow.camera.bottom=-7;l.shadow.bias=-.00015;scene.add(l);}
+lamp(-4,8,9,3,1);let sideLamp=new THREE.DirectionalLight(0xb8d5d2,1.15);sideLamp.position.set(5,3,-4);scene.add(sideLamp);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0xdce2de,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-2.28;floor.receiveShadow=true;scene.add(floor);
+const mats={shell:new THREE.MeshStandardMaterial({color:0xd9dfdb,roughness:.82,metalness:0}),front:new THREE.MeshStandardMaterial({color:0xf6f6f1,roughness:.88,metalness:0}),edge:new THREE.MeshStandardMaterial({color:0x9ea9a7,roughness:.8}),orange:new THREE.MeshStandardMaterial({color:0xe96c3a,roughness:.7}),orangeDark:new THREE.MeshStandardMaterial({color:0xbe4928,roughness:.76}),copper:new THREE.MeshStandardMaterial({color:0xba7643,metalness:.68,roughness:.41}),brightCopper:new THREE.MeshStandardMaterial({color:0xdb995f,metalness:.66,roughness:.33}),steel:new THREE.MeshStandardMaterial({color:0x879494,metalness:.67,roughness:.5}),contact:new THREE.MeshStandardMaterial({color:0xcfd5c5,metalness:.78,roughness:.35}),dark:new THREE.MeshStandardMaterial({color:0x293b40,roughness:.73,metalness:.18}),insul:new THREE.MeshStandardMaterial({color:0x606d69,roughness:.9}),coil:new THREE.MeshStandardMaterial({color:0xa85f31,metalness:.75,roughness:.37}),trip:new THREE.MeshStandardMaterial({color:0xa98250,metalness:.57,roughness:.47}),arc:new THREE.MeshBasicMaterial({color:0x91dbff,transparent:true,opacity:.92,depthWrite:false}),hot:new THREE.MeshStandardMaterial({color:0xf3a359,metalness:.24,roughness:.5,emissive:0x6b1904,emissiveIntensity:.1})};
+const root=new THREE.Group();scene.add(root);
+const selectable=[],components={},poles=[],shellParts=[],frontParts=[],arcParts=[];
+function register(obj,id,label,description){obj.userData.part=id;obj.traverse?.(o=>o.userData.part=id);selectable.push(obj);if(!components[id])components[id]={label,description,meshes:[]};components[id].meshes.push(obj);return obj;}
+function box(parent,x,y,z,w,h,d,mat,r=0){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.rotation.z=r;parent.add(m);m.castShadow=true;m.receiveShadow=true;return m;}
+function ball(parent,x,y,z,r,mat){let m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mat);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
+function cyl(parent,x,y,z,r1,r2,len,mat,rotX=Math.PI/2){let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,len,18),mat);m.rotation.x=rotX;m.position.set(x,y,z);parent.add(m);m.castShadow=true;return m;}
+function rod(parent,a,b,r,mat){let p=new THREE.Vector3(...a),q=new THREE.Vector3(...b),delta=new THREE.Vector3().subVectors(q,p);let m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,delta.length(),10),mat);m.position.copy(p).add(q).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());m.castShadow=true;parent.add(m);return m;}
+function curved(parent,pts,r,mat,tension=.3){const vs=pts.map(v=>new THREE.Vector3(...v));const path=new THREE.CatmullRomCurve3(vs,false,'centripetal',tension);let m=new THREE.Mesh(new THREE.TubeGeometry(path,Math.max(8,vs.length*8),r,7,false),mat);parent.add(m);return m;}
+function spring(parent,x,y,z,rad,height,turns,mat){let pts=[];for(let k=0;k<=turns*20;k++){let t=k/(turns*20),a=2*Math.PI*turns*t;pts.push([x+rad*Math.cos(a),y+height*(t-.5),z+rad*Math.sin(a)]);}return curved(parent,pts,.011,mat);}
+function helix(parent,x,y,z,rad,height,turns,mat){let pts=[];for(let k=0;k<=turns*18;k++){let t=k/(turns*18),a=2*Math.PI*turns*t;pts.push([x+rad*Math.cos(a),y+height*(t-.5),z+rad*Math.sin(a)]);}return curved(parent,pts,.016,mat);}
+function canvasLabel(lines,W=560,H=820){const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.clearRect(0,0,W,H);g.fillStyle='#ec6b33';g.fillRect(27,22,110,16);g.font='bold 32px Microsoft YaHei,Arial';g.fillStyle='#313f3c';g.fillText('DZ47-63',27,90);g.font='bold 62px Arial';g.fillText('C32',27,180);g.font='bold 23px Arial';g.fillText('2P   230/400V~',27,230);g.font='21px Arial';g.fillText('IEC / GB 10963.1',27,270);g.fillStyle='#6b7974';g.font='17px Microsoft YaHei,Arial';g.fillText('THERMAL · MAGNETIC',27,330);g.fillText('教学结构还原 / 示意标识',27,365);g.fillStyle='#6c7874';g.fillRect(28,400,465,4);g.font='bold 37px Arial';g.fillStyle='#456958';g.fillText('I  /  O',27,470);g.font='18px Arial';g.fillStyle='#76817a';g.fillText('NOT FOR ELECTRICAL USE',27,680);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;}
+let labelTexture=canvasLabel();const printed=new THREE.MeshBasicMaterial({map:labelTexture,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2});
+// Housing: genuinely separate back, rails, front removable panels and terminal bezels.
+box(root,0,0,-.44,2.31,3.73,.26,mats.shell);box(root,0,0,-.27,2.24,3.66,.17,mats.shell);
+for(let x of [-1.09,1.09]) box(root,x,0,.12,.115,3.68,.91,mats.shell);
+for(let y of [-1.82,1.82]) box(root,0,y,.10,2.25,.11,.86,mats.shell);
+box(root,0,0,-.16,.095,3.57,.20,mats.edge);
+for(let x of [-.57,.57]){let rail=box(root,x,0,-.18,.028,3.49,.1,mats.insul);}
+let edgeL=box(root,-1.02,0,.66,.075,3.1,.09,mats.edge);let edgeR=box(root,1.02,0,.66,.075,3.1,.09,mats.edge);shellParts.push(edgeL,edgeR);
+// DIN rail channel on the back.
+box(root,0,-.18,-.655,1.5,.32,.12,mats.insul);box(root,0,-.47,-.67,1.75,.10,.13,mats.steel);
+for(let i=0;i<2;i++){
+ let c=i===0?-.55:.55;let pole=new THREE.Group();pole.position.x=c;root.add(pole);poles.push({group:pole,baseX:c});
+ // Each pole casing back liner and insulating ribs.
+ let inner=box(pole,0,0,-.095,1.02,3.28,.085,mats.front);
+ for(let s of [-1,1]) box(pole,s*.49,0,.14,.055,3.24,.34,mats.insul);
+ for(let yy of [-1.1,-.42,.4,1.07]) box(pole,0,yy,-.06,.89,.035,.11,mats.edge);
+ // Terminal stack upper and lower; each screw and clamp realistically layered.
+ for(let sy of [-1,1]){
+  let y=sy*1.485;let terminal=box(pole,0,y,.28,.57,.24,.5,mats.steel);
+  box(pole,0,y-.07*sy,.45,.43,.085,.16,mats.contact);
+  cyl(pole,0,y,.62,.105,.105,.095,mats.steel,Math.PI/2);
+  let screw=cyl(pole,0,y,.687,.07,.07,.015,mats.contact);box(pole,0,y,.7,.075,.012,.013,mats.dark,Math.PI/4);
+  register(terminal,'terminal','接线端子','上下各有压线框、压线螺钉和导电片；双极共四个接线端。');
+ }
+ // Magnetic assembly upper-left, central core and closely-wound copper winding.
+ const mx=-.21,my=.70,mz=.25;
+ let bobbin=cyl(pole,mx,my,mz,.137,.137,.48,mats.dark,0);
+ let core=cyl(pole,mx,my,mz,.063,.063,.60,mats.steel,0);
+ let winding=helix(pole,mx,my,mz,.160,.43,17,mats.coil);register(winding,'magnet','电磁脱扣器','线圈中的大电流产生较强磁场，使铁芯快速动作并触发脱扣锁扣。');
+ let plunger=cyl(pole,mx,my+.24,mz,.053,.053,.21,mats.contact,0);
+ let hammer=rod(pole,[mx,my+.32,.25],[-.035,.26,.37],.03,mats.steel);
+ // Static contact on the upper right side; lower end of upper copper conductor.
+ curved(pole,[[0,1.32,.22],[-.31,1.24,.22],[-.36,.90,.22],[-.31,.47,.24],[.14,.40,.36],[.277,.211,.44]],.041,mats.brightCopper);
+ let statPad=box(pole,.268,.205,.44,.13,.07,.13,mats.contact,.64);
+ register(statPad,'contacts','动静触点','动触点由弹簧驱动分离，静触点固定。合闸时两者真实接触；分闸和脱扣时分离。');
+ // Moving arm swivels from lower left to the stationary contact when closed.
+ let pivot=new THREE.Group();pivot.position.set(-.12,-.145,.48);pole.add(pivot);
+ rod(pivot,[0,0,0],[.52,0,0],.046,mats.copper);
+ let movePad=box(pivot,.52,0,-.017,.11,.078,.12,mats.contact);
+ cyl(pole,-.12,-.145,.48,.105,.105,.09,mats.steel);
+ register(movePad,'contacts','动静触点','手动分闸或脱扣时，动触点绕转轴向下摆离静触点。');
+ // Flexible braid: connects moving pivot to bimetal via the lower current path.
+ curved(pole,[[-.12,-.145,.48],[-.27,-.26,.41],[-.30,-.36,.32],[-.29,-.48,.3]],.037,mats.copper);
+ // Bimetal stack, dynamic bend segments below.
+ let bims=new THREE.Group();pole.add(bims);let stripPieces=[];
+ for(let s=0;s<9;s++){
+  let seg=box(bims,-.285,-.49-s*.065,.32,.095,.069,.042,s%2?mats.brightCopper:mats.steel);stripPieces.push(seg);
+ }
+ register(stripPieces[3],'bimetal','热脱扣双金属片','持续过载时温升使双金属片缓慢弯曲，最终推动锁扣。动画为定性过程，并非厂家实测曲线。');
+ curved(pole,[[-.285,-1.09,.32],[-.22,-1.22,.25],[0,-1.36,.26]],.043,mats.copper);
+ // Arc chamber: stacked individual metal plates in an insulated holder, adjacent to contact gap.
+ let arcHolder=new THREE.Group();pole.add(arcHolder);
+ box(arcHolder,.335,-.43,.24,.41,.71,.45,mats.dark);
+ for(let n=0;n<9;n++){
+   let yy=-.135-n*.071;
+   // U-shape split plate. The open front inner slit is visible from angled camera.
+   box(arcHolder,.215,yy,.475,.22,.026,.30,mats.steel);
+   box(arcHolder,.44,yy,.475,.15,.026,.30,mats.steel);
+   box(arcHolder,.334,yy,.31,.38,.026,.08,mats.steel);
+ }
+ register(arcHolder,'chute','灭弧栅片','动静触点断开时可能产生电弧，灭弧栅片将电弧分割、冷却，辅助快速熄弧。');
+ // latch/toggle linkage and steel return spring, designed with visible contact motion.
+ let latch=new THREE.Group();latch.position.set(-.025,.21,.57);pole.add(latch);
+ box(latch,.11,.00,0,.29,.062,.065,mats.steel,-.45);
+ ball(latch,0,0,0,.065,mats.contact);
+ rod(pole,[-.03,.21,.56],[-.28,.42,.52],.024,mats.steel);
+ spring(pole,-.06,-.27,.56,.058,.31,8,mats.steel);
+ let link=rod(pole,[0,-.05,.62],[-.05,.20,.61],.032,mats.steel);
+ register(latch,'latch','脱扣锁扣与连杆','手动和自动脱扣共用机构，脱扣后锁扣释放，弹簧使触点快速分开。');
+ // Arc event particles as luminous curved segments, normally invisible.
+ let arcGroup=new THREE.Group();arcGroup.visible=false;pole.add(arcGroup);
+ for(let k=0;k<5;k++){
+  const x0=.3+(k%2)*.025, y0=.19-k*.13;
+  const points=[[x0,y0,.53],[x0+.045,y0-.06,.55],[x0-.025,y0-.11,.57]];
+  let spark=curved(arcGroup,points,.014+(k%2)*.003,mats.arc);spark.material=mats.arc;
+ }
+ // Series path follows documented teaching topology only when contacts touch.
+ let currentPath=new THREE.Group();pole.add(currentPath);
+ const pathPts=[[0,1.48,.67],[0,1.20,.28],[-.21,.99,.25],[-.21,.53,.25],[.03,.38,.38],[.28,.21,.44],[.20,.16,.49],[.07,-.04,.49],[-.12,-.145,.48],[-.28,-.39,.33],[-.285,-.92,.32],[0,-1.37,.32],[0,-1.5,.66]];
+ let curve=new THREE.CatmullRomCurve3(pathPts.map(p=>new THREE.Vector3(...p)),false,'centripetal');let dots=[];
+ for(let d=0;d<22;d++){const m=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),new THREE.MeshBasicMaterial({color:0xee523b}));let pt=curve.getPoint(d/22);m.position.copy(pt);currentPath.add(m);dots.push(m);}currentPath.userData={curve,dots};
+ poles[i].pivot=pivot;poles[i].latch=latch;poles[i].plunger=plunger;poles[i].hammer=hammer;poles[i].stripPieces=stripPieces;poles[i].arc=arcGroup;poles[i].currentPath=currentPath;
+ // Removable face panel extends to edge of each pole; cutaway can hide one pole.
+ let faceG=new THREE.Group();faceG.position.set(c,0,0);root.add(faceG);frontParts.push(faceG);
+ box(faceG,0,0,.75,1.045,3.29,.18,mats.front);
+ box(faceG,0,1.44,.865,1.038,.12,.10,mats.shell);
+ box(faceG,0,-1.44,.865,1.038,.12,.10,mats.shell);
+ // Print localized equipment markings on upper portion.
+ let print=new THREE.Mesh(new THREE.PlaneGeometry(.86,1.36),printed);print.position.set(0,.50,.858);faceG.add(print);
+ // Top and bottom screws exposed on face.
+ for(let sy of [-1,1]){
+  let y=sy*1.55;let collar=cyl(faceG,0,y,.886,.158,.158,.055,mats.shell);let bolt=cyl(faceG,0,y,.918,.107,.107,.044,mats.steel);
+  box(faceG,0,y,.946,.13,.018,.011,mats.dark,Math.PI/4);
+ }
+ register(faceG,'shell','阻燃绝缘外壳','左右两极各自具有绝缘外壳、内部隔板及接线端。可切换完整外观、剖视和去壳模式。');
+}
+// Front handle spans both poles, visually matching the orange bridge.
+const handleG=new THREE.Group();handleG.position.set(0,-.51,.94);root.add(handleG);
+box(handleG,0,0,0,1.52,.52,.20,mats.orange);
+box(handleG,0,-.22,.045,1.78,.17,.18,mats.orangeDark);
+for(let xx of [-.53,.53]){
+  box(handleG,xx,.15,.13,.49,.25,.14,mats.orange);
+  for(let t=0;t<5;t++)box(handleG,xx-.17+t*.084,.17,.213,.027,.18,.012,mats.orangeDark);
+}
+register(handleG,'handle','双极联动手柄','手柄与两极操作机构联动。故障跳闸时即使强行保持手柄位置也不能阻止脱扣。');
+let commonBar=box(root,0,-.11,.66,1.23,.065,.085,mats.steel);register(commonBar,'latch','脱扣连动杆','用公共机械连动实现两极同时断开；具体机构形状因厂家和型号而异。');
+let modelState={view:'outer',scenario:'normal',manual:true,progress:0,playing:false,speed:1,particles:true,labels:false,explosion:.7};
+let yaw=.12,pitch=-.10,distance=8.8,target=new THREE.Vector3(0,0,0),drag=null,dragMoved=false;
+function orient(){camera.position.set(target.x+distance*Math.sin(yaw)*Math.cos(pitch),target.y+distance*Math.sin(pitch),target.z+distance*Math.cos(yaw)*Math.cos(pitch));camera.lookAt(target);}
+function setCamera(type){target.set(0,0,0);distance=type==='side'?6.1:8.15;if(type==='front'){yaw=0;pitch=0;}else if(type==='side'){yaw=1.1;pitch=.18;}else{yaw=.38;pitch=.12;}orient();}
+setCamera('iso');
+const partInfo=document.getElementById('partInfo'),selectedInfo=document.getElementById('selected');let selected=null;
+function selectPart(id){selected=id;let d=components[id];selectedInfo.textContent=d?d.label:'未选中零件';partInfo.textContent=d?d.description:'点击三维零件或下方名称，观察零件结构与作用。';document.querySelectorAll('[data-part]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.part===id));}
+function setView(v){modelState.view=v;document.querySelectorAll('[data-view]').forEach(btn=>btn.classList.toggle('active',btn.dataset.view===v));updateView();}
+function updateView(){let v=modelState.view,ex=modelState.explosion;frontParts.forEach((g,i)=>{g.visible=v==='outer'||(v==='cut'&&i===0)||v==='exploded';g.position.z=v==='exploded'?.48+ex*.62:0;g.position.x=(i===0?-.55:.55)+(v==='exploded'?(i===0?-1:1)*ex*.24:0);});
+ handleG.visible=v==='outer'||v==='cut'||v==='exploded';handleG.position.z=v==='exploded'?1.55+ex*.9:.94;handleG.material=mats.orange;
+ poles.forEach((p,i)=>{p.group.position.x=p.baseX+(v==='exploded'?(i===0?-1:1)*ex*.36:0);p.group.position.z=v==='exploded'?-ex*.15:0;});commonBar.visible=v!=='exploded';
+ document.getElementById('explodeRow').style.display=v==='exploded'?'block':'none';}
+let currentClosed=true;
+function updateMotion(t){let p=modelState.scenario;let trip=0,bend=0,mag=0,arc=0;
+ if(p==='normal'){trip=modelState.manual?0:1;}
+ if(p==='overload'){bend=Math.min(1,t/.70);trip=Math.max(0,Math.min(1,(t-.72)/.15));arc=(t>.81&&t<.94)?Math.sin((t-.81)/.13*Math.PI):0;}
+ if(p==='short'){mag=Math.min(1,t/.27);trip=Math.max(0,Math.min(1,(t-.32)/.21));arc=t>.44&&t<.78?Math.sin((t-.44)/.34*Math.PI):0;}
+ let closed=trip<.04;currentClosed=closed;
+ poles.forEach(o=>{o.pivot.rotation.z=THREE.MathUtils.lerp(.716,-.27,trip);o.latch.rotation.z=-trip*.43;o.plunger.position.y=.94+mag*.12;o.hammer.position.y=mag*.10;
+  o.stripPieces.forEach((mesh,i)=>{let yy=i/8;mesh.position.x=-.285+Math.sin(yy*Math.PI*.7)*bend*.20;mesh.rotation.z=-bend*.16*(.3+yy);mesh.material=bend>.45?mats.hot:(i%2?mats.brightCopper:mats.steel);});
+  o.arc.visible=arc>.08;o.arc.scale.setScalar(.7+.25*arc);o.currentPath.visible=modelState.particles&&closed;
+ });
+ handleG.rotation.x=(p==='normal'?(modelState.manual?-.06:.18):trip*.26);handleG.position.y=-.51+trip*.075;
+ document.getElementById('statusText').textContent=p==='normal'?(modelState.manual?'正常合闸 · 电路接通':'人工分闸 · 电路断开'):(trip<.05?(p==='overload'?'过载升温 · 触点仍闭合':'短路电流 · 磁机构动作'):(trip<1?'脱扣动作 · 触点分离':'已跳闸 · 两极断开'));
+ document.getElementById('statusDot').style.background=closed?'#28aa77':'#d16b4e';
+ document.getElementById('progressValue').textContent=Math.round(t*100)+'%';
+ document.getElementById('timeline').value=Math.round(t*1000);
+ document.getElementById('mainBtn').textContent=p==='normal'?(modelState.manual?'手动分闸':'手动合闸'):'复位并重新合闸';
+ document.getElementById('playBtn').textContent=modelState.playing?'暂停':'播放';
+ let event=p==='normal'?(modelState.manual?'锁扣保持，动静触点贴合。':'手柄拨下，动静触点断开。'):(p==='overload'?(t<.72?'双金属片受热弯曲（加速示意）':t<.86?'锁扣释放，弹簧驱动动触点分离':'触点断开，保护完成。'):(t<.30?'线圈磁场作用，铁芯快速动作':t<.54?'铁芯推动锁扣，弹簧打开触点':t<.79?'触点电弧被导入灭弧栅片':'电弧熄灭，双极断开。'));
+ document.getElementById('eventText').textContent=event;
+}
+function setScenario(p){modelState.scenario=p;modelState.manual=true;modelState.progress=0;modelState.playing=p!=='normal';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===p));document.getElementById('timeline').disabled=p==='normal';document.getElementById('playBtn').disabled=p==='normal';updateMotion(0);}
+function onManual(){if(modelState.scenario!=='normal'){setScenario('normal');modelState.manual=true;}else modelState.manual=!modelState.manual;modelState.playing=false;updateMotion(modelState.progress);}
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();const cv=renderer.domElement;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,mode:e.button===2||e.shiftKey?'pan':'orbit'};dragMoved=false;});
+cv.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-drag.px,dy=e.clientY-drag.py;drag.px=e.clientX;drag.py=e.clientY;if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>4)dragMoved=true;if(drag.mode==='orbit'){yaw-=dx*.0065;pitch=Math.max(-1.45,Math.min(1.45,pitch+dy*.0065));}else{let dir=new THREE.Vector3().subVectors(camera.position,target).normalize();let right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),dir).normalize();target.addScaledVector(right,-dx*.0035*distance);target.y+=dy*.0035*distance;}orient();});
+cv.addEventListener('pointerup',e=>{if(!dragMoved){const rect=cv.getBoundingClientRect();mouse.x=((e.clientX-rect.left)/rect.width)*2-1;mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(root.children,true);for(let h of hits){let o=h.object;while(o&&!o.userData.part)o=o.parent;if(o?.userData.part){selectPart(o.userData.part);break;}}}drag=null;});cv.addEventListener('contextmenu',e=>e.preventDefault());cv.addEventListener('wheel',e=>{e.preventDefault();distance=Math.max(3.0,Math.min(17,distance*Math.exp(e.deltaY*.0008)));orient();},{passive:false});
+let touch0=0;cv.addEventListener('touchstart',e=>{if(e.touches.length===2)touch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);},{passive:true});cv.addEventListener('touchmove',e=>{if(e.touches.length===2){let dd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(touch0)distance=Math.max(3,Math.min(17,distance*touch0/dd));touch0=dd;orient();}},{passive:true});
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setScenario(b.dataset.mode)));
+document.querySelectorAll('[data-part]').forEach(b=>b.addEventListener('click',()=>{selectPart(b.dataset.part);if(modelState.view==='outer')setView('inner');}));
+document.getElementById('mainBtn').addEventListener('click',onManual);
+document.getElementById('playBtn').addEventListener('click',()=>{if(modelState.scenario==='normal')return;if(modelState.progress>=1)modelState.progress=0;modelState.playing=!modelState.playing;updateMotion(modelState.progress);});
+document.getElementById('resetBtn').addEventListener('click',()=>setScenario('normal'));
+document.getElementById('timeline').addEventListener('input',e=>{modelState.playing=false;modelState.progress=+e.target.value/1000;updateMotion(modelState.progress);});
+document.getElementById('speed').addEventListener('change',e=>modelState.speed=+e.target.value);
+document.getElementById('flow').addEventListener('change',e=>{modelState.particles=e.target.checked;updateMotion(modelState.progress);});
+document.getElementById('explode').addEventListener('input',e=>{modelState.explosion=+e.target.value/100;updateView();});
+document.getElementById('frontBtn').addEventListener('click',()=>setCamera('front'));
+document.getElementById('isoBtn').addEventListener('click',()=>setCamera('iso'));
+document.getElementById('closeBtn').addEventListener('click',()=>setCamera('side'));
+document.getElementById('shotBtn').addEventListener('click',()=>{let a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='DZ47-63_3D_'+modelState.view+'.png';a.click();});
+document.getElementById('fullscreen').addEventListener('click',()=>stage.requestFullscreen?.());
+function resize(){let w=canvasHost.clientWidth,h=canvasHost.clientHeight;camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();renderer.setSize(w,h,false);}new ResizeObserver(resize).observe(canvasHost);
+let last=performance.now();function frame(now){const dt=Math.min(.06,(now-last)/1000);last=now;if(modelState.playing){modelState.progress=Math.min(1,modelState.progress+dt*modelState.speed/(modelState.scenario==='short'?3.4:7.0));if(modelState.progress>=1)modelState.playing=false;updateMotion(modelState.progress);}if(modelState.particles&&currentClosed){poles.forEach(p=>{let group=p.currentPath,curve=group.userData.curve;group.userData.dots.forEach((d,i)=>d.position.copy(curve.getPoint(((i/22)+(now*.0001*modelState.speed))%1)));});}renderer.render(scene,camera);requestAnimationFrame(frame);}updateView();updateMotion(0);resize();requestAnimationFrame(frame);
+window.breakerDebug={root,scene,camera,renderer,state:modelState,poles,selectPart,setScenario,setView,updateMotion};
+
+</script>
+</body></html>
