@@ -1,4 +1,23 @@
 window.MODEL_CATALOG = [
+{
+  "id": "porcelain-knife-switch",
+  "title": "瓷底双刀闸刀开关",
+  "subtitle": "双刀联动、熔断连接片与瓷底装配结构",
+  "category": "电学元件",
+  "summary": "依据实物照片重建瓷底双刀开关，支持独立开合角度、俯视和触点特写、结构标注与视图 PNG 导出；熔断连接片为静态结构，不模拟熔断。",
+  "tags": [
+    "闸刀开关",
+    "双刀双掷",
+    "电路开关",
+    "熔断连接片",
+    "导电触点",
+    "瓷底座",
+    "接线柱"
+  ],
+  "path": "models/porcelain-knife-switch.html?v=20261021-1",
+  "symbol": "刀",
+  "accent": "amber"
+},
   {
     "id": "dz47-breaker",
     "title": "DZ47 双极空气开关 · 内部结构",
