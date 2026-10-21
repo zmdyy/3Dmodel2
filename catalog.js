@@ -1,4 +1,16 @@
 window.MODEL_CATALOG = [
+  {
+    "id": "dz47-breaker",
+    "title": "DZ47 双极空气开关 · 内部结构",
+    "subtitle": "触点、热磁脱扣与灭弧室的三维拆解",
+    "category": "电学元件",
+    "summary": "双极微型断路器结构教学模型：查看绝缘外壳、接线端子、动静触点、双金属片、电磁线圈、锁扣弹簧及灭弧栅片；体验正常合闸、过载延时脱扣与短路瞬动。结构及过程为教学近似。",
+    "tags": ["空气开关", "断路器", "热脱扣", "电磁脱扣", "灭弧室", "过载", "短路", "触点"],
+    "path": "models/dz47-breaker.html?v=20261021-v1",
+    "symbol": "闸",
+    "accent": "amber"
+  },
+
 {
   "id": "joule-law",
   "cover": "assets/covers/joule-law-scene.jpg?v=20261020-1",
