@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometric Optics · 凹透镜成像 3D + 2D 联动仿真实验</title>
+<style>
+  :root{
+    --bg:#f3f4f6;
+    --panel:#ffffff;
+    --stroke:#d0d5dd;
+    --accent:#3d5ba9;
+    --accent2:#f0c419;
+    --text:#1f2933;
+    --muted:#667085;
+    --header-bg:#ffffff;
+    --chip-bg:#ffffff;
+    --chip-text:#344054;
+    --badge-bg:#ffffff;
+    --badge-text:#344054;
+    --badge-live-bg:#eef2ff;
+    --badge-live-border:#b8c7e8;
+    --badge-live-text:#3d5ba9;
+    --badge-accent:#1d4ed8;
+    --stage-3d:#f7f8fa;
+    --stage-2d:#f5f5f5;
+    --input-bg:#ffffff;
+    --input-text:#1f2933;
+    --input-border:#98a2b3;
+    --btn-bg:#ffffff;
+    --btn-text:#1f2933;
+    --btn-border:#98a2b3;
+    --btn-hover:#eef2ff;
+    --output-bg:#eef2ff;
+    --output-text:#1d4ed8;
+    --output-border:#c7d2fe;
+    --h2-color:#3d5ba9;
+    --nature-color:#1d4ed8;
+    --detail-text:#475467;
+    --detail-bold:#1f2933;
+    --meter-bg:#e4e7ec;
+    --meter-border:#d0d5dd;
+    --table-text:#475467;
+    --table-border:#d0d5dd;
+    --table-head-bg:#eef2ff;
+    --table-head-text:#3d5ba9;
+    --table-active-bg:#fff8d6;
+    --table-active-text:#1f2933;
+    --toast-bg:#ffffff;
+    --toast-text:#344054;
+    --shadow:0 1px 3px rgba(16,24,40,.08);
+    --canvas-2d:#f5f5f5;
+    --canvas-2d-text:#344054;
+    --canvas-2d-muted:#667085;
+  }
+  html[data-theme="dark"]{
+    --bg:#0b1120;
+    --panel:#151f2e;
+    --stroke:#334155;
+    --accent:#7eb6ff;
+    --accent2:#f0c419;
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+    --header-bg:#111827;
+    --chip-bg:#1e293b;
+    --chip-text:#cbd5e1;
+    --badge-bg:#1e293b;
+    --badge-text:#cbd5e1;
+    --badge-live-bg:#1e3a5f;
+    --badge-live-border:#3d5ba9;
+    --badge-live-text:#93c5fd;
+    --badge-accent:#93c5fd;
+    --stage-3d:#0f172a;
+    --stage-2d:#111827;
+    --input-bg:#1e293b;
+    --input-text:#e2e8f0;
+    --input-border:#475569;
+    --btn-bg:#1e293b;
+    --btn-text:#e2e8f0;
+    --btn-border:#475569;
+    --btn-hover:#253449;
+    --output-bg:#1e3a5f;
+    --output-text:#93c5fd;
+    --output-border:#3d5ba9;
+    --h2-color:#93c5fd;
+    --nature-color:#93c5fd;
+    --detail-text:#94a3b8;
+    --detail-bold:#e2e8f0;
+    --meter-bg:#334155;
+    --meter-border:#475569;
+    --table-text:#94a3b8;
+    --table-border:#475569;
+    --table-head-bg:#1e3a5f;
+    --table-head-text:#93c5fd;
+    --table-active-bg:#3b3520;
+    --table-active-text:#fde68a;
+    --toast-bg:#1e293b;
+    --toast-text:#e2e8f0;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+    --canvas-2d:#111827;
+    --canvas-2d-text:#cbd5e1;
+    --canvas-2d-muted:#94a3b8;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;overflow:hidden;transition:background .25s,color .25s}
+  #app{display:flex;flex-direction:column;height:100vh}
+  header{height:56px;display:flex;align-items:center;gap:14px;padding:0 16px;border-bottom:1px solid var(--stroke);background:var(--header-bg);z-index:10;transition:background .25s,border-color .25s}
+  header .logo{width:34px;height:34px;border-radius:8px;background:var(--chip-bg);border:1px solid var(--stroke);display:grid;place-items:center;font-weight:900}
+  header h1{font-size:15px;margin:0;color:var(--text)}
+  header h1 small{display:block;font-size:11px;color:var(--muted);font-weight:400}
+  .hdr-badges{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .badge{font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid var(--stroke);background:var(--badge-bg);color:var(--badge-text);cursor:pointer;transition:.2s}
+  .badge:hover{border-color:var(--accent)}
+  .badge.live{border-color:var(--badge-live-border);background:var(--badge-live-bg);color:var(--badge-live-text);cursor:default}
+  .badge b{color:var(--badge-accent)}
+  button.badge{flex:none;min-width:auto;font:inherit;line-height:inherit}
+  #main{flex:1;display:flex;min-height:0}
+  #stages{flex:1;display:flex;flex-direction:column;min-width:0}
+  .stage{position:relative;overflow:hidden}
+  #stage3d{flex:0 0 60%;min-height:0;border-bottom:1px solid var(--stroke);background:var(--stage-3d);transition:background .25s}
+  #stage2d{flex:0 0 40%;min-height:0;background:var(--stage-2d);transition:background .25s}
+  #stages.only3d #stage3d{flex:1 1 100%;border-bottom:0}
+  #stages.only3d #stage2d{display:none}
+  #stages.only2d #stage3d{display:none}
+  #stages.only2d #stage2d{flex:1 1 100%}
+  #viewMode{font:inherit;cursor:pointer;color:var(--text);background:var(--panel)}
+  .hdr-badges #viewMode{white-space:nowrap;min-width:100px}
+  #stage3d .phet-bar{top:12px;right:12px}
+  #stage3d .phet-bar select{min-width:144px}
+  .stage-label{position:absolute;left:12px;top:10px;z-index:5;display:flex;gap:8px;align-items:center;pointer-events:none}
+  .stage-label span{font-size:11px;padding:5px 10px;border-radius:8px;background:var(--chip-bg);border:1px solid var(--stroke);color:var(--chip-text)}
+  .stage-label em{font-style:normal;font-size:11px;color:var(--muted);background:var(--chip-bg);padding:5px 8px;border-radius:8px;border:1px solid var(--stroke)}
+  .phet-bar{position:absolute;right:12px;top:10px;z-index:6;display:flex;gap:8px;align-items:center}
+  .phet-bar select{height:32px;border:1px solid var(--input-border);border-radius:8px;background:var(--input-bg);padding:0 10px;font-size:13px;color:var(--input-text)}
+  #c3d{position:absolute;inset:0}
+  #c3d canvas{display:block}
+  #c2d{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #side{width:360px;flex-shrink:0;border-left:1px solid var(--stroke);background:var(--bg);padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;transition:background .25s}
+  .glass{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:12px 12px 11px;box-shadow:var(--shadow);transition:background .25s,border-color .25s}
+  .glass h2{margin:0 0 10px;font-size:14px;letter-spacing:.4px;color:var(--h2-color);display:flex;align-items:center;gap:8px}
+  .glass h2::before{content:"";width:8px;height:8px;border-radius:50%;background:#f0c419;border:1px solid #d4a017}
+  .row{margin:9px 0}
+  .row label{display:flex;justify-content:space-between;font-size:14px;color:var(--text);margin-bottom:6px}
+  .row label output{color:var(--output-text);font-variant-numeric:tabular-nums;background:var(--output-bg);border:1px solid var(--output-border);padding:1px 8px;border-radius:999px}
+  input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+  .rays{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ray-toggle{display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 9px;border-radius:10px;border:1px solid var(--stroke);background:var(--btn-bg);cursor:pointer;user-select:none;transition:.2s;color:var(--btn-text)}
+  .ray-toggle.off{opacity:.38;filter:grayscale(1)}
+  .ray-toggle i{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .btns{display:flex;flex-wrap:wrap;gap:8px}
+  button{flex:1;min-width:90px;border:1px solid var(--btn-border);background:var(--btn-bg);color:var(--btn-text);border-radius:10px;padding:9px 8px;font-size:13px;cursor:pointer;transition:.2s}
+  button:hover{background:var(--btn-hover);border-color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+  button.warn{background:var(--btn-bg)}
+  #bMoreParams{width:100%;flex:none;margin-top:4px}
+  #imgCard{border-left:3px solid var(--accent)}
+  #imgNature{font-size:17px;font-weight:800;margin:2px 0 6px;color:var(--nature-color)}
+  #imgDetail{font-size:14px;color:var(--detail-text);line-height:1.7;font-variant-numeric:tabular-nums}
+  #imgDetail b{color:var(--detail-bold)}
+  .meter{height:8px;border-radius:99px;background:var(--meter-bg);overflow:hidden;margin-top:8px;border:1px solid var(--meter-border)}
+  .meter div{height:100%;border-radius:99px;background:linear-gradient(90deg,#f04438,#f79009,#12b76a);transition:width .15s}
+  #ruleTable{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  #ruleTable td,#ruleTable th{border:1px solid var(--table-border);padding:6px 6px;text-align:center;color:var(--table-text)}
+  #ruleTable th{color:var(--table-head-text);font-weight:600;background:var(--table-head-bg)}
+  #ruleTable tr.active td{background:var(--table-active-bg);color:var(--table-active-text);font-weight:700;box-shadow:inset 0 0 0 1px #f0c419}
+  .hint{font-size:13px;color:var(--muted);line-height:1.7}
+  .measure-head{display:flex;align-items:center;gap:9px}
+  .measure-heading{flex:1 1 auto;width:auto;padding:3px 0 5px;margin:0;min-width:0;border:0;background:none!important;display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--h2-color);font-size:14px;font-weight:700;text-align:left;cursor:pointer}
+  .measure-3d-switch{flex:0 0 auto;min-width:0;margin:0;padding:6px 8px;border-radius:8px;border:1px solid var(--btn-border);background:var(--btn-bg);font-size:12px;line-height:1.25;font-weight:700;color:var(--muted);white-space:nowrap}
+  .measure-3d-switch[aria-checked="true"]{color:var(--output-text);border-color:var(--accent);background:var(--output-bg)}
+  .measure-3d-switch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .measure-heading:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .measure-heading .chevron{font-size:14px;color:var(--muted)}
+  #measurementOutput[hidden]{display:none}
+  .measure-values{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
+  .measure-value{background:var(--output-bg);border:1px solid var(--output-border);border-radius:8px;padding:10px 7px;min-width:0}
+  .measure-value span{display:block;font-size:12px;color:var(--muted)}
+  .measure-value strong{display:block;color:var(--output-text);font-size:19px;font-variant-numeric:tabular-nums;margin-top:3px}
+  .measure-result{font-size:14px;font-weight:600;line-height:1.75;color:var(--text)}
+  .measure-status{font-size:12px;color:var(--muted);line-height:1.65}
+  .measure-light{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:13px;color:var(--text)}
+  #lightBar{background:linear-gradient(90deg,#a16207,#facc15);height:100%;border-radius:99px;width:100%}
+  .hint b{color:var(--accent)}
+  /* CSS2D 把文字作为浏览器文本渲染：镜头放大缩小时不再把低分辨率贴图拉糊 */
+  .scene-label{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;white-space:nowrap;pointer-events:none;user-select:none;text-align:center;line-height:1.12;letter-spacing:.2px}
+  .scene-label--focal{font-size:18px;font-weight:900;color:#b7dcff;-webkit-text-stroke:.25px #06172b;text-shadow:0 2px 2px #040912,0 0 5px #091c32,0 0 1px white}
+  html:not([data-theme="dark"]) .scene-label--focal{color:#164f9c;-webkit-text-stroke:.1px #fff;text-shadow:0 1px 2px white,0 0 3px white}
+  .scene-label--carrier{font-size:17px;font-weight:800;color:white;background:#14191f;border:1px solid #657081;border-radius:9px;padding:3px 10px;text-shadow:0 1px 1px #000;box-shadow:0 1px 3px #0006}
+  .scene-label--virtual{font-size:17px;font-weight:800;color:#ead7ff;background:rgba(49,25,85,.86);border-radius:6px;padding:3px 7px;text-shadow:0 1px 3px #110d18}
+  .scene-label--ruler{font-size:14px;line-height:1;color:#fff;font-weight:800;background:rgba(10,13,17,.92);border-radius:3px;padding:1px 2px;font-variant-numeric:tabular-nums;text-shadow:0 1px 1px black}
+  .scene-label--measure{font-size:24px;font-weight:900;color:#bc1c35;background:rgba(255,255,255,.97);border:2px solid #ed5368;border-radius:8px;padding:7px 11px;box-shadow:0 2px 10px #0007;font-variant-numeric:tabular-nums}
+  html[data-theme="dark"] .scene-label--measure{background:rgba(21,32,48,.97);color:#ff949f;border-color:#ff687b}
+  .scene-label--theory{border-style:dashed}
+  /* 文字锚点精确锁定在尺寸线上，内部标签向旁侧偏移 10px，不能再离开元件。 */
+  .scene-label--measure:empty{display:none!important}
+  .scene-label--measure-anchor{width:0;height:0;overflow:visible}
+  .scene-label--measure-anchor>.scene-label--measure{position:absolute;left:14px;top:0;transform:translateY(-50%);display:block}
+  #c3d>.label-renderer{position:absolute;inset:0;pointer-events:none;z-index:4}
+  kbd{background:var(--chip-bg);border:1px solid var(--stroke);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:12px;color:var(--chip-text)}
+  #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--toast-bg);border:1px solid #f0c419;color:var(--toast-text);font-size:12px;padding:9px 16px;border-radius:999px;transition:.35s;pointer-events:none;z-index:99;box-shadow:0 8px 24px rgba(16,24,40,.12)}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (max-width:980px){
+    body{overflow:auto}
+    #app{height:auto;min-height:100vh}
+    #main{flex-direction:column}
+    #stages{min-height:86vh}
+    #side{width:auto;border-left:none;border-top:1px solid var(--stroke)}
+  }
+
+  .scene-label--vision{font-size:15px;font-weight:800;color:#175c83;background:rgba(255,255,255,.94);border:1px solid #7fb1c9;border-radius:7px;padding:4px 7px;text-shadow:none;-webkit-text-stroke:0}
+  html[data-theme="dark"] .scene-label--vision{color:#cef2ff;background:rgba(15,31,46,.94);border-color:#6eacc7}
+  #visionCard .btns button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  #visionControls .hint{line-height:1.6;margin:8px 0}
+  #visionStatus{font-weight:700;line-height:1.6;padding:9px;border-radius:8px;background:var(--output-bg);border:1px solid var(--stroke);margin:8px 0}
+  #visionStatus[data-success="true"]{color:#087b4c;border-color:#35a875}
+  #visionSceneNote{position:absolute;bottom:12px;left:12px;z-index:5;padding:7px 12px;border-radius:9px;background:var(--panel);border:1px solid var(--stroke);font-size:14px;font-weight:700;color:var(--text);pointer-events:none}
+  #visionControls label.check{display:flex;align-items:center;gap:7px;font-size:13px;margin-top:10px}
+  #visionControls details{font-size:13px;line-height:1.7;margin-top:12px}
+  button:disabled,input:disabled{opacity:.45;cursor:not-allowed}
+</style>
+
+<script type="importmap">
+{"imports":{"three":"../shared/vendor/three-r160/build/three.module.js","three/addons/":"../shared/vendor/three-r160/examples/jsm/"}}
+</script>
+<script src="../shared/navigation-style.js?v=20261018-nav1"></script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">🔭</div>
+    <div class="hdr-badges">
+      <select class="badge" id="viewMode" aria-label="视图显示方式"><option value="both">2D＋3D</option><option value="2d">仅显示 2D 光路图</option><option value="3d">仅显示 3D 图</option></select>
+      <button class="badge" id="bDark" type="button">🌙 暗色</button>
+      <span class="badge live">● <b id="hSharp">清晰度 100%</b></span>
+    </div>
+  </header>
+  <div id="main">
+    <div id="stages">
+      <div class="stage" id="stage3d">
+        <div class="phet-bar">
+          <select id="objType" title="选择物体类型">
+            <option value="pencil">✏️ 铅笔</option>
+            <option value="arrow">↑ 箭头</option>
+            <option value="star">★ 星星</option>
+            <option value="candle">🕯️ 蜡烛</option>
+            <option value="f">🔴 F 光源</option>
+          </select>
+        </div>
+        <div id="c3d"></div>
+      </div>
+      <div class="stage" id="stage2d">
+        <div class="stage-label"><span>2D 光路图</span></div>
+        <canvas id="c2d"></canvas>
+      </div>
+    </div>
+    <aside id="side">
+      
+      <section class="glass" id="sharedParams">
+        <h2>共享物理参数 · 实时联动</h2>
+        <div class="row"><label>物距 u（物体→透镜）<output id="oU">25.0 cm</output></label>
+          <input id="sU" type="range" min="5" max="40" step="0.1" value="25"></div>
+        <div class="row"><label>焦距大小 |f|（凹透镜 f＜0）<output id="oF">10.0 cm</output></label>
+          <input id="sF" type="range" min="5" max="18" step="0.1" value="10" title="直接微调焦距会反推等效厚度"></div>
+        <div class="row"><label>光屏位置 v₀（透镜→光屏）<output id="oS">16.7 cm</output></label>
+          <input id="sS" type="range" min="4" max="80" step="0.1" value="16.7"></div>
+        <div id="moreParams" hidden>
+          <div class="row"><label>离轴高度 h（相对主光轴）<output id="oH">3.0 cm</output></label>
+            <input id="sH" type="range" min="-6" max="8" step="0.1" value="3"></div>
+          <div class="row"><label>边缘厚度 d（→焦距跟着变）<output id="oT">1.00 cm</output></label>
+            <input id="sT" type="range" min="0.3" max="1.8" step="0.01" value="1"></div>
+          <div class="row"><label>遮挡比例（从上往下）<output id="oCover">0%</output></label>
+            <input id="sCover" type="range" min="0" max="100" step="1" value="0"></div>
+        </div>
+        <button id="bMoreParams" type="button">更多参数 ▾</button>
+      </section>
+
+      <section class="glass" id="imgCard">
+        <h2>成像性质 · 实时判定</h2>
+        <div id="imgNature">倒立 · 缩小 · 实像</div>
+        <div id="imgDetail">—</div>
+        <div class="meter"><div id="sharpBar" style="width:100%"></div></div>
+        <div class="hint" id="blurHint" style="margin-top:6px">光屏清晰度 100% · 对准了，像很锐利 ✓</div>
+        <div class="measure-light"><span>相对成像亮度（通光面积）</span><b id="lightPct">100%</b></div>
+        <div class="meter"><div id="lightBar"></div></div>
+        <table id="ruleTable">
+<tr><th>物距范围</th><th>像的性质</th><th>像的位置</th></tr>
+<tr data-k="0"><td>任意 u＞0</td><td>正立、缩小的虚像</td><td>物体与透镜之间</td></tr>
+<tr><td>物体靠近</td><td>像变大，仍小于物</td><td>像靠近透镜</td></tr>
+<tr><td>物体远离</td><td>像逐渐变小</td><td>像靠近物方焦点</td></tr>
+<tr><td>u = |f|</td><td>仍成虚像，m = 0.5</td><td>v = −|f|/2</td></tr>
+</table>
+      </section>
+
+      <section class="glass" id="measureCard">
+        <div class="measure-head">
+          <button class="measure-heading" id="bMeasureToggle" type="button" aria-expanded="false" aria-controls="measurementOutput">
+            <span>物高与像高 · 实验测量</span><span id="measureChevron" class="chevron">展开 ▾</span>
+          </button>
+          <button id="bMeasure3D" class="measure-3d-switch" type="button" role="switch" aria-checked="false" aria-label="3D高度尺寸标注">3D标注：关</button>
+        </div>
+        <div id="measurementOutput" hidden>
+          <div class="measure-values">
+            <div class="measure-value"><span>物体图案高度 H</span><strong id="measuredObj">—</strong></div>
+            <div class="measure-value"><span id="measuredImgLabel">像的高度 H′</span><strong id="measuredImg">—</strong></div>
+          </div>
+          <div class="measure-result" id="measureResult" aria-live="polite"></div>
+          <div class="measure-status" id="measureState" style="margin-top:6px"></div>
+        </div>
+      </section>
+      <section class="glass">
+        <h2>四条特殊光线 · 独立开关</h2>
+        <div class="rays">
+          <div class="ray-toggle" data-r="0"><i style="color:#fb7185;background:#fb7185"></i>① 平行→反向延长过焦点</div>
+          <div class="ray-toggle" data-r="1"><i style="color:#fde047;background:#fde047"></i>② 过光心直进</div>
+          <div class="ray-toggle" data-r="2"><i style="color:#22d3ee;background:#22d3ee"></i>③ 指向对侧焦点→平行</div>
+          <div class="ray-toggle off" data-r="3"><i style="color:#c084fc;background:#c084fc"></i>④ 边缘采样光线</div>
+        </div>
+        <div class="btns" style="margin-top:9px">
+          <button id="bAll">全开</button>
+          <button id="bNone">全关</button>
+          <button id="bBundle">☀ 密集发散光：开</button>
+        </div>
+      </section>
+
+      <section class="glass" id="autoCard">
+        <h2>自动演示 · 过焦点减速</h2>
+        <div class="btns">
+          <button class="primary" id="bPlay">▶ 自动靠近 / 远离</button>
+          <button class="warn" id="bReset">重置视角</button>
+        </div>
+        <div class="hint" style="margin-top:8px">物体在 <kbd>6</kbd>～<kbd>38cm</kbd> 往返运动，经过物方焦点附近时减速，便于比较虚像变化。经过焦点时仍成正立、缩小的虚像。</div>
+      </section>
+    </aside>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { lensSystem, powerForScreen, traceRay, apertureRay } from '../shared/vision-correction.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+/* ============ 共享物理参数（3D + 2D 唯一数据源） ============ */
+const P = {
+  objDist: 25, objH: 3.0, objType:'pencil',
+  thick: 1.0, focal: 10.0,
+  screen: 16.7,
+  rays: [true,true,true,false],
+  auto: false, autoDir: -1, track: false, bundle: true,
+  cover: 0, // 0~1，不透明纸片从上沿往下挡透镜
+  dark: localStorage.getItem('lensDark')==='1',
+  show2d: true, viewMode: 'both',
+};
+const V = { active:false, type:'none', strength:35, maxPower:.08, distance:5,
+  baseline:null, saved:null, compare:false, lastStatus:'' };
+function correctionPower(){ return !V.active||V.type==='none'?0:(V.type==='concave'?-1:1)*V.maxPower*V.strength/100; }
+// Shared profile for the real 3D glass and its 2D schematic cross section.
+function correctorHalfThickness(radiusFraction){
+  const amp=.12+.65*V.strength/100;
+  return V.type==='concave'?.12+amp*radiusFraction**2:.12+amp*Math.sqrt(Math.max(0,1-radiusFraction**2));
+}
+function correctionKey(){return V.active?`${V.type}:${V.strength}:${V.distance}`:'ordinary';}
+function currentSystem(){return lensSystem(P.objDist,P.focal,V.active?V.distance:0,correctionPower());}
+// 物与像共用火焰变化相位，降低物像不同步的风险。
+let flamePhase=0, flameAccumulator=0;
+const THEME={
+  light:{scene:0xf5f5f5,grid:[0xc8cdd6,0xe4e7ec],ambient:.9,key:1.15,fill:.45,exposure:1.15},
+  dark:{scene:0x172234,grid:[0x475569,0x263345],ambient:.85,key:1.15,fill:.55,exposure:1.12},
+};
+const fFromThick = d => 14/(0.4+d);
+const thickFromF  = f => 14/f - 0.4;
+
+function yCutCm(R){ return R*(1-2*P.cover); }
+function capHalfWidth(R, yCut){ return Math.sqrt(Math.max(0, R*R-yCut*yCut)); }
+function rayBlockedAtLens(y, R){ return y > yCutCm(R); }
+function uncoverFrac(){
+  if(P.cover<=0) return 1;
+  if(P.cover>=1) return 0;
+  const a=2*P.cover; // 被遮住的高度 / 半径，范围 0~2
+  // 圆形透镜的弓形面积：acos(1-a)-(1-a)*sqrt(2a-a²)。
+  // 原写法错误地再乘 a，75% 遮挡甚至得到负的通光面积。
+  const cap=Math.acos(1-a)-(1-a)*Math.sqrt(Math.max(0,2*a-a*a));
+  return Math.min(1,Math.max(0,1-cap/Math.PI));
+}
+function coverDimAlpha(){
+  if(P.cover<=0) return 0;
+  if(P.cover>=1) return 0.9;
+  return (1-uncoverFrac())*0.88; // 黑色蒙层，让变暗肉眼可见
+}
+function screenBgForCover(){
+  const t=1-uncoverFrac();
+  if(P.dark){
+    const r=Math.round(45-25*t), g=Math.round(58-30*t), b=Math.round(78-40*t);
+    return `rgb(${r},${g},${b})`;
+  }
+  const r=Math.round(186-110*t), g=Math.round(230-145*t), b=Math.round(253-200*t);
+  return `rgb(${r},${g},${b})`;
+}
+function canvas2dBg(){ return P.dark?'#111827':'#f5f5f5'; }
+function c2dText(){ return P.dark?'#cbd5e1':'#344054'; }
+function c2dMuted(){ return P.dark?'#94a3b8':'#667085'; }
+function cullRayByCover(fwd, back, R){
+  if(P.cover<=0) return {fwd, back};
+  const yC=yCutCm(R);
+  if(P.cover>=1){
+    const a=fwd[0], b=fwd[1]||fwd[0];
+    const t=(0-a[0])/((b[0]-a[0])||1e-6);
+    const yL=a[1]+t*(b[1]-a[1]);
+    return {fwd:[a,[0,yL]], back:[]};
+  }
+  const out=[];
+  for(let i=0;i<fwd.length;i++){
+    if(i===0){ out.push(fwd[0]); continue; }
+    const p=out[out.length-1], q=fwd[i];
+    if(p[0]<0 && q[0]>=0){
+      const t=(0-p[0])/((q[0]-p[0])||1e-6);
+      const yL=p[1]+t*(q[1]-p[1]);
+      out.push([0,yL]);
+      if(yL>yC) return {fwd:out, back:[]};
+      if(Math.abs(q[0])>1e-4 || Math.abs(q[1]-yL)>1e-4) out.push(q);
+    }else out.push(q);
+  }
+  const yAt=out.find(pt=>Math.abs(pt[0])<1e-4)?.[1];
+  const bk=(back && back.length>1 && yAt!==undefined && yAt<=yC)?back:[];
+  return {fwd:out, back:bk};
+}
+function apertureRaysCm(R,sourceHeight=P.objH){
+  if(P.cover<=0 || P.cover>=1) return [];
+  const u=P.objDist, h=sourceHeight, f=P.focal;
+  const base=lensImage();
+  const img={...base,h:base.m*sourceHeight};
+  if(img.kind==='none') return [];
+  const xo=-u, yo=h, yC=yCutCm(R);
+  const samples=[];
+  const push=(y)=>{ if(y<=yC && y>=-R*0.98) samples.push(y); };
+  push(yC-0.08*R); push(yC-0.22*R); push(yC-0.42*R);
+  push(-R*0.55); push(-R*0.25); push(0);
+  const uniq=[...new Set(samples.map(v=>+v.toFixed(3)))];
+  return uniq.map(yL=>{
+    const fwd=[[xo,yo],[0,yL]];
+    if(img.kind==='real' && isFinite(img.v)) fwd.push([img.v, img.h]);
+    else if(img.kind==='virtual' && isFinite(img.v)){
+      const sl=(img.h-yL)/(img.v-0);
+      fwd.push([rayEndX(), yL+sl*rayEndX()]);
+    }
+    const back=(img.kind==='virtual' && isFinite(img.v))?[[0,yL],[img.v,img.h]]:[];
+    return {fwd, back};
+  });
+}
+
+function lensImage(){
+  const u=P.objDist, f=-P.focal;
+  const v=u*f/(u-f),m=-v/u;
+  return {v,m,h:m*P.objH,kind:'virtual'};
+}
+function natureText(){return {t:'正立 · 缩小 · 虚像（光屏无法承接）',k:0};}
+function sharpness(){
+  const {v,kind}=lensImage();
+  if(kind!=='real') return {s:0, d:Infinity};
+  const d=Math.abs(P.screen-v);
+  if(V.active){const blurRadius=LENS_R*Math.abs(1-P.screen/v);return {s:Math.exp(-Math.pow(blurRadius/.10,2)),d,blurRadius};}
+  const s=Math.max(0,1-d/14);
+  return {s, d};
+}
+
+/* ============ UI 绑定 ============ */
+const $=id=>document.getElementById(id);
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),2200);};
+function syncLabels(){
+  $('oU').textContent=P.objDist.toFixed(1)+' cm';
+  $('oH').textContent=P.objH.toFixed(1)+' cm';
+  $('oT').textContent=P.thick.toFixed(2)+' cm';
+  $('oF').textContent='−'+P.focal.toFixed(1)+' cm';
+  $('oS').textContent=P.screen.toFixed(1)+' cm';
+  $('oCover').textContent=Math.round(P.cover*100)+'%';
+}
+$('sCover').addEventListener('input',e=>{P.cover=+e.target.value/100;});
+$('bMoreParams').onclick=()=>{
+  const box=$('moreParams'), open=box.hidden;
+  box.hidden=!open;
+  $('bMoreParams').textContent=open?'收起参数 ▴':'更多参数 ▾';
+};
+$('sU').addEventListener('input',e=>{P.objDist=+e.target.value;stopAutoIfUser();});
+$('sH').addEventListener('input',e=>{P.objH=+e.target.value;});
+$('sT').addEventListener('input',e=>{P.thick=+e.target.value;P.focal=fFromThick(P.thick);$('sF').value=P.focal;});
+$('sF').addEventListener('input',e=>{P.focal=+e.target.value;P.thick=Math.min(1.8,Math.max(.3,thickFromF(P.focal)));$('sT').value=P.thick;});
+$('sS').addEventListener('input',e=>{P.screen=+e.target.value;});
+$('objType').addEventListener('change',e=>{P.objType=e.target.value;buildObject();buildVirtualImage();});
+function sync2DLayout(){
+  P.show2d=P.viewMode!=='3d';
+  $('stages').classList.toggle('only3d',P.viewMode==='3d');
+  $('stages').classList.toggle('only2d',P.viewMode==='2d');
+  $('viewMode').value=P.viewMode;
+  resize3D();if(P.show2d)resize2D();
+  requestAnimationFrame(()=>{resize3D();if(P.show2d){resize2D();draw2D();}});
+}
+$('viewMode').onchange=e=>{P.viewMode=e.target.value;sync2DLayout();};
+function syncRayToggles(){
+  document.querySelectorAll('.ray-toggle').forEach(el=>{
+    el.classList.toggle('off', !P.rays[+el.dataset.r]);
+  });
+}
+document.querySelectorAll('.ray-toggle').forEach(el=>{
+  el.onclick=()=>{const i=+el.dataset.r;P.rays[i]=!P.rays[i];el.classList.toggle('off',!P.rays[i]);};
+});
+$('bAll').onclick=()=>{P.rays=[true,true,true,true];syncRayToggles();};
+$('bNone').onclick=()=>{P.rays=[false,false,false,false];syncRayToggles();};
+$('bBundle').onclick=()=>{
+  P.bundle=!P.bundle;
+  $('bBundle').textContent='☀ 密集发散光：'+(P.bundle?'开':'关');
+  if(!P.bundle){
+    P.rays=[true,true,true,false];
+    syncRayToggles();
+  }
+};
+function stopAutoIfUser(){ if(P.auto){P.auto=false;$('bPlay').textContent='▶ 自动靠近 / 远离';} }
+$('bPlay').onclick=()=>{
+  if(V.active)return;
+  P.auto=!P.auto;
+  $('bPlay').textContent=P.auto?'⏸ 暂停自动演示':'▶ 自动靠近 / 远离';
+  if(P.auto) toast('自动演示中：经过焦点 F 附近会自动减速');
+};
+
+/* ============ THREE 3D 场景 ============ */
+const holder=$('c3d');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+holder.appendChild(renderer.domElement);
+const labelRenderer=new CSS2DRenderer();
+labelRenderer.domElement.className='label-renderer';
+holder.appendChild(labelRenderer.domElement);
+const scene=new THREE.Scene();
+function sharpLabel(textValue,styleClass){
+  const div=document.createElement('div');div.className='scene-label '+styleClass;
+  div.textContent=textValue;
+  return new CSS2DObject(div);
+}
+scene.background=new THREE.Color(0xf5f5f5);
+scene.fog=new THREE.Fog(0xf5f5f5,80,220);
+{const pmrem=new THREE.PMREMGenerator(renderer);
+ scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;}
+const camera=new THREE.PerspectiveCamera(46,1,0.1,500);
+// 重置采用更低的构图位置：让光具座落在画面下半部，物/镜/屏成为视觉焦点。
+const DEFAULT_VIEW={camera:[10,18.5,44.5],target:[0,9.2,0]};
+camera.position.set(...DEFAULT_VIEW.camera);
+const controls=Navigation3D.configureOrbit(new OrbitControls(camera,renderer.domElement));
+controls.target.set(...DEFAULT_VIEW.target);
+controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.52; controls.minDistance=12; controls.maxDistance=110;
+$('bReset').onclick=()=>{
+  camera.position.set(...DEFAULT_VIEW.camera); controls.target.set(...DEFAULT_VIEW.target);
+  controls.update();
+};
+
+const ambLight=new THREE.AmbientLight(0xffffff,.9);
+scene.add(ambLight);
+const key=new THREE.DirectionalLight(0xffffff,1.15); key.position.set(10,22,16); scene.add(key);
+const fill=new THREE.DirectionalLight(0xffffff,.45); fill.position.set(-12,10,-8); scene.add(fill);
+const warm=new THREE.PointLight(0xffe7c2,20,80); warm.position.set(-14,10,6); scene.add(warm);
+
+let grid=new THREE.GridHelper(140,28,0xc8cdd6,0xe4e7ec);
+grid.position.y=-.02; grid.material.transparent=true; grid.material.opacity=.7; scene.add(grid);
+function applyTheme(){
+  document.documentElement.dataset.theme=P.dark?'dark':'light';
+  localStorage.setItem('lensDark', P.dark?'1':'0');
+  const t=P.dark?THEME.dark:THEME.light;
+  scene.background.setHex(t.scene);
+  scene.fog.color.setHex(t.scene);
+  ambLight.intensity=t.ambient;
+  key.intensity=t.key;
+  fill.intensity=t.fill;
+  renderer.toneMappingExposure=t.exposure;
+  metalAl.color.setHex(P.dark?0xdbe4ef:0xc5ccd3);
+  metalAl.metalness=P.dark?.54:.88; metalAl.roughness=P.dark?.38:.22;
+  chrome.color.setHex(P.dark?0xf1f5f9:0xe8eef3);
+  chrome.metalness=P.dark?.65:.96; chrome.roughness=P.dark?.24:.08;
+  plasticGray.color.setHex(P.dark?0xb7c2d0:0x8b929a);
+  scene.remove(grid);
+  grid=new THREE.GridHelper(140,28,t.grid[0],t.grid[1]);
+  grid.position.y=-.02; grid.material.transparent=true; grid.material.opacity=P.dark?0.55:0.7;
+  scene.add(grid);
+  $('bDark').textContent=P.dark?'☀ 浅色':'🌙 暗色';
+  drawScreenTexture();
+}
+$('bDark').onclick=()=>{P.dark=!P.dark;applyTheme();};
+
+/* 光具座：铝合金座体 + 双镀铬导轨 + 前缘附着刻度尺 */
+const WORLD=44;
+const X = cm => cm*(WORLD/44);
+const AX=12.0; // 主光轴抬高，给「滑块→立杆→夹座→镜框」留出装配空间
+const metalAl=new THREE.MeshStandardMaterial({color:0xc5ccd3, metalness:.88, roughness:.22, envMapIntensity:1.1});
+const chrome=new THREE.MeshStandardMaterial({color:0xe8eef3, metalness:.96, roughness:.08, envMapIntensity:1.3});
+const plasticGray=new THREE.MeshStandardMaterial({color:0x8b929a, metalness:.12, roughness:.52});
+const knobMat=new THREE.MeshStandardMaterial({color:0x2a2a2a, metalness:.4, roughness:.4});
+const cellMat=new THREE.MeshStandardMaterial({color:0x1c1e22, metalness:.28, roughness:.42});
+const BENCH_L=94, BENCH_Y=1.55, RAIL_Y=2.72, RAIL_Z=1.05;
+const bench=new THREE.Mesh(new THREE.BoxGeometry(BENCH_L, 2.15, 3.7), metalAl);
+bench.position.y=BENCH_Y; scene.add(bench);
+const topPlate=new THREE.Mesh(new THREE.BoxGeometry(BENCH_L, .18, 3.9), metalAl);
+topPlate.position.y=BENCH_Y+1.12; scene.add(topPlate);
+[-RAIL_Z, RAIL_Z].forEach(z=>{
+  const rod=new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, BENCH_L, 24), chrome);
+  rod.rotation.z=Math.PI/2; rod.position.set(0, RAIL_Y, z); scene.add(rod);
+});
+[-1,1].forEach(s=>{
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.4, 4.2), metalAl);
+  cap.position.set(s*(BENCH_L/2-0.4), 1.7, 0); scene.add(cap);
+  const foot=new THREE.Mesh(new THREE.BoxGeometry(3.2, .45, 5.2), metalAl);
+  foot.position.set(s*(BENCH_L/2-0.6), .28, 0); scene.add(foot);
+});
+function makeCarrier(){
+  const g=new THREE.Group();
+  const saddle=new THREE.Mesh(new THREE.BoxGeometry(2.55, .7, 3.95), plasticGray);
+  g.add(saddle);
+  const knob=new THREE.Mesh(new THREE.CylinderGeometry(.26,.3,.42,14), knobMat);
+  knob.rotation.x=Math.PI/2; knob.position.set(0,-.06, 2.18); g.add(knob);
+  const boss=new THREE.Mesh(new THREE.CylinderGeometry(.24,.28,.32,14), plasticGray);
+  boss.position.y=.5; g.add(boss);
+  const collar=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.12,12), metalAl);
+  collar.position.y=.68; g.add(collar);
+  return g;
+}
+function addChromeRod(group, y0, y1, z=0){
+  const h=Math.max(0.4, y1-y0);
+  const rod=new THREE.Mesh(new THREE.CylinderGeometry(.135,.135,h,18), chrome);
+  rod.position.set(0,(y0+y1)/2,z); group.add(rod);
+  const cap=new THREE.Mesh(new THREE.SphereGeometry(.14,12,8), chrome);
+  cap.position.set(0,y1,z); group.add(cap);
+  return rod;
+}
+function addRodClamp(group, y, z=0){
+  const body=new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.92, 1.12), plasticGray);
+  body.position.set(0,y,z); group.add(body);
+  const knob=new THREE.Mesh(new THREE.CylinderGeometry(.2,.24,.4,14), knobMat);
+  knob.rotation.x=Math.PI/2; knob.position.set(0,y,z+0.76); group.add(knob);
+  return body;
+}
+/* 黑底白字刻度，贴在铝合金座体前缘（朝向用户） */
+{const L=90, H=1.55;
+ const Wpx=4096, Hpx=Math.round(4096*H/L);
+ const c=document.createElement('canvas'); c.width=Wpx; c.height=Hpx;
+ const g=c.getContext('2d');
+ g.fillStyle='#1a1a1a'; g.fillRect(0,0,Wpx,Hpx);
+ g.strokeStyle='#0d0d0d'; g.lineWidth=4; g.strokeRect(2,2,Wpx-4,Hpx-4);
+ const pad=18, inner=Wpx-pad*2, xOf=cm=>pad+cm/L*inner;
+ g.fillStyle='#f5f5f5';
+ for(let cm=0; cm<=L; cm++){
+   const x=Math.round(xOf(cm));
+   const long=cm%10===0, mid=cm%5===0;
+   const h=long?Math.round(Hpx*0.55):mid?Math.round(Hpx*0.36):Math.round(Hpx*0.2);
+   g.fillRect(x-(long?2:1), 6, long?3:2, h);
+ }
+ // 刻线贴在尺面；数字采用高清 CSS2D 标签，避免放大时低清 Canvas 字虚化。
+ const tex=new THREE.CanvasTexture(c);
+ tex.colorSpace=THREE.SRGBColorSpace;
+ tex.generateMipmaps=false; tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
+ const face=new THREE.MeshBasicMaterial({map:tex});
+ const edge=new THREE.MeshBasicMaterial({color:0x111});
+ const ruler=new THREE.Mesh(new THREE.BoxGeometry(L, H, .1), [edge,edge,edge,edge,face,edge]);
+ // 贴在座体 +z 前立面，与金属座连成一体
+ ruler.position.set(0, BENCH_Y-0.18, 3.7/2+0.05);
+ scene.add(ruler);
+ for(let cm=0;cm<=L;cm+=5){
+   const label=sharpLabel(String(cm),'scene-label--ruler');
+   label.position.set(cm-L/2,BENCH_Y-.18-H*.27,3.7/2+.16);
+   scene.add(label);
+ }}
+
+/* 光具座刻度指示三角：对准光源 / 透镜 / 光屏所在读数 */
+function tagSprite(txt,color){
+  return sharpLabel(txt,'scene-label--carrier');
+}
+function makeScalePointer(color, tag){
+  const g=new THREE.Group();
+  const sh=new THREE.Shape();
+  sh.moveTo(0,-0.95);
+  sh.lineTo(0.58,0.42);
+  sh.lineTo(0.2,0.42);
+  sh.lineTo(0.2,0.78);
+  sh.lineTo(-0.2,0.78);
+  sh.lineTo(-0.2,0.42);
+  sh.lineTo(-0.58,0.42);
+  sh.closePath();
+  const geo=new THREE.ExtrudeGeometry(sh,{depth:0.1,bevelEnabled:false});
+  geo.translate(0,0,-0.05);
+  const mat=new THREE.MeshBasicMaterial({color, depthTest:false});
+  const mesh=new THREE.Mesh(geo, mat);
+  mesh.renderOrder=11; g.add(mesh);
+  const sp=tagSprite(tag,color);
+  sp.position.set(0,1.42,0.02); g.add(sp);
+  return g;
+}
+const RULER_Z=3.7/2+0.22, RULER_PTR_Y=(BENCH_Y-0.18)+1.55/2+0.78;
+const ptrSrc=makeScalePointer(0x6d28d9,'物');
+const ptrLens=makeScalePointer(0x1d4ed8,'透');
+const ptrScr=makeScalePointer(0x047857,'屏');
+scene.add(ptrSrc, ptrLens, ptrScr);
+function layoutPointers(){
+  ptrSrc.position.set(X(-P.objDist), RULER_PTR_Y, RULER_Z);
+  ptrLens.position.set(0, RULER_PTR_Y, RULER_Z);
+  ptrScr.position.set(X(P.screen), RULER_PTR_Y, RULER_Z);
+}
+
+/* 透镜组：滑块 → 镀铬立杆 → 夹座 → 玻璃圆面（无镜框黑环，支架在下方） */
+const lensGroup=new THREE.Group(); scene.add(lensGroup);
+const LENS_R=6.0;
+const lensHalfThick=()=>(.9+P.thick*1.35)*.5; // 外形厚度作教学放大，不参与薄透镜计算 // x 半厚度，随厚度滑杆变化
+let lensMesh, lensGlint;
+function buildLens(){
+  // 单位球压扁 → 双凸透镜：迎光看是标准圆形，侧面是凸面
+  lensMesh=new THREE.Mesh(
+    (()=>{
+      const points=[];for(let i=0;i<=48;i++){const r=i/48;points.push(new THREE.Vector2(r,-(.22+.78*r*r)));}
+      for(let i=48;i>=0;i--){const r=i/48;points.push(new THREE.Vector2(r,.12+.88*r*r));}
+      const geo=new THREE.LatheGeometry(points,96);geo.rotateZ(Math.PI/2);return geo;
+    })(),
+    new THREE.MeshPhysicalMaterial({
+      color:0xd9edf0, metalness:0, roughness:.09,
+      transmission:.86, thickness:2.2, ior:1.5,
+      transparent:true, opacity:1,
+      attenuationColor:0xb3d7df, attenuationDistance:20,
+      clearcoat:.65, clearcoatRoughness:.12,
+      specularIntensity:.65, envMapIntensity:.70,
+    }));
+  lensMesh.scale.set(lensHalfThick(),LENS_R,LENS_R);
+  lensGroup.add(lensMesh);
+  // Subtle glass edges and surface meridians reveal the concavity from oblique views.
+  const edgeMaterial=new THREE.LineBasicMaterial({color:0x699aa7,transparent:true,opacity:.42,depthWrite:false});
+  for(const sign of [-1,1]){
+    const rim=[];for(let i=0;i<=128;i++){const a=i/128*Math.PI*2;rim.push(new THREE.Vector3(sign,Math.cos(a),Math.sin(a)));}
+    lensMesh.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(rim),edgeMaterial));
+    const profile=[];for(let i=0;i<=96;i++){const t=-1+2*i/96;profile.push(new THREE.Vector3(sign*(.22+.78*t*t),t,0));}
+    const profileLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(profile),new THREE.LineBasicMaterial({color:0x5f8996,transparent:true,opacity:.55,depthTest:false,depthWrite:false}));
+    profileLine.renderOrder=12;lensMesh.add(profileLine);
+  }
+  const yoke=new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.7, 0.7), cellMat);
+  yoke.position.y=-LENS_R-0.12; lensGroup.add(yoke);
+  const stem=new THREE.Mesh(new THREE.CylinderGeometry(.2,.22,0.55,12), cellMat);
+  stem.position.y=-LENS_R-0.48; lensGroup.add(stem);
+  const clampY=-LENS_R-0.92;
+  addRodClamp(lensGroup, clampY, 0);
+  const saddleY=RAIL_Y-AX;
+  addChromeRod(lensGroup, saddleY+0.55, clampY+0.28, 0);
+  const lensCar=makeCarrier(); lensCar.position.y=saddleY; lensGroup.add(lensCar);
+  // 镜面高光弧（玻璃点睛）
+  lensGlint=new THREE.Mesh(
+    new THREE.TorusGeometry(LENS_R*0.6,.055,8,60,Math.PI*0.45),
+    new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.45}));
+  lensGlint.rotation.set(0,Math.PI/2,0.8);
+  lensGlint.position.x=lensHalfThick()*(.22+.78*.6*.6);
+  lensGlint.visible=false; // 去掉孤立白亮弧，保留连续凹面层次
+  lensGroup.add(lensGlint);
+  lensGroup.position.set(0,AX,0);
+}
+buildLens();
+const coverMat=new THREE.MeshStandardMaterial({
+  color:0xf1bd65,roughness:.77,metalness:.08,side:THREE.DoubleSide,
+  emissive:0x34200b,emissiveIntensity:.12
+});
+// 实物遮光片使用宽于镜面的矩形：遮挡边界真正可见，暗色模式用暖金色和深色描边。
+const coverCard=new THREE.Mesh(new THREE.BoxGeometry(.32,1,1),coverMat);
+const coverOutline=new THREE.LineSegments(new THREE.EdgesGeometry(coverCard.geometry),
+  new THREE.LineBasicMaterial({color:0x372415,depthTest:false}));
+const coverEdge=new THREE.Mesh(new THREE.BoxGeometry(.45,.15,2*LENS_R+1.2),
+  new THREE.MeshBasicMaterial({color:0xffe2a5}));
+lensGroup.add(coverCard,coverOutline,coverEdge);
+function layoutCoverCard(){
+  const show=P.cover>0, yC=yCutCm(LENS_R);
+  coverCard.visible=coverOutline.visible=coverEdge.visible=show;
+  if(!show)return;
+  const halfT=lensHalfThick();
+  const top=LENS_R+0.6, ht=Math.max(.08,top-yC), w=2*LENS_R+1.2;
+  if(layoutCoverCard._c!==P.cover){
+    coverCard.geometry.dispose();coverOutline.geometry.dispose();
+    coverCard.geometry=new THREE.BoxGeometry(.32,ht,w);
+    coverOutline.geometry=new THREE.EdgesGeometry(coverCard.geometry);
+    layoutCoverCard._c=P.cover;
+  }
+  coverCard.position.set(-halfT-.48,(top+yC)/2,0);
+  coverOutline.position.copy(coverCard.position);
+  coverEdge.position.set(-halfT-.48,yC,0);
+  coverMat.color.setHex(P.dark?0xf1bd65:0xce914b);
+  coverEdge.material.color.setHex(P.dark?0xffe5ae:0x74451d);
+}
+
+/* 主光轴（拉长，像距较大时后半段仍在轴上） */
+{const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-70,AX,0),new THREE.Vector3(92,AX,0)]);
+const l=new THREE.Line(g,new THREE.LineDashedMaterial({color:0x5b6dc8,dashSize:1.2,gapSize:.9}));
+l.computeLineDistances();scene.add(l);}
+
+/* 物体：PhET 风格带画框卡片（铅笔/箭头/星星/蜡烛） */
+function rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+function drawRealisticCandle(x,h){
+  const W=h*.42, top=-h*.25, bottom=h*.43;
+  const waxW=W*.67, tipX=Math.sin(flamePhase*1.7)*h*.018+Math.sin(flamePhase*2.3)*h*.010;
+  const tipY=-h*.545+Math.sin(flamePhase*2.5)*h*.014;
+  x.save();
+  const body=x.createLinearGradient(-waxW/2,0,waxW/2,0);
+  body.addColorStop(0,'#8e260b');body.addColorStop(.20,'#d93d0b');
+  body.addColorStop(.50,'#ff7522');body.addColorStop(.78,'#ea4810');body.addColorStop(1,'#9d2307');
+  x.beginPath();x.moveTo(-waxW/2,top+5);
+  x.quadraticCurveTo(-waxW/2-3,top+15,-waxW/2,bottom-7);
+  x.quadraticCurveTo(-waxW/2+3,bottom+3,0,bottom+4);
+  x.quadraticCurveTo(waxW/2+3,bottom+3,waxW/2,bottom-7);
+  x.lineTo(waxW/2,top+5);x.closePath();x.fillStyle=body;x.fill();
+  x.fillStyle='#fd8a34';x.beginPath();x.ellipse(0,top+5,waxW/2,Math.max(4,h*.025),0,0,Math.PI*2);x.fill();
+  x.strokeStyle='rgba(255,185,100,.58)';x.lineWidth=Math.max(2,h*.014);x.lineCap='round';
+  x.beginPath();x.moveTo(-waxW*.33,top+6);x.quadraticCurveTo(-waxW*.30,top+20,-waxW*.31,top+h*.15);x.stroke();
+  x.beginPath();x.moveTo(waxW*.3,top+7);x.quadraticCurveTo(waxW*.32,top+22,waxW*.29,top+h*.10);x.stroke();
+  x.strokeStyle='#22201e';x.lineWidth=Math.max(2.2,h*.010);
+  x.beginPath();x.moveTo(0,top+5);x.quadraticCurveTo(h*.018,top-h*.015,tipX*.18,top-h*.07);x.stroke();
+  const baseY=top+h*.012;
+  const outer=x.createLinearGradient(0,tipY,0,baseY);
+  outer.addColorStop(0,'rgba(255,103,24,.03)');
+  outer.addColorStop(.12,'#ff8c22');outer.addColorStop(.42,'#ffb12d');
+  outer.addColorStop(.73,'#fca70d');outer.addColorStop(1,'#2944d9');
+  const half=h*(.080+Math.sin(flamePhase*1.4)*.003);
+  x.beginPath();x.moveTo(0,baseY);
+  x.bezierCurveTo(-half*.99,baseY-h*.032,-half*1.12,top-h*.15,tipX,tipY);
+  x.bezierCurveTo(half*.83,top-h*.14,half*.95,baseY-h*.04,0,baseY);
+  x.closePath();x.fillStyle=outer;x.fill();
+  const hot=x.createRadialGradient(0,top-h*.13,0,0,top-h*.13,h*.17);
+  hot.addColorStop(0,'#fffef2');hot.addColorStop(.36,'#fffcd7');hot.addColorStop(.72,'rgba(255,239,125,.88)');
+  hot.addColorStop(1,'rgba(255,191,49,0)');
+  x.beginPath();x.moveTo(0,baseY-h*.014);
+  x.bezierCurveTo(-half*.65,baseY-h*.085,-half*.34,top-h*.205,tipX*.35,top-h*.28);
+  x.bezierCurveTo(half*.4,top-h*.20,half*.57,baseY-h*.09,0,baseY-h*.014);
+  x.closePath();x.fillStyle=hot;x.fill();
+  x.fillStyle='#2d55e8';x.beginPath();x.ellipse(0,top-h*.011,h*.019,h*.050,0,0,Math.PI*2);x.fill();
+  x.fillStyle='#6fa8ff';x.beginPath();x.ellipse(0,top-h*.022,h*.008,h*.027,0,0,Math.PI*2);x.fill();
+  x.restore();
+}
+function drawFigure(x,cx,cy,h,flip,alpha=1){
+  x.save(); x.translate(cx,cy); if(flip) x.scale(1,-1); x.globalAlpha*=alpha;
+  x.lineJoin='round'; x.lineCap='round';
+  const t=P.objType, w=h*0.42;
+  if(t==='arrow'){
+    x.fillStyle='#2563eb'; x.strokeStyle='#0f172a'; x.lineWidth=Math.max(3,h/28);
+    x.beginPath(); x.moveTo(0,-h/2); x.lineTo(-w*.42,-h/2+w*.78); x.lineTo(w*.42,-h/2+w*.78); x.closePath(); x.fill(); x.stroke();
+    x.fillRect(-w*.16,-h/2+w*.62,w*.32,h-w*.78);
+    x.strokeRect(-w*.16,-h/2+w*.62,w*.32,h-w*.78);
+  }else if(t==='star'){
+    x.fillStyle='#facc15'; x.strokeStyle='#0f172a'; x.lineWidth=Math.max(3,h/28);
+    x.beginPath();
+    for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5, b=a+Math.PI/5;
+      x.lineTo(Math.cos(a)*w, Math.sin(a)*h/2*.92); x.lineTo(Math.cos(b)*w*.4, Math.sin(b)*h/2*.36);}
+    x.closePath(); x.fill(); x.stroke();
+  }else if(t==='candle'){
+    drawRealisticCandle(x,h);
+  }else if(t==='f'){
+    const bw=w*1.15, bh=h*0.76;
+    // 只画红色 F 字母，不增加带粉红色光晕的衬底。
+    x.fillStyle='#ff313c'; x.strokeStyle='#9f1721'; x.lineWidth=Math.max(2,h/45);
+    const lw=Math.max(3.5,h/18);
+    const top=-bh*0.36, bot=bh*0.36, left=-bw*0.34, mid=-bh*0.04;
+    // F：左竖 + 上横 + 中横（无下横，区别于 E）
+    x.fillRect(left, top, lw, bot-top);
+    x.fillRect(left, top, bw*0.66, lw);
+    x.fillRect(left, mid, bw*0.50, lw);
+    x.strokeRect(left, top, lw, bot-top);
+    x.strokeRect(left, top, bw*0.66, lw);
+    x.strokeRect(left, mid, bw*0.50, lw);
+    // 去掉旧版整块底板的粉红透明外发光。
+  }else if(t==='pencil'){
+    x.strokeStyle='#0f172a'; x.lineWidth=Math.max(3.5,h/24);
+    x.fillStyle='#f5d76e'; rr(x,-w*.34,-h/2+22,w*.68,h-48,4); x.fill(); x.stroke();
+    x.fillStyle='#e8c25a'; x.fillRect(-w*.09,-h/2+22,w*.18,h-48);
+    x.fillStyle='#f9a8d4'; rr(x,-w*.34,h/2-26,w*.68,18,4); x.fill(); x.stroke();
+    x.fillStyle='#e5e7eb'; x.fillRect(-w*.34,h/2-32,w*.68,8); x.strokeRect(-w*.34,h/2-32,w*.68,8);
+    x.fillStyle='#fde68a'; x.beginPath(); x.moveTo(-w*.34,-h/2+22); x.lineTo(0,-h/2+2); x.lineTo(w*.34,-h/2+22); x.closePath(); x.fill(); x.stroke();
+    x.fillStyle='#1e293b'; x.beginPath(); x.moveTo(-6,-h/2+10); x.lineTo(0,-h/2+2); x.lineTo(6,-h/2+10); x.closePath(); x.fill();
+  }
+  x.restore();
+}
+function paintCard(x,W,H,flip,blur=0,empty=false){
+  const isF=P.objType==='f' && !empty, isCandle=P.objType==='candle' && !empty;
+  x.fillStyle=isF?'#aab6c2':(isCandle?'#101b2a':'#7dd3fc'); x.fillRect(0,0,W,H);
+  x.fillStyle=isF?'#d6dce3':(isCandle?'#162338':'#bae6fd'); x.fillRect(14,14,W-28,H-28);
+  x.fillStyle='#94a3b8'; x.fillRect(0,0,W,12); x.fillRect(0,H-12,W,12); x.fillRect(0,0,12,H); x.fillRect(W-12,0,12,H);
+  x.fillStyle='#e2e8f0'; x.fillRect(3,3,W-6,8); x.fillRect(3,H-11,W-6,8);
+  if(empty){
+    x.fillStyle='#334155'; x.font='bold 20px sans-serif'; x.textAlign='center';
+    x.fillText('虚像 · 屏上无像',W/2,H/2);
+    return;
+  }
+  x.save(); if(blur>0) x.filter=`blur(${blur.toFixed(1)}px)`;
+  drawFigure(x,W/2,H/2,H*0.78,flip);
+  x.restore();
+}
+
+const OBJ_H=6.6, OBJ_W=5.2, OBJ_D=.55; // 实际场景单位=cm
+const FIGURE_BASE_CM=OBJ_H*0.78; // drawFigure 的 h 参数，物面图案基准尺寸
+// 图案上下缘在 drawFigure 局部高度 h 中的归一化位置（Canvas y 向下）。
+// 使用同一图案绘制函数和边界来校准真实 3D 尺、光屏像尺与放大率。
+function figureBounds(){
+  const t=P.objType;
+  if(t==='f')return [-.286,.286]; // F 笔画真实上下缘（包含描边）
+  if(t==='arrow')return [-.5,.4328];
+  if(t==='star')return [-.46,.3721];
+  if(t==='candle')return [-.559,.45];
+  return [-.50,.485]; // pencil
+}
+/** 端点在物体图案内部的 z 坐标，非外框边缘。
+ * Canvas 图案 x 坐标通过贴图映射成场景 z，选取真实最高/最低笔画上的点。
+ * 3D 图案、投影图案都使用相同 drawFigure 几何，所以共同以 FIGURE_BASE_CM 标定。
+ */
+function figureTipZ(){
+  const h=FIGURE_BASE_CM, t=P.objType;
+  if(t==='f'){
+    // F 的最高横笔及最下方竖笔均包含左侧笔画。
+    const stalk=h*.42*1.15*.34;
+    return {top:stalk,bottom:stalk};
+  }
+  if(t==='star'){
+    // 上端是星尖 x=0；最低点在五角星外部一侧的两个对称星尖。
+    return {top:0,bottom:h*.42*Math.cos(Math.PI*.3)};
+  }
+  if(t==='pencil'){
+    // 顶端铅笔尖在中心，下端橡皮擦外轮廓的左侧。
+    return {top:0,bottom:h*.42*.34};
+  }
+  if(t==='candle'){
+    // 顶端火尖轻微摆动时仍以标称中心为测量基准。
+    return {top:0,bottom:0};
+  }
+  return {top:0,bottom:0}; // 箭头
+}
+function measuredHeights(){
+  const [lo,hi]=figureBounds();
+  const yTop=P.objH-lo*FIGURE_BASE_CM, yBottom=P.objH-hi*FIGURE_BASE_CM;
+  const img=lensImage();
+  const out={objectTop:yTop,objectBottom:yBottom,objectHeight:yTop-yBottom,
+    imageHeight:img.kind==='real'?Math.abs(img.m)*(yTop-yBottom):NaN,
+    imageBottom:NaN,imageTop:NaN,kind:img.kind};
+  if(img.kind==='real'&&Number.isFinite(img.m)){
+    out.imageBottom=Math.min(img.m*yBottom,img.m*yTop);
+    out.imageTop=Math.max(img.m*yBottom,img.m*yTop);
+  }
+  return out;
+}
+const objGroup=new THREE.Group(); scene.add(objGroup);
+const TEXTURE_SCALE=4, TEX_WIDTH=256*TEXTURE_SCALE, TEX_HEIGHT=360*TEXTURE_SCALE;
+function configureSharpTexture(tex){
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+  tex.generateMipmaps=true;
+}
+function createSharpCanvas(){
+  const c=document.createElement('canvas');c.width=TEX_WIDTH;c.height=TEX_HEIGHT;
+  const ctx=c.getContext('2d');ctx.setTransform(TEXTURE_SCALE,0,0,TEXTURE_SCALE,0,0);
+  return {canvas:c,ctx};
+}
+const {canvas:objCanvas,ctx:objCtx}=createSharpCanvas();
+const objTex=new THREE.CanvasTexture(objCanvas);
+configureSharpTexture(objTex);
+let objCard, objStand;
+function buildObject(){
+  objGroup.clear();
+  paintCard(objCtx,256,360,false,0,false); objTex.needsUpdate=true;
+  const matFace=new THREE.MeshBasicMaterial({map:objTex});
+  const matSide=new THREE.MeshStandardMaterial({color:0xc5ccd6,roughness:.6});
+  objCard=new THREE.Mesh(new THREE.BoxGeometry(OBJ_D,OBJ_H,OBJ_W),[
+    matFace, matSide, matSide, matSide, matSide, matSide
+  ]);
+  objGroup.add(objCard);
+  objStand=new THREE.Mesh(new THREE.CylinderGeometry(.135,.135,8,16), chrome);
+  objGroup.add(objStand);
+  const objClamp=new THREE.Mesh(new THREE.BoxGeometry(1.05,0.85,1.12), plasticGray);
+  objClamp.name='objClamp'; objGroup.add(objClamp);
+  const objKnob=new THREE.Mesh(new THREE.CylinderGeometry(.2,.24,.4,14), knobMat);
+  objKnob.rotation.x=Math.PI/2; objKnob.name='objKnob'; objGroup.add(objKnob);
+  const objCar=makeCarrier(); objCar.position.y=RAIL_Y-AX; objGroup.add(objCar);
+  layoutObject();
+}
+function layoutObject(){
+  objCard.position.y=P.objH;
+  const bottom=P.objH-OBJ_H/2, standBottom=RAIL_Y-AX+0.55;
+  const clampY=bottom-0.42;
+  const sh=Math.max(1.2, clampY+0.25-standBottom);
+  objStand.scale.y=sh/8;
+  objStand.position.y=standBottom+sh/2;
+  const clamp=objGroup.getObjectByName('objClamp');
+  const knob=objGroup.getObjectByName('objKnob');
+  if(clamp) clamp.position.set(0,clampY,0);
+  if(knob) knob.position.set(0,clampY,0.76);
+}
+buildObject();
+
+/* 3D 虚像：半透明虚线框 + 反向延长线（u<f 时与 2D 一致） */
+const virtGroup=new THREE.Group(); scene.add(virtGroup);
+const {canvas:virtCanvas,ctx:virtCtx}=createSharpCanvas();
+const virtTex=new THREE.CanvasTexture(virtCanvas);
+configureSharpTexture(virtTex);
+let virtCard, virtWire;
+function paintVirtualCard(){
+  const x=virtCtx,W=256,H=360;
+  x.clearRect(0,0,W,H);
+  x.fillStyle='rgba(124,58,237,0.10)'; x.fillRect(0,0,W,H);
+  x.strokeStyle='#7c3aed'; x.lineWidth=5; x.setLineDash([12,9]);
+  x.strokeRect(10,10,W-20,H-20); x.setLineDash([]);
+  x.save(); x.globalAlpha=0.62;
+  drawFigure(x,W/2,H/2,H*0.78,false,0.9);
+  x.restore();
+  virtTex.needsUpdate=true;
+}
+function buildVirtualImage(){
+  virtGroup.clear();
+  paintVirtualCard();
+  const geo=new THREE.BoxGeometry(OBJ_D,OBJ_H,OBJ_W);
+  virtCard=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({
+    map:virtTex,transparent:true,opacity:0.42,side:THREE.DoubleSide,depthWrite:false
+  }));
+  virtCard.renderOrder=4; virtCard.frustumCulled=false;
+  const edges=new THREE.EdgesGeometry(geo);
+  virtWire=new THREE.LineSegments(edges,new THREE.LineDashedMaterial({
+    color:0x7c3aed,dashSize:0.38,gapSize:0.24,transparent:true,opacity:0.92,depthWrite:false
+  }));
+  virtWire.computeLineDistances();
+  virtWire.renderOrder=5; virtWire.frustumCulled=false;
+  const dashM=new THREE.LineDashedMaterial({
+    color:0x7c3aed,dashSize:0.45,gapSize:0.28,transparent:true,opacity:0.95,depthWrite:false
+  });
+  const ah=P.objH, headH=ah*0.22, headW=ah*0.16;
+  const virtArrow=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,ah*0.9,0)]),
+    dashM.clone()
+  );
+  virtArrow.computeLineDistances(); virtArrow.renderOrder=6; virtArrow.frustumCulled=false;
+  const virtHead=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,ah,0),new THREE.Vector3(-headW,ah-headH,0),
+      new THREE.Vector3(headW,ah-headH,0),new THREE.Vector3(0,ah,0)
+    ]),
+    dashM.clone()
+  );
+  virtHead.computeLineDistances(); virtHead.renderOrder=6; virtHead.frustumCulled=false;
+  const virtLbl=labelSprite('虚像','#7c3aed');
+  virtLbl.position.set(0,ah+2.4,0); virtLbl.name='virtLbl';
+  virtGroup.add(virtCard,virtWire,virtArrow,virtHead,virtLbl);
+}
+function layoutVirtualImage(){
+  const img=lensImage();
+  const show=img.kind==='virtual' && isFinite(img.v) && isFinite(img.m);
+  virtGroup.visible=show;
+  const virtualCaption=virtGroup.getObjectByName('virtLbl');
+  if(virtualCaption?.isCSS2DObject){virtualCaption.visible=show;virtualCaption.element.style.display=show?'':'none';}
+  if(!show) return;
+  const mAbs=Math.abs(img.m);
+  virtCard.material.opacity=P.cover>=1?.12:.42*Math.max(.25,uncoverFrac());
+  virtGroup.position.set(X(img.v),AX,0.18);
+  virtGroup.scale.set(1,mAbs,mAbs);
+  const cy=P.objH;
+  virtCard.position.y=cy;
+  virtWire.position.y=cy;
+  const lbl=virtGroup.getObjectByName('virtLbl');
+  if(lbl) lbl.position.y=P.objH+2.4;
+  virtGroup.traverse(o=>{ if(o.isLine && o.material?.isLineDashedMaterial) o.computeLineDistances(); });
+}
+buildVirtualImage();
+
+/* 无边框教学光屏：白色圆角塑料白屏＋中央细金属杆。保留原来的光屏底座与滑块。
+   圆角几何体是实际 3D 网格，不是假装圆角的纹理边框。 */
+const SCREEN_H=12.4, SCREEN_W=8.6;
+const {canvas:scrCanvas,ctx:scrCtx}=createSharpCanvas();
+const scrTex=new THREE.CanvasTexture(scrCanvas);
+configureSharpTexture(scrTex);
+const scrGroup=new THREE.Group(); scene.add(scrGroup);
+function roundedScreenOutline(w,h,r){
+  const sh=new THREE.Shape(),x=-w/2,y=-h/2;
+  sh.moveTo(x+r,y);
+  sh.lineTo(x+w-r,y); sh.quadraticCurveTo(x+w,y,x+w,y+r);
+  sh.lineTo(x+w,y+h-r);sh.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  sh.lineTo(x+r,y+h);sh.quadraticCurveTo(x,y+h,x,y+h-r);
+  sh.lineTo(x,y+r);sh.quadraticCurveTo(x,y,x+r,y);
+  return sh;
+}
+const scrShape=roundedScreenOutline(SCREEN_W,SCREEN_H,.29);
+const screenPlastic=new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.8,metalness:0,side:THREE.DoubleSide});
+const screenBack=new THREE.Mesh(
+  new THREE.ExtrudeGeometry(scrShape,{depth:.36,bevelEnabled:true,bevelThickness:.045,bevelSize:.07,bevelSegments:3,curveSegments:12}),
+  screenPlastic
+);
+screenBack.rotation.y=-Math.PI/2;
+screenBack.position.x=.17;
+scrGroup.add(screenBack);
+// Canvas 纹理在圆角轮廓内完整贴合，背面绝不出现灰色厚外框。
+const scrFaceGeo=new THREE.ShapeGeometry(scrShape,12);
+const pos=scrFaceGeo.attributes.position;
+const uv=scrFaceGeo.attributes.uv;
+for(let i=0;i<pos.count;i++){
+  uv.setXY(i,(pos.getX(i)+SCREEN_W/2)/SCREEN_W,(pos.getY(i)+SCREEN_H/2)/SCREEN_H);
+}
+uv.needsUpdate=true;
+const scrLensMap=scrTex.clone();
+scrLensMap.wrapS=THREE.RepeatWrapping;scrLensMap.repeat.x=-1;scrLensMap.offset.x=1;
+configureSharpTexture(scrLensMap);
+const scrFace=new THREE.MeshBasicMaterial({map:scrLensMap,side:THREE.DoubleSide});
+const scrMesh=new THREE.Mesh(scrFaceGeo,scrFace);
+scrMesh.rotation.y=-Math.PI/2;
+scrMesh.position.x=-.245;
+scrGroup.add(scrMesh);
+// 光屏与金属杆之间只保留小型金属套筒，取消旧屏底笨重夹座。
+const scrSocket=new THREE.Mesh(new THREE.CylinderGeometry(.25,.24,.47,20),
+ new THREE.MeshStandardMaterial({color:0xdbe1e6,roughness:.36,metalness:.68}));
+scrSocket.position.y=-SCREEN_H/2-.24;scrGroup.add(scrSocket);
+addChromeRod(scrGroup,RAIL_Y-AX+0.55,-SCREEN_H/2-.29,0);
+const scrCar=makeCarrier();scrCar.position.y=RAIL_Y-AX;scrGroup.add(scrCar);
+scrGroup.position.y=AX;
+function drawScreenTexture(){
+  const img=lensImage(),{kind,m}=img,{d}=sharpness();
+  // 高清纹理不再每秒上传 60 次。发生参数变化立即进入下个绘制时隙，蜡烛约 12 FPS。
+  const key=[P.objType,P.objDist.toFixed(2),P.objH.toFixed(2),P.focal.toFixed(2),
+    P.screen.toFixed(2),correctionKey(),P.cover.toFixed(3),P.dark?1:0,
+    P.objType==='candle'?Math.floor(flamePhase*6):0].join(':');
+  if(drawScreenTexture._key===key)return;
+  const now=performance.now();
+  if(now-(drawScreenTexture._last||0)<65)return;
+  drawScreenTexture._last=now;drawScreenTexture._key=key;
+  const x=scrCtx,W=256,H=360;
+  x.clearRect(0,0,W,H);
+  // 白色塑料屏的本色：未成像时就是白屏，不能再有蓝色底板、边框或大字说明。
+  x.fillStyle=P.dark?'#eeeef0':'#faf9f5';x.fillRect(0,0,W,H);
+  if(P.cover<1 && kind==='real' && Number.isFinite(m)){
+    const cm2px=H/SCREEN_H;
+    const blur=Math.min(28,V.active?(sharpness().blurRadius||0)*cm2px:d*2.4);
+    const screenM=V.active?-P.screen/currentSystem().B:m;
+    const figH=FIGURE_BASE_CM*Math.abs(screenM)*cm2px;
+    const yC=H/2-(screenM*P.objH)*cm2px;
+    x.save();
+    if(blur>0)x.filter=`blur(${blur.toFixed(1)}px)`;
+    x.globalAlpha=Math.pow(uncoverFrac(),.70);
+    drawFigure(x,W/2,yC,figH,true);
+    x.restore();
+  }
+  scrTex.needsUpdate=true;scrLensMap.needsUpdate=true;
+}
+/* 一键物像高度计算。图案高度由绘制边界决定，像高按透镜横向放大率等比计算。 */
+let showMeasurement=false; // 右侧计算结果的展开状态
+let show3DMeasurement=false; // 3D 高度标注默认关闭，和右侧展开互相独立
+$('bMeasure3D').onclick=()=>{
+  show3DMeasurement=!show3DMeasurement;
+  $('bMeasure3D').setAttribute('aria-checked',String(show3DMeasurement));
+  $('bMeasure3D').textContent=show3DMeasurement?'3D标注：开':'3D标注：关';
+  updateHeightMarkers._key=null;
+  updateHeightMarkers();
+};
+$('bMeasureToggle').onclick=()=>{
+  showMeasurement=!showMeasurement;
+  $('measurementOutput').hidden=!showMeasurement;
+  $('bMeasureToggle').setAttribute('aria-expanded',String(showMeasurement));
+  $('measureChevron').textContent=showMeasurement?'收起 ▴':'展开 ▾';
+  if(showMeasurement)updateMeasurementUI();
+  updateHeightMarkers._key=null;
+  if(typeof updateHeightMarkers==='function')updateHeightMarkers();
+};
+function updateMeasurementUI(){
+  if(!showMeasurement)return;
+  const a=measuredHeights(), img=lensImage(),bright=uncoverFrac();
+  $('measuredObj').textContent=a.objectHeight.toFixed(2)+' cm';
+  const label=$('measuredImgLabel');
+  const out=$('measuredImg'), result=$('measureResult'), note=$('measureState');
+  if(img.kind==='none'||!Number.isFinite(img.m)){
+    label.textContent='像高 H′';
+    out.textContent='—';
+    result.textContent='物距等于焦距，出射光近似平行，有限距离没有像高可比较。';
+    note.textContent='可将物体移离焦点，比较放大、缩小或等大的情形。';
+    return;
+  }
+  const hi=Math.abs(img.m)*a.objectHeight;
+  const actuallyOnScreen=img.kind==='real' && bright>0 && sharpness().s>=.78 &&
+    a.imageHeight<=SCREEN_H && a.imageBottom>=-SCREEN_H/2 && a.imageTop<=SCREEN_H/2;
+  label.textContent=img.kind==='virtual'?'虚像理论高度 H′':(actuallyOnScreen?'光屏上像高 H′':'理论像高 H′');
+  out.textContent=hi.toFixed(2)+' cm';
+  const ratio=hi/a.objectHeight;
+  const equal=Math.abs(ratio-1)<.001;
+  result.textContent=`H′ / H = ${ratio.toFixed(2)}，${equal?'等大':ratio>1?'放大':'缩小'} · ${img.kind==='real'?'倒立实像':'正立虚像'}`;
+  const info=[];
+  if(img.kind==='virtual')info.push('虚像不能在光屏上测量，此处显示理论像高。');
+  else{
+    const {s}=sharpness();
+    if(bright===0)info.push('透镜完全遮挡，光屏无像；显示的是未遮挡情况下的理论像高。');
+    else if(s<.78)info.push('光屏未对焦，当前为理论像高；移动光屏至清晰位置可观察。');
+    else if(a.imageHeight>12||a.imageBottom< -6.2||a.imageTop>6.2)info.push('实像超出光屏边界，显示的是完整像的理论高度。');
+    else info.push('光屏上的清晰实像高度与理论像高对应。');
+  }
+  info.push('H 为物体图案的真实高度，不等于“离轴高度 h”。');
+  note.textContent=info.join(' ');
+}
+/* 物像高度标注必须与物/像平面共面：
+   光具座长度方向为 x，图案所在平面为 y-z。
+   两根尺寸界线沿 z 从图案的左右边缘延伸；竖直尺寸线沿 y。
+   绝不再沿 x 向光具座右端挪动 3~4 cm，防止用户截图中的标注漂移。
+*/
+const DIM_RED=0xe34256;
+function makeHeightMarker(){
+  const root=new THREE.Group();scene.add(root);
+  const mat=new THREE.MeshBasicMaterial({color:DIM_RED,depthTest:false});
+  const bar=new THREE.Mesh(new THREE.CylinderGeometry(.115,.115,1,16),mat);
+  bar.renderOrder=17;root.add(bar);
+  const dash=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineDashedMaterial({
+    color:DIM_RED,dashSize:.55,gapSize:.20,linewidth:3,depthTest:false
+  }));
+  dash.renderOrder=17;root.add(dash);
+  const tipTop=new THREE.Mesh(new THREE.ConeGeometry(.34,.74,18),mat);
+  const tipBottom=new THREE.Mesh(new THREE.ConeGeometry(.34,.74,18),mat);
+  tipTop.renderOrder=tipBottom.renderOrder=18;
+  tipBottom.rotation.z=Math.PI;root.add(tipTop,tipBottom);
+  const leadTop=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1,14),mat);
+  const leadBottom=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1,14),mat);
+  // 圆柱默认轴线沿 y；旋转到 z，与物像的 y-z 平面共面。
+  leadTop.rotation.x=leadBottom.rotation.x=Math.PI/2;
+  leadTop.renderOrder=leadBottom.renderOrder=18;root.add(leadTop,leadBottom);
+  // 图案端点的小红圆点，清楚表示从哪里开始量，而不是从卡片/白屏的边框开始。
+  const endTop=new THREE.Mesh(new THREE.SphereGeometry(.15,16,10),mat);
+  const endBottom=new THREE.Mesh(new THREE.SphereGeometry(.15,16,10),mat);
+  endTop.renderOrder=endBottom.renderOrder=19;
+  root.add(endTop,endBottom);
+  const text=sharpLabel('','scene-label--measure-anchor');
+  const caption=document.createElement('span');
+  caption.className='scene-label--measure';
+  text.element.appendChild(caption);
+  text.visible=false;root.visible=false;root.add(text);
+  return {root,bar,dash,tipTop,tipBottom,leadTop,leadBottom,endTop,endBottom,text,caption};
+}
+const objectHeightMarker=makeHeightMarker();
+const imageHeightMarker=makeHeightMarker();
+const overflowHeightText=sharpLabel('','scene-label--measure scene-label--theory');
+overflowHeightText.visible=false;scene.add(overflowHeightText);
+/** 同一 y-z 平面中的真正尺寸线：
+ *  zTop/zBottom 必须来自物或像图案的最高/最低端点，而非卡片/光屏边界。
+ *  两根引线各自从端点出发，沿 z 延伸至竖直尺寸线。
+ */
+function positionHeightMarker(m,xPlane,yBottom,yTop,zTop,zBottom,zDimension,label,dashed=false){
+  const height=yTop-yBottom;
+  if(!Number.isFinite(height)||height<=0){m.root.visible=false;m.text.visible=false;m.text.element.style.display='none';return;}
+  m.root.visible=true;m.text.visible=true;
+  m.text.element.style.display='';
+  m.root.position.set(xPlane,yBottom,zDimension);
+  m.bar.visible=!dashed;m.bar.scale.y=height;m.bar.position.y=height/2;
+  m.dash.visible=dashed;
+  if(dashed){
+    m.dash.geometry.dispose();
+    m.dash.geometry=new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,0,0),new THREE.Vector3(0,height,0)
+    ]);
+    m.dash.computeLineDistances();
+  }
+  const headSize=Math.min(1,Math.max(.32,height/1.65));
+  m.tipTop.scale.setScalar(headSize);
+  m.tipBottom.scale.setScalar(headSize);
+  m.tipTop.position.set(0,height-.37*headSize,0);
+  m.tipBottom.position.set(0,.37*headSize,0);
+  const zPositions=[zBottom,zTop];
+  [m.leadBottom,m.leadTop].forEach((line,i)=>{
+    const startZ=zPositions[i];
+    const length=Math.abs(zDimension-startZ);
+    line.scale.y=Math.max(.01,length);
+    line.position.set(0,i?height:0,(startZ-zDimension)/2);
+  });
+  // 红色圆点直接在物/像像素描边的极端点，不跟随边框侧缘。
+  m.endBottom.position.set(0,0,zBottom-zDimension);
+  m.endTop.position.set(0,height,zTop-zDimension);
+  m.caption.textContent=label;
+  m.caption.classList.toggle('scene-label--theory',dashed);
+  m.text.position.set(0,height/2,0);
+}
+function updateHeightMarkers(){
+  const obj=measuredHeights(),img=lensImage(),lit=uncoverFrac();
+  if(!show3DMeasurement){
+    objectHeightMarker.root.visible=imageHeightMarker.root.visible=overflowHeightText.visible=false;
+    objectHeightMarker.text.visible=imageHeightMarker.text.visible=false;
+    objectHeightMarker.text.element.style.display='none';
+    imageHeightMarker.text.element.style.display='none';
+    overflowHeightText.element.style.display='none';
+    updateHeightMarkers._key=null;
+    return;
+  }
+  const key=[P.objDist.toFixed(2),P.objH.toFixed(2),P.focal.toFixed(2),
+    P.screen.toFixed(2),correctionKey(),P.cover.toFixed(3),P.objType].join('|');
+  if(updateHeightMarkers._key===key)return;
+  updateHeightMarkers._key=key;
+  const top=AX+obj.objectTop,bottom=AX+obj.objectBottom;
+  const tips=figureTipZ();
+  // 使用图案笔画的真实上下端点，不再从物体画框外缘发出红色引线。
+  const objectPlaneX=X(-P.objDist)+OBJ_D/2+.08;
+  const objDimensionZ=Math.max(OBJ_W/2+.50,tips.top+.85,tips.bottom+.85);
+  positionHeightMarker(objectHeightMarker,objectPlaneX,bottom,top,
+    tips.top,tips.bottom,objDimensionZ,`H = ${obj.objectHeight.toFixed(2)} cm`);
+  imageHeightMarker.root.visible=false;imageHeightMarker.text.visible=false;overflowHeightText.visible=false;
+  imageHeightMarker.text.element.style.display='none';
+  overflowHeightText.element.style.display='none';
+  if(img.kind==='none'||!Number.isFinite(img.m))return;
+  const size=Math.abs(img.m)*obj.objectHeight;
+  if(img.kind==='virtual'){
+    const lower=Math.min(img.m*obj.objectBottom,img.m*obj.objectTop);
+    const upper=Math.max(img.m*obj.objectBottom,img.m*obj.objectTop);
+    if(Math.abs(img.v)>68||size>19||!Number.isFinite(lower)||!Number.isFinite(upper)){
+      overflowHeightText.visible=true;
+      overflowHeightText.element.style.display='';
+      overflowHeightText.element.textContent=`理论 H′ = ${size.toFixed(2)} cm · 超出视野`;
+      overflowHeightText.position.set(X(-P.objDist)/2,AX+11,5);
+      return;
+    }
+    // 正立虚像：最高笔画仍对应物的最高笔画，无需交换上下端点。
+    const scale=Math.abs(img.m),virtualZ=Math.max(OBJ_W/2*scale+.50,tips.top*scale+.85,tips.bottom*scale+.85);
+    positionHeightMarker(imageHeightMarker,X(img.v)+OBJ_D/2+.08,
+      AX+lower,AX+upper,tips.top*scale,tips.bottom*scale,virtualZ,
+      `虚像 H′ = ${size.toFixed(2)} cm`,true);
+    return;
+  }
+  const focused=sharpness().s>=.78 && lit>0 &&
+    obj.imageHeight<=SCREEN_H && obj.imageBottom>=-SCREEN_H/2 && obj.imageTop<=SCREEN_H/2;
+  if(size>19||obj.imageBottom<-13||obj.imageTop>13){
+    overflowHeightText.visible=true;
+    overflowHeightText.element.style.display='';
+    overflowHeightText.element.textContent=`理论 H′ = ${size.toFixed(2)} cm · 超出光屏`;
+    overflowHeightText.position.set(THREE.MathUtils.clamp(X(P.screen)+3,-10,24),AX+11,4.5);
+    return;
+  }
+  // 实像倒立：物体下端成像在光屏上端；物体上端成像在光屏下端。
+  // 引线从像本身的笔画端点(z≈0 或 F 的横竖笔画)直接出发，不从白屏边缘起画。
+  const imageScale=Math.abs(img.m);
+  const imgTipTop=tips.bottom*imageScale,imgTipBottom=tips.top*imageScale;
+  const screenPlaneX=X(P.screen)+scrMesh.position.x-.08;
+  const imageDimensionZ=Math.max(SCREEN_W/2+.42,imgTipTop+.85,imgTipBottom+.85);
+  positionHeightMarker(imageHeightMarker,screenPlaneX,AX+obj.imageBottom,AX+obj.imageTop,
+    imgTipTop,imgTipBottom,imageDimensionZ,
+    `${focused?'':'理论 '}H′ = ${size.toFixed(2)} cm`,!focused);
+}
+/* 焦点 / 2F 标记：蓝色系，F 浅、2F 深，加大点与标签 */
+const COL_F='#7eb6ff', COL_2F='#1d4ed8';
+function labelSprite(txt,color){
+  const cls=txt==='虚像'?'scene-label--virtual':'scene-label--focal';
+  return sharpLabel(txt,cls);
+}
+const marks=[];
+function buildMarks(){
+  marks.forEach(m=>scene.remove(m));marks.length=0;
+  const y=AX,f=P.focal;
+  [['F',-f,COL_F],['F′',f,COL_F],['2F',-2*f,COL_2F],['2F′',2*f,COL_2F]].forEach(([t,cm,col])=>{
+    const r=t.startsWith('2F')?.62:.52;
+    const dot=new THREE.Mesh(new THREE.SphereGeometry(r,18,18),
+      new THREE.MeshBasicMaterial({color:col}));
+    dot.position.set(X(cm),y,0);scene.add(dot);marks.push(dot);
+    const label=labelSprite(t,col);label.position.set(X(cm),y-2.7,0);
+    scene.add(label);marks.push(label);
+  });
+}
+buildMarks();
+
+/* 3D 光线（复用 Line，避免每帧重建） */
+const rayColors=[0xe11d48,0xca8a04,0x0ea5e9,0x7c3aed];
+function rayEndX(){
+  // 实像：光线画到像点（可越过光屏）；虚像/不成像：画到右侧远处
+  const img=lensImage();
+  let xf=Math.max(46, P.screen+8, 2*P.focal+8);
+  if(img.kind==='real' && isFinite(img.v) && img.v>0) xf=Math.max(xf, img.v);
+  return Math.min(xf, 90);
+}
+function visionRays(power=correctionPower(),height=P.objH,end=rayEndX(),limitCorrector=V.type!=='none'){
+  const u=P.objDist,f=P.focal,d=V.distance,R=LENS_R*.84;
+  return [Math.max(-R,Math.min(R,height)),0,-R*.72,R*.72].map(yL=>{
+    const fwd=apertureRay(u,f,d,power,height,yL,end);
+    if(limitCorrector&&Math.abs(fwd[1][1])>LENS_R+.15)return {fwd:fwd.slice(0,2),back:[]};
+    const sys=lensSystem(u,f,d,power);
+    const back=sys.kind==='virtual'?[[0,yL],[sys.v,sys.m*height]]:[];
+    return {fwd,back};
+  });
+}
+function specialRaysCm(){
+  const u=P.objDist,F=P.focal,h=P.objH,xFar=rayEndX(),img=lensImage();
+  // The third incident ray aims toward the far focus, then exits parallel.
+  const heights=[h,0,h*F/(u+F),-LENS_R*.72];
+  return heights.map((yL,i)=>{
+    const slopeIn=(yL-h)/u, slopeOut=slopeIn+yL/F;
+    // Red: extend the emergent ray backward all the way to the near focus.
+    // The central ray is a real, continuous straight ray, with no dashed overlay.
+    const back=(i===1||i===2)?[]:i===0?[[0,yL],[-F,0]]:[[0,yL],[img.v,img.h]];
+    // Cyan: the incident ray's forward extension points to the far focus.
+    const guide=i===2?[[0,yL],[F,0]]:[];
+    return {fwd:[[-u,h],[0,yL],[xFar,yL+slopeOut*xFar]],back,guide};
+  });
+}
+function toWorld(pts){
+  const s=WORLD/44;
+  return pts.map(([xcm,ycm])=>new THREE.Vector3(xcm*s, AX+ycm, 0));
+}
+const rayFwd=[], rayBack=[], rayGuide=[], rayDots=[], rayArrIn=[], rayArrOut=[], rayArrMiddle=[];
+const _arrX=new THREE.Vector3(1,0,0), _arrD=new THREE.Vector3();
+function makeRayArrow(col){
+  // 落在光路平面上的扁平箭头，侧视/正视都像课本上的方向三角
+  const s=new THREE.Shape();
+  s.moveTo(2.05,0);
+  s.lineTo(-1.15,0.92);
+  s.lineTo(-0.5,0);
+  s.lineTo(-1.15,-0.92);
+  s.closePath();
+  const mesh=new THREE.Mesh(
+    new THREE.ShapeGeometry(s),
+    new THREE.MeshBasicMaterial({color:col, side:THREE.DoubleSide, depthTest:true, depthWrite:false})
+  );
+  mesh.renderOrder=8; mesh.frustumCulled=false;
+  return mesh;
+}
+function placeRayArrow(mesh, from, to, t){
+  if(!from||!to){ mesh.visible=false; return; }
+  _arrD.subVectors(to, from);
+  const len=_arrD.length();
+  if(len<0.55){ mesh.visible=false; return; }
+  _arrD.multiplyScalar(1/len);
+  mesh.position.lerpVectors(from, to, t);
+  mesh.position.z+=0.12; // 略抬向镜头，避免与光线 z-fighting
+  mesh.quaternion.setFromUnitVectors(_arrX, _arrD);
+  mesh.visible=true;
+}
+function lensSplit(pts){
+  if(!pts||pts.length<2) return null;
+  if(pts.length>=3) return {inc:[pts[0],pts[1]], em:[pts[1],pts[pts.length-1]]};
+  const a=pts[0], b=pts[1];
+  const t=(0-a.x)/((b.x-a.x)||1e-6);
+  const mid=a.clone().lerp(b, THREE.MathUtils.clamp(t,0,1));
+  return {inc:[a,mid], em:[mid,b]};
+}
+for(let i=0;i<4;i++){
+  const fwd=new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({color:rayColors[i],transparent:true,opacity:.95}));
+  const back=new THREE.Line(new THREE.BufferGeometry(), new THREE.LineDashedMaterial({color:rayColors[i],dashSize:.9,gapSize:.55,transparent:true,opacity:.88,depthWrite:false}));
+  back.renderOrder=7;
+  const dot=new THREE.Mesh(new THREE.SphereGeometry(.28,10,10), new THREE.MeshBasicMaterial({color:rayColors[i]}));
+  const aIn=makeRayArrow(rayColors[i]), aOut=makeRayArrow(rayColors[i]);
+  dot.userData={pts:[],t:Math.random()};
+  const aMid=makeRayArrow(rayColors[i]);scene.add(fwd,back,dot,aIn,aOut,aMid);rayArrMiddle.push(aMid);
+  const guide=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineDashedMaterial({color:rayColors[i],dashSize:.9,gapSize:.55,transparent:true,opacity:.88,depthWrite:false}));
+  guide.renderOrder=7;scene.add(guide);rayGuide.push(guide);
+  rayFwd.push(fwd); rayBack.push(back); rayDots.push(dot);
+  rayArrIn.push(aIn); rayArrOut.push(aOut);
+}
+function setPts(line, pts, dashed){
+  line.geometry.dispose();
+  line.geometry=new THREE.BufferGeometry().setFromPoints(pts);
+  if(dashed) line.computeLineDistances();
+}
+
+/* 密集发散光束：物面=许多点光源，向四周发散打到透镜前表面，出射后会聚到像点/光屏 */
+const BUNDLE_MAX=650;
+const bundlePos=new Float32Array(BUNDLE_MAX*6*3);
+const bundleGeo=new THREE.BufferGeometry();
+bundleGeo.setAttribute('position', new THREE.BufferAttribute(bundlePos,3));
+bundleGeo.setDrawRange(0,0);
+const bundle=new THREE.LineSegments(bundleGeo, new THREE.LineBasicMaterial({
+  color:0xf5b942, transparent:true, opacity:.22, depthWrite:false
+}));
+scene.add(bundle);
+function updateVisionBundle(){
+  const u=P.objDist,f=P.focal,d=V.distance,q=correctionPower(),end=rayEndX();
+  let n=0;const put=(x,y,z)=>{bundlePos[n++]=X(x);bundlePos[n++]=AX+y;bundlePos[n++]=z;};
+  for(let k=0;k<72;k++){
+    const angle=k*2.39996323,r=Math.sqrt((k+.5)/72)*LENS_R*.9;
+    const y=r*Math.sin(angle),z=r*Math.cos(angle);
+    const yo=P.objH+((k%5)/4-.5)*OBJ_H*.78,zo=((k%4)/3-.5)*OBJ_W*.7;
+    const yy=apertureRay(u,f,d,q,yo,y,end),zz=apertureRay(u,f,d,q,zo,z,end);
+    const passes=V.type==='none'||Math.hypot(yy[1][1],zz[1][1])<=LENS_R+.15;
+    for(let j=0;j<(passes?3:1);j++){put(yy[j][0],yy[j][1],zz[j][1]);put(yy[j+1][0],yy[j+1][1],zz[j+1][1]);}
+  }
+  bundleGeo.attributes.position.needsUpdate=true;bundleGeo.setDrawRange(0,n/3);
+  bundle.visible=P.bundle;bundle.material.opacity=.24;
+}
+function updateBundle(){
+  if(V.active){updateVisionBundle();return;}
+  const img=lensImage();
+  const s=WORLD/44, xO=X(-P.objDist);
+  const halfT=lensHalfThick(), R=LENS_R*0.93;
+  const m=(img.kind==='none'||!isFinite(img.m))?1:img.m;
+  const xImg=(img.kind==='none'||!isFinite(img.v))?40*s:X(img.v);
+  const xScr=P.screen*s;
+  const objPts=[];
+  const nY=5, nZ=4;
+  for(let iy=0;iy<nY;iy++){
+    const yo=P.objH+(iy/(nY-1)-0.5)*OBJ_H*0.78;
+    for(let iz=0;iz<nZ;iz++){
+      const zo=(iz/(nZ-1)-0.5)*OBJ_W*0.7;
+      objPts.push({y:AX+yo, z:zo, yi:AX+yo*m, zi:zo*m});
+    }
+  }
+  const yCut3=yCutCm(LENS_R);
+  const front=[];
+  [[0.12,40],[0.26,52],[0.40,64],[0.54,76],[0.68,88],[0.82,100],[0.94,112]].forEach(([rr,n])=>{
+    for(let a=0;a<n;a++){
+      const th=(a+0.15)/n*Math.PI*2;
+      const y=rr*R*Math.sin(th), z=rr*R*Math.cos(th);
+      if(y>yCut3) continue;
+      const sag=.22+.78*(y*y+z*z)/(LENS_R*LENS_R);
+      front.push({y:AX+y, z, xf:-halfT*sag, xb:halfT*sag});
+    }
+  });
+  // 每个透镜采样点只连最近物点，避免「多物点→同一透镜点」在入射段假汇聚
+  const ownerOf=new Array(front.length);
+  front.forEach((f,fi)=>{
+    let bi=0,bd=Infinity;
+    objPts.forEach((p,pi)=>{
+      const d=(f.y-p.y)**2+(f.z-p.z)**2;
+      if(d<bd){bd=d;bi=pi;}
+    });
+    ownerOf[fi]=bi;
+  });
+  let v=0;
+  const put=(x,y,z)=>{ if(v<bundlePos.length/3){ bundlePos[v*3]=x; bundlePos[v*3+1]=y; bundlePos[v*3+2]=z; v++; } };
+  for(let fi=0;fi<front.length;fi++){
+    if(v/6>=BUNDLE_MAX) break;
+    const f=front[fi], p=objPts[ownerOf[fi]];
+    put(xO, p.y, p.z); put(f.xf, f.y, f.z);          // 物点 → 前表面（发散）
+    put(f.xf, f.y, f.z); put(f.xb, f.y, f.z);          // 穿过透镜
+    put(f.xb, f.y, f.z);
+    if(img.kind==='real' && isFinite(img.v)){
+      const xEnd=xImg;
+      put(xEnd, p.yi, p.zi);                           // 出射后会聚到像点（光屏追像时即在屏上）
+    }else if(img.kind==='virtual' && isFinite(img.v)){
+      const xEnd=40*s, dx=f.xb-xImg, dy=f.y-p.yi, dz=f.z-p.zi;
+      const t=(xEnd-f.xb)/(dx||1e-3);
+      put(xEnd, f.y+dy*t, f.z+dz*t);
+    }else{
+      put(40*s, f.y, f.z);
+    }
+  }
+  bundleGeo.attributes.position.needsUpdate=true;
+  bundleGeo.setDrawRange(0,v);
+  bundle.visible=!!P.bundle;
+  bundle.material.opacity=0.22*Math.max(0.06, uncoverFrac());
+}
+function buildRayLines(){
+  const img=lensImage();
+  const rs=specialRaysCm();
+  rs.forEach((r,i)=>{
+    const culled=cullRayByCover(r.fwd, r.back, LENS_R);
+    const onFwd=P.rays[i] && !P.bundle;
+    rayArrMiddle[i].visible=false;
+    const onBack=P.rays[i] && img.kind==='virtual' && culled.back.length>1;
+    rayFwd[i].visible=onFwd && culled.fwd.length>1;
+    rayBack[i].visible=onBack;
+    const yL=r.fwd[1][1];
+    rayGuide[i].visible=P.rays[i]&&P.cover<1&&!rayBlockedAtLens(yL,LENS_R)&&r.guide.length>1;
+    if(rayGuide[i].visible)setPts(rayGuide[i],toWorld(r.guide),true);
+    rayDots[i].visible=onFwd;
+    rayArrIn[i].visible=onFwd;
+    rayArrOut[i].visible=onFwd;
+    if(culled.back.length>1) setPts(rayBack[i], toWorld(culled.back), true);
+    if(!onFwd){ rayArrIn[i].visible=false; rayArrOut[i].visible=false; if(!onBack) return; return; }
+    const fwd=toWorld(culled.fwd);
+    setPts(rayFwd[i], fwd, false);
+    rayDots[i].userData.pts=fwd;
+    const sp=lensSplit(fwd);
+    if(V.active&&fwd.length>=4){
+      placeRayArrow(rayArrIn[i],fwd[0],fwd[1],.58);
+      placeRayArrow(rayArrMiddle[i],fwd[1],fwd[2],.5);
+      rayArrMiddle[i].scale.setScalar(.48);
+      placeRayArrow(rayArrOut[i],fwd[2],fwd[3],.25);
+    }else if(sp){
+      placeRayArrow(rayArrIn[i], sp.inc[0], sp.inc[1], 0.58);
+      const emLen=sp.em[0].distanceTo(sp.em[1]);
+      placeRayArrow(rayArrOut[i], sp.em[0], sp.em[1], Math.min(0.38, 9/Math.max(emLen,1e-3)));
+    }
+  });
+  updateBundle();
+}
+
+/* 每帧更新 3D 位置 */
+function update3D(dt,t){
+  const s=WORLD/44;
+  objGroup.position.set(X(-P.objDist),AX,0);
+  layoutObject();
+  scrGroup.position.x=P.screen*s;
+  layoutPointers();
+  warm.position.set(X(-P.objDist)+2,12,8);
+  buildMarksPos(s);
+  buildRayLines();
+  // 光子流动
+  rayDots.forEach(d=>{
+    const pts=d.userData.pts;
+    if(!pts||pts.length<2){d.visible=false;return;}
+    d.userData.t+=dt*.35; if(d.userData.t>1)d.userData.t-=1;
+    const ft=d.userData.t*(pts.length-1), k=Math.min(pts.length-2,Math.floor(ft)), a=ft-k;
+    d.position.lerpVectors(pts[k],pts[k+1],a);
+  });
+  drawScreenTexture();
+  layoutVirtualImage();
+  lensMesh.scale.x=lensHalfThick();
+  lensGlint.position.x=lensMesh.scale.x*(.22+.78*.6*.6);
+  layoutCoverCard();
+  updateHeightMarkers();
+}
+let markObjs=[];
+function buildMarksPos(s){
+  // marks 已在 buildMarks 创建，位置随 f 更新
+  const f=P.focal;let i=0;
+  [[-f],[f],[-2*f],[2*f]].forEach(([cm])=>{
+    if(marks[i])marks[i].position.x=X(cm); i++;
+    if(marks[i])marks[i].position.x=X(cm); i++;
+  });
+}
+function resize3D(){
+  const w=holder.clientWidth,h=holder.clientHeight;
+  if(w<2||h<2)return;
+  renderer.setSize(w,h);labelRenderer.setSize(w,h);
+  camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+addEventListener('resize',()=>{resize3D();resize2D();});
+
+/* ============ 2D Canvas 光路图 ============ */
+const cv=$('c2d'), ctx2=cv.getContext('2d');
+function resize2D(){
+  const r=cv.parentElement.getBoundingClientRect(), dpr=Math.min(devicePixelRatio,2);
+  cv.width=r.width*dpr;cv.height=r.height*dpr;ctx2.setTransform(dpr,0,0,dpr,0,0);
+}
+const C2={平行:'#fb7185',光心:'#fde047',焦点:'#22d3ee','2F':'#c084fc'};
+function draw2D(){
+  const W=cv.clientWidth,H=cv.clientHeight;
+  if(W<2||H<48)return; // Hidden or transitioning 2D panel has no drawable viewport.
+  ctx2.clearRect(0,0,W,H);
+  ctx2.fillStyle=canvas2dBg();ctx2.fillRect(0,0,W,H);
+  const u=P.objDist,f=P.focal,h=P.objH;
+  const {v,m,kind}=lensImage();const {s,d}=sharpness();
+  const halfT=lensHalfThick();
+  // 视口自适应：物体、透镜、光屏、像都要落在画布内（像距大时缩小比例，不再截断后半段光线）
+  let xL=Math.min(-u,-2*f,-10)-12;
+  let xR=Math.max(P.screen, 2*f, rayEndX(), 18)+12;
+  if(kind==='virtual' && isFinite(v)) xL=Math.min(xL, v-12);
+  const mag= (kind!=='none' && isFinite(m)) ? Math.abs(m) : 1;
+  const hVis=V.active?h:h*2.05; // 2D 物体/像箭头加高，便于看清，3D 仍用真实 h
+  const lensR2=V.active?LENS_R:LENS_R*1.5; // 2D 透镜上下高度为当前的 1.5 倍
+  const yNeed=Math.max(lensR2+2.5, Math.abs(hVis)+3.3, mag*Math.abs(hVis)+3.3, 11.6);
+  const padX=26, padY=42;
+  const pxPerCm=Math.min((W-2*padX)/(xR-xL), (H-padY)/(2*yNeed));
+  const contentW=(xR-xL)*pxPerCm;
+  const originX=(W-contentW)/2;
+  const ax=H*0.50;
+  const X2=cm=>originX+(cm-xL)*pxPerCm;
+  const Y2=hh=>ax-hh*pxPerCm;
+  const cx=X2(0);
+  // 主光轴（PhET 蓝虚线）
+  ctx2.strokeStyle='#5b6dc8';ctx2.lineWidth=2;ctx2.setLineDash([8,6]);
+  ctx2.beginPath();ctx2.moveTo(8,ax);ctx2.lineTo(W-8,ax);ctx2.stroke();ctx2.setLineDash([]);
+  // F / 2F 黄点
+  ctx2.font='12px sans-serif';ctx2.textAlign='center';
+  [[-2*f,'2F','#d97706'],[-f,'F','#f0c419'],[f,'F′','#f0c419'],[2*f,'2F′','#d97706']].forEach(([cm,t,c])=>{
+    const x=X2(cm);if(x<4||x>W-4)return;
+    ctx2.fillStyle=c;ctx2.strokeStyle='#7a5b00';ctx2.lineWidth=1.5;
+    ctx2.beginPath();ctx2.arc(x,ax,6,0,7);ctx2.fill();ctx2.stroke();
+    ctx2.fillStyle=c2dText();ctx2.fillText(t,x,ax+22);
+  });
+  // 透镜：与 3D 同一半厚度（压扁球体的椭圆轮廓），不再夸张加厚
+  const rx=Math.max(4, halfT*pxPerCm*1.8); // 保证中心可见，同时加厚边缘
+  const ry=lensR2*pxPerCm;
+  ctx2.save();
+  const lg=ctx2.createLinearGradient(cx-rx,0,cx+rx,0);
+  lg.addColorStop(0,'rgba(85,153,177,.40)');
+  lg.addColorStop(.5,'rgba(184,220,231,.40)');
+  lg.addColorStop(1,'rgba(85,153,177,.40)');
+  ctx2.fillStyle=lg; ctx2.strokeStyle='#4b5563'; ctx2.lineWidth=2.2;
+  ctx2.beginPath();
+  for(let i=0;i<=60;i++){const t=-1+2*i/60;const xx=cx-rx*(.22+.78*t*t),yy=ax+ry*t;i?ctx2.lineTo(xx,yy):ctx2.moveTo(xx,yy);}
+  for(let i=60;i>=0;i--){const t=-1+2*i/60;ctx2.lineTo(cx+rx*(.22+.78*t*t),ax+ry*t);}
+  ctx2.closePath();
+  ctx2.fill(); ctx2.stroke();
+  ctx2.strokeStyle='#1d4ed8'; ctx2.lineWidth=1.5; ctx2.setLineDash([]);
+  ctx2.beginPath(); ctx2.moveTo(cx-rx, ax); ctx2.lineTo(cx+rx, ax); ctx2.stroke();
+  ctx2.fillStyle='#1d4ed8'; ctx2.font='bold 12px sans-serif';
+  ctx2.fillText(`d=${P.thick.toFixed(2)} cm  f=−${f.toFixed(1)} cm · 厚度示意`, cx, ax-ry-12);
+  if(P.cover>0){
+    const yC=yCutCm(lensR2), yCh=Y2(yC);
+    const plateW=Math.max(24,rx*2+16), plateTop=Y2(lensR2)-8;
+    ctx2.save();
+    ctx2.fillStyle=P.dark?'#f1bd65':'#ce914b';
+    ctx2.strokeStyle=P.dark?'#ffe6b8':'#70451b';
+    ctx2.lineWidth=2.3;
+    ctx2.fillRect(cx-plateW/2,plateTop,plateW,yCh-plateTop);
+    ctx2.strokeRect(cx-plateW/2,plateTop,plateW,yCh-plateTop);
+    ctx2.beginPath();ctx2.rect(cx-plateW/2,plateTop,plateW,Math.max(0,yCh-plateTop));ctx2.clip();
+    ctx2.strokeStyle=P.dark?'rgba(84,46,10,.65)':'rgba(65,40,21,.55)';
+    ctx2.lineWidth=1;
+    for(let yy=plateTop-plateW;yy<yCh+plateW;yy+=10){
+      ctx2.beginPath();ctx2.moveTo(cx-plateW/2,yy);ctx2.lineTo(cx+plateW/2,yy+plateW);ctx2.stroke();
+    }
+    ctx2.restore();
+    ctx2.strokeStyle=P.dark?'#fff2c5':'#5b3517';ctx2.lineWidth=3;
+    ctx2.beginPath();ctx2.moveTo(cx-plateW/2-3,yCh);ctx2.lineTo(cx+plateW/2+3,yCh);ctx2.stroke();
+    ctx2.fillStyle=P.dark?'#ffe5af':'#9a5a24';
+    ctx2.font='bold 13px sans-serif';ctx2.textAlign='center';
+    ctx2.fillText('遮光板',cx,Math.max(18,plateTop-12));
+  }
+  ctx2.restore();
+
+  if(V.active&&V.type!=='none'){
+    const x=X2(-V.distance),r=lensR2*pxPerCm;
+    // Magnify only the schematic thickness to make weak/strong lenses legible;
+    // the convex center / concave edges follow the same profile as the 3D glass.
+    const maxHalf=Math.max(2,V.distance*pxPerCm-rx-4);
+    const halfAt=t=>Math.min(maxHalf,.8+correctorHalfThickness(Math.abs(t))*pxPerCm*3.2);
+    ctx2.save();ctx2.fillStyle='rgba(110,190,205,.28)';ctx2.strokeStyle=P.dark?'#a5e4ef':'#16708a';ctx2.lineWidth=2;
+    ctx2.beginPath();
+    for(let i=0;i<=48;i++){const t=-1+2*i/48;const xx=x-halfAt(t),yy=ax+t*r;i?ctx2.lineTo(xx,yy):ctx2.moveTo(xx,yy);}
+    for(let i=48;i>=0;i--){const t=-1+2*i/48;ctx2.lineTo(x+halfAt(t),ax+t*r);}
+    ctx2.closePath();
+    ctx2.fill();ctx2.stroke();ctx2.fillStyle=c2dText();ctx2.font='bold 12px sans-serif';ctx2.textAlign='center';
+    ctx2.fillText(V.type==='convex'?'矫正凸透镜':'矫正凹透镜',x,ax+r+38);ctx2.restore();
+  }
+  const toPx=(wx,wy)=>[X2(wx),Y2(wy)];
+  function arrowAt(x1,y1,x2,y2,color,t){
+    const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+    if(len<16) return;
+    const x=x1+dx*t, y=y1+dy*t, ang=Math.atan2(dy,dx);
+    const sz=Math.max(13, Math.min(20, pxPerCm*2.0));
+    ctx2.save();
+    ctx2.translate(x,y); ctx2.rotate(ang);
+    ctx2.fillStyle=color; ctx2.strokeStyle='#1f2933'; ctx2.lineWidth=1.2;
+    ctx2.beginPath();
+    ctx2.moveTo(sz,0);
+    ctx2.lineTo(-sz*0.78, sz*0.52);
+    ctx2.lineTo(-sz*0.32, 0);
+    ctx2.lineTo(-sz*0.78, -sz*0.52);
+    ctx2.closePath(); ctx2.fill(); ctx2.stroke();
+    ctx2.restore();
+  }
+  function segsAcrossLens(pts){
+    const segs=[];
+    for(let i=0;i<pts.length-1;i++){
+      const a=pts[i], b=pts[i+1];
+      if((a[0]<0 && b[0]>0) || (a[0]>0 && b[0]<0)){
+        const t=(0-a[0])/((b[0]-a[0])||1e-6);
+        const mid=[0, a[1]+t*(b[1]-a[1])];
+        segs.push([a,mid]); segs.push([mid,b]);
+      }else segs.push([a,b]);
+    }
+    return segs;
+  }
+  function strokePts(pts,color,dashed,withArrows){
+    if(!pts||pts.length<2)return;
+    ctx2.save();ctx2.strokeStyle=color;ctx2.lineWidth=2.6;ctx2.lineJoin='round';ctx2.lineCap='round';
+    if(dashed)ctx2.setLineDash([6,5]);
+    ctx2.beginPath();
+    pts.forEach(([wx,wy],i)=>{const [px,py]=toPx(wx,wy);i?ctx2.lineTo(px,py):ctx2.moveTo(px,py);});
+    ctx2.stroke();ctx2.restore();
+    if(!withArrows) return;
+    segsAcrossLens(pts).forEach(([a,b])=>{
+      const [x1,y1]=toPx(a[0],a[1]), [x2,y2]=toPx(b[0],b[1]);
+      const dxCm=Math.abs(b[0]-a[0]);
+      const midX=(a[0]+b[0])/2;
+      if(midX< -0.05) arrowAt(x1,y1,x2,y2,color, dxCm<1?0.55:1-Math.min(0.42,8/dxCm));
+      else if(midX> 0.05) arrowAt(x1,y1,x2,y2,color, Math.min(0.36, 8/Math.max(dxCm,1e-3)));
+    });
+  }
+  const C2c=['#e11d48','#ca8a04','#0ea5e9','#7c3aed'];
+  if(V.active&&V.compare)visionRays(0,P.objH,rayEndX(),false).forEach(r=>strokePts(r.fwd,'#8b929d',true,false));
+  const scaleY=pts=>V.active?pts:pts.map(([wx,wy])=>[wx, wy===0?0:wy*(hVis/(h||1e-6))]);
+  specialRaysCm().forEach((r,i)=>{
+    if(!P.rays[i])return;
+    const culled=cullRayByCover(scaleY(r.fwd), scaleY(r.back), lensR2);
+    const guide=scaleY(r.guide),yL=scaleY([r.fwd[1]])[0][1];
+    if(P.cover<1&&!rayBlockedAtLens(yL,lensR2))strokePts(guide,C2c[i],true,false);
+    strokePts(culled.back,C2c[i],true,false);
+    strokePts(culled.fwd,C2c[i],false,true);
+    const last=culled.fwd[culled.fwd.length-1];
+    if(P.cover>0 && last && Math.abs(last[0])<1e-6 && culled.fwd.length>1){
+      const [bx,by]=toPx(...last);
+      ctx2.strokeStyle=P.dark?'#ffcf7a':'#78350f';ctx2.lineWidth=2.7;
+      ctx2.beginPath();ctx2.moveTo(bx-5,by-5);ctx2.lineTo(bx+5,by+5);
+      ctx2.moveTo(bx+5,by-5);ctx2.lineTo(bx-5,by+5);ctx2.stroke();
+    }
+  });
+  if(P.cover>0 && P.cover<1){
+    // 只展示少量仍能通过遮光板的物点光线，不用旧的密集灰线干扰特殊光线。
+    const pass=apertureRaysCm(lensR2,hVis);
+    [0,Math.floor(pass.length/2),pass.length-1]
+      .filter((i,j,a)=>i>=0&&a.indexOf(i)===j)
+      .forEach(i=>{
+        const r=pass[i];if(!r)return;
+        const culled=cullRayByCover(r.fwd,r.back,lensR2);
+        strokePts(culled.fwd,P.dark?'#94d8ed':'#4b8194',false,false);
+      });
+  }
+
+  // 课本式物体：一根从主光轴指向物高 h 的箭头（与 3D 共享 u、h；3D 仍用画框实物）
+  function drawObjArrow(xCm, yTip, color, title, sub, virtual){
+    const x=X2(xCm), y0=Y2(0), y1=Y2(yTip);
+    const len=Math.abs(y1-y0);
+    ctx2.save();
+    if(virtual) ctx2.globalAlpha=.78;
+    if(len<6){
+      ctx2.fillStyle=color;
+      ctx2.beginPath(); ctx2.arc(x,y0,5,0,7); ctx2.fill();
+    }else{
+      const head=Math.max(16, Math.min(28, len*0.26));
+      const towardBase=y0>y1?1:-1; // 从箭头尖端回到光轴（canvas y 向下为正）
+      ctx2.strokeStyle=color; ctx2.fillStyle=color;
+      ctx2.lineWidth=Math.max(4.4, pxPerCm*0.7);
+      ctx2.lineCap='butt'; ctx2.lineJoin='round';
+      ctx2.setLineDash(virtual?[7,5]:[]);
+      ctx2.beginPath();
+      ctx2.moveTo(x, y0);
+      ctx2.lineTo(x, y1 + towardBase*head*0.92);
+      ctx2.stroke();
+      ctx2.setLineDash([]);
+      ctx2.beginPath();
+      ctx2.moveTo(x, y1);
+      ctx2.lineTo(x-head*0.58, y1 + towardBase*head);
+      ctx2.lineTo(x+head*0.58, y1 + towardBase*head);
+      ctx2.closePath(); ctx2.fill();
+    }
+    ctx2.restore();
+    ctx2.fillStyle=c2dText(); ctx2.font='12px sans-serif'; ctx2.textAlign='center';
+    const above=yTip>=0;
+    ctx2.fillText(title, x, above? Math.min(y0,y1)-16 : Math.max(y0,y1)+16);
+    ctx2.fillStyle=c2dMuted(); ctx2.font='11px sans-serif';
+    ctx2.fillText(sub, x, above? Math.min(y0,y1)-3 : Math.max(y0,y1)+30);
+  }
+  drawObjArrow(-u, hVis, '#6d28d9', '物体', `u=${u.toFixed(1)}  h=${h.toFixed(1)}`, false);
+  if(kind==='none'){
+    ctx2.fillStyle='#b54708';ctx2.font='bold 14px sans-serif';ctx2.textAlign='center';
+    ctx2.fillText('u = f · 出射平行光 · 不成像',W/2,H-16);
+  }else if(kind==='real'){
+    if(uncoverFrac()>0){
+      drawObjArrow(v, m*hVis, '#7c3aed', '实像', `v=${v.toFixed(1)}  h'=${(m*h).toFixed(1)}`, false);
+    }
+  }else{
+    drawObjArrow(v, m*hVis, '#7c3aed', '虚像', `h'=${(m*h).toFixed(1)}`, true);
+  }
+
+  // 光屏框
+  const xs=X2(P.screen);
+  ctx2.save();
+  ctx2.strokeStyle=s>.6?'#067647':(s>.25?'#b54708':'#b42318');
+  ctx2.lineWidth=3; ctx2.setLineDash([4,4]);
+  ctx2.beginPath(); ctx2.moveTo(xs, ax-ry); ctx2.lineTo(xs, ax+ry); ctx2.stroke();
+  if(P.cover>0 && kind==='real'){
+    ctx2.fillStyle=P.dark?'#f5c36c':'#c58c3c';
+    ctx2.font='bold 12px sans-serif';ctx2.textAlign='center';
+    ctx2.fillText(`通光 ${Math.round(uncoverFrac()*100)}%`,xs,ax-ry-12);
+  }
+  ctx2.restore();
+  ctx2.fillStyle=c2dText(); ctx2.font='12px sans-serif';
+  ctx2.fillText(kind==='real'?((V.active?d<=.20:s>.6)?`✓ 清晰  v₀=${P.screen.toFixed(1)}`:`模糊 Δ=${d.toFixed(1)}  v₀=${P.screen.toFixed(1)}`):`光屏 v₀=${P.screen.toFixed(1)} · 虚像无法承接`, xs, ax+ry+22);
+
+  const legends=V.active?[['① 上部采样',C2.平行,0],['② 中部采样',C2.光心,1],['③ 下部采样',C2.焦点,2],['④ 边缘采样',C2['2F'],3]]:[['① 平行→反向延长过焦点',C2.平行,0],['② 过光心',C2.光心,1],['③ 指向对侧焦点→平行',C2.焦点,2],['④ 边缘采样',C2['2F'],3]];
+  ctx2.textAlign='left';let lx=12;
+  ctx2.font='11px sans-serif';
+  legends.forEach(([t,c,i])=>{
+    ctx2.globalAlpha=P.rays[i]?1:.3;
+    ctx2.fillStyle=c;ctx2.fillRect(lx,H-18,22,4);
+    ctx2.fillStyle=c2dText();ctx2.fillText(t,lx+26,H-13);
+    lx+=26+ctx2.measureText(t).width+18;
+  });
+  ctx2.globalAlpha=1;
+}
+
+/* ============ 主循环 + 自动动画（过焦点减速） ============ */
+const clock=new THREE.Clock();
+function tick(){
+  requestAnimationFrame(tick);
+  const dt=Math.min(clock.getDelta(),.05);
+  flamePhase+=dt*2.0;
+  if(P.objType==='candle'){
+    flameAccumulator+=dt;
+    // 源物与像同一相位，低频更新纹理减少重绘。
+    if(flameAccumulator>=.085){
+      flameAccumulator=0;
+      paintCard(objCtx,256,360,false,0,false);
+      objTex.needsUpdate=true;
+      if(lensImage().kind==='virtual')paintVirtualCard();
+    }
+  }else flameAccumulator=0;
+  if(P.auto&&!V.active){
+    // 往返 6~38，经过焦点减速到 ~15%
+    const distF=Math.abs(P.objDist-P.focal);
+    const slow=0.15+0.85*Math.min(1,distF/7); // 焦点附近减速带
+    const speed=7*slow;                        // cm/s
+    P.objDist+=P.autoDir*speed*dt;
+    if(P.objDist<=6){P.objDist=6;P.autoDir=1;}
+    if(P.objDist>=38){P.objDist=38;P.autoDir=-1;}
+    $('sU').value=P.objDist;
+    if(Math.abs(P.objDist-P.focal)<0.12&&!tick._told){toast('经过物方焦点：仍成正立、缩小的虚像');tick._told=true;setTimeout(()=>tick._told=false,3000);}
+  }
+  // 厚度变化重建透镜（节流）
+  const wantF=fFromThick(P.thick);
+  syncLabels();updateInfo();update3D(dt,clock.elapsedTime);
+  if(P.show2d)draw2D();
+  controls.update();if(P.viewMode!=='2d'){renderer.render(scene,camera);labelRenderer.render(scene,camera);}
+}
+function updateInfo(){
+  const {v,m,kind}=lensImage();const {s,d}=sharpness();const n=natureText();
+  $('imgNature').textContent=n.t;
+  const lit=Math.round(uncoverFrac()*100);
+  $('lightPct').textContent=lit+'%';
+  $('lightBar').style.width=lit+'%';
+  updateMeasurementUI();
+  document.querySelectorAll('#ruleTable tr[data-k]').forEach(tr=>tr.classList.toggle('active',+tr.dataset.k===n.k));
+  const coverNote=P.cover>=1?'透镜完全遮挡：无透射光，虚像仅作理论位置示意。':P.cover>0?'部分遮挡不改变虚像的位置和大小，只减少通光量。':'';
+  $('imgDetail').innerHTML=`u = <b>${P.objDist.toFixed(1)} cm</b>，f = <b>−${P.focal.toFixed(1)} cm</b>，v = <b>${v.toFixed(2)} cm</b>，m = <b>${m.toFixed(3)}</b>。负像距表示像在物体一侧；虚像位于物体与透镜之间，不能用光屏承接。${coverNote}`;
+  $('sharpBar').style.width='0%';
+  $('hSharp').textContent=P.cover>=1?'完全遮挡 · 无透射光':'光屏无法承接虚像';
+  $('blurHint').textContent=P.cover>=1?'完全遮挡：只保留理论虚像位置示意。':'移动光屏仍不能得到清晰像；虚线是折射光的反向延长线。';
+
+}
+window.__concaveDebug={P,lensImage,specialRaysCm,natureText,scene,camera,controls,lensMesh,virtGroup,scrGroup,renderer,updateInfo,rayFwd,rayBack,rayGuide,get autoSlow(){return .15+.85*Math.min(1,Math.abs(P.objDist-P.focal)/7);}};
+applyTheme();sync2DLayout();syncLabels();tick();
+
+</script>
+</body>
+</html>

@@ -1,5 +1,25 @@
 window.MODEL_CATALOG = [
 {
+  "id": "concave-lens",
+  "title": "凹透镜成像规律",
+  "subtitle": "正立缩小虚像与三条特殊光线",
+  "category": "光学现象",
+  "summary": "调节物距、焦距、镜片厚度及遮挡，联动观察凹透镜的正立缩小虚像与特殊光线；支持物像高度测量、自动演示及组合／仅2D／仅3D视图。",
+  "tags": [
+    "凹透镜",
+    "发散",
+    "虚像",
+    "特殊光线",
+    "物距",
+    "焦距",
+    "光具座"
+  ],
+  "path": "models/concave-lens.html?v=20261021-1",
+  "cover": "assets/covers/concave-lens.png?v=20261021-1",
+  "symbol": "↔",
+  "accent": "violet"
+},
+{
   "id": "porcelain-knife-switch",
   "title": "瓷底双刀闸刀开关",
   "subtitle": "双刀联动、熔断连接片与瓷底装配结构",
