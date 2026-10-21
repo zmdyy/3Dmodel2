@@ -10,6 +10,7 @@
 <hr><section><h2>03 / 学习重点</h2><p>为什么过载保护存在延迟，而短路保护能够快速动作？</p><p>两种保护如何通过同一套锁扣、弹簧与触点机构切断电路？</p><div class="legend"><span><i style="background:#ba7643"></i>铜导电件</span><span><i style="background:#879494"></i>钢制机构</span><span><i style="background:#ee523b"></i>电流示意</span></div></section><hr><p class="notice">参考：DZ47-63 系列产品说明书、ABB 小型断路器结构资料及拆解图。结构为可教学演示的合理简化，不对应任何厂家的生产级机械尺寸或可靠性数据。本装置没有保险丝，也不具备漏电保护功能。</p></aside></main>
 <script src="../shared/vendor/three-r160.min.js"></script>
 <script>
+try {
 'use strict';
 const stage=document.getElementById('stage'), canvasHost=document.getElementById('canvasHost');
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xdce2de);
@@ -194,8 +195,9 @@ document.getElementById('closeBtn').addEventListener('click',()=>setCamera('side
 document.getElementById('shotBtn').addEventListener('click',()=>{let a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='DZ47-63_3D_'+modelState.view+'.png';a.click();});
 document.getElementById('fullscreen').addEventListener('click',()=>stage.requestFullscreen?.());
 function resize(){let w=canvasHost.clientWidth,h=canvasHost.clientHeight;camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();renderer.setSize(w,h,false);}new ResizeObserver(resize).observe(canvasHost);
-let last=performance.now();function frame(now){const dt=Math.min(.06,(now-last)/1000);last=now;if(modelState.playing){modelState.progress=Math.min(1,modelState.progress+dt*modelState.speed/(modelState.scenario==='short'?3.4:7.0));if(modelState.progress>=1)modelState.playing=false;updateMotion(modelState.progress);}if(modelState.particles&&currentClosed){poles.forEach(p=>{let group=p.currentPath,curve=group.userData.curve;group.userData.dots.forEach((d,i)=>d.position.copy(curve.getPoint(((i/22)+(now*.0001*modelState.speed))%1)));});}renderer.render(scene,camera);requestAnimationFrame(frame);}updateView();updateMotion(0);resize();requestAnimationFrame(frame);
+let last=performance.now();function frame(now){const dt=Math.min(.06,(now-last)/1000);last=now;if(modelState.playing){modelState.progress=Math.min(1,modelState.progress+dt*modelState.speed/(modelState.scenario==='short'?1.6:7.0));if(modelState.progress>=1)modelState.playing=false;updateMotion(modelState.progress);}if(modelState.particles&&currentClosed){poles.forEach(p=>{let group=p.currentPath,curve=group.userData.curve;group.userData.dots.forEach((d,i)=>d.position.copy(curve.getPoint(((i/22)+(now*.0001*modelState.speed))%1)));});}renderer.render(scene,camera);requestAnimationFrame(frame);}updateView();updateMotion(0);resize();requestAnimationFrame(frame);
 window.breakerDebug={root,scene,camera,renderer,state:modelState,poles,selectPart,setScenario,setView,updateMotion};
 
+} catch (error) { console.error(error); const h=document.getElementById("canvasHost"); if(h) {h.textContent="当前浏览器无法初始化 WebGL。请用较新的 Chrome 或 Edge 打开，并在浏览器设置中开启硬件加速。"; h.style.cssText="padding:180px 20px 0;text-align:center;color:#8b5144;font-size:15px;";}}
 </script>
 </body></html>
