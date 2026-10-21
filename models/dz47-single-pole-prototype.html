@@ -1,0 +1,326 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DZ47 空气开关 · 单极装配验证</title>
+<style>
+*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:#293d38;background:#e9ede7}button,input{font:inherit}header{height:66px;background:#f8faf7;border-bottom:1px solid #d8ded7;padding:12px 23px;display:flex;justify-content:space-between;align-items:center;gap:10px}small{color:#74867a;font-size:10px;letter-spacing:1.8px}h1{font-size:18px;margin:3px 0 0;font-weight:650}header>span{font-size:12px;color:#557468}main{height:calc(100dvh - 66px);display:grid;grid-template-columns:minmax(0,1fr) 310px}#stage{position:relative;overflow:hidden;background:radial-gradient(ellipse at 46% 29%,#edf0eb,#cbd8d0)}#viewport{width:100%;height:100%}canvas{width:100%;height:100%;display:block;touch-action:none}#cameraBar{position:absolute;top:15px;left:16px;display:flex;gap:7px;z-index:3}#cameraBar button,#presetBar button{border:1px solid #d3dbd3;color:#49675b;background:#f9fcf9d9;padding:8px 10px;cursor:pointer;font-size:12px;border-radius:7px}#cameraBar button:hover,#presetBar button:hover{background:#e6eee5}#badge{position:absolute;top:66px;left:16px;color:#287951;background:#ffffffda;border-radius:8px;padding:10px 13px;font-size:13px;box-shadow:0 5px 16px #334c3e12}#badge[data-state=open]{color:#bd603b}#legend{position:absolute;left:16px;bottom:16px;background:#f7fbf8d9;padding:9px 12px;border:1px solid #d3dfd6;border-radius:8px;display:flex;gap:14px;color:#556b60;font-size:11px}#legend em{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}#watermark{position:absolute;right:15px;bottom:15px;color:#65766c;font-size:10px}aside{background:#fcfdf9;border-left:1px solid #d9e1d9;overflow:auto;padding:17px 18px 24px;display:flex;flex-direction:column;gap:12px}section{margin:0}h2{font-size:11px;color:#81938a;letter-spacing:1.5px;font-weight:600;margin:0 0 9px}button{border:1px solid #d2ddd2;background:#eff4ed;color:#375e4b;border-radius:8px;padding:9px 11px;cursor:pointer}button.active{color:white;background:#356b55;border-color:#356b55}.seg{display:flex;gap:6px}.seg button{flex:1;font-size:11px;padding:9px 4px}.action{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}.action button{font-size:12px}.action button:first-child{background:#e77747;border-color:#df7044;color:white}.controls{display:flex;gap:9px;align-items:center;justify-content:space-between;font-size:12px;color:#596c61}hr{width:100%;border:0;border-top:1px solid #e0e8e0;margin:0}#readouts{display:grid;grid-template-columns:1fr 1fr;gap:7px}#readouts>div{border:1px solid #e0e8e0;background:#f5f9f4;padding:8px 9px;border-radius:7px;display:grid;gap:4px}#readouts span{font-size:10px;color:#77877e}#readouts strong{font-size:12px;font-weight:650}#clock{font-size:11px;color:#85938b;margin-top:6px}#presetBar{display:flex;gap:5px;flex-wrap:wrap}#presetBar button.active{color:white;background:#356b55}.parts{display:grid;grid-template-columns:1fr 1fr;gap:5px}.parts button{padding:7px 5px;text-align:center;font-size:11px;color:#526d5e;background:#fafdf9}.parts button.active{border-color:#568d6d;background:#e2f3e7;color:#267148}.partDetail{border:1px solid #dbe8dd;background:#eff7ef;border-radius:9px;padding:10px 11px;min-height:83px}#partName{font-size:12px;font-weight:600}#partDetail{font-size:11px;color:#62776a;line-height:1.58;margin-top:5px}.foot{font-size:10px;line-height:1.6;color:#829187;margin:0}.error{position:absolute;inset:27%;background:white;padding:15px;display:none;color:#be4c3d}#saveBtn{font-size:11px}@media(max-width:780px){header{height:61px;padding:10px 12px}h1{font-size:14px}header>span{display:none}main{height:auto;display:flex;flex-direction:column}#stage{height:57dvh;min-height:370px}aside{padding:14px}#legend{bottom:12px;left:7px;gap:6px;padding:5px;font-size:9px}#cameraBar{left:8px;top:8px}#watermark{display:none}}
+</style></head><body>
+<header><div><small>APPARATUS / STRUCTURAL ASSEMBLY STUDY</small><h1>DZ47 单极空气开关 · 装配关系验证</h1></div><span>1P 原理结构 · 未通过验收前不复制成2P</span></header>
+<main><div id="stage"><div id="viewport"></div><div id="cameraBar"><button id="isoBtn">立体视图</button><button id="frontBtn">正视</button><button id="detailBtn">机构近看</button><button id="fullscreen">全屏</button></div><div id="badge" data-state="closed">触点接通 · 锁扣咬合</div><div id="legend"><span><em style="background:#be7646"></em>铜色：导电</span><span><em style="background:#788688"></em>钢色：传动</span><span><em style="background:#517eaa"></em>蓝色：推杆</span></div><div id="watermark">结构验证样机 · 非厂家1:1拆机图</div><div class="error" id="error"></div></div>
+<aside>
+<section><h2>01 / 选择保护过程</h2><div class="seg"><button data-mode="normal" class="active">正常操作</button><button data-mode="overload">过载升温</button><button data-mode="short">短路磁脱扣</button></div><div class="action"><button id="pauseBtn">播放过程</button><button id="stepBtn">单步 0.04 s</button><button id="openBtn">手动断开</button><button id="resetBtn">手柄复位合闸</button></div><div id="clock">过程 0.00 s（教学加速）</div></section>
+<hr><section><h2>02 / 可验证的机构状态</h2><div id="readouts"></div></section><hr>
+<section><h2>03 / 零件与连接观察</h2><div class="seg" id="views"><button data-view="mechanism" class="active">全机构</button><button data-view="electrical">导电路径</button><button data-view="mechanical">传动机构</button><button data-view="outer">盖板</button></div><div class="controls" id="flowRow" style="margin:9px 0"><label><input id="flowSwitch" type="checkbox" checked> 显示示意电流</label><button id="saveBtn">保存 PNG</button></div><div class="parts" id="presetBar">
+<button data-part="terminals">接线端</button><button data-part="solenoid">线圈与铁芯</button><button data-part="contacts">动静触点</button><button data-part="braid">柔性铜带</button><button data-part="bimetal">双金属片</button><button data-part="follower">热推杆</button><button data-part="latch">锁扣/卡舌</button><button data-part="spring">拉伸弹簧</button><button data-part="armHook">弹簧挂销</button><button data-part="handleLink">操作连杆</button><button data-part="chute">灭弧室</button><button data-part="carrier">绝缘底座</button>
+</div><div class="partDetail"><div id="partName">点击零件查看连接关系</div><div id="partDetail">钢轴必须固定在底座，活动臂绕轴转动；铜件形成串联电路；弹簧两端分别连接固定挂钩与动触点臂销钉。</div></div></section>
+<hr><p class="foot">本版先验证单极的导电连接、弹簧锚点与锁扣，不是实际 DZ47-63 原厂尺寸。弹簧力、时间、温升均为教学近似。参考 US5245302A、ABB 小型断路器技术资料；无熔丝、无漏电保护。左键旋转，右键或 Shift+左键平移，滚轮缩放。</p>
+</aside></main>
+<script src="../shared/vendor/three-r160.min.js"></script>
+<script>
+try{
+'use strict';
+const $$=s=>document.querySelector(s), $$$=s=>[...document.querySelectorAll(s)];
+const stage=$$('#stage'),host=$$('#viewport');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe8ece8);
+const camera=new THREE.PerspectiveCamera(36,1,.01,90);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.42;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+host.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x87948f,2.45));
+const keyLight=new THREE.DirectionalLight(0xffffff,3.1);keyLight.position.set(-3,5,7);keyLight.castShadow=true;keyLight.shadow.mapSize.set(1024,1024);keyLight.shadow.camera.left=-4;keyLight.shadow.camera.right=4;keyLight.shadow.camera.top=4;keyLight.shadow.camera.bottom=-4;scene.add(keyLight);
+const rim=new THREE.DirectionalLight(0xe3ecfa,1.15);rim.position.set(3,1,-4);scene.add(rim);
+const M={
+ insulation:new THREE.MeshStandardMaterial({color:0xe9eee8,metalness:0,roughness:.87}),
+ paper:new THREE.MeshStandardMaterial({color:0xf5f7f2,roughness:.92}),
+ brass:new THREE.MeshStandardMaterial({color:0xa7804a,metalness:.72,roughness:.5}),
+ copper:new THREE.MeshStandardMaterial({color:0xbe7646,metalness:.72,roughness:.41}),
+ braid:new THREE.MeshStandardMaterial({color:0xc49462,metalness:.63,roughness:.57}),
+ steel:new THREE.MeshStandardMaterial({color:0x788688,metalness:.7,roughness:.49}),
+ silver:new THREE.MeshStandardMaterial({color:0xd5d9d1,metalness:.8,roughness:.32}),
+ blue:new THREE.MeshStandardMaterial({color:0x517eaa,metalness:.20,roughness:.69}),
+ orange:new THREE.MeshStandardMaterial({color:0xe67643,metalness:.02,roughness:.7}),
+ dark:new THREE.MeshStandardMaterial({color:0x314044,metalness:.05,roughness:.9}),
+ copperRed:new THREE.MeshStandardMaterial({color:0xbc633d,metalness:.54,roughness:.51}),
+ arc:new THREE.MeshBasicMaterial({color:0x65d3fa,transparent:true,opacity:.75,depthWrite:false}),
+ electric:new THREE.MeshBasicMaterial({color:0xf24935}),
+ anchor:new THREE.MeshStandardMaterial({color:0x559e91,metalness:.35,roughness:.57})
+};
+const root=new THREE.Group();scene.add(root);
+const viewGroups={frame:new THREE.Group(),power:new THREE.Group(),motion:new THREE.Group(),arc:new THREE.Group()};
+Object.values(viewGroups).forEach(g=>root.add(g));
+const pickable=[],parts={},connections=[];
+function reg(o,id,title,detail,kind=''){o.userData.part=id;o.traverse?.(m=>m.userData.part=id);pickable.push(o);parts[id]??={title,detail,kind};return o;}
+function cub(p,x,y,z,w,h,d,m,rot=0){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.rotation.z=rot;p.add(o);o.castShadow=true;o.receiveShadow=true;return o;}
+function sphere(p,x,y,z,r,m){const o=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),m);o.position.set(x,y,z);p.add(o);o.castShadow=true;return o;}
+function v(p){return new THREE.Vector3(...p)}
+function line(p,a,b,r,m){const a0=v(a),b0=v(b),dif=b0.clone().sub(a0);const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,dif.length(),12),m);o.position.copy(a0).add(b0).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dif.normalize());p.add(o);o.castShadow=true;return o;}
+function tube(p,pts,r,m,segments=36){const o=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(v),false,'centripetal'),segments,r,9,false),m);p.add(o);o.castShadow=true;return o;}
+function pin(p,x,y,z,r=.052,depth=.17){const o=line(p,[x,y,z-depth/2],[x,y,z+depth/2],r,M.steel);sphere(p,x,y,z+depth/2+.013,r*1.13,M.silver);return o;}
+function coil(p,x,y,z,radius=.12,height=.43,turns=15){const points=[];for(let i=0;i<=turns*18;i++){const t=i/(turns*18),a=t*turns*2*Math.PI;points.push([x+radius*Math.cos(a),y+(t-.5)*height,z+radius*Math.sin(a)]);}return tube(p,points,.013,M.copper,turns*18);}
+function label3d(text,x,y,z){const c=document.createElement('canvas');c.width=256;c.height=64;const ctx=c.getContext('2d');ctx.font='bold 28px Microsoft YaHei,sans-serif';ctx.fillStyle='#344c41';ctx.textAlign='center';ctx.fillText(text,128,42);const map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;const q=new THREE.Mesh(new THREE.PlaneGeometry(.56,.14),new THREE.MeshBasicMaterial({map,transparent:true,depthWrite:false}));q.position.set(x,y,z);viewGroups.frame.add(q);return q;}
+// Single pole structural coordinate convention: x=left/right, y=up/down, z=toward observer.
+// Detailed anchors: all the fixture pins below are attached to this non-moving ceramic/plastic carrier.
+const base=cub(viewGroups.frame,0,0,-.10,1.58,3.75,.22,M.insulation);
+for(const x of [-.76,.76])cub(viewGroups.frame,x,0,.12,.055,3.74,.43,M.insulation);
+for(const y of [-1.80,1.80])cub(viewGroups.frame,0,y,.12,1.55,.07,.43,M.insulation);
+for(const y of [1.64,-1.64]){
+ cub(viewGroups.frame,0,y,.29,.60,.25,.30,M.steel);
+ cub(viewGroups.frame,0,y,.51,.43,.10,.07,M.silver);
+ pin(viewGroups.frame,0,y,.57,.07,.06);
+}
+label3d('1P 结构验证',0,1.30,.29);
+const shell=cub(viewGroups.frame,0,0,.94,1.53,3.54,.10,M.paper);
+shell.visible=false;
+const coverEdge=cub(viewGroups.frame,0,.99,.98,1.48,.10,.14,M.insulation);coverEdge.visible=false;
+reg(base,'carrier','绝缘承载底座','固定座托住接线端、弹簧锚点与各旋转销轴；所有轴支撑必须在底座上有可见连接。','frame');
+// Electrical path: top terminal -> magnetic coil -> fixed contact -> moving contact -> flexible braid -> bimetal -> bottom terminal.
+const upper=reg(cub(viewGroups.power,0,1.56,.34,.15,.25,.075,M.brass),'terminals','上下接线端','两端子独立夹紧外部导线。二者通过线圈、触点和双金属片构成一条连续串联导电通路。','power');
+const lower=reg(cub(viewGroups.power,0,-1.56,.34,.15,.25,.075,M.brass),'terminals','上下接线端','通过下方成形铜排接至双金属片固定根部。','power');
+const cx=-.37, cy=.91, cz=.29;
+// Coil terminals are metal joints, not invisible ideal electrical lines.
+tube(viewGroups.power,[[0,1.51,.34],[-.22,1.47,.34],[-.245,1.23,.29],[-.245,1.14,.29]],.028,M.copper);
+const coilMesh=reg(coil(viewGroups.power,cx,cy,cz,.125,.46,17),'solenoid','电磁线圈与铁芯','铜绕组两端接入主导电回路；钢铁芯只传递机械推力，不是电流路径的组成部分。短路时铁芯克服回位弹簧下移。','power');
+const windingBottom=v([-.245,.68,.29]);
+// Braze/terminal pads show where the winding ends are joined to formed copper straps.
+sphere(viewGroups.power,-.245,1.14,.29,.037,M.brass);
+sphere(viewGroups.power,-.245,.68,.29,.037,M.brass);
+const stationaryEnd=new THREE.Vector3(.23,.30,.49);
+tube(viewGroups.power,[[-.245,.68,.29],[-.25,.54,.35],[-.10,.42,.43],[.17,.33,.48],[.23,.30,.49]],.028,M.copper);
+const stationary=reg(cub(viewGroups.power,.23,.30,.465,.125,.082,.060,M.silver),'contacts','动静触点','固定银触点与活动银触点在合闸时表面贴合；断开后留有可见空气间隙。','power');
+// Main moving contact carrier pivot and fore/aft bearing brackets.
+const O=v([-.18,-.075,.47]);
+cub(viewGroups.frame,O.x,O.y,.17,.14,.24,.15,M.insulation);
+for(const zz of [.29,.69]){
+ cub(viewGroups.frame,O.x,O.y,zz,.16,.20,.095,M.steel);
+}
+pin(viewGroups.frame,O.x,O.y,.48,.062,.54);
+const arm=new THREE.Group();arm.position.copy(O);viewGroups.motion.add(arm);
+const L=.55, thetaClose=Math.atan2(.375,.41),thetaOpen=-.49;
+const armBody=line(arm,[0,0,0],[L,0,0],.048,M.copper);
+const movable=reg(cub(arm,L,0,.055,.115,.078,.060,M.silver),'contacts','动静触点','活动触点固定在旋转导电臂末端。它绕独立轴承中的钢轴转动；断开后不与灭弧室相撞。','power');
+// Moving carrier latch notch, spring attachment pin, both move with the arm automatically.
+const pinLocal=.235;
+const latchLocal=.18;
+const armHook=reg(pin(arm,pinLocal,0,.23,.031,.14),'armHook','弹簧活动挂点','销钉和活动触点臂刚性固定；触点臂转动时弹簧端点随销钉移动，不单独播放弹簧动画。','motion');
+const latchTooth=reg(cub(arm,latchLocal,-.02,.08,.070,.065,.11,M.brass),'latch','脱扣锁扣','锁钩扣住触点臂上的铜质卡舌，阻止储能弹簧拉开触点；释放时卡舌脱离锁钩。','motion');
+// Flexible copper braid: connected to the pivot current carrying joint and stationary bimetal tip.
+const braid=reg(tube(viewGroups.power,[[O.x,O.y,.43],[-.32,-.20,.40],[-.47,-.30,.36],[-.46,-.52,.38]],.030,M.braid,36),'braid','柔性铜连接带','活动触点臂转动时，柔性铜带维持其与热保护串联导电件的电连接，不作为力学传动杆。','power');
+// Bimetal roots at bottom, its free end moves toward the trip trigger at upper end.
+const thermalGroup=new THREE.Group();viewGroups.power.add(thermalGroup);
+const bimStart=[-.46,-1.25,.36], bimEndBaseY=-.52;
+const bimMesh=new THREE.Mesh(new THREE.BufferGeometry(),M.steel);thermalGroup.add(bimMesh);
+const bimColorMesh=new THREE.Mesh(new THREE.BufferGeometry(),M.copperRed);thermalGroup.add(bimColorMesh);
+reg(thermalGroup,'bimetal','连续双金属片','下端固定并与铜排导电连接，上端为自由端。持续过载导致弯曲，达到推杆位置后才推动锁扣。','power');
+tube(viewGroups.power,[[0,-1.54,.33],[-.31,-1.45,.34],[-.46,-1.25,.36]],.035,M.copper);
+// Main latch: rotates about an actual frame-supported pin and nose meets contact arm tooth when locked.
+const hinge=v([-.39,.25,.64]);
+cub(viewGroups.frame,hinge.x,hinge.y,.28,.16,.20,.16,M.insulation);
+line(viewGroups.frame,[hinge.x,hinge.y,.29],[hinge.x,hinge.y,.70],.037,M.steel);
+const latchG=new THREE.Group();latchG.position.copy(hinge);viewGroups.motion.add(latchG);
+const catchEnd=v([.34,-.205,0]);
+reg(line(latchG,[0,0,0],[catchEnd.x,catchEnd.y,0],.032,M.steel),'latch','脱扣锁扣','锁扣绕底座钢轴转动。其末端抵住触点臂卡舌；热推杆或电磁铁芯使锁扣转开，触点臂才被弹簧拉动。','motion');
+sphere(latchG,catchEnd.x,catchEnd.y,0,.043,M.brass);
+// Lock release ears receive ONLY mechanical force, no copper/electrical link.
+line(latchG,[0,0,0],[0,-.055,0],.027,M.steel);
+sphere(latchG,0,-.055,0,.032,M.silver);
+pin(viewGroups.frame,hinge.x,hinge.y,.65,.052,.17);
+// Thermal follower lever mounted to independent rear hinge.
+const F=v([-.54,-.28,.36]);
+cub(viewGroups.frame,F.x,F.y,.19,.12,.16,.14,M.insulation);
+pin(viewGroups.frame,F.x,F.y,.36,.040,.14);
+const follower=new THREE.Group();follower.position.copy(F);viewGroups.motion.add(follower);
+reg(line(follower,[.15,-.24,0],[.19,.46,0],.019,M.blue),'follower','双金属片推杆','下端由双金属片的自由端顶动，上端推开锁扣；中间通过固定销轴形成杠杆。只有接触后才传递推动。','motion');
+for(const q of [[.15,-.24,0],[.19,.46,0]])sphere(follower,...q,.026,M.silver);
+// Electromagnet's iron plunger and follower return compression spring.
+const coreGroup=new THREE.Group();viewGroups.motion.add(coreGroup);
+const core=reg(line(coreGroup,[cx,cy-.255,.31],[cx,cy+.265,.31],.062,M.steel),'plunger','电磁铁芯','线圈通电时磁力吸动铁芯，使推杆端部碰到锁扣；释放后由小弹簧复位。','motion');
+const coreTip=sphere(coreGroup,cx,cy-.255,.31,.055,M.silver);
+// transfer to latch via a guided slender actuator, kept in rear mechanism depth
+const rodGroup=new THREE.Group();viewGroups.motion.add(rodGroup);
+reg(line(rodGroup,[cx,.61,.39],[-.39,.32,.57],.020,M.steel),'magRod','磁脱扣传动杆','从移动铁芯延伸到锁扣的传力杆，压到锁扣触发点才解锁，不应与铜排短接。','motion');
+sphere(rodGroup,-.39,.32,.57,.028,M.silver);
+// Fixed spring hook and its socket, welded to frame carrier.
+const fixedHook=v([-.48,-.72,.76]);
+cub(viewGroups.frame,-.48,-.72,.35,.13,.13,.20,M.insulation);
+line(viewGroups.frame,[-.48,-.72,.39],[-.48,-.72,.76],.026,M.steel);
+reg(sphere(viewGroups.frame,...fixedHook.toArray(),.036,M.steel),'spring','拉伸储能弹簧','固定钩牢固安装在底座上。另一端钩住活动触点臂销钉；随触点位置产生拉力和开闸转矩。','motion');
+const springMesh=new THREE.Mesh(new THREE.BufferGeometry(),M.steel);viewGroups.motion.add(springMesh);
+reg(springMesh,'spring','拉伸储能弹簧','通过端点距离计算伸长量、拉力与触点轴上的力矩。锁扣保持闭合时储能；锁扣释放后由力矩推动触点打开。','motion');
+const springEndFixed=sphere(viewGroups.motion,fixedHook.x,fixedHook.y,fixedHook.z,.021,M.silver);
+const movingSpringPinLocal=v([pinLocal,0,.29]);
+function movingPoint(theta){return new THREE.Vector3(O.x+pinLocal*Math.cos(theta),O.y+pinLocal*Math.sin(theta),O.z+.29);}
+function refreshSpring(theta){
+ const A=fixedHook, B=movingPoint(theta);const d=B.clone().sub(A),dist=d.length(),dir=d.clone().normalize();
+ const side=new THREE.Vector3().crossVectors(dir,new THREE.Vector3(0,0,1)).normalize();const perp=new THREE.Vector3().crossVectors(dir,side).normalize();
+ let ps=[A.clone(),A.clone().addScaledVector(dir,.045)];const turns=10,n=120;
+ for(let i=0;i<=n;i++){const t=i/n;const along=.09+(dist-.18)*t,ang=t*turns*2*Math.PI;
+ ps.push(A.clone().addScaledVector(dir,along).addScaledVector(side,Math.cos(ang)*.050).addScaledVector(perp,Math.sin(ang)*.050));}
+ ps.push(A.clone().addScaledVector(dir,dist-.045),B);
+ const old=springMesh.geometry;
+ springMesh.geometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ps,false,'centripetal'),ps.length*2,.012,7,false);old.dispose();
+ return {A,B,dist};
+}
+// Arc chute is electrically insulating at base; metal plates sit to RIGHT of the contact, not across arm travel.
+const arcHolder=new THREE.Group();viewGroups.arc.add(arcHolder);
+reg(cub(arcHolder,.56,-.02,.28,.21,.88,.24,M.dark),'chute','灭弧室与引弧片','灭弧栅片位于触点间隙右侧；只有故障分闸时电弧被引入栅片。灭弧片不得与活动触点臂接触。','arc');
+for(let i=0;i<11;i++){
+ const y=.32-i*.078;
+ cub(arcHolder,.56,y,.47,.25,.022,.18,M.steel);
+}
+reg(line(viewGroups.power,[.30,.30,.51],[.47,.24,.50],.016,M.silver),'chute','灭弧室与引弧片','银色引弧片从静触点侧指向灭弧室，和正常通流的主触点区分。','arc');
+const arcFx=new THREE.Group();viewGroups.arc.add(arcFx);arcFx.visible=false;
+for(let i=0;i<4;i++)tube(arcFx,[[.25,.30,.55],[.28+i*.02,.26-i*.09,.54],[.39+i*.018,.16-i*.12,.53],[.49,.07-i*.14,.50]],.008+i*.001,M.arc);
+// Handle pivot + a jointed connecting link to moving carrier; reset applies input at handle, not magic teleported spring.
+const H=v([.38,.68,.65]);pin(viewGroups.frame,H.x,H.y,H.z,.06,.20);
+const handleG=new THREE.Group();handleG.position.copy(H);viewGroups.motion.add(handleG);
+const lever=reg(line(handleG,[0,-.10,0],[.13,.26,0],.072,M.orange),'handle','操作手柄和转轴','手柄在底座枢轴上转动；拨动时通过两端带销的操作连杆压回触点臂，重建锁扣后保持合闸。','motion');
+const linkage=new THREE.Group();viewGroups.motion.add(linkage);
+let linkBody=line(linkage,[0,0,0],[0,.4,0],.024,M.steel);
+reg(linkBody,'handleLink','手柄操作连杆','两端均用销连接手柄拨叉和触点臂；每帧由实际端点求取杆长与方向，不再固定摆放。','motion');
+const joint1=sphere(linkage,0,0,0,.031,M.silver), joint2=sphere(linkage,0,0,0,.031,M.silver);
+function setLink(a,b){const d=b.clone().sub(a),len=d.length();linkBody.position.copy(a).addScaledVector(d,.5);linkBody.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());linkBody.scale.y=len/.4;joint1.position.copy(a);joint2.position.copy(b);}
+const activeFlow=new THREE.Group();viewGroups.power.add(activeFlow);
+const flowPath=new THREE.CatmullRomCurve3([
+ v([0,1.7,.36]),v([cx,1.35,.35]),v([cx,.67,.34]),v([.23,.30,.52]),v([.23,.30,.58]),v([O.x,O.y,.52]),v([-.46,-.52,.4]),v([-.46,-1.25,.38]),v([0,-1.62,.37])
+]);const marks=[];for(let i=0;i<20;i++){const q=sphere(activeFlow,0,0,0,.021,M.electric);marks.push(q);}
+const state={angle:thetaClose,velocity:0,mode:'normal',status:'closed',simulationTime:0,thermal:0,magnetic:0,tripMoment:0,paused:true,powerOnly:false,view:'mechanism',showFlow:true};
+const springK=12, restLen=.49, momentInertia=.010,viscousDamping=.22;
+let previousTemp=-1;let lastMechanics=null;
+function strain(theta){const B=movingPoint(theta),AB=fixedHook.clone().sub(B),len=AB.length(),elong=Math.max(0,len-restLen);const force=AB.multiplyScalar(springK*elong/Math.max(len,1e-6));
+ const r=B.clone().sub(O);const torque=r.x*force.y-r.y*force.x;
+ return {torque,force:force.length(),elong,energy:.5*springK*elong*elong,len,B};}
+function bimetalShape(heat){const pts=[];for(let i=0;i<=30;i++){const t=i/30;pts.push([-.46+.085*heat*t*t,-1.25+.73*t,.36]);}return pts;}
+function refreshBimetal(heat){if(Math.abs(heat-previousTemp)<.003)return;previousTemp=heat;const ps=bimetalShape(heat);
+ const g1=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ps.map(v)),32,.039,8,false);
+ const g2=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ps.map(p=>v([p[0]+.028,p[1],p[2]+.014]))),32,.016,6,false);
+ const a=bimMesh.geometry,b=bimColorMesh.geometry;bimMesh.geometry=g1;bimColorMesh.geometry=g2;a.dispose();b.dispose();}
+function reset(mode='normal'){
+ state.mode=mode;state.angle=thetaClose;state.velocity=0;state.status='closed';state.simulationTime=0;state.thermal=0;state.magnetic=0;state.tripMoment=0;state.paused=mode==='normal';previousTemp=-1;
+ $$$('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+ $$('#pauseBtn').textContent=state.paused?'播放过程':'暂停';refresh();
+}
+function trip(){if(state.status==='closed'){state.status='released';state.tripMoment=state.simulationTime;}}
+function step(dt){dt=Math.min(.032,dt);state.simulationTime+=dt;
+ if(state.mode==='overload'){
+  state.thermal=Math.min(1,state.thermal+dt*.32);
+  // The bimetal free end contacts the thermal follower after sufficient bending, then rotates the latch.
+  // Contact event: the bimetal free tip has reached the follower foot.
+  const tipX=-.46+.085*state.thermal;const footX=F.x+.15;
+  if(tipX>=footX-.001)trip();
+ }
+ if(state.mode==='short'){
+  state.magnetic=Math.min(1,state.magnetic+dt*6.2);
+  // Magnetic pushrod approaches the latch release ear only after travelling down.
+  const pushTipY=.32-.17*state.magnetic;const releaseEarY=hinge.y-.055;
+  if(pushTipY<=releaseEarY+.035)trip();
+ }
+ if(state.mode==='normal'&&state.status==='resetting'){
+   // Hand-input re-closing: angular motor torque drives arm towards the closed stop against spring force.
+   const p=strain(state.angle);const motor=.9;state.velocity+=((motor+p.torque-viscousDamping*state.velocity)/momentInertia)*dt;
+   state.angle=Math.min(thetaClose,state.angle+state.velocity*dt);
+   if(state.angle>=thetaClose-.003){state.angle=thetaClose;state.velocity=0;state.status='closed';}
+ }
+ if(state.status==='released'){
+  // Torque is calculated from physically attached endpoints of extension spring.
+  const p=strain(state.angle);const acceleration=(p.torque-viscousDamping*state.velocity)/momentInertia;
+  state.velocity+=acceleration*dt;state.angle+=state.velocity*dt;
+  if(state.angle<thetaOpen){state.angle=thetaOpen;state.velocity=0;state.status='open';}
+  if(state.angle>thetaClose)state.angle=thetaClose;
+ }
+ refresh();
+}
+function refresh(){
+ arm.rotation.z=state.angle;refreshSpring(state.angle);refreshBimetal(state.thermal);
+ // Latch: locked nose sits against copper tongue; released nose rotates out of contact.
+ const free=state.status!=='closed';latchG.rotation.z=free?-.72:0;
+ const bend=state.thermal;follower.rotation.z=bend>.82?.24*(bend-.82)/.18:0;
+ coreGroup.position.y=-.17*state.magnetic;rodGroup.position.y=-.17*state.magnetic;
+ // Handle and crank: two geometric pins, one on handle and one on moving arm. Fixed rod length is checked below.
+ handleG.rotation.z=state.status==='closed'?.06:state.status==='resetting'?.10:-.22;
+ const p2=new THREE.Vector3(O.x+.36*Math.cos(state.angle),O.y+.36*Math.sin(state.angle),.65);
+ // A fixed-length connecting rod constrains the lever's moving pin to the intersection
+ // of a circle of radius 0.30 about the handle pivot and radius 0.70 about the carrier pin.
+ const hx=H.x,hy=H.y,rh=.30,rodLength=.70;
+ const dx=p2.x-hx,dy=p2.y-hy,D=Math.hypot(dx,dy),ex=dx/D,ey=dy/D;
+ const aa=(rh*rh-rodLength*rodLength+D*D)/(2*D),hh=Math.sqrt(Math.max(0,rh*rh-aa*aa));
+ const p1=new THREE.Vector3(hx+aa*ex-hh*ey,hy+aa*ey+hh*ex,H.z);
+ handleG.rotation.z=Math.atan2(p1.y-hy,p1.x-hx)-Math.PI/2;
+ setLink(p1,p2);
+ const gap=Math.max(0,(thetaClose-state.angle)*L);
+ const s=strain(state.angle);
+ const closed=state.status==='closed'&&Math.abs(state.angle-thetaClose)<.003;
+ activeFlow.visible=state.showFlow&&closed;
+ arcFx.visible=(state.mode!=='normal')&&state.status!=='closed'&&state.simulationTime-state.tripMoment<.21;
+ lastMechanics={status:state.status,angle:state.angle,latch:free?'released':'locked',powerClosed:closed,contactGap:gap,springLength:s.len,springForce:s.force,springTorque:s.torque,springEnergy:s.energy,thermal:state.thermal,magnetic:state.magnetic,handleLinkLength:p1.distanceTo(p2)};
+ $$('#badge').textContent=closed?'触点接通 · 锁扣咬合':state.status==='released'?'锁扣释放 · 弹簧开闸':state.status==='resetting'?'手柄合闸复位中':'触点已断开';
+ $$('#badge').dataset.state=closed?'closed':'open';
+ $$('#readouts').innerHTML=`<div><span>触点间隙</span><strong>${(gap*10).toFixed(2)} 相对单位</strong></div><div><span>弹簧拉力</span><strong>${s.force.toFixed(2)} 教学单位</strong></div><div><span>弹簧储能</span><strong>${s.energy.toFixed(3)} 教学单位</strong></div><div><span>锁扣状态</span><strong>${free?'已释放':'已咬合'}</strong></div>`;
+ $$('#clock').textContent=`过程 ${state.simulationTime.toFixed(2)} s（教学加速）`;
+}
+function frame(t){const dt=Math.min((t-(frame.last||t))/1000,.055);frame.last=t;if(!state.paused){for(let i=0;i<Math.max(1,Math.ceil(dt*120));i++)step(dt/Math.max(1,Math.ceil(dt*120)));}
+ if(state.showFlow&&activeFlow.visible){const t0=t*.00016;marks.forEach((o,i)=>o.position.copy(flowPath.getPoint((t0+i/marks.length)%1)));}
+ renderer.render(scene,camera);requestAnimationFrame(frame);}
+const powerMeshes=[...viewGroups.power.children];
+function setView(v){state.view=v;$$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+ shell.visible=v==='outer';coverEdge.visible=v==='outer';
+ const electricalOnly=v==='electrical',mechanicalOnly=v==='mechanical';
+ viewGroups.frame.visible=true;viewGroups.power.visible=true;viewGroups.motion.visible=true;viewGroups.arc.visible=true;
+ // Physically distinct groups allow teaching visibility without modifying joint positions.
+ latchG.visible=!electricalOnly;follower.visible=!electricalOnly;springMesh.visible=!electricalOnly;
+ handleG.visible=!electricalOnly;linkage.visible=!electricalOnly;rodGroup.visible=!electricalOnly;
+ coreGroup.visible=!electricalOnly;
+ powerMeshes.forEach(m=>{m.visible=!mechanicalOnly||m===stationary||m===thermalGroup||m===coilMesh;});
+ arcHolder.visible=!mechanicalOnly;arcFx.visible=!mechanicalOnly;
+ $$('#flowRow').style.opacity=mechanicalOnly?.4:1;
+}
+function highlight(id){const detail=parts[id];$$('#partName').textContent=detail?.title??'点击零件查看连接关系';$$('#partDetail').textContent=detail?.detail??'铜件是导电路径；蓝灰色杆件是机械传动；灰色销轴固定在底座上。';
+ $$$('[data-part]').forEach(b=>b.classList.toggle('active',b.dataset.part===id));}
+const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
+let yaw=.42,pitch=.17,dist=6.5,target=new THREE.Vector3(0,0,0);let dragging=null,moved=false;
+function cameraUpdate(){camera.position.set(target.x+dist*Math.sin(yaw)*Math.cos(pitch),target.y+dist*Math.sin(pitch),target.z+dist*Math.cos(yaw)*Math.cos(pitch));camera.lookAt(target);}cameraUpdate();
+function setCamera(kind){target.set(0,0,0);dist=kind==='detail'?4.7:6.5;yaw=kind==='front'?0:kind==='detail'?.13:.42;pitch=kind==='front'?0:kind==='detail'?.02:.17;cameraUpdate();}
+const cv=renderer.domElement;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);dragging={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,type:e.button===2||e.shiftKey?'pan':'rotate'};moved=false;});
+cv.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-dragging.lx,dy=e.clientY-dragging.ly;dragging.lx=e.clientX;dragging.ly=e.clientY;if(Math.abs(e.clientX-dragging.x)+Math.abs(e.clientY-dragging.y)>5)moved=true;
+ if(dragging.type==='rotate'){yaw-=dx*.006;pitch=Math.max(-1.35,Math.min(1.35,pitch+dy*.006));}else{const dir=new THREE.Vector3().subVectors(camera.position,target).normalize(),right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),dir).normalize();target.addScaledVector(right,-dx*.003*dist);target.y+=dy*.003*dist;}cameraUpdate();});
+cv.addEventListener('pointerup',e=>{if(!moved){const r=cv.getBoundingClientRect();pointer.set(2*(e.clientX-r.left)/r.width-1,1-2*(e.clientY-r.top)/r.height);ray.setFromCamera(pointer,camera);let hits=ray.intersectObjects(root.children,true);for(const h of hits){let p=h.object;while(p&&!p.userData.part)p=p.parent;if(p?.userData.part){highlight(p.userData.part);break;}}}dragging=null;});
+cv.addEventListener('wheel',e=>{e.preventDefault();dist=THREE.MathUtils.clamp(dist*Math.exp(e.deltaY*.001),3,12);cameraUpdate();},{passive:false});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+$$$('[data-mode]').forEach(b=>b.addEventListener('click',()=>reset(b.dataset.mode)));
+$$$('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+$$$('[data-part]').forEach(b=>b.addEventListener('click',()=>highlight(b.dataset.part)));
+$$('#pauseBtn').onclick=()=>{state.paused=!state.paused;$$('#pauseBtn').textContent=state.paused?'播放过程':'暂停';};
+$$('#stepBtn').onclick=()=>{state.paused=true;$$('#pauseBtn').textContent='播放过程';for(let i=0;i<5;i++)step(.008);};
+$$('#openBtn').onclick=()=>{state.mode='normal';state.paused=false;trip();};
+$$('#resetBtn').onclick=()=>{reset('normal');state.angle=thetaOpen;state.status='resetting';state.paused=false;refresh();};
+$$('#flowSwitch').onchange=e=>{state.showFlow=e.target.checked;refresh();};
+$$('#isoBtn').onclick=()=>setCamera('iso');$$('#frontBtn').onclick=()=>setCamera('front');$$('#detailBtn').onclick=()=>setCamera('detail');
+$$('#saveBtn').onclick=()=>{const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='DZ47_single_pole_structure.png';a.click();};
+$$('#fullscreen').onclick=()=>stage.requestFullscreen?.();
+new ResizeObserver(()=>{let w=host.clientWidth,h=host.clientHeight;camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();renderer.setSize(w,h,false);}).observe(host);
+reset('normal');setView('mechanism');requestAnimationFrame(frame);
+function validateAssembly(){
+ const closeXY=new THREE.Vector2(O.x+L*Math.cos(thetaClose),O.y+L*Math.sin(thetaClose));
+ const fixedXY=new THREE.Vector2(stationary.position.x,stationary.position.y);
+ const latchTip=new THREE.Vector2(hinge.x+catchEnd.x,hinge.y+catchEnd.y);
+ const notch=new THREE.Vector2(O.x+latchLocal*Math.cos(thetaClose)-(-.02)*Math.sin(thetaClose),O.y+latchLocal*Math.sin(thetaClose)+(-.02)*Math.cos(thetaClose));
+ const closestToChute=Math.max(...Array.from({length:40},(_,i)=>O.x+L*Math.cos(thetaOpen+(thetaClose-thetaOpen)*i/39)));
+ const coilEndUpper=new THREE.Vector3(cx+.125,cy+.23,cz),coilEndLower=new THREE.Vector3(cx+.125,cy-.23,cz);
+ const conductorTop=v([-.245,1.14,.29]),conductorLow=v([-.245,.68,.29]);
+ const midSpring=movingPoint(thetaClose);
+ return {
+   contactCenterDistanceXY:closeXY.distanceTo(fixedXY),
+   contactFaceDistanceZ:Math.abs(.525-.465)-(.060+.060)/2,
+   latchToNotch: latchTip.distanceTo(notch),
+   arcChuteTravelClearance:.435-closestToChute,
+   springFreeLegPinDistance:midSpring.distanceTo(v([O.x+pinLocal*Math.cos(thetaClose),O.y+pinLocal*Math.sin(thetaClose),O.z+.29])),
+   upperWindingJointGap:coilEndUpper.distanceTo(conductorTop),
+   lowerWindingJointGap:coilEndLower.distanceTo(conductorLow),
+   fixedLinkLength:lastMechanics.handleLinkLength,
+   passes: closeXY.distanceTo(fixedXY)<.02 && Math.abs(Math.abs(.525-.465)-.06)<.002 && latchTip.distanceTo(notch)<.05 && .435-closestToChute>.05 && Math.abs(lastMechanics.handleLinkLength-.70)<1e-5 && coilEndUpper.distanceTo(conductorTop)<.002 && coilEndLower.distanceTo(conductorLow)<.002
+ };
+}
+window.singlePoleDebug={root,scene,state,physics:()=>lastMechanics,strain,step,reset,trip,parts,components:parts,base,arm,handleG,latchG,fixedHook,stationary,movable,viewGroups,renderer,refresh,validateAssembly};
+
+
+}catch(err){console.error(err);let e=document.getElementById('error');e.style.display='block';e.textContent='模型初始化失败：'+err.message+'。请确认浏览器支持 WebGL。';}
+</script></body></html>
