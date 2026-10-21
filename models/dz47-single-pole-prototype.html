@@ -100,6 +100,7 @@ const movable=reg(cub(arm,L,0,.055,.115,.078,.060,M.silver),'contacts','动静�
 // Moving carrier latch notch, spring attachment pin, both move with the arm automatically.
 const pinLocal=.235;
 const latchLocal=.18;
+pin(arm,.36,0,.18,.027,.13); // actual handle-link carrier joint (world z = 0.65)
 const armHook=reg(pin(arm,pinLocal,0,.23,.031,.14),'armHook','弹簧活动挂点','销钉和活动触点臂刚性固定；触点臂转动时弹簧端点随销钉移动，不单独播放弹簧动画。','motion');
 const latchTooth=reg(cub(arm,latchLocal,-.02,.08,.070,.065,.11,M.brass),'latch','脱扣锁扣','锁钩扣住触点臂上的铜质卡舌，阻止储能弹簧拉开触点；释放时卡舌脱离锁钩。','motion');
 // Flexible copper braid: connected to the pivot current carrying joint and stationary bimetal tip.
@@ -124,20 +125,20 @@ line(latchG,[0,0,0],[0,-.055,0],.027,M.steel);
 sphere(latchG,0,-.055,0,.032,M.silver);
 pin(viewGroups.frame,hinge.x,hinge.y,.65,.052,.17);
 // Thermal follower lever mounted to independent rear hinge.
-const F=v([-.54,-.28,.36]);
+const F=v([-.54,-.28,.49]);
 cub(viewGroups.frame,F.x,F.y,.19,.12,.16,.14,M.insulation);
 pin(viewGroups.frame,F.x,F.y,.36,.040,.14);
 const follower=new THREE.Group();follower.position.copy(F);viewGroups.motion.add(follower);
-reg(line(follower,[.15,-.24,0],[.19,.46,0],.019,M.blue),'follower','双金属片推杆','下端由双金属片的自由端顶动，上端推开锁扣；中间通过固定销轴形成杠杆。只有接触后才传递推动。','motion');
-for(const q of [[.15,-.24,0],[.19,.46,0]])sphere(follower,...q,.026,M.silver);
+reg(line(follower,[.15,-.24,-.13],[.19,.46,.15],.019,M.blue),'follower','双金属片推杆','下端由双金属片的自由端顶动，上端推开锁扣；中间通过固定销轴形成杠杆。只有接触后才传递推动。','motion');
+for(const q of [[.15,-.24,-.13],[.19,.46,.15]])sphere(follower,...q,.026,M.silver);
 // Electromagnet's iron plunger and follower return compression spring.
 const coreGroup=new THREE.Group();viewGroups.motion.add(coreGroup);
 const core=reg(line(coreGroup,[cx,cy-.255,.31],[cx,cy+.265,.31],.062,M.steel),'plunger','电磁铁芯','线圈通电时磁力吸动铁芯，使推杆端部碰到锁扣；释放后由小弹簧复位。','motion');
 const coreTip=sphere(coreGroup,cx,cy-.255,.31,.055,M.silver);
 // transfer to latch via a guided slender actuator, kept in rear mechanism depth
 const rodGroup=new THREE.Group();viewGroups.motion.add(rodGroup);
-reg(line(rodGroup,[cx,.61,.39],[-.39,.32,.57],.020,M.steel),'magRod','磁脱扣传动杆','从移动铁芯延伸到锁扣的传力杆，压到锁扣触发点才解锁，不应与铜排短接。','motion');
-sphere(rodGroup,-.39,.32,.57,.028,M.silver);
+reg(line(rodGroup,[cx,.61,.43],[-.39,.32,.64],.020,M.steel),'magRod','磁脱扣传动杆','从移动铁芯延伸到锁扣的传力杆，压到锁扣触发点才解锁，不应与铜排短接。','motion');
+sphere(rodGroup,-.39,.32,.64,.028,M.silver);
 // Fixed spring hook and its socket, welded to frame carrier.
 const fixedHook=v([-.48,-.72,.76]);
 cub(viewGroups.frame,-.48,-.72,.35,.13,.13,.20,M.insulation);
@@ -172,6 +173,7 @@ for(let i=0;i<4;i++)tube(arcFx,[[.25,.30,.55],[.28+i*.02,.26-i*.09,.54],[.39+i*.
 // Handle pivot + a jointed connecting link to moving carrier; reset applies input at handle, not magic teleported spring.
 const H=v([.38,.68,.65]);pin(viewGroups.frame,H.x,H.y,H.z,.06,.20);
 const handleG=new THREE.Group();handleG.position.copy(H);viewGroups.motion.add(handleG);
+pin(handleG,0,.30,0,.030,.14); // pin at point on handle circle (link rod attaches here)
 const lever=reg(line(handleG,[0,-.10,0],[.13,.26,0],.072,M.orange),'handle','操作手柄和转轴','手柄在底座枢轴上转动；拨动时通过两端带销的操作连杆压回触点臂，重建锁扣后保持合闸。','motion');
 const linkage=new THREE.Group();viewGroups.motion.add(linkage);
 let linkBody=line(linkage,[0,0,0],[0,.4,0],.024,M.steel);
