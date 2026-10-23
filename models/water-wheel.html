@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>筒车灌田 · 水车三维建模与原理演示</title>
+    <link rel="stylesheet" href="../shared/water-wheel/style.css" />
+  <script type="importmap">{"imports":{"three":"../shared/vendor/three-r186/three.module.js","three/addons/":"../shared/vendor/three-r186/addons/"}}</script>
+    <script src="../shared/navigation-style.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- 载入 -->
+    <div id="loader">
+      <div class="loader-inner">
+        <div class="loader-title">筒 车</div>
+        <div class="loader-sub">随流转动 · 以水运水</div>
+        <div class="loader-bar"><i id="loader-fill"></i></div>
+        <div id="loader-msg">正在准备…</div>
+      </div>
+    </div>
+
+    <!-- 标题 -->
+    <header id="title">
+      <h1>筒车灌田</h1>
+      <p>水流驱动 · 竹筒提水 · 逐级灌溉</p>
+    </header>
+
+    <!-- 左侧控制 -->
+    <aside id="left" class="panel">
+      <div class="seg" id="modes">
+        <button data-mode="tour" class="on">自由观察</button>
+        <button data-mode="structure">结构</button>
+        <button data-mode="principle">原理</button>
+      </div>
+
+      <div class="group">
+        <div class="row">
+          <label>水流速度</label><output id="o-river">2.2 m/s</output>
+        </div>
+        <input type="range" id="s-river" min="0" max="3.6" step="0.05" value="2.2" />
+        <div class="row">
+          <label>演示速度</label><output id="o-sim">1.0×</output>
+        </div>
+        <input type="range" id="s-sim" min="0.1" max="3" step="0.05" value="1" />
+        <div class="actions"><button id="pause">暂停演示</button><button id="fullscreen">全屏</button></div>
+        <label class="quality">画质 <select id="quality"><option value="eco">节能 · 30帧</option><option value="clear">清晰 · 60帧</option></select></label>
+        <div hidden><output id="o-hour"></output><input id="s-hour" type="range" min="6" max="19" value="10"></div>
+      </div>
+
+      <div class="group">
+        <div class="row">
+          <label>爆炸视图</label><output id="o-explode">0%</output>
+        </div>
+        <input type="range" id="s-explode" min="0" max="1" step="0.01" value="0" />
+        <div class="toggles">
+          <label class="tg"><input type="checkbox" id="t-labels" /><span>部件标注</span></label>
+          <label class="tg"><input type="checkbox" id="t-xray" /><span>透视骨架</span></label>
+          <label class="tg"><input type="checkbox" id="t-track" /><span>追踪竹筒</span></label>
+          <label class="tg"><input type="checkbox" id="t-path" /><span>输水路径</span></label>
+          <label class="tg"><input type="checkbox" id="t-flow" /><span>水流方向</span></label>
+          <label class="tg"><input type="checkbox" id="t-sound" /><span>水声</span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="cap">视角</div>
+        <div class="views" id="views">
+          <button data-view="overview">全景</button>
+          <button data-view="front">正面</button>
+          <button data-view="side">侧面</button>
+          <button data-view="bottom">汲水</button>
+          <button data-view="top">倒水</button>
+          <button data-view="aqueduct">渡槽</button>
+          <button data-view="terraces">梯田</button>
+          <button data-view="orbit">环绕</button>
+        </div>
+      </div>
+      <div class="hint">左键旋转 · 右键平移 · 滚轮缩放 · 单击部件查看说明 · 双击聚焦 · H 隐藏界面</div>
+    </aside>
+
+    <!-- 右侧部件 -->
+    <aside id="right" class="panel">
+      <div class="cap">筒车部件</div>
+      <ul id="part-list"></ul>
+      <div id="part-card" class="hidden">
+        <div class="pc-head">
+          <div>
+            <div class="pc-name" id="pc-name"></div>
+            <div class="pc-py" id="pc-py"></div>
+          </div>
+          <button id="pc-close" title="关闭">×</button>
+        </div>
+        <div class="pc-role" id="pc-role"></div>
+        <p class="pc-desc" id="pc-desc"></p>
+        <button id="pc-focus" class="ghost">聚焦此部件</button>
+      </div>
+    </aside>
+
+    <!-- 原理讲解 -->
+    <section id="story" class="panel hidden">
+      <div class="st-top">
+        <span id="st-index">1 / 8</span>
+        <div id="st-dots"></div>
+        <label class="tg small"><input type="checkbox" id="st-auto" checked /><span>自动播放</span></label>
+      </div>
+      <h2 id="st-title"></h2>
+      <p id="st-text"></p>
+      <div class="st-nav">
+        <button id="st-prev" class="ghost">‹ 上一步</button>
+        <div class="st-progress"><i id="st-bar"></i></div>
+        <button id="st-next">下一步 ›</button>
+      </div>
+    </section>
+
+    <!-- 追踪竹筒 -->
+    <div id="tracker" class="panel hidden">
+      <div class="tr-head"><b>竹筒 #<span id="tr-id">6</span></b><span id="tr-angle">0°</span></div>
+      <div class="tr-fill"><i id="tr-bar"></i><span id="tr-pct">0%</span></div>
+      <div id="tr-state">—</div>
+      <svg id="tr-dial" viewBox="-50 -50 100 100">
+        <circle r="38" class="ring" />
+        <path id="tr-arc-pour" class="arc pour" />
+        <path id="tr-arc-fill" class="arc fill" />
+        <line x1="-46" y1="44" x2="46" y2="44" class="water" />
+        <circle id="tr-dot" r="5" class="dot" />
+        <text y="4" text-anchor="middle" class="axis">轴</text>
+      </svg>
+    </div>
+
+    <section id="energy" class="panel"><b>能量转化</b><span>流动河水的动能 → 水车的转动动能 → 被提升的水的重力势能</span><small>渡槽、梯田：水向低处流动，重力势能转化为动能；摩擦、冲击使部分机械能转化为内能。</small></section>
+    <!-- 数据 -->
+    <footer id="stats" class="panel">
+      <div class="st"><span>转速</span><b id="d-rpm">–</b><em>转/分</em></div>
+      <div class="st"><span>轮缘线速度</span><b id="d-vel">–</b><em>m/s</em></div>
+      <div class="st"><span>提水高度</span><b id="d-head">–</b><em>m</em></div>
+      <div class="st"><span>入槽流量</span><b id="d-flow">–</b><em>L/分</em></div>
+      <div class="st"><span>日提水量估算</span><b id="d-day">–</b><em>m³</em></div>
+      <div class="st"><span>提水功率</span><b id="d-power">–</b><em>W</em></div>
+      <div class="st"><span>灌溉面积估算</span><b id="d-area">–</b><em>亩</em></div>
+    </footer>
+
+    <div id="model-note">教学近似 · 数值未实测标定 · 稻田水面为已蓄水状态</div>
+    <div id="tooltip" class="hidden"></div>
+
+    <script type="module" src="../shared/water-wheel/main.js"></script>
+  </body>
+</html>

@@ -1,5 +1,17 @@
 window.MODEL_CATALOG = [
   {
+    "id": "water-wheel",
+    "cover": "assets/covers/water-wheel-scene.jpg?v=20261023-1",
+    "title": "筒车灌田 · 机械能转化",
+    "subtitle": "水流驱动、竹筒提水与梯田灌溉",
+    "category": "力学实验",
+    "summary": "保留筒车完整结构与汲水、提升、倒水、渡槽输水和逐级灌田过程，观察河水动能、水车转动和水的重力势能之间的转化；精简环境，支持节能画质、暂停、追踪竹筒和原理分步。",
+    "tags": ["水车", "筒车", "灌溉", "机械能", "动能", "重力势能", "能量转化"],
+    "path": "models/water-wheel.html?v=20261023-1",
+    "symbol": "水",
+    "accent": "green"
+  },
+  {
     "id": "archimedes-principle",
     "cover": "assets/covers/archimedes-principle-scene.jpg?v=20261023-1",
     "title": "阿基米德原理",
