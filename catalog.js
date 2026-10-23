@@ -25,7 +25,7 @@ window.MODEL_CATALOG = [
       "测力计",
       "溢水杯"
     ],
-    "path": "models/archimedes-principle.html?v=20261023-reading2",
+    "path": "models/archimedes-principle.html?v=20261023-four-rows3",
     "symbol": "浮",
     "accent": "green"
   },
