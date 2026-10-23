@@ -51,6 +51,7 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "porcelain-knife-switch",
+    "cover": "assets/covers/porcelain-knife-switch-scene.jpg?v=20261023-1",
     "title": "瓷底双刀闸刀开关",
     "subtitle": "双刀联动、熔断连接片与瓷底装配结构",
     "category": "电学元件",
