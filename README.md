@@ -280,8 +280,6 @@ node scripts/capture-motor-cover.cjs
 - `models/micro-pressure-gauge.html`：橡皮膜液体压强、开口玻璃管和气流侧向取压三个实验；支持调零、液体选择、记录、图像和 CSV 导出。
 - 剖面近景采用正交投影并保持垂直于剖切平面；形变显示倍数不改变物理计算。详细说明与验证范围见 [案例说明](docs/micro-pressure-gauge.md)。
 
-
-
 ## 焦耳定律
 
 - `models/joule-law.html` 使用 Blender 原模型，支持比较电阻、比较电流两种教材实验。两种模式共用装置与网格资源，并在单文件中无损压缩，约 2.62 MB，可直接离线打开。
@@ -296,3 +294,10 @@ node scripts/capture-motor-cover.cjs
 - 平行入射光的反向延长线经过物方焦点 F；过光心光线保持实线；指向右焦点 F′ 的入射光附带向前辅助虚线，折射后平行射出，不绘制其向左水平反向延长线。
 - 透镜厚度为增强辨识的教学示意，不参与成像计算；自动演示经过物方焦点减速，但不发生像的性质反转。
 - 复用仓库本地 Three.js r160 与共享鼠标操作规范；首页封面由本案例实际 3D 场景截取。
+
+## 阿基米德原理 · 排水称重
+
+- `models/archimedes-principle.html`：弹簧测力计、溢水杯与接水小桶的排水称重实验，归入“力学实验”。默认空载，再按甲、乙、丙、丁记录空桶、物体、浸入示数和桶和水总重，比较 F浮 = G − F 与 G排 = G₁ − G₀。
+- 圆柱 270 g、100 cm³；水与盐水可切换。红色截面标记初始液面及下降带。测力计量程 5 N，读数一位小数。玻璃与液体不套用统一旧化材质。
+- 复用本地 `shared/vendor/three-r160.min.js`、`shared/navigation-style.js` 与 `shared/material-finish.js`，不内嵌模型库、不依赖 CDN。封面为默认视角的 960×540 真实场景截图。说明见 [案例说明](docs/archimedes-principle.md)。
+

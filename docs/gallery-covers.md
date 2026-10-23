@@ -18,3 +18,8 @@
 ## 新增流体案例封面
 
 烧瓶潜水艇与重力输液同样使用各自实际案例的WebGL画布截图，均为960×540 JPEG。输液封面为玻璃瓶和软袋两个状态并排；详见[流体案例说明](fluid-labs.md)。捕获脚本为`scripts/capture-fluid-covers.cjs`。
+
+## 阿基米德原理封面
+
+`assets/covers/archimedes-principle-scene.jpg` 为排水称重实验默认空载视角的真实 WebGL 画布截图，960×540 JPEG。隐藏操作面板后保留支架、测力计、小桶、溢水杯和桌面圆柱。捕获脚本：`scripts/capture-archimedes-cover.cjs`。
+

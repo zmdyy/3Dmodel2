@@ -1,131 +1,157 @@
 window.MODEL_CATALOG = [
-{
-  "id": "concave-lens",
-  "title": "凹透镜成像规律",
-  "subtitle": "正立缩小虚像与三条特殊光线",
-  "category": "光学现象",
-  "summary": "调节物距、焦距、镜片厚度及遮挡，联动观察凹透镜的正立缩小虚像与特殊光线；支持物像高度测量、自动演示及组合／仅2D／仅3D视图。",
-  "tags": [
-    "凹透镜",
-    "发散",
-    "虚像",
-    "特殊光线",
-    "物距",
-    "焦距",
-    "光具座"
-  ],
-  "path": "models/concave-lens.html?v=20261021-1",
-  "cover": "assets/covers/concave-lens.png?v=20261021-1",
-  "symbol": "↔",
-  "accent": "violet"
-},
-{
-  "id": "porcelain-knife-switch",
-  "title": "瓷底双刀闸刀开关",
-  "subtitle": "双刀联动、熔断连接片与瓷底装配结构",
-  "category": "电学元件",
-  "summary": "依据实物照片重建瓷底双刀开关，支持独立开合角度、俯视和触点特写、结构标注与视图 PNG 导出；熔断连接片为静态结构，不模拟熔断。",
-  "tags": [
-    "闸刀开关",
-    "双极单投",
-    "电路开关",
-    "熔断连接片",
-    "导电触点",
-    "瓷底座",
-    "接线柱"
-  ],
-  "path": "models/porcelain-knife-switch.html?v=20261021-1",
-  "symbol": "刀",
-  "accent": "amber"
-},
+  {
+    "id": "archimedes-principle",
+    "cover": "assets/covers/archimedes-principle-scene.jpg?v=20261023-1",
+    "title": "阿基米德原理",
+    "subtitle": "排水称重实验",
+    "category": "力学实验",
+    "summary": "按甲乙丙丁称量空桶、物体、浸入示数与桶和水总重，比较浮力 G−F 与排开液体重力 G₁−G₀；支持空载、水和盐水、逐步浸入与自动演示。",
+    "tags": [
+      "阿基米德原理",
+      "浮力",
+      "排水称重",
+      "测力计",
+      "溢水杯"
+    ],
+    "path": "models/archimedes-principle.html?v=20261023-1",
+    "symbol": "浮",
+    "accent": "green"
+  },
+  {
+    "id": "concave-lens",
+    "title": "凹透镜成像规律",
+    "subtitle": "正立缩小虚像与三条特殊光线",
+    "category": "光学现象",
+    "summary": "调节物距、焦距、镜片厚度及遮挡，联动观察凹透镜的正立缩小虚像与特殊光线；支持物像高度测量、自动演示及组合／仅2D／仅3D视图。",
+    "tags": [
+      "凹透镜",
+      "发散",
+      "虚像",
+      "特殊光线",
+      "物距",
+      "焦距",
+      "光具座"
+    ],
+    "path": "models/concave-lens.html?v=20261021-1",
+    "cover": "assets/covers/concave-lens.png?v=20261021-1",
+    "symbol": "↔",
+    "accent": "violet"
+  },
+  {
+    "id": "porcelain-knife-switch",
+    "title": "瓷底双刀闸刀开关",
+    "subtitle": "双刀联动、熔断连接片与瓷底装配结构",
+    "category": "电学元件",
+    "summary": "依据实物照片重建瓷底双刀开关，支持独立开合角度、俯视和触点特写、结构标注与视图 PNG 导出；熔断连接片为静态结构，不模拟熔断。",
+    "tags": [
+      "闸刀开关",
+      "双极单投",
+      "电路开关",
+      "熔断连接片",
+      "导电触点",
+      "瓷底座",
+      "接线柱"
+    ],
+    "path": "models/porcelain-knife-switch.html?v=20261021-1",
+    "symbol": "刀",
+    "accent": "amber"
+  },
   {
     "id": "dz47-breaker",
     "title": "DZ47 双极空气开关 · 内部结构",
     "subtitle": "触点、热磁脱扣与灭弧室的三维拆解",
     "category": "电学元件",
     "summary": "双极微型断路器结构教学模型：查看绝缘外壳、接线端子、动静触点、双金属片、电磁线圈、锁扣弹簧及灭弧栅片；体验正常合闸、过载延时脱扣与短路瞬动。结构及过程为教学近似。",
-    "tags": ["空气开关", "断路器", "热脱扣", "电磁脱扣", "灭弧室", "过载", "短路", "触点"],
+    "tags": [
+      "空气开关",
+      "断路器",
+      "热脱扣",
+      "电磁脱扣",
+      "灭弧室",
+      "过载",
+      "短路",
+      "触点"
+    ],
     "path": "models/dz47-breaker.html?v=20261021-v2",
     "symbol": "闸",
     "accent": "amber"
   },
-
-{
-  "id": "joule-law",
-  "cover": "assets/covers/joule-law-scene.jpg?v=20261020-1",
-  "title": "焦耳定律",
-  "subtitle": "比较电阻与电流对电热的影响",
-  "category": "电学实验",
-  "summary": "两套教材电路共用一套三维装置，观察粒子热运动与 U 形管液面变化；支持闸刀控制、变速、粒子显示调节和液面水平对比。",
-  "tags": [
-    "焦耳定律",
-    "电热",
-    "电阻",
-    "电流",
-    "控制变量",
-    "U形管"
-  ],
-  "path": "models/joule-law.html?v=20261020-shared1",
-  "symbol": "热",
-  "accent": "amber"
-},
-{
-  "id": "qiantang-caisson",
-  "title": "钱塘江大桥 · 气压沉箱施工",
-  "subtitle": "浮运定位、压气排水与上下并进",
-  "category": "力学实验",
-  "summary": "以1930年代钱塘江大桥基础施工为背景，观察约600吨沉箱落到木桩群、压缩空气排水、下部挖泥与上部筑墩同步进行，以及封底后的基础传力。支持正对剖面、自由观察、手动供气压强和施工进度演示。",
-  "tags": [
-    "钱塘江大桥",
-    "茅以升",
-    "气压沉箱",
-    "液体压强",
-    "大气压",
-    "木桩基础",
-    "桥梁施工"
-  ],
-  "path": "models/qiantang-caisson.html?v=20261020-v2",
-  "symbol": "桥",
-  "accent": "green"
-},
-{
-  "id": "micro-pressure-gauge",
-  "cover": "assets/covers/micro-pressure-gauge-scene.png?v=20261020-1",
-  "title": "微小压强计",
-  "subtitle": "橡皮膜、开口玻璃管与气流侧向取压",
-  "category": "力学实验",
-  "summary": "探究液体压强与深度、密度和方向的关系；拓展开口玻璃管的 d、H 与液面差记录，以及气体流速与静压实验。",
-  "tags": [
-    "液体压强",
-    "微小压强计",
-    "U形管",
-    "密度",
-    "开口玻璃管",
-    "流速与压强"
-  ],
-  "path": "models/micro-pressure-gauge.html?v=20261020-ortho2",
-  "symbol": "压",
-  "accent": "green"
-},
-{
-  "id": "four-stroke-engine",
-  "cover": "assets/covers/four-stroke-engine-scene.jpg?v=20261019-1",
-  "title": "单缸四冲程汽油机",
-  "subtitle": "观察冲程、曲轴转数与能量转化",
-  "category": "能源与发电",
-  "summary": "教材侧置气门剖面模型：混合气吸入、压缩、点火燃烧与废气排出。支持完整循环、单冲程循环、转角拖动及冲程判断，观察曲轴、连杆、活塞和气门的同步运动。",
-  "tags": [
-    "热机",
-    "四冲程",
-    "汽油机",
-    "内能",
-    "能量转化",
-    "曲轴"
-  ],
-  "path": "models/four-stroke-engine.html?v=20261019-layout2",
-  "symbol": "缸",
-  "accent": "amber"
-},
+  {
+    "id": "joule-law",
+    "cover": "assets/covers/joule-law-scene.jpg?v=20261020-1",
+    "title": "焦耳定律",
+    "subtitle": "比较电阻与电流对电热的影响",
+    "category": "电学实验",
+    "summary": "两套教材电路共用一套三维装置，观察粒子热运动与 U 形管液面变化；支持闸刀控制、变速、粒子显示调节和液面水平对比。",
+    "tags": [
+      "焦耳定律",
+      "电热",
+      "电阻",
+      "电流",
+      "控制变量",
+      "U形管"
+    ],
+    "path": "models/joule-law.html?v=20261020-shared1",
+    "symbol": "热",
+    "accent": "amber"
+  },
+  {
+    "id": "qiantang-caisson",
+    "title": "钱塘江大桥 · 气压沉箱施工",
+    "subtitle": "浮运定位、压气排水与上下并进",
+    "category": "力学实验",
+    "summary": "以1930年代钱塘江大桥基础施工为背景，观察约600吨沉箱落到木桩群、压缩空气排水、下部挖泥与上部筑墩同步进行，以及封底后的基础传力。支持正对剖面、自由观察、手动供气压强和施工进度演示。",
+    "tags": [
+      "钱塘江大桥",
+      "茅以升",
+      "气压沉箱",
+      "液体压强",
+      "大气压",
+      "木桩基础",
+      "桥梁施工"
+    ],
+    "path": "models/qiantang-caisson.html?v=20261020-v2",
+    "symbol": "桥",
+    "accent": "green"
+  },
+  {
+    "id": "micro-pressure-gauge",
+    "cover": "assets/covers/micro-pressure-gauge-scene.png?v=20261020-1",
+    "title": "微小压强计",
+    "subtitle": "橡皮膜、开口玻璃管与气流侧向取压",
+    "category": "力学实验",
+    "summary": "探究液体压强与深度、密度和方向的关系；拓展开口玻璃管的 d、H 与液面差记录，以及气体流速与静压实验。",
+    "tags": [
+      "液体压强",
+      "微小压强计",
+      "U形管",
+      "密度",
+      "开口玻璃管",
+      "流速与压强"
+    ],
+    "path": "models/micro-pressure-gauge.html?v=20261020-ortho2",
+    "symbol": "压",
+    "accent": "green"
+  },
+  {
+    "id": "four-stroke-engine",
+    "cover": "assets/covers/four-stroke-engine-scene.jpg?v=20261019-1",
+    "title": "单缸四冲程汽油机",
+    "subtitle": "观察冲程、曲轴转数与能量转化",
+    "category": "能源与发电",
+    "summary": "教材侧置气门剖面模型：混合气吸入、压缩、点火燃烧与废气排出。支持完整循环、单冲程循环、转角拖动及冲程判断，观察曲轴、连杆、活塞和气门的同步运动。",
+    "tags": [
+      "热机",
+      "四冲程",
+      "汽油机",
+      "内能",
+      "能量转化",
+      "曲轴"
+    ],
+    "path": "models/four-stroke-engine.html?v=20261019-layout2",
+    "symbol": "缸",
+    "accent": "amber"
+  },
   {
     "id": "piston-pump",
     "cover": "assets/covers/piston-pump-scene.jpg?v=20261018-ui1",
@@ -133,7 +159,14 @@ window.MODEL_CATALOG = [
     "subtitle": "引水、密封与两个单向阀的自由探究",
     "category": "力学实验",
     "summary": "从空筒漏气开始，主动加入引水，观察下渗、排气、进水和出水。两个核心问题随时切换，保留装置状态；支持真实半剖、慢放、单次按压、近看阀门和定性压强显示。",
-    "tags": ["大气压", "抽水机", "引水", "单向阀", "密封", "液体压强"],
+    "tags": [
+      "大气压",
+      "抽水机",
+      "引水",
+      "单向阀",
+      "密封",
+      "液体压强"
+    ],
     "path": "models/piston-pump.html?v=20261018-ui1",
     "symbol": "泵",
     "accent": "green"
@@ -779,24 +812,23 @@ window.MODEL_CATALOG = [
     "symbol": "◉",
     "accent": "amber"
   },
-{
-  "id": "resistance-boxes",
-  "cover": "assets/covers/resistance-boxes-scene.jpg?v=20261019",
-  "title": "电阻箱与插塞式电阻器",
-  "subtitle": "旋转触片、插塞短路与接入阻值",
-  "category": "电学元件",
-  "summary": "切换六旋钮电阻箱与插塞式电阻器，观察抽头选择、插塞短路、串联阻值及电流路径；支持内部结构、单组放大、剖切、分解及断路演示。",
-  "tags": [
-    "电阻箱",
-    "插塞式电阻器",
-    "串联电阻",
-    "短路",
-    "电流",
-    "内部结构"
-  ],
-  "path": "models/resistance-boxes.html?v=20261019",
-  "symbol": "Ω",
-  "accent": "green"
-}
+  {
+    "id": "resistance-boxes",
+    "cover": "assets/covers/resistance-boxes-scene.jpg?v=20261019",
+    "title": "电阻箱与插塞式电阻器",
+    "subtitle": "旋转触片、插塞短路与接入阻值",
+    "category": "电学元件",
+    "summary": "切换六旋钮电阻箱与插塞式电阻器，观察抽头选择、插塞短路、串联阻值及电流路径；支持内部结构、单组放大、剖切、分解及断路演示。",
+    "tags": [
+      "电阻箱",
+      "插塞式电阻器",
+      "串联电阻",
+      "短路",
+      "电流",
+      "内部结构"
+    ],
+    "path": "models/resistance-boxes.html?v=20261019",
+    "symbol": "Ω",
+    "accent": "green"
+  }
 ];
-
