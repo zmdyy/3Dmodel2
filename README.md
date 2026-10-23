@@ -301,3 +301,10 @@ node scripts/capture-motor-cover.cjs
 - 圆柱 270 g、100 cm³；水与盐水可切换。红色截面标记初始液面及下降带。测力计量程 5 N，读数一位小数。玻璃与液体不套用统一旧化材质。
 - 复用本地 `shared/vendor/three-r160.min.js`、`shared/navigation-style.js` 与 `shared/material-finish.js`，不内嵌模型库、不依赖 CDN。封面为默认视角的 960×540 真实场景截图。说明见 [案例说明](docs/archimedes-principle.md)。
 
+
+
+## 筒车灌田 · 机械能转化
+
+- 新增 `models/water-wheel.html`，归入“力学实验”。保留原筒车结构、竹筒存水与抛体落点判断、承水槽、渡槽和九级田间跌水；支持原理分步、追踪竹筒、部件拆解、暂停、全屏和统一鼠标操作。
+- 精简为局部河段和梯田，移除远山、树林、茅屋、云雾、飞鸟、动态天空及水面实时反射。默认节能档为 1 倍像素比上限、30帧上限、不计算阴影；清晰档可启用 1024 阴影和 1.5 倍像素比上限。
+- 来源、计算边界与实际浏览器验收见 [案例说明](docs/water-wheel.md)。本地公共 Three.js r186 模块及许可存放于 `shared/vendor/three-r186/`，无需 CDN；通过 GitHub Pages 或本地静态服务打开。首页封面来自实际三维场景截图。
