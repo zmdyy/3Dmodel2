@@ -18,7 +18,7 @@ window.MODEL_CATALOG = [
     "短路保护",
     "内部结构"
   ],
-  "path": "models/dz47-breaker.html?v=20261024-v521",
+  "path": "models/dz47-breaker.html?v=20261024-v53",
   "symbol": "闸",
   "accent": "amber"
 },
