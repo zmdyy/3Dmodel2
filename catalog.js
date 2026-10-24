@@ -1,5 +1,28 @@
 window.MODEL_CATALOG = [
 {
+  "id": "dz47-breaker",
+  "cover": "assets/covers/dz47-breaker-single-scene.svg?v=20261024-v52",
+  "title": "DZ47 空气开关 · 单极内部结构",
+  "subtitle": "V52｜真实 Blender 机构、连续弯曲双金属片与热磁脱扣",
+  "category": "电学元件",
+  "summary": "使用 Blender 单极 V52 模型，逐步观察手柄、U 形连杆、锁扣、动静触点、储能弹簧、双金属片与热磁脱扣；提供六步教学引导、过载六阶段、分组显隐、局部聚焦及时间轴。当前仅单极，双极联动尚未制作。",
+  "tags": [
+    "DZ47",
+    "空气开关",
+    "小型断路器",
+    "单极",
+    "电磁脱扣",
+    "双金属片",
+    "热脱扣",
+    "过载保护",
+    "短路保护",
+    "内部结构"
+  ],
+  "path": "models/dz47-breaker.html?v=20261024-v52",
+  "symbol": "闸",
+  "accent": "amber"
+},
+{
   "id": "weighbridge",
   "title": "地磅 · 载重与电流",
   "subtitle": "弹簧、滑片与电流表联动",
