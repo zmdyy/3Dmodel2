@@ -116,7 +116,7 @@ aside{padding-top:14px}aside section{margin-bottom:12px;padding-bottom:12px}asid
 </section>
 <section style="border:0;margin:0;padding:0"><h2>④ 文件与分享</h2>
 <div class="row"><button class="choice" id="savePNG">导出 PNG</button><button class="choice" id="bundle" disabled>保存完整离线 HTML</button></div>
-<div class="hint" id="bundleNote" style="margin-top:9px">当前文件已经内嵌 V52 单极模型，直接打开即可离线使用。仅在更换 GLB 后，才需要重新保存完整离线 HTML。</div>
+<div class="hint" id="bundleNote" style="margin-top:9px">当前页面已内嵌 V52 单极模型；如需单文件离线分享，请点击“保存完整离线 HTML”，下载时会一并打包 Three.js。</div>
 <div class="safebox" style="margin-top:12px"><div id="modelInfo">模型尚未加载</div><div id="modelStatus" style="margin-top:3px"></div><div style="margin-top:5px">源文件：<span id="sourceName">未选择</span></div><div style="margin-top:6px">本案例展示单极热磁保护机构。时间轴为教学过程，不代表原厂实测动作时长或脱扣曲线。暂未制作双极联动。</div></div>
 </section>
 </details></aside></main>
@@ -434,10 +434,27 @@ function bind(){document.querySelectorAll('[data-look]').forEach(btn=>btn.addEve
   window.addEventListener('dragleave',e=>{if(!e.relatedTarget || !document.body.contains(e.relatedTarget))$('dropOverlay').hidden=true;});
   window.addEventListener('drop',async e=>{e.preventDefault();$('dropOverlay').hidden=true;const f=e.dataTransfer?.files?.[0];if(f){if(!f.name.toLowerCase().endsWith('.glb')){notify('请拖入 .glb 模型文件');return;}await loadBlob(await f.arrayBuffer(),f.name);}});
 }
-async function exportSelf(){if(!sourceGLB)return;const b=new Uint8Array(sourceGLB); // Stream base64 in chunks to avoid stack limits.
+async async function exportSelf(){if(!sourceGLB)return;
+  // The gallery reuses the local shared engine; bundle these shared scripts when
+  // the teacher downloads a standalone file for offline classroom sharing.
+  const external=[...document.querySelectorAll('script[src]')].filter(x=>/\.\.\/shared\/(?:vendor\/three-r160\.min\.js|material-finish\.js)$/.test(x.getAttribute('src')||''));
+  const scripts=[];
+  try {
+    for(const element of external){
+      const response=await fetch(new URL(element.getAttribute('src'),location.href));
+      if(!response.ok)throw Error('HTTP '+response.status);
+      scripts.push([element.getAttribute('src'),await response.text()]);
+    }
+  }catch(err){notify('离线打包失败：公共 Three.js 文件读取失败，请从作品集在线页面使用保存按钮，或使用独立分享版。');return;}
+const b=new Uint8Array(sourceGLB); // Stream base64 in chunks to avoid stack limits.
   let binary='';const CHUNK=8192;for(let i=0;i<b.length;i+=CHUNK)binary+=String.fromCharCode.apply(null,b.subarray(i,i+CHUNK));
   const base64=btoa(binary),html=document.documentElement.cloneNode(true),emb=html.querySelector('#embedded-model');
-  emb.textContent=base64;html.querySelector('#guidePins')?.replaceChildren();html.querySelector('#error').hidden=true;html.querySelector('#loading').hidden=true;
+  emb.textContent=base64;
+  for(const [src,code] of scripts){
+    const original=html.querySelector('script[src="'+src+'"]');
+    if(original){const inline=document.createElement('script');inline.textContent=code;original.replaceWith(inline);}
+  }
+  html.querySelector('#guidePins')?.replaceChildren();html.querySelector('#error').hidden=true;html.querySelector('#loading').hidden=true;
   html.querySelector('#empty').hidden=true;
   const output='<!doctype html>\n'+html.outerHTML;const link=document.createElement('a');
   link.href=URL.createObjectURL(new Blob([output],{type:'text/html;charset=utf-8'}));link.download='DZ47_单极空气开关_完整离线教学版.html';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),4000);
