@@ -171,7 +171,7 @@ async async function exportSelf(){
   d.querySelector('#error').hidden=true;d.querySelector('#loading').hidden=true;d.querySelector('#empty').hidden=true;
   d.querySelectorAll('script[src]').forEach(e=>e.remove());
   const model=document.createElement('script');model.id='embedded-model';model.type='application/octet-stream';model.textContent=btoa(b);d.querySelector('body').appendChild(model);
-  for(const code of codes){const sc=document.createElement('script');sc.textContent=code;d.querySelector('body').appendChild(sc);}
+  for(const code of codes){const sc=document.createElement('script');sc.textContent=code.replace(/<\/script/gi,'<\\/script');d.querySelector('body').appendChild(sc);}
   const u=URL.createObjectURL(new Blob(['<!doctype html>\n'+d.outerHTML],{type:'text/html;charset=utf-8'}));
   const a=document.createElement('a');a.href=u;a.download='DZ47_单极空气开关_V53_离线版.html';a.click();setTimeout(()=>URL.revokeObjectURL(u),5000);
   $('bundleNote').textContent='已生成完整离线 HTML。';
