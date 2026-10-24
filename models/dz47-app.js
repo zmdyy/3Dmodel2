@@ -110,7 +110,7 @@ async function loadBlob(arrayBuffer,name){if(renderer instanceof THREE.WebGLRend
     scene.add(root);root.scale.setScalar(12); // Blender scene uses metre scale; 12x is a viewing scale only
     markParts();updateHeatDeformation();frame=1;setFrame(1);fit();setLook('three');updateVisibility();
     $('empty').hidden=true;$('loading').hidden=true;$('bundle').disabled=false;
-    $('infoBadge').textContent='单极 V52 · 离线模型已加载';$('infoBadge').style.background='#dcefe0';
+    $('infoBadge').textContent='单极 V53 · 模型已加载';$('infoBadge').style.background='#dcefe0';
     chooseGuide(0);
     $('sourceName').textContent=name;return true;
   }catch(err){$('loading').hidden=true;notify('模型加载失败：'+(err?.message||String(err)));console.error(err);return false;}
