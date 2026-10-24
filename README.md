@@ -40,7 +40,7 @@ python scripts/add-model.py ./新案例.html --id new-demo --category 电学元�
 
 新增 [地磅 · 载重与电流](models/weighbridge.html)：保留用户提供的 Anatomy/SVG 三维交互版本，支持载重、弹簧压缩、滑片及电流联动和两种接线对比，详见 [案例说明](docs/weighbridge.md)。
 
-DZ47 空气开关已恢复为 [单极内部结构 V52 教学案例](models/dz47-breaker.html)，通过六步引导演示热磁脱扣、双金属片弯曲和触点动作，详情见 [验收与边界说明](docs/dz47-breaker.md)；**双极联动版尚未完成**。钱塘江大桥气压沉箱案例仍按当前施工进度管理。
+DZ47 空气开关已恢复为 [单极内部结构 V53 教学案例](models/dz47-breaker.html)，通过六步引导演示热磁脱扣、双金属片弯曲和触点动作，详情见 [验收与边界说明](docs/dz47-breaker.md)；**双极联动版尚未完成**。钱塘江大桥气压沉箱案例仍按当前施工进度管理。
 
 - **按需加载**：首页不创建 3D iframe；只有点击作品时才加载一个交互场景。
 - **案例隔离**：每个案例的 CSS / JS 都在自己的 HTML 中，不会互相污染。
