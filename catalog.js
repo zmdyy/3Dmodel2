@@ -1,5 +1,17 @@
 window.MODEL_CATALOG = [
 {
+  "id": "weighbridge",
+  "title": "地磅 · 载重与电流",
+  "subtitle": "弹簧、滑片与电流表联动",
+  "category": "电学实验",
+  "summary": "改变货车总质量，观察承重弹簧压缩、滑片移动与电流变化；对比两种接线，支持开关、电流效果、原理图和自动演示。",
+  "tags": ["地磅", "载重", "弹簧", "滑动变阻器", "电流", "传感器"],
+  "path": "models/weighbridge.html?v=20261024-1",
+  "cover": "assets/covers/weighbridge-scene.jpg?v=20261024-1",
+  "symbol": "磅",
+  "accent": "green"
+},
+{
   "id": "earth-magnetism",
   "title": "地球磁场 · 指南针探究",
   "subtitle": "任意位置安放指南针，观察磁偏角与磁倾角",
@@ -101,26 +113,6 @@ window.MODEL_CATALOG = [
     "accent": "amber"
   },
   {
-    "id": "dz47-breaker",
-    "title": "DZ47 双极空气开关 · 内部结构",
-    "subtitle": "触点、热磁脱扣与灭弧室的三维拆解",
-    "category": "电学元件",
-    "summary": "双极微型断路器结构教学模型：查看绝缘外壳、接线端子、动静触点、双金属片、电磁线圈、锁扣弹簧及灭弧栅片；体验正常合闸、过载延时脱扣与短路瞬动。结构及过程为教学近似。",
-    "tags": [
-      "空气开关",
-      "断路器",
-      "热脱扣",
-      "电磁脱扣",
-      "灭弧室",
-      "过载",
-      "短路",
-      "触点"
-    ],
-    "path": "models/dz47-breaker.html?v=20261021-v2",
-    "symbol": "闸",
-    "accent": "amber"
-  },
-  {
     "id": "joule-law",
     "cover": "assets/covers/joule-law-scene.jpg?v=20261020-1",
     "title": "焦耳定律",
@@ -138,25 +130,6 @@ window.MODEL_CATALOG = [
     "path": "models/joule-law.html?v=20261020-shared1",
     "symbol": "热",
     "accent": "amber"
-  },
-  {
-    "id": "qiantang-caisson",
-    "title": "钱塘江大桥 · 气压沉箱施工",
-    "subtitle": "浮运定位、压气排水与上下并进",
-    "category": "力学实验",
-    "summary": "以1930年代钱塘江大桥基础施工为背景，观察约600吨沉箱落到木桩群、压缩空气排水、下部挖泥与上部筑墩同步进行，以及封底后的基础传力。支持正对剖面、自由观察、手动供气压强和施工进度演示。",
-    "tags": [
-      "钱塘江大桥",
-      "茅以升",
-      "气压沉箱",
-      "液体压强",
-      "大气压",
-      "木桩基础",
-      "桥梁施工"
-    ],
-    "path": "models/qiantang-caisson.html?v=20261020-v2",
-    "symbol": "桥",
-    "accent": "green"
   },
   {
     "id": "micro-pressure-gauge",

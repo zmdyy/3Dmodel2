@@ -38,6 +38,10 @@ python scripts/add-model.py ./新案例.html --id new-demo --category 电学元�
 
 ## 当前设计原则
 
+新增 [地磅 · 载重与电流](models/weighbridge.html)：保留用户提供的 Anatomy/SVG 三维交互版本，支持载重、弹簧压缩、滑片及电流联动和两种接线对比，详见 [案例说明](docs/weighbridge.md)。
+
+尚未完工的 DZ47 双极空气开关和钱塘江大桥气压沉箱案例暂从作品集目录移除；源文件保留，完工后可恢复。
+
 - **按需加载**：首页不创建 3D iframe；只有点击作品时才加载一个交互场景。
 - **案例隔离**：每个案例的 CSS / JS 都在自己的 HTML 中，不会互相污染。
 - **配置驱动**：首页通过 `catalog.js` 自动生成作品卡片和分类筛选，新增案例无需修改首页代码。
