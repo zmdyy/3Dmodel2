@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const THREE=window.THREE;
 window.__dz47BootStarted=true;
-console.info('[DZ47] V53 app entry');
+console.info('[DZ47] V54 app entry');
 if(!THREE){$('empty').hidden=true;$('loading').hidden=true;$('error').textContent='Three.js 未能加载，请检查共享引擎文件。';$('error').hidden=false;return;}
 const CANVAS=$('view'), STAGE=$('stage');
 let renderer,scene,camera,ambient,dir,root,loaded,clip;
@@ -110,7 +110,7 @@ async function loadBlob(arrayBuffer,name){if(renderer instanceof THREE.WebGLRend
     scene.add(root);root.scale.setScalar(12); // Blender scene uses metre scale; 12x is a viewing scale only
     markParts();updateHeatDeformation();frame=1;setFrame(1);fit();setLook('three');updateVisibility();
     $('empty').hidden=true;$('loading').hidden=true;$('bundle').disabled=false;
-    $('infoBadge').textContent='单极 V53 · 模型已加载';$('infoBadge').style.background='#dcefe0';
+    $('infoBadge').textContent='单极 V54 · 模型已加载';$('infoBadge').style.background='#dcefe0';
     chooseGuide(0);
     $('sourceName').textContent=name;return true;
   }catch(err){$('loading').hidden=true;notify('模型加载失败：'+(err?.message||String(err)));console.error(err);return false;}
@@ -158,11 +158,11 @@ function bind(){document.querySelectorAll('[data-look]').forEach(btn=>btn.addEve
   window.addEventListener('dragleave',e=>{if(!e.relatedTarget || !document.body.contains(e.relatedTarget))$('dropOverlay').hidden=true;});
   window.addEventListener('drop',async e=>{e.preventDefault();$('dropOverlay').hidden=true;const f=e.dataTransfer?.files?.[0];if(f){if(!f.name.toLowerCase().endsWith('.glb')){notify('请拖入 .glb 模型文件');return;}await loadBlob(await f.arrayBuffer(),f.name);}});
 }
-async async function exportSelf(){
+async function exportSelf(){
  if(!sourceGLB)return;
  $('bundleNote').textContent='正在准备离线文件…';
  try{
-  const list=['../shared/vendor/three-r160.min.js?v=20261024-v53','dz47-loader.js?v=20261024-v53','dz47-app.js?v=20261024-v53'];
+  const list=['../shared/vendor/three-r160.min.js?v=20261024-v54','dz47-loader.js?v=20261024-v54','dz47-app.js?v=20261024-v54'];
   const codes=await Promise.all(list.map(async x=>{const r=await fetch(x,{cache:'no-store'});if(!r.ok)throw Error(x+' HTTP '+r.status);return r.text();}));
   const bytes=new Uint8Array(sourceGLB);let b='';
   for(let i=0;i<bytes.length;i+=8192)b+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));
@@ -335,7 +335,7 @@ async function main(){
    for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
    buffer=arr.buffer;
   }else{
-   let response;try{response=await fetch('dz47-1p-v52.glb?v=20261024-v53',{cache:'no-store'});}
+   let response;try{response=await fetch('dz47-1p-v52.glb?v=20261024-v54',{cache:'no-store'});}
    catch(e){throw Error('模型文件请求失败：'+(e?.message||e));}
    if(!response.ok)throw Error('模型文件 HTTP '+response.status);
    buffer=await response.arrayBuffer();
