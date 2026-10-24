@@ -1,5 +1,17 @@
 window.MODEL_CATALOG = [
 {
+  "id": "earth-magnetism",
+  "title": "地球磁场 · 指南针探究",
+  "subtitle": "任意位置安放指南针，观察磁偏角与磁倾角",
+  "category": "声学与电磁",
+  "summary": "保留倾斜磁轴；点击或拖动安放地表指南针，切换空间磁针并调整高度。磁感线与磁针共用有限磁体磁场计算，支持磁棒内外闭合磁感线、半透明地球及局部观察。",
+  "tags": ["地磁场", "指南针", "磁感线", "磁偏角", "磁倾角", "地球"],
+  "path": "models/earth-magnetism.html?v=20261024-1",
+  "cover": "assets/covers/earth-magnetism-scene.jpg?v=20261024-1",
+  "symbol": "磁",
+  "accent": "blue"
+},
+{
   "id": "three-pin-plug",
   "title": "三脚插头 · 地线先通后断",
   "subtitle": "隐藏外壳观察插脚与夹片的接触顺序",

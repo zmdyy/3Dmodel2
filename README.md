@@ -30,6 +30,12 @@ scripts/add-model.py    # 后续新增案例的整理脚本
 python scripts/add-model.py ./新案例.html --id new-demo --category 电学元件 --tags 电阻,结构
 ```
 
+## 地球磁场 · 指南针探究
+
+- 新增 [地球磁场案例](models/earth-magnetism.html)，支持任意经纬度地表指南针、可调高度的空间磁针、磁偏角与磁倾角读数。
+- 保留倾斜磁轴，磁感线和磁针采用统一有限磁体磁场；可切换磁棒内外的闭合磁感线、半透明地球与等效磁体。场景封面来自实际浏览器截图。
+- 复用本地 Three.js、地球纹理、共享哑光材质和导航，模型边界及验证见 [案例说明](docs/earth-magnetism.md)。
+
 ## 当前设计原则
 
 - **按需加载**：首页不创建 3D iframe；只有点击作品时才加载一个交互场景。
