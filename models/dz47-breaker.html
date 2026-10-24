@@ -131,7 +131,7 @@ aside{padding-top:14px}aside section{margin-bottom:12px;padding-bottom:12px}asid
  }
  window.addEventListener('error',function(e){
    var path=(e.filename||(e.target&&e.target.src)||'').toString();
-   if(/dz47-(app|loader)\\.js|three-r160\\.min\\.js/.test(path))
+   if(/dz47-(app|loader)\.js|three-r160\.min\.js/.test(path))
      report((e.message||'脚本文件无法执行')+'。请刷新网页或检查资源加载。');
  },true);
  window.addEventListener('load',function(){
