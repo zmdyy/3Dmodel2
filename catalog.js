@@ -1,5 +1,24 @@
 window.MODEL_CATALOG = [
 {
+  "id": "tray-balance",
+  "title": "托盘天平 · 质量测量",
+  "subtitle": "手动调零、砝码与游码配平、读数及误差",
+  "category": "力学实验",
+  "summary": "从游码或调零螺母偏离零点的状态开始，手动完成实验准备；用镊子加减砝码、移动游码，完成配平并读数后揭示真实质量和相对误差。支持随机准备题及分度盘放大观察。",
+  "tags": [
+    "托盘天平",
+    "质量测量",
+    "调零",
+    "游码",
+    "砝码",
+    "相对误差"
+  ],
+  "path": "models/tray-balance.html?v=20261025-1",
+  "cover": "assets/covers/tray-balance-scene.jpg?v=20261025-1",
+  "symbol": "衡",
+  "accent": "green"
+},
+{
   "id": "dz47-breaker",
   "cover": "assets/covers/dz47-breaker-single-scene.svg?v=20261024-v52",
   "title": "DZ47 系列参考 · 单极断路器内部结构",
