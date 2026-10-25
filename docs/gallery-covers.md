@@ -28,3 +28,7 @@
 ## 瓷底双刀闸刀开关封面
 
 `assets/covers/porcelain-knife-switch-scene.jpg` 为案例默认实物视角的真实浏览器截图（960×540），保留默认分闸角度、原模型材质及照明，仅隐藏操作界面并扩大画布。首页卡片由“刀”字占位改用此图片。重现：`CHROMIUM_PATH=/path/to/chrome node scripts/capture-knife-switch-cover.cjs`。
+
+## 浮力与密度实验室封面
+
+`assets/covers/buoyancy-density-lab-scene.jpg` 为标准实验中木块部分浸入水中的真实 WebGL/SVG 场景截图，960×540 JPEG。仅隐藏页面操作界面并扩大画布，保持实际器材、相机、材质与照明；没有生成或另画封面模型。详见 [案例说明](buoyancy-density-lab.md)。

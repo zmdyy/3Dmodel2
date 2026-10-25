@@ -1,5 +1,25 @@
 window.MODEL_CATALOG = [
 {
+  "id": "buoyancy-density-lab",
+  "title": "浮力与密度实验室",
+  "subtitle": "标准实验、溢水杯、剪绳、底部拴绳与套杯托起",
+  "category": "力学实验",
+  "summary": "五种实验联动三维装置、SVG曲线、测力计读数和重心受力图；支持液面升高层观察、点击放大、剖切、释放动画和液体密度对比。",
+  "tags": [
+    "浮力",
+    "密度",
+    "溢水杯",
+    "剪绳",
+    "底部拴绳",
+    "套杯",
+    "受力分析"
+  ],
+  "path": "models/buoyancy-density-lab.html?v=20261025-b21",
+  "cover": "assets/covers/buoyancy-density-lab-scene.jpg?v=20261025-b21",
+  "symbol": "浮",
+  "accent": "green"
+},
+{
   "id": "tray-balance",
   "title": "托盘天平 · 质量测量",
   "subtitle": "手动调零、砝码与游码配平、读数及误差",
