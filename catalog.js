@@ -1,5 +1,27 @@
 window.MODEL_CATALOG = [
 {
+  "id": "paper-tube-camera",
+  "title": "纸筒照相机 · 伸缩调焦",
+  "subtitle": "靠近与远离拍摄 · 像高测量与同尺度对比",
+  "category": "光学仪器",
+  "summary": "固定盆景，移动照相机改变物距；伸缩纸筒恢复清晰，保存带厘米刻度、物距、像距和像高的同尺度对比卡。支持剖面光路、薄膜正视及对比图片导出。",
+  "tags": [
+    "照相机",
+    "凸透镜",
+    "实像",
+    "倒立缩小",
+    "调焦",
+    "物距",
+    "像距",
+    "像高",
+    "对比实验"
+  ],
+  "path": "models/paper-tube-camera.html?v=20261026-v1",
+  "cover": "assets/covers/paper-tube-camera-scene.jpg?v=20261026-v1",
+  "symbol": "像",
+  "accent": "blue"
+},
+{
   "id": "pressure-pumps",
   "title": "大气压与按压泵",
   "subtitle": "洗手液泵与气囊取水器 · 双案例剖面",
