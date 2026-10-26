@@ -1,5 +1,26 @@
 window.MODEL_CATALOG = [
 {
+  "id": "pressure-pumps",
+  "title": "大气压与按压泵",
+  "subtitle": "洗手液泵与气囊取水器 · 双案例剖面",
+  "category": "力学实验",
+  "summary": "对比直接泵送液体与向桶内压入空气两种方式，观察单向阀、补气和出水；独立止水拨钮打开桶内至外界通路，配气体示踪与阀座两面近看。",
+  "tags": [
+    "大气压",
+    "压强差",
+    "洗手液泵",
+    "气囊取水器",
+    "单向阀",
+    "补气",
+    "泄压",
+    "剖面"
+  ],
+  "path": "models/pressure-pumps.html?v=20261026-v4",
+  "cover": "assets/covers/pressure-pumps-scene.jpg?v=20261026-v4",
+  "symbol": "泵",
+  "accent": "green"
+},
+{
   "id": "mung-bean-density",
   "title": "绿豆密度 · 等体积替代",
   "subtitle": "四步实验、四次称量与物理量总览",
