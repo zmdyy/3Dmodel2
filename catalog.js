@@ -988,5 +988,26 @@ window.MODEL_CATALOG = [
     "path": "models/resistance-boxes.html?v=20261019",
     "symbol": "Ω",
     "accent": "green"
+  },
+  {
+    "id": "moonlight-puddle",
+    "cover": "assets/covers/moonlight-puddle.svg?v=20261026-b4",
+    "title": "月光下的积水 · 光的反射",
+    "subtitle": "迎月与背月 · 镜面反射和漫反射",
+    "category": "光学现象",
+    "summary": "固定月亮、道路和两名观察者，分七阶段展示月光入射、水面镜面反射、干地漫反射与迎月、背月明暗差异；含教材式光线、虚线法线、连续镜头和双视角对照。",
+    "tags": [
+      "月光",
+      "积水",
+      "光的反射",
+      "镜面反射",
+      "漫反射",
+      "入射角",
+      "反射角",
+      "生活中的物理"
+    ],
+    "path": "models/moonlight-puddle.html?v=20261026-b4",
+    "symbol": "☾",
+    "accent": "blue"
   }
 ];
