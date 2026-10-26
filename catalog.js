@@ -1,5 +1,25 @@
 window.MODEL_CATALOG = [
 {
+  "id": "shenzhong-e15",
+  "title": "深中通道 E15 · 沉管浮运安装",
+  "subtitle": "十阶段施工演示 · 分阶段自动跟随镜头",
+  "category": "力学实验",
+  "summary": "演示船管协同浮运、受控沉放、着床精调、GINA 水力压接、内部止水、脱缆及回填；支持半透明海水、水下近景、局部剖视和手动接管镜头。",
+  "tags": [
+    "沉管隧道",
+    "深中通道",
+    "浮力",
+    "液体压强",
+    "水力压接",
+    "GINA",
+    "工程施工"
+  ],
+  "path": "models/shenzhong-e15.html?v=20261026-v26",
+  "cover": "assets/covers/shenzhong-e15-scene.jpg?v=20261026-v26",
+  "symbol": "管",
+  "accent": "blue"
+},
+{
   "id": "buoyancy-density-lab",
   "title": "浮力与密度实验室",
   "subtitle": "标准实验、溢水杯、剪绳、底部拴绳与套杯托起",

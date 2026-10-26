@@ -328,3 +328,7 @@ node scripts/capture-motor-cover.cjs
 ## 浮力与密度实验室（2026-10-25）
 
 新增 [浮力与密度实验室](models/buoyancy-density-lab.html)，包含标准实验、溢水杯、剪绳释放、底部拴绳与套杯托起。提供 SVG 曲线、测力计局部读数、升高水层及分力/共同受力图，支持剖切、释放动画和统一鼠标平移旋转。复用仓库本地 Three.js r160、鼠标操作与哑光材质层，首页封面来自实际场景。详见[案例说明与验证](docs/buoyancy-density-lab.md)。
+
+## 深中通道 E15 · 沉管浮运安装
+
+新增 [沉管浮运安装案例](models/shenzhong-e15.html)，支持十阶段施工、分阶段自动跟随、局部剖视及海水氛围。采用独立离线 WebGL/Canvas 实现，封面来自真实场景截图；工程参数与验收边界见 [案例说明](docs/shenzhong-e15.md)。
