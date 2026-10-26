@@ -1,5 +1,24 @@
 window.MODEL_CATALOG = [
 {
+  "id": "mung-bean-density",
+  "title": "绿豆密度 · 等体积替代",
+  "subtitle": "四步实验、四次称量与物理量总览",
+  "category": "力学实验",
+  "summary": "观察装满水、倒水、称量绿豆与加豆至原水面的四步过程，联动水面、称量示数和密度推导；提供实验总览与瓶颈处液面判断误差对比。",
+  "tags": [
+    "密度",
+    "绿豆",
+    "等体积替代",
+    "质量测量",
+    "排水法",
+    "实验总览"
+  ],
+  "path": "models/mung-bean-density.html?v=20261026-1",
+  "cover": "assets/covers/mung-bean-density-scene.jpg?v=20261026-1",
+  "symbol": "豆",
+  "accent": "green"
+},
+{
   "id": "spring-force-meters",
   "title": "弹簧测力计 · 三种结构",
   "subtitle": "圆筒式、条形盒式与开放式",

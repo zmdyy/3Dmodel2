@@ -343,3 +343,10 @@ node scripts/capture-motor-cover.cjs
 - 新增 [三款测力计](models/spring-force-meters.html)，对比圆筒式 5 N、条形盒式 10 N 与开放式 5 N。支持加载联动、剖切、移开面板、分解及 SVG 高清读数。
 - 圆筒式使用深蓝外筒、浅米黄刻度内管与红色固定读数口；乙款按拆解确认的圆环横杆、弹簧、冲压长片和独立 S 钩连接关系重建。
 - 复用公共 Three.js r160、哑光材质和鼠标操作规范；封面来自实际场景。几何比例与模型边界见 [案例说明](docs/spring-force-meters.md)。
+
+
+## 绿豆密度 · 等体积替代
+
+- 新增 [绿豆密度实验](models/mung-bean-density.html)，四步场景联动称量示数、绿豆与水面；含实验总览、符号公式、示例数值和瓶颈误差对比。
+- 复用本地 Three.js r160、公共哑光材质和屏幕平移；支持鼠标旋转缩放、触屏双指平移缩放。
+- [案例说明与验收](docs/mung-bean-density.md)。首页封面为默认场景真实渲染截图。
