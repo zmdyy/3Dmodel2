@@ -1,5 +1,25 @@
 window.MODEL_CATALOG = [
 {
+  "id": "spring-force-meters",
+  "title": "弹簧测力计 · 三种结构",
+  "subtitle": "圆筒式、条形盒式与开放式",
+  "category": "力学实验",
+  "summary": "比较三款测力计的固定件与活动件，观察弹簧、指针、传力件和挂钩联动；支持连续加载、剖切、分解及高清矢量读数。",
+  "tags": [
+    "弹簧测力计",
+    "力的测量",
+    "读数",
+    "弹簧",
+    "圆筒式",
+    "条形盒式",
+    "结构观察"
+  ],
+  "path": "models/spring-force-meters.html?v=20261026-v8",
+  "cover": "assets/covers/spring-force-meters-scene.jpg?v=20261026-v8",
+  "symbol": "力",
+  "accent": "green"
+},
+{
   "id": "capillary-three-experiments",
   "title": "细管与玻璃瓶 · 三合一实验",
   "subtitle": "自制气压计、温度计与微小形变",

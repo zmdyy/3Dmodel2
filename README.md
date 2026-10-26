@@ -337,3 +337,9 @@ node scripts/capture-motor-cover.cjs
 
 - 新增 [三合一细管实验](models/capillary-three-experiments.html)：自制气压计、温度计与微小形变。吹气时长联动红色空气粒子、瓶内外压强差和停止后的液柱；热水浴、半剖与 SVG 截面放大辅助观察。
 - 使用公共 Three.js、哑光材质与统一导航，封面为默认实际场景截图。参数边界与验证见 [案例说明](docs/capillary-three-experiments.md)。
+
+## 弹簧测力计 · 三种结构
+
+- 新增 [三款测力计](models/spring-force-meters.html)，对比圆筒式 5 N、条形盒式 10 N 与开放式 5 N。支持加载联动、剖切、移开面板、分解及 SVG 高清读数。
+- 圆筒式使用深蓝外筒、浅米黄刻度内管与红色固定读数口；乙款按拆解确认的圆环横杆、弹簧、冲压长片和独立 S 钩连接关系重建。
+- 复用公共 Three.js r160、哑光材质和鼠标操作规范；封面来自实际场景。几何比例与模型边界见 [案例说明](docs/spring-force-meters.md)。
