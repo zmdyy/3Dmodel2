@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="月光下道路积水镜面反射教学封面示意">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#081426"/><stop offset="1" stop-color="#1e3145"/></linearGradient>
+ <linearGradient id="asphalt" x2="0" y2="1"><stop stop-color="#445368"/><stop offset="1" stop-color="#263243"/></linearGradient>
+ <radialGradient id="water" cx=".6" cy=".32" r=".72"><stop stop-color="#8cabb8"/><stop offset=".34" stop-color="#3f7993"/><stop offset="1" stop-color="#112d43"/></radialGradient>
+ <radialGradient id="glow"><stop stop-color="#fff5ce" stop-opacity=".42"/><stop offset="1" stop-color="#f5ecd9" stop-opacity="0"/></radialGradient>
+ <pattern id="speck" width="62" height="62" patternUnits="userSpaceOnUse"><circle cx="12" cy="20" r="1.7" fill="#d7dde4" opacity=".3"/><circle cx="45" cy="48" r="1" fill="#c1cad5" opacity=".25"/></pattern>
+</defs>
+<rect width="1200" height="720" fill="url(#sky)"/>
+<circle cx="180" cy="130" r="113" fill="url(#glow)"/><circle cx="180" cy="130" r="42" fill="#f7f2dc"/><circle cx="163" cy="118" r="9" fill="#d0cdbf" opacity=".35"/><circle cx="194" cy="149" r="13" fill="#d0cdbf" opacity=".27"/>
+<path d="M0 420 1200 360V720H0Z" fill="url(#asphalt)"/><path d="M0 420 1200 360V720H0Z" fill="url(#speck)"/>
+<path d="M335 550 Q390 510 485 518 Q570 486 628 508 Q723 482 792 520 Q883 519 938 568 Q932 602 852 614 Q799 646 699 634 Q621 658 563 628 Q473 642 413 612 Q343 611 335 550Z" fill="#7b9da7"/>
+<path d="M354 552 Q413 529 492 535 Q558 501 634 528 Q716 507 783 541 Q865 539 908 572 Q889 602 844 596 Q777 631 698 611 Q612 641 549 609 Q460 621 425 590 Q366 584 354 552Z" fill="url(#water)"/>
+<path d="M515 550 Q626 527 759 559" stroke="#d1eaf2" stroke-width="8" opacity=".5" fill="none" stroke-linecap="round"/>
+<!-- side observers -->
+<g transform="translate(1020,314)"><circle cy="0" r="29" fill="#ffeadc"/><path d="M-37 44 Q0 25 37 44L45 158H-42Z" fill="#5ba7c6"/><path d="M-16 154V270M16 154V270" stroke="#253c58" stroke-width="24" stroke-linecap="round"/><path d="M-25 267H-3M5 267H31" stroke="#15263b" stroke-width="15" stroke-linecap="round"/></g>
+<g transform="translate(140,380)"><circle cy="0" r="25" fill="#ffe0d3"/><path d="M-35 41 Q0 20 35 41L38 137H-40Z" fill="#bd8ca0"/><path d="M-13 136V231M15 136V231" stroke="#344563" stroke-width="21" stroke-linecap="round"/></g>
+<!-- continuous incoming and outgoing magenta rays with textbook arrow midline -->
+<g fill="none" stroke="#ff1693" stroke-width="9" stroke-linecap="round"><path d="M244 196 630 540 954 380"/></g>
+<g fill="#ff1693"><path d="M382 318 357 301 365 333Z"/><path d="M792 450 765 450 777 470Z"/></g>
+<!-- normal is dashed, without arrow -->
+<path d="M630 540V355" fill="none" stroke="#f4f7fd" stroke-width="4" stroke-dasharray="15 11"/>
+<g font-family="Microsoft YaHei,Arial,sans-serif" font-weight="700" fill="#eff7ff"><text x="49" y="76" font-size="42">月光下的积水</text><text x="49" y="124" font-size="23" font-weight="400" fill="#c0d4e7">光的反射 · 3D 课堂探究</text></g>
+</svg>
