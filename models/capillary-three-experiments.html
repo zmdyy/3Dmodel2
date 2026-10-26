@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>细管与玻璃瓶 · 三合一物理探究</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--line:#dde5ef;--ink:#263549;--muted:#68798e;--blue:#2472bd;--pale:#edf5fc;--shadow:0 9px 30px rgba(36,70,112,.06)}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#dfe8ef 0%,#e7eef4 100%);color:var(--ink);font-family:Inter,'Microsoft YaHei','PingFang SC',Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}header{background:#fff;border-bottom:1px solid var(--line);height:67px;display:flex;align-items:center;justify-content:space-between;padding:0 27px}header h1{font-size:20px;margin:0;font-weight:760;letter-spacing:.4px}header .sub{font-size:12px;color:#8191a3;margin:4px 0 0}.dot{display:inline-block;width:8px;height:8px;background:#38a98d;border-radius:50%;margin-right:8px}.version{color:#6d8198;font-size:12px}main{max-width:1650px;margin:auto;padding:18px;display:grid;grid-template-columns:minmax(430px,1fr) 355px;gap:17px;min-height:calc(100vh - 67px)}.stage{position:relative;background:linear-gradient(160deg,#fcfdff,#eaf2fa);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-height:680px;overflow:hidden}.mode-tabs{position:absolute;left:20px;top:20px;z-index:3;display:flex;gap:8px;flex-wrap:wrap}.mode{border:1px solid #d6e2ed;background:#fff;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;color:#5e7188}.mode.active{background:#226ea9;color:#fff;border-color:#226ea9;box-shadow:0 4px 12px #2472bd22}#view{position:absolute;inset:0}#view canvas{display:block;width:100%;height:100%;touch-action:none}.stage:after{position:absolute;bottom:0;left:0;right:0;height:65px;background:linear-gradient(transparent,#ecf2f966);content:'';pointer-events:none}.view-actions{position:absolute;right:20px;top:80px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;z-index:4;max-width:300px}.mini{background:#ffffffed;border:1px solid #d5e1ec;border-radius:7px;padding:7px 10px;font-size:12px;color:#52708e}.mini.active{background:#e2f1ff;border-color:#76add8;color:#17649e}.viewport-note{position:absolute;bottom:19px;left:21px;z-index:3;font-size:12px;color:#8293a6}.floating-label{position:absolute;left:20px;top:78px;border-radius:9px;background:#ffffffd9;border:1px solid #e4ebf2;padding:9px 13px;z-index:2;color:#5e7188;font-size:13px}.floating-label strong{color:#285a8d}.overlay{position:absolute;left:20px;bottom:55px;max-width:290px;z-index:4;background:#ffffffec;border:1px solid #dce7ef;border-radius:10px;padding:12px 14px;box-shadow:0 4px 22px #305d7510}.overlay h4{margin:0 0 6px;font-size:14px;color:#255c8d}.overlay p{margin:0;line-height:1.75;font-size:12px;color:#5d7186}.section-info{display:none;position:absolute;left:20px;top:132px;background:#fff9eccc;border:1px solid #e7ca88;border-radius:8px;padding:8px 10px;font-size:12px;color:#99712f;z-index:3}.section-info.on{display:block}.inset{display:none;position:absolute;width:258px;right:18px;bottom:55px;z-index:3;background:#fff;border:1px solid #dce5ef;box-shadow:0 6px 30px #24476e18;border-radius:12px;padding:9px}.inset.show{display:block}.inset h4{font-size:12px;text-align:center;margin:5px 0 3px}.inset>svg{width:100%;height:175px}.side{display:flex;flex-direction:column;gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px;box-shadow:var(--shadow)}.card h2{margin:0 0 14px;font-size:15px;font-weight:800}.card h2 small{font-weight:400;color:#97a3b2;font-size:11px;float:right}.status{background:#f2f7fc;border-radius:10px;padding:12px 14px;margin:0 0 15px}.status .tag{color:#7091aa;font-size:11px}.status .step{display:block;color:#295779;font-size:15px;font-weight:750;margin-top:5px}.status .desc{font-size:12px;color:#68798e;margin-top:7px;line-height:1.6}.btn-set{display:grid;grid-template-columns:1fr 1fr;gap:9px}.action{background:#f9fbfe;border:1px solid #d9e4ee;padding:10px 7px;border-radius:9px;font-size:13px;font-weight:650;color:#52708a;transition:.15s}.action:hover{border-color:#7eafd0;background:#f1f8ff}.action.selected{background:#e8f4ff;color:#236baa;border-color:#84b6da}.rangeblock{margin-top:17px;border-top:1px solid #edf0f4;padding-top:15px}.rangehead{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#586f82}.rangehead strong{color:#246fa7}input[type=range]{accent-color:#3486bb;width:100%;height:19px}.endpoints{display:flex;justify-content:space-between;font-size:10px;color:#92a2b2}.primary{width:100%;padding:12px 14px;border:none;border-radius:9px;color:white;background:#237bb8;font-weight:740;margin-top:13px}.primary:hover{background:#145f97}.primary.stop{background:#586e86}.readouts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.readout{padding:12px 11px;background:#f7fafc;border-radius:9px;min-height:73px}.readout label{display:block;color:#7b8b9c;font-size:11px;margin-bottom:7px}.readout b{font-size:19px;font-variant-numeric:tabular-nums;letter-spacing:-.5px;color:#2e577b}.explain{color:#567088;font-size:12px;line-height:1.85;margin-top:13px}.explain b{color:#2a6eaa}.note{font-size:11px;color:#8794a1;line-height:1.6}.switchline{display:flex;align-items:center;justify-content:space-between;margin:12px 0;font-size:13px;color:#586e83;gap:12px}.switchline input{transform:scale(1.18);accent-color:#2475ac}.warning{padding:11px 12px;background:#fff8e7;color:#9a7639;border:1px solid #f2e1bb;border-radius:9px;font-size:11px;line-height:1.7}.fallback{position:absolute;inset:132px 0 80px;display:none;align-items:center;justify-content:center;text-align:center;z-index:2}.fallback.active{display:flex}.fallback div{max-width:330px;padding:24px;background:#ffffffdf;border-radius:12px;color:#58738d;font-size:13px;line-height:1.8}.fallback svg{max-width:200px;display:block;margin:auto auto 15px}.foot{font-size:10px;color:#a1aeb8;text-align:center;margin-top:8px}@media(max-width:1000px){main{grid-template-columns:1fr}.stage{min-height:680px}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}}@media(max-width:610px){header{padding:0 14px}.version{display:none}main{padding:10px}.stage{min-height:540px}.mode-tabs{left:10px;top:10px;gap:4px}.mode{font-size:11px;padding:8px}.view-actions{top:60px;right:8px}.floating-label{top:105px;left:10px;padding:7px}.stage .overlay{display:none}.inset{bottom:12px;right:8px;width:160px}.side{display:flex}.viewport-note{font-size:10px}}
+
+.mag-settings{border-top:1px solid #e2ebf2;padding-top:15px;margin:16px 0 12px}.magrow{display:flex;align-items:center;justify-content:space-between;color:#426989;font-size:13px}.magrow strong{font-size:15px;color:#196ea6}.mag-hint{color:#768b9e;font-size:11px;line-height:1.7}.inset.grip-inset{width:316px!important;top:190px;bottom:auto;right:20px}.inset.grip-inset .deform-aux svg{height:auto}.inset.grip-inset h4{font-size:14px}.overflow-warning{display:none;padding:9px 12px;background:#fff2e7;border:1px solid #f2ba86;color:#a55118;border-radius:9px;font-size:12px;font-weight:650;line-height:1.65;margin-top:10px}.overflow-warning.show{display:block}.small-hint{font-size:11px;color:#8193a3;margin-top:9px;line-height:1.55}@media(max-width:760px){.inset.grip-inset{width:215px!important;top:auto;bottom:32px;right:8px}.inset.grip-inset .deform-aux svg{height:180px}}
+
+/* V5: spacious product-photography composition, separate architectural scale */
+:root{--bg:#edf3f7;--line:#dce7ee;--shadow:0 16px 40px rgba(32,65,87,.075)}
+header{background:#fff;border-bottom:1px solid #dce7ee}
+.stage{background:radial-gradient(ellipse at 42% 34%,#e6eef4 0%,#cfdee9 51%,#b7cbd9 100%)}
+.mode-tabs{z-index:15}.view-actions{z-index:16;top:82px;right:18px;max-width:310px}
+.mini{backdrop-filter:blur(12px);background:#fffffff2;font-weight:600}
+.floating-label{z-index:11;top:90px;left:18px;background:#ffffffdf}
+.inset{z-index:14;border:1px solid #bcd2e3;box-shadow:0 16px 50px #456b8e2d;background:#f7fbfffa;padding:16px;border-radius:18px}
+.inset h4{font-size:16px;color:#1d4f75;margin:0 0 10px;text-align:left}
+.inset:not(.grip-inset){width:300px!important;bottom:38px;right:16px}
+.inset:not(.grip-inset)>svg{height:205px}
+.inset.grip-inset{width:min(460px,45%)!important;top:166px;bottom:auto;right:18px;padding:17px}
+.inset.grip-inset .deform-aux{padding:0!important}
+.inset.grip-inset .deform-aux svg{width:100%;height:auto;display:block}
+.tower-card{position:absolute;right:18px;top:166px;z-index:12;width:270px;height:425px;border:1px solid #c7d8e7;background:linear-gradient(155deg,#e0eff8 0%,#eff7fb 56%,#fff 100%);border-radius:18px;overflow:hidden;box-shadow:0 16px 34px #44708b26}
+.tower-head{position:relative;z-index:3;padding:15px 15px 0;display:flex;flex-direction:column;gap:3px;color:#1d4c74}
+.tower-head strong{font-size:14px}.tower-head small{font-size:11px;color:#647f99}
+#towerView{position:absolute;inset:42px 0 44px 0;pointer-events:none}
+#towerView canvas{display:block;width:100%;height:100%}
+.floor-top,.floor-bottom{position:absolute;right:14px;font-size:12px;font-weight:800;color:#3e799e;border-radius:7px;background:#ffffffc9;padding:3px 6px}
+.floor-top{top:100px}.floor-bottom{bottom:71px}
+.tower-meta{position:absolute;left:10px;right:10px;bottom:43px;z-index:5;display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:#205d89;padding:6px 10px;background:#ffffffcb;border-radius:8px}
+.tower-card p{position:absolute;bottom:3px;text-align:center;width:100%;font-size:10px;color:#718ca1}
+#view canvas{outline:0}
+@media(max-width:1350px){.tower-card{width:218px;height:350px}.inset.grip-inset{width:min(410px,48%)!important}}
+@media(max-width:1000px){.tower-card{width:245px;height:360px}.inset.grip-inset{width:410px!important}}
+@media(max-width:610px){.tower-card{top:186px;width:132px;height:255px;right:8px}.tower-head{padding:8px}.tower-head strong{font-size:9px}.tower-head small{font-size:8px}.tower-meta{bottom:31px;font-size:9px}.tower-card p{font-size:7px}.inset.grip-inset{width:60%!important;top:190px;right:5px;padding:8px}.inset.grip-inset h4{font-size:11px}.inset:not(.grip-inset){width:170px!important;bottom:20px}.inset:not(.grip-inset)>svg{height:120px}}
+
+summary{cursor:pointer;font-size:14px;font-weight:700;color:#263549}details[open] summary{margin-bottom:12px}
+/* V9: dedicated instrument viewport and auxiliary rail, no overlapping cards. */
+body{height:100dvh;overflow:hidden;background:#e7edf2}
+header{height:58px;padding:0 22px}header h1{font-size:19px}header .sub{font-size:11px}
+main{height:calc(100dvh - 58px);min-height:0;max-width:none;padding:12px;gap:12px;grid-template-columns:minmax(0,1fr) 322px}
+.stage{min-height:0;height:100%;border-radius:12px;background:radial-gradient(ellipse at 40% 38%,#dce7ee,#b7cbd9)}
+.stage:after{display:none}#view{inset:114px 242px 34px 0}
+.mode-tabs{left:14px;top:14px;gap:6px}.mode{padding:9px 13px;font-size:13px}
+.view-actions{top:61px;left:14px;right:14px;max-width:none;justify-content:flex-start;gap:6px}.mini{font-size:12px;padding:7px 9px}
+.floating-label{left:16px;top:110px;font-size:12px;padding:7px 10px;pointer-events:none}
+.viewport-note{left:16px;bottom:12px;font-size:11px;color:#4b687d}
+.overlay{left:16px;bottom:43px;max-width:260px;padding:10px 12px;pointer-events:none}.overlay p{display:none}.overlay h4{margin:0;font-size:13px}
+.section-info{left:16px;top:151px;max-width:240px}
+.tower-card{top:114px;right:12px;width:218px;height:calc(100% - 395px);min-height:200px;max-height:360px;border-radius:12px;box-shadow:none}
+.tower-head{padding:10px 12px 0}.tower-head strong{font-size:13px}.tower-head small{font-size:10px}
+.tower-card p{display:none}.tower-meta{bottom:9px;left:8px;right:8px;font-size:11px;padding:5px}
+#towerView{inset:42px 0 39px}.floor-top{top:64px}.floor-bottom{bottom:48px}
+.inset:not(.grip-inset){width:218px!important;right:12px;bottom:42px;padding:12px;border-radius:12px;box-shadow:none}
+.inset:not(.grip-inset)>svg{height:156px}.inset h4{font-size:13px;margin:0 0 6px;line-height:1.5}
+.inset.grip-inset{width:218px!important;right:12px;top:180px;bottom:auto;padding:10px;border-radius:12px;box-shadow:none}
+.inset.grip-inset h4{font-size:13px}.side{min-height:0;overflow:auto;gap:10px;padding-right:2px}
+.card{padding:14px;border-radius:12px;box-shadow:none}.card h2{font-size:14px;margin-bottom:10px}.card h2 small{display:none}
+.status{padding:10px;margin-bottom:10px}.status .step{font-size:14px}.status .desc{line-height:1.5}
+.action{padding:9px 6px;font-size:13px}.rangeblock{margin-top:12px;padding-top:10px}.primary{padding:10px;font-size:13px}
+.readout{padding:10px;min-height:65px}.readout b{font-size:20px}.readout label{font-size:11px;line-height:1.4}.explain{line-height:1.6;margin-top:10px}
+.switchline{margin:10px 0;font-size:12px}.foot{display:none}.warning{font-size:11px}.mag-settings{margin:10px 0;padding-top:10px}
+@media(min-width:1600px){main{grid-template-columns:minmax(0,1fr) 350px}.tower-card{width:250px}.inset:not(.grip-inset),.inset.grip-inset{width:250px!important}#view{right:274px}.card{padding:17px}}
+@media(max-width:1050px){body{height:auto;overflow:auto}main{height:auto;min-height:calc(100dvh - 58px);grid-template-columns:1fr}.stage{height:680px;min-height:0}.side{overflow:visible;display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}}
+@media(max-width:610px){header{padding:0 12px}header h1{font-size:16px}header .sub{font-size:10px}main{padding:8px;gap:8px}.stage{height:650px}.mode-tabs{left:8px;right:8px;gap:4px}.mode{padding:8px 7px;font-size:11px}.view-actions{top:59px;left:8px;right:8px;gap:4px}.mini{font-size:11px;padding:6px}#view{inset:135px 0 204px}.floating-label{top:118px;left:10px;font-size:11px}.tower-card{top:auto;bottom:28px;left:8px;right:auto;width:calc(50% - 12px);height:176px;min-height:0}.tower-head{padding:8px}.tower-head strong{font-size:10px}.tower-head small{font-size:8px}.floor-top,.floor-bottom{display:none}.tower-meta{font-size:9px;gap:3px;padding:3px}.inset:not(.grip-inset){width:calc(50% - 12px)!important;bottom:28px;right:8px;padding:8px;height:176px}.inset:not(.grip-inset)>svg{height:130px}.inset h4{font-size:10px}.inset.grip-inset{top:auto;bottom:28px;right:8px;width:calc(100% - 16px)!important;height:188px;padding:8px}.inset.grip-inset .deform-aux svg{height:153px}.viewport-note{left:10px;bottom:7px;font-size:9px}.side{display:flex}.section-info{top:154px}}
+
+</style>
+</head>
+<body>
+<header><div><h1>玻璃瓶中的物理 · 三合一实验</h1><div class="sub">同一容器结构 · 气压变化 / 液体热膨胀 / 弹性形变</div></div><span class="version"><span class="dot"></span>V12 · 吹气时长与压强联动</span></header>
+<main><section class="stage" aria-label="三维模型演示区域">
+  <div class="mode-tabs"><button class="mode active" data-mode="pressure">① 自制气压计</button><button class="mode" data-mode="temp">② 自制温度计</button><button class="mode" data-mode="grip">③ 微小形变</button></div>
+  <div id="view"></div>
+  <div class="tower-card" id="towerCard" aria-label="建筑单独建模展示窗口">
+    <div class="tower-head"><strong>深圳 · 平安金融中心</strong><small>真实高度 599.1 m / 115 层</small></div>
+    <div id="towerView"></div><span class="floor-top">115F</span><span class="floor-bottom">1F</span>
+    <div class="tower-meta"><span>当前 <b id="floorBadge">1</b> 楼</span><span id="heightBadge">0.0 m</span></div>
+    <p>建筑为独立比例展示 · 器材为特写，不按同一比例拼放</p>
+  </div><div id="fallback" class="fallback active"><div><svg viewBox="0 0 180 290" xmlns="http://www.w3.org/2000/svg"><path d="M68 62 V27H112V62Q112 77 135 92Q151 102 151 119V239Q151 262 90 265Q29 262 29 239V119Q29 102 45 92Q68 77 68 62" stroke="#547591" stroke-width="3" fill="#e7f5ff" fill-opacity=".45"/><path d="M31 160H149V239Q149 261 90 263Q31 261 31 239Z" fill="#8dd5e9" opacity=".75"/><rect x="86" y="10" width="8" height="202" rx="3" fill="#c8dceb" stroke="#557d94"/><rect x="87.8" y="112" width="4.5" height="99" fill="#2c90b3"/><rect x="64" y="58" width="52" height="18" rx="4" fill="#73828d"/></svg>正在初始化三维画面；若一直未出现，请检查浏览器是否支持 WebGL。</div></div>
+  <div class="floating-label"><strong id="modeName">气压计</strong> · <span id="statusLabel">准备：未吹气</span></div>
+  <div class="view-actions"><button class="mini active" id="vOblique">斜视</button><button class="mini" id="vFront">正视</button><button class="mini" id="vTop">俯视</button><button class="mini" id="bSection">半剖</button><button class="mini active" id="bParticles">气体示踪</button><button class="mini active" id="bZoom">局部放大</button><button class="mini" id="bReset">复位</button><button class="mini" id="bFull">全屏</button><button class="mini" id="bClose" title="只观察瓶体、瓶内水与下端细管">器材近景</button></div>
+  <div class="section-info" id="sectionInfo">半剖：已去除前半侧壁，保留液柱连续性</div>
+  <div class="overlay"><h4 id="principleTitle">核心观察：液柱为何升降？</h4><p id="principleDesc">瓶内空气压强与外界大气压强的差决定细管水柱的高度。</p></div>
+  <div class="inset show" id="inset"><h4>细管液面与刻度 · 局部放大</h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 145"><defs><linearGradient id="tubeGrad" x1="0" x2="1"><stop stop-color="#d8f4fc"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#abdce9"/></linearGradient></defs><path d="M84 12V136M123 12V136" stroke="#355e78" stroke-width="5"/><rect x="88" y="12" width="31" height="124" fill="url(#tubeGrad)" opacity=".75"/><rect id="zoomLiquid" x="89" y="88" width="29" height="48" fill="#168bad" opacity="1"/><path id="zoomMeniscus" d="M89 88Q103.5 81 118 88" stroke="#075d84" stroke-width="3" fill="none"/><g stroke="#375f75" id="zoomMarks"></g><text id="zoomRead" x="134" y="77" font-size="12" fill="#21618c">示数</text></svg></div>
+  <div class="viewport-note">左键旋转 · 右键 / Shift 平移 · 滚轮缩放 · 双指平移与缩放</div>
+</section>
+<aside class="side"><section class="card"><h2>实验操作 <small></small></h2><div class="status"><span class="tag">当前阶段</span><span class="step" id="stepTitle">安装与吹气准备</span><div class="desc" id="stepDesc">检查瓶塞密封和细管下端浸没。</div></div><div class="btn-set" id="actionList"></div><div class="rangeblock"><div class="rangehead"><span id="sliderLabel">电梯楼层</span><strong id="sliderValue">1 层</strong></div><input type="range" id="mainRange" min="1" max="115" value="1" step="1"><div class="endpoints"><span id="rangeMin">1 层</span><span id="rangeMax">115 层</span></div></div><button class="primary" id="play">▶ 连续演示整个实验</button></section>
+<section class="card"><h2>实时观察 <small></small></h2><div class="readouts"><div class="readout"><label id="readLabel1">所在楼层</label><b id="readValue1">1 层</b></div><div class="readout"><label id="readLabel2">液面变化</label><b id="readValue2">0.0 cm</b></div><div class="readout"><label id="readLabel3">外界气压变化</label><b id="readValue3">0 Pa</b></div><div class="readout"><label id="readLabel4">瓶内气体</label><b id="readValue4">保留</b></div></div><div id="overflowBanner" class="overflow-warning">液体已到达细管管口：液体可能溢出，当前装置超出测量量程；后续理论水柱不再作为有效示数。</div><div class="explain" id="exp"><b>观察要点：</b>瓶口气密，细管上下连通，先吹气建立瓶内外气压差。</div></section>
+<section class="card wide"><details><summary>观察设置</summary><label class="switchline">显示玻璃瓶和细管刻度 <input type="checkbox" id="showMarks" checked></label><label class="switchline">细管高对比显示 <input type="checkbox" id="showTube" checked></label><label class="switchline">显示瓶内气体示踪粒子 <input type="checkbox" id="showGas" checked></label><label class="switchline">显示重点物理信息 <input type="checkbox" id="showNotes" checked></label><label class="switchline">显示平安金融中心建筑模型 <input type="checkbox" id="showTower" checked></label><div class="mag-settings" id="magSettings" hidden><div class="magrow"><span>截面形变放大系数</span><strong id="magLabel">×2000</strong></div><input id="magRange" type="range" min="100" max="5000" value="2000" step="100"><div class="mag-hint">仅放大形状变化，不改变液柱与压强计算。原始轮廓用虚线标示。</div></div><div class="warning" id="limitNote">气体粒子是宏观示踪效果，并不代表真实分子大小。楼层实验按约每层 3 m 的简化环境模拟。</div><div class="foot">建筑结构仅为教学示意，非施工级复刻。楼层高度按总高线性映射；细管溢出后不提供有效水位预测。</div></details></section></aside>
+</main>
+<script src="../shared/vendor/three-r160.min.js"></script>
+<script src="../shared/material-finish.js"></script>
+<script src="../shared/navigation-style.js"></script>
+<script>
+boot();
+function boot(){
+const T=THREE,$=id=>document.getElementById(id),view=$('view');$('fallback').classList.remove('active');
+let mode='pressure',playing=false,stepIndex=0,phaseClock=0,phaseStart=0, phaseDuration=0;
+const parms={floor:1,charge:0,bath:22,waterT:22,pinch:0},targets={...parms};
+const MAX_CHARGE=2.4,CHARGE_RATE=.20;
+let addedAir=0,blowSeconds=0;
+let whichAction='prepare',showSection=false,showGas=true,showNotes=true,showMarks=true,enhancedTube=true,showTower=true,mag=2000,overflowLatched=false,lastInsetRefresh=0;
+const scene=new T.Scene(),cam=new T.PerspectiveCamera(36,1,.05,100);cam.position.set(8.6,6.0,12.8);const renderer=new T.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.8));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.96;renderer.localClippingEnabled=true;view.appendChild(renderer.domElement);
+scene.add(new T.HemisphereLight(0xeaf6ff,0x8698a8,1.7));let sun=new T.DirectionalLight(0xffffff,1.35);sun.position.set(-6,11,8);scene.add(sun);let edge=new T.DirectionalLight(0xbddff7,.62);edge.position.set(5,5,-8);scene.add(edge);
+// Procedurally painted studio environment; generated locally with Canvas, no remote HDR files.
+function buildStudioEnv(){const c=document.createElement('canvas');c.width=1024;c.height=512;const g=c.getContext('2d');
+ const grad=g.createLinearGradient(0,0,0,512);grad.addColorStop(0,'#b9d1df');grad.addColorStop(.22,'#edf4f8');grad.addColorStop(.50,'#dfe9ee');grad.addColorStop(.76,'#c7d5df');grad.addColorStop(1,'#788d9c');g.fillStyle=grad;g.fillRect(0,0,1024,512);
+ for(const r of [[110,72,145,235],[470,62,105,249],[731,58,156,223],[975,88,22,220]]){let rr=g.createLinearGradient(r[0],0,r[0]+r[2],0);rr.addColorStop(0,'rgba(255,255,255,.03)');rr.addColorStop(.15,'rgba(250,253,255,.70)');rr.addColorStop(.84,'rgba(250,253,255,.70)');rr.addColorStop(1,'rgba(255,255,255,.02)');g.fillStyle=rr;g.fillRect(...r)}
+ g.fillStyle='rgba(40,73,102,.30)';g.fillRect(290,70,36,220);g.fillRect(887,100,41,196);
+ const tex=new T.CanvasTexture(c);tex.mapping=T.EquirectangularReflectionMapping;tex.colorSpace=T.SRGBColorSpace;const pmrem=new T.PMREMGenerator(renderer);const env=pmrem.fromEquirectangular(tex).texture;tex.dispose();return env;}
+const studioEnv=buildStudioEnv();scene.environment=studioEnv;
+const benchTex=(function(){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.fillStyle='#d7dde2';g.fillRect(0,0,512,512);for(let i=0;i<4200;i++){const x=Math.random()*512,y=Math.random()*512,a=.025+Math.random()*.03,v=205+Math.random()*28;g.fillStyle=`rgba(${v},${v},${v+6},${a})`;g.fillRect(x,y,1.6+Math.random()*2.8,1.6+Math.random()*2.8);}for(let i=0;i<22;i++){g.strokeStyle=`rgba(255,255,255,${.024+Math.random()*.018})`;g.lineWidth=1+Math.random()*2.2;g.beginPath();g.moveTo(0,Math.random()*512);g.lineTo(512,Math.random()*512);g.stroke();}const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(1.2,1.2);return t;})();
+const bench=new T.Mesh(new T.CircleGeometry(2.8,96),new T.MeshStandardMaterial({color:0xd7dde2,map:benchTex,roughness:.66,metalness:.06}));bench.rotation.x=-Math.PI/2;bench.position.y=-.064;bench.receiveShadow=true;scene.add(bench);
+const ground=new T.Mesh(new T.PlaneGeometry(300,300),new T.MeshStandardMaterial({color:0xd5e0e7,roughness:.98,metalness:0}));ground.rotation.x=-Math.PI/2;ground.position.y=-.11;ground.receiveShadow=true;scene.add(ground);ground.visible=false;bench.visible=false;
+renderer.shadowMap.enabled=false;renderer.shadowMap.type=T.PCFSoftShadowMap;sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-7;sun.shadow.camera.right=7;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-7;sun.shadow.bias=-.0001;
+const root=new T.Group();root.position.set(0,0,.08);root.scale.setScalar(1.08);scene.add(root);
+function makeShadowTex(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');const r=g.createRadialGradient(128,128,16,128,128,128);r.addColorStop(0,'rgba(48,72,92,.26)');r.addColorStop(.45,'rgba(48,72,92,.14)');r.addColorStop(1,'rgba(48,72,92,0)');g.fillStyle=r;g.fillRect(0,0,256,256);const t=new T.CanvasTexture(c);return t;}
+const contactShadow=new T.Mesh(new T.PlaneGeometry(2.65,1.34),new T.MeshBasicMaterial({map:makeShadowTex(),transparent:true,depthWrite:false,opacity:.92}));contactShadow.rotation.x=-Math.PI/2;contactShadow.position.set(0,.176,0);contactShadow.renderOrder=1;root.add(contactShadow);
+function makeHighlightTex(){const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');const r=g.createRadialGradient(256,128,18,256,128,220);r.addColorStop(0,'rgba(255,255,255,.35)');r.addColorStop(.38,'rgba(255,255,255,.12)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,512,256);const t=new T.CanvasTexture(c);return t;}
+const tableHighlight=new T.Mesh(new T.PlaneGeometry(2.95,1.55),new T.MeshBasicMaterial({map:makeHighlightTex(),transparent:true,depthWrite:false,opacity:.42}));tableHighlight.rotation.x=-Math.PI/2;tableHighlight.position.set(.04,.178,.05);tableHighlight.renderOrder=0;root.add(tableHighlight);
+const glassMat=new T.MeshPhysicalMaterial({color:0xcce6f2,metalness:0,roughness:.25,transmission:0,transparent:true,opacity:.13,depthWrite:false,side:T.FrontSide,envMapIntensity:.25,clearcoat:.18});
+const innerWallMat=new T.MeshPhysicalMaterial({color:0xc4e2ef,metalness:0,roughness:.3,transmission:0,transparent:true,opacity:.035,depthWrite:false,side:T.BackSide,envMapIntensity:.18});
+function tinyRubberNoise(){let c=document.createElement('canvas');c.width=c.height=128;let g=c.getContext('2d');let d=g.createImageData(128,128);for(let i=0;i<d.data.length;i+=4){let q=110+Math.random()*52;d.data[i]=q;d.data[i+1]=q;d.data[i+2]=q;d.data[i+3]=255;}g.putImageData(d,0,0);let t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(3,3);return t;}
+const rubberBump=tinyRubberNoise();
+const rubber=new T.MeshStandardMaterial({color:0x303942,roughness:.92,metalness:0,bumpMap:rubberBump,bumpScale:.006});const rubberRim=new T.MeshStandardMaterial({color:0x697780,roughness:.42,metalness:.25});
+const waterPressureMat=new T.MeshPhysicalMaterial({color:0x1489bb,roughness:.17,metalness:0,transparent:true,opacity:.82,depthWrite:false,side:T.DoubleSide,clearcoat:.48,clearcoatRoughness:.1,envMapIntensity:.56});const waterTempMat=new T.MeshPhysicalMaterial({color:0xb53370,roughness:.17,metalness:0,transparent:true,opacity:.85,depthWrite:false,side:T.DoubleSide,clearcoat:.44,clearcoatRoughness:.1,envMapIntensity:.52});
+const innerGlass=new T.MeshPhysicalMaterial({color:0xdcebF4,roughness:.08,transparent:true,opacity:.46,depthWrite:false,side:T.DoubleSide,clearcoat:1,clearcoatRoughness:.025,envMapIntensity:1.4});
+const outline=new T.MeshBasicMaterial({color:0x63859a,transparent:true,opacity:.78});
+const glassProfileSource=[[0,.15],[.56,.15],[.75,.16],[.86,.22],[.92,.34],[.95,.51],[.95,2.52],[.93,2.66],[.85,2.81],[.69,2.96],[.54,3.11],[.44,3.27],[.43,3.39],[.43,3.64]];
+// Continuous, non-folding bottle profile: long straight walls must not be spline-overshot.
+const bottlePath=new T.Path();bottlePath.moveTo(0,.15);bottlePath.lineTo(.56,.15);
+bottlePath.bezierCurveTo(.83,.15,.95,.26,.95,.51);bottlePath.lineTo(.95,2.52);
+bottlePath.bezierCurveTo(.95,2.86,.43,3.06,.43,3.39);bottlePath.lineTo(.43,3.64);
+const glassProfile=bottlePath.getPoints(36).map(v=>[Math.max(0,v.x),v.y]);
+const waterFullProfile=[[0,.19],[.58,.19],[.82,.24],[.87,.35],[.88,.49],[.88,2.58],[.84,2.70],[.75,2.84],[.61,2.97],[.46,3.12],[.34,3.31],[.34,3.51]];
+const lathe=(p,partial=false)=>new T.LatheGeometry(p.map(a=>new T.Vector2(a[0],a[1])),72,partial?Math.PI/2:0,partial?Math.PI:Math.PI*2);
+const glassHolder=new T.Group();root.add(glassHolder);let shell=new T.Mesh(lathe(glassProfile),glassMat);shell.scale.z=.91;glassHolder.add(shell);shell.castShadow=false;shell.receiveShadow=false;shell.renderOrder=10;
+let innerShell=new T.Mesh(lathe(glassProfile.map(p=>[Math.max(.018,p[0]-.052),p[1]])),innerWallMat);innerShell.scale.z=.91;glassHolder.add(innerShell);innerShell.receiveShadow=false;innerShell.renderOrder=9;
+const contactRim=new T.Mesh(new T.TorusGeometry(.855,.064,16,100),glassMat);contactRim.rotation.x=Math.PI/2;contactRim.position.y=.225;contactRim.scale.y=.91;glassHolder.add(contactRim);let halfShell=new T.Mesh(lathe(glassProfile,true),glassMat);halfShell.scale.z=.91;glassHolder.add(halfShell);halfShell.visible=false;halfShell.renderOrder=10;
+let glassBottom=new T.Mesh(new T.CylinderGeometry(.83,.83,.07,70),new T.MeshPhysicalMaterial({color:0xb6d8e7,roughness:.16,transparent:true,opacity:.32}));glassBottom.position.y=.17;glassBottom.scale.z=.91;glassHolder.add(glassBottom);
+function torus(r,t,y,mat){let o=new T.Mesh(new T.TorusGeometry(r,t,9,64),mat);o.rotation.x=Math.PI/2;o.position.y=y;return o}
+let baseRing=torus(.905,.018,.245,outline);baseRing.scale.y=.91;root.add(baseRing);
+const shellEdgeMat=new T.LineBasicMaterial({color:0x6e8aa0,transparent:true,opacity:.62});
+const shellEdges=new T.LineSegments(new T.EdgesGeometry(shell.geometry,28),shellEdgeMat);shellEdges.scale.copy(shell.scale);shellEdges.visible=false;glassHolder.add(shellEdges);
+const silhouetteMat=new T.MeshBasicMaterial({color:0x6391ad,transparent:true,opacity:.13,side:T.BackSide,depthWrite:false});
+const silhouette=new T.Mesh(lathe(glassProfile.map(p=>[p[0]+.009,p[1]])),silhouetteMat);silhouette.scale.z=.91;glassHolder.add(silhouette);silhouette.renderOrder=0;silhouette.visible=false;
+const innerEdges=new T.LineSegments(new T.EdgesGeometry(innerShell.geometry,32),new T.LineBasicMaterial({color:0xa7c0cf,transparent:true,opacity:.32}));innerEdges.scale.copy(innerShell.scale);innerEdges.visible=false;glassHolder.add(innerEdges);
+let neckRing=torus(.437,.016,3.65,rubberRim);neckRing.scale.y=.91;root.add(neckRing);
+const stopper=new T.Group();root.add(stopper);let lower=new T.Mesh(new T.CylinderGeometry(.39,.36,.29,64),rubber);lower.position.y=3.61;lower.scale.z=.91;stopper.add(lower);let collar=new T.Mesh(new T.CylinderGeometry(.465,.465,.12,64),rubberRim);collar.position.y=3.77;collar.scale.z=.91;stopper.add(collar);stopper.add(torus(.435,.015,3.84,rubber));
+const stopperEdgeMat=new T.LineBasicMaterial({color:0x4d6575,transparent:true,opacity:.45});
+lower.add(new T.LineSegments(new T.EdgesGeometry(lower.geometry,26),stopperEdgeMat));
+collar.add(new T.LineSegments(new T.EdgesGeometry(collar.geometry,26),new T.LineBasicMaterial({color:0x8096a5,transparent:true,opacity:.42})));
+
+stopper.add(torus(.463,.012,3.735,new T.MeshStandardMaterial({color:0xc5d1d9,metalness:.78,roughness:.2})));
+stopper.add(torus(.449,.010,3.805,new T.MeshStandardMaterial({color:0x788b98,metalness:.55,roughness:.25})));
+lower.castShadow=true;collar.castShadow=true;
+const capInner=new T.Mesh(new T.CylinderGeometry(.10,.10,.025,32),rubberRim);capInner.position.y=3.847;stopper.add(capInner);
+const tubeGroup=new T.Group();root.add(tubeGroup);const TUBE_BOTTOM=1.10,TUBE_TOP=6.27,TUBE_R=.106,TUBE_IR=.071;
+let tubeShell=new T.Mesh(new T.CylinderGeometry(TUBE_R,TUBE_R,TUBE_TOP-TUBE_BOTTOM,48,1,true),innerGlass);tubeShell.position.y=(TUBE_TOP+TUBE_BOTTOM)/2;tubeGroup.add(tubeShell);tubeShell.renderOrder=5;
+// Display-only enlargement: the physical pressure equation retains the original small bore.
+// Educational visual rim: two camera-facing glass edges and a fine specular glint.
+// These are visual accents on the same capillary wall, not extra tubes or wires.
+const tubeEdges=new T.Group();tubeGroup.add(tubeEdges);
+const rimDark=new T.MeshBasicMaterial({color:0x375d75,transparent:true,opacity:.92,depthWrite:false,depthTest:true});
+const rimLight=new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.92,depthWrite:false,depthTest:true});
+const edgeLength=TUBE_TOP-TUBE_BOTTOM,edgeMid=(TUBE_TOP+TUBE_BOTTOM)/2;
+function glassEdge(x,z,r,mat){const m=new T.Mesh(new T.CylinderGeometry(r,r,edgeLength,8),mat);m.position.set(x,edgeMid,z);m.renderOrder=8;tubeEdges.add(m);return m;}
+glassEdge(-TUBE_R*.91,TUBE_R*.30,.009,rimDark);
+glassEdge(TUBE_R*.91,TUBE_R*.30,.009,rimDark);
+glassEdge(-TUBE_R*.66,TUBE_R*.73,.005,rimLight);
+tubeGroup.add(torus(TUBE_R,.014,TUBE_TOP,rubberRim));
+const tubeLiquidMat=new T.MeshPhysicalMaterial({color:0x0795bd,roughness:.12,transparent:false,opacity:1,depthWrite:true,emissive:0x06506b,emissiveIntensity:.12});tubeLiquidMat.userData.noMaterialFinish=true;let tubeFluid=new T.Mesh(new T.CylinderGeometry(TUBE_IR,TUBE_IR,1,32),tubeLiquidMat);tubeFluid.renderOrder=6;tubeGroup.add(tubeFluid);
+const meniscusMat=new T.MeshBasicMaterial({color:0x085779,depthTest:true});
+let meniscus=torus(TUBE_IR,.011,4,meniscusMat);meniscus.renderOrder=7;tubeGroup.add(meniscus);
+// Short level indicator beside the tube; its height stays coupled to the liquid surface.
+const levelMarker=new T.Mesh(new T.BoxGeometry(.19,.018,.018),new T.MeshBasicMaterial({color:0x116995,depthTest:true}));
+levelMarker.position.x=TUBE_R+.12;levelMarker.position.z=TUBE_R*.48;levelMarker.renderOrder=9;tubeGroup.add(levelMarker);
+const marks=new T.Group();tubeGroup.add(marks);for(let i=0;i<=28;i++){let y=3.84+i*.082; if(y>TUBE_TOP-.055)break;let tick=new T.Mesh(new T.BoxGeometry(i%5===0?.122:.076,.017,.020),new T.MeshBasicMaterial({color:0x244c66}));tick.position.set(.176+(i%5===0?.012:0),y,TUBE_R*.22);marks.add(tick);}
+// Enlarged SVG ticks use vector strokes so their contrast is independent of screen resolution.
+const tickLayer=$('zoomMarks');
+for(let i=0;i<=10;i++){
+ const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+ const y=16+i*11.6;
+ ln.setAttribute('x1',i%2===0?'69':'75');ln.setAttribute('x2','82');
+ ln.setAttribute('y1',String(y));ln.setAttribute('y2',String(y));
+ ln.setAttribute('stroke-width',i%2===0?'2.5':'1.5');
+ tickLayer.appendChild(ln);
+}
+const numCanvas=document.createElement('canvas');numCanvas.width=256;numCanvas.height=64;let nc=numCanvas.getContext('2d');nc.font='bold 41px Arial';nc.fillStyle='#37516a';nc.fillText('cm',11,46);const labelTex=new T.CanvasTexture(numCanvas);let lab=new T.Sprite(new T.SpriteMaterial({map:labelTex,transparent:true,depthTest:false}));lab.scale.set(.54,.16,1);lab.position.set(.47,5.92,TUBE_R*.25);marks.add(lab);
+// Dyed liquid as a volume with curved bottom, not a flat cylinder inserted into a bottle.
+const pressureWaterProfile=[[0,.215],[.58,.215],[.77,.24],[.84,.34],[.87,.50],[.87,1.695],[0,1.695]];
+const waterP=new T.Group();root.add(waterP);
+let wBody=new T.Mesh(lathe(pressureWaterProfile),waterPressureMat);wBody.scale.z=.91;wBody.renderOrder=2;waterP.add(wBody);
+const waterSurfaceMat=new T.MeshPhysicalMaterial({color:0x55b7e2,metalness:0,roughness:.08,transparent:true,opacity:.96,side:T.DoubleSide,depthWrite:true,clearcoat:1,clearcoatRoughness:.04});
+let wTop=new T.Mesh(new T.CircleGeometry(.868,96),waterSurfaceMat);wTop.rotation.x=-Math.PI/2;wTop.scale.y=.91;wTop.position.y=1.70;wTop.renderOrder=3;waterP.add(wTop);
+const waterSurfaceLine=torus(.862,.022,1.702,new T.MeshBasicMaterial({color:0x167fae,transparent:true,opacity:.86,depthWrite:false}));waterSurfaceLine.scale.y=.91;root.add(waterSurfaceLine);
+const surfaceHighlight=new T.Group();root.add(surfaceHighlight);
+for(let i=0;i<3;i++){let r=.23+i*.22;let g=torus(r,.006,1.706,new T.MeshBasicMaterial({color:0xc3f0ff,transparent:true,opacity:.22-i*.04,depthWrite:false}));g.scale.y=.91;surfaceHighlight.add(g)}
+let waterF=new T.Mesh(lathe(waterFullProfile),waterTempMat);waterF.scale.z=.91;waterF.renderOrder=2;root.add(waterF);
+const fullLiquidSurface=new T.Mesh(new T.CircleGeometry(.345,80),new T.MeshBasicMaterial({color:0xc96392,transparent:true,opacity:.78,depthWrite:false,side:T.DoubleSide}));fullLiquidSurface.rotation.x=-Math.PI/2;fullLiquidSurface.position.y=3.51;root.add(fullLiquidSurface);
+const fullLiquidMeniscus=torus(.345,.014,3.515,new T.MeshBasicMaterial({color:0x934872,transparent:true,opacity:.85,depthWrite:false}));root.add(fullLiquidMeniscus);
+const gasGroup=new T.Group();root.add(gasGroup);
+const gasGeo=new T.SphereGeometry(.032,8,6);
+const gasMat=new T.MeshBasicMaterial({color:0x51a3c8,transparent:true,opacity:.72,depthWrite:false});
+const gasI=new T.InstancedMesh(gasGeo,gasMat,85);gasI.renderOrder=4;gasGroup.add(gasI);
+const incomingMat=new T.MeshBasicMaterial({color:0xe53935,transparent:true,opacity:.95,depthWrite:false,toneMapped:false});
+const incomingGas=new T.InstancedMesh(gasGeo,incomingMat,Math.ceil(70*MAX_CHARGE));incomingGas.count=0;incomingGas.frustumCulled=false;incomingGas.renderOrder=5;gasGroup.add(incomingGas);
+function sampleGas(){const y=1.86+Math.random()*1.1,a=Math.random()*Math.PI*2,r=Math.sqrt(Math.random())*(.70-Math.max(0,y-2.50)*.8);return {age:0,x:Math.cos(a)*r,z:Math.sin(a)*r*.91,y,phase:Math.random()*7,spd:.26+Math.random()*.42};}
+const particleInfo=Array.from({length:85},sampleGas),incomingInfo=Array.from({length:Math.ceil(70*MAX_CHARGE)},sampleGas);const tempO=new T.Object3D();
+function resetIncomingAir(){addedAir=0;blowSeconds=0;incomingInfo.forEach(p=>p.age=0);}
+const gasLegend=document.createElement('div');gasLegend.style.cssText='margin-top:5px;font-size:11px;display:flex;gap:10px;align-items:center';gasLegend.innerHTML='<span style="color:#398cae">● 原有空气</span><span style="color:#cf302c">● 吹入空气 <b id="incomingCount">+0</b></span>';document.querySelector('.floating-label').appendChild(gasLegend);
+// Air direction is drawn with real arrow geometry, inside the capillary bore.
+const airMat=new T.MeshBasicMaterial({color:0xe53935,depthWrite:false,toneMapped:false});
+let blowAir=new T.Group();root.add(blowAir);
+for(let i=0;i<14;i++){
+ const a=new T.Group();const shaft=new T.Mesh(new T.CylinderGeometry(.012,.012,.15,8),airMat);shaft.position.y=.065;
+ const head=new T.Mesh(new T.ConeGeometry(.047,.105,12),airMat);head.rotation.z=Math.PI;head.position.y=-.045;
+ shaft.renderOrder=head.renderOrder=9;a.add(shaft,head);blowAir.add(a);
+}
+const blowCue=new T.Group();root.add(blowCue);
+function textSprite(msg,color='#d93632'){const c=document.createElement('canvas');c.width=256;c.height=96;const cx=c.getContext('2d');cx.font='bold 34px Microsoft YaHei, Arial';cx.fillStyle=color;cx.textAlign='center';cx.fillText(msg,128,50);const tex=new T.CanvasTexture(c);const sp=new T.Sprite(new T.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sp.scale.set(1.25,.46,1);return sp;}
+const blowLab=textSprite('吹气');blowLab.position.set(.9,6.75,0);blowCue.add(blowLab);
+function makeDownArrow(x){const ah=new T.ArrowHelper(new T.Vector3(0,-1,0),new T.Vector3(x,6.55,0),.72,0xe53935,.18,.1);blowCue.add(ah);}
+makeDownArrow(0);makeDownArrow(.24);makeDownArrow(-.24);blowCue.visible=false;
+// Transparent bubble centers with bright rims retain depth and remain legible through dyed water.
+const bubbleMat=new T.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{},
+ vertexShader:`varying vec3 vn;varying vec3 vv;void main(){vec4 p=modelViewMatrix*vec4(position,1.0);vn=normalize(normalMatrix*normal);vv=normalize(-p.xyz);gl_Position=projectionMatrix*p;}`,
+ fragmentShader:`varying vec3 vn;varying vec3 vv;void main(){float rim=pow(1.0-abs(dot(normalize(vn),normalize(vv))),1.8);gl_FragColor=vec4(mix(vec3(.90,.12,.10),vec3(1.0,.48,.40),rim),.10+.86*rim);}`});
+let bubbleGroup=new T.Group();root.add(bubbleGroup);
+for(let i=0;i<5;i++){const bubble=new T.Mesh(new T.SphereGeometry(.058,24,16),bubbleMat);bubble.renderOrder=5;bubble.visible=false;bubbleGroup.add(bubble);}
+const blowRipples=new T.Group();root.add(blowRipples);
+for(let i=0;i<3;i++){const mat=new T.MeshBasicMaterial({color:0xe2fbff,transparent:true,opacity:.8,depthWrite:false});const ring=torus(1,.012,1.716,mat);ring.renderOrder=4;blowRipples.add(ring);}
+const bath=new T.Group();root.add(bath);let bathMat=new T.MeshPhysicalMaterial({color:0x78bfe4,transparent:true,opacity:.15,roughness:.2,side:T.DoubleSide,depthWrite:false});let bathBody=new T.Mesh(new T.CylinderGeometry(1.75,1.75,2.37,64,1,true),bathMat);bathBody.position.y=1.31;bath.add(bathBody);let bathTop=new T.Mesh(new T.CircleGeometry(1.75,64),new T.MeshBasicMaterial({color:0x79d2ee,transparent:true,opacity:.17,side:T.DoubleSide,depthWrite:false}));bathTop.rotation.x=-Math.PI/2;bathTop.position.y=2.50;bath.add(bathTop);bath.add(torus(1.75,.026,2.50,new T.MeshStandardMaterial({color:0x8eacbb,metalness:.4,roughness:.4})));let bathBase=torus(1.75,.022,.125,new T.MeshStandardMaterial({color:0x9ab4c2,roughness:.45}));bath.add(bathBase);
+// PAFC reference tower: an illustrative geometry assembled from verified gross height, floors,
+// vertical glass facades, steel-colored corner fins and a tapered crown. Not a survey-grade CAD model.
+const towerScene=new T.Scene();towerScene.environment=studioEnv;
+const towerGroup=new T.Group();towerScene.add(towerGroup);towerGroup.position.set(0,0,0);
+towerScene.add(new T.HemisphereLight(0xeaf8ff,0x6f889c,1.35));let tSun=new T.DirectionalLight(0xffffff,1.55);tSun.position.set(-5,11,7);towerScene.add(tSun);let tEdge=new T.DirectionalLight(0x8dc8f4,.75);tEdge.position.set(5,8,-7);towerScene.add(tEdge);
+const towerRenderer=new T.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});towerRenderer.setPixelRatio(Math.min(devicePixelRatio||1,1.65));towerRenderer.outputColorSpace=T.SRGBColorSpace;towerRenderer.toneMapping=T.ACESFilmicToneMapping;towerRenderer.toneMappingExposure=.96;$('towerView').appendChild(towerRenderer.domElement);towerRenderer.setClearAlpha(0);
+const towerCamera=new T.PerspectiveCamera(33,1,.1,100);towerCamera.position.set(7,4.2,11.5);towerCamera.lookAt(0,3.15,0);
+const towerGlass=new T.MeshPhysicalMaterial({color:0x4981a5,metalness:.55,roughness:.16,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:1.8,side:T.DoubleSide});
+const towerSilver=new T.MeshStandardMaterial({color:0xc6d6df,metalness:.86,roughness:.18,envMapIntensity:1.5});
+const towerEdge=new T.MeshStandardMaterial({color:0x264f69,metalness:.52,roughness:.3});
+const towerWindow=new T.MeshStandardMaterial({color:0x9bd3ef,metalness:.74,roughness:.13,envMapIntensity:1.8});
+const towerCap=new T.MeshStandardMaterial({color:0xe0ebf2,metalness:.82,roughness:.19});
+function tubeBetween(a,b,r,material,radial=7){let d=b.clone().sub(a);let obj=new T.Mesh(new T.CylinderGeometry(r,r,d.length(),radial),material);obj.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.clone().normalize());obj.position.copy(a).addScaledVector(d,.5);return obj;}
+const steelBase=new T.Mesh(new T.BoxGeometry(1.48,.18,1.42),new T.MeshStandardMaterial({color:0x919fa8,roughness:.72,metalness:.26}));steelBase.position.y=.015;towerGroup.add(steelBase);
+function towerRad(y){let t=Math.max(0,Math.min(1,y/5.7));return .47-.11*t-.045*t*t;}
+function facadePoint(x,y,z){let r=towerRad(y);return new T.Vector3(x*r*1.07,y,z*r*.95)}
+// Extruded frustum in connected horizontal bands
+for(let k=0;k<23;k++){let y0=.10+k*5.6/23,y1=.10+(k+1)*5.6/23;let a=towerRad(y0),b=towerRad(y1);
+ const pos=[[-a,-a],[a,-a],[a,a],[-a,a]],top=[[-b,-b],[b,-b],[b,b],[-b,b]];
+ const verts=[];for(let f=0;f<4;f++){const n=(f+1)%4;const pa=pos[f],pb=pos[n],qa=top[f],qb=top[n];for(const [x,y,z] of [[pa[0],y0,pa[1]],[pb[0],y0,pb[1]],[qb[0],y1,qb[1]],[pa[0],y0,pa[1]],[qb[0],y1,qb[1]],[qa[0],y1,qa[1]]])verts.push(x*1.08,y,z*.94)}
+ const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(verts,3));geo.computeVertexNormals();towerGroup.add(new T.Mesh(geo,towerGlass));}
+// 115 illustrative floor divisions. Horizontal lines thin enough to avoid noise.
+const floorLines=new T.BufferGeometry(),fl=[];for(let i=1;i<=115;i++){const y=.12+(i/115)*5.56,r=towerRad(y),xx=r*1.084,zz=r*.945;
+ for(let f=0;f<4;f++){const a=[[-xx,-zz],[xx,-zz],[xx,zz],[-xx,zz]][f],b=[[-xx,-zz],[xx,-zz],[xx,zz],[-xx,zz]][(f+1)%4];fl.push(a[0],y,a[1],b[0],y,b[1]);}}
+floorLines.setAttribute('position',new T.Float32BufferAttribute(fl,3));towerGroup.add(new T.LineSegments(floorLines,new T.LineBasicMaterial({color:0xb5d7e7,transparent:true,opacity:.38})));
+for(let corner of [[-1,-1],[1,-1],[1,1],[-1,1]]){
+ const a=new T.Vector3(corner[0]*.49,.13,corner[1]*.455),b=new T.Vector3(corner[0]*.305,5.74,corner[1]*.285);
+ towerGroup.add(tubeBetween(a,b,.025,towerSilver));}
+// Central vertical mullions and diagonals inspired by the facade's chevron bands.
+for(let face=0;face<4;face++)for(let j=-2;j<=2;j++){let c=j/6;
+ for(let strip=0;strip<12;strip++){let y0=.15+strip*.455,y1=Math.min(5.7,y0+.455),r0=towerRad(y0),r1=towerRad(y1);
+ let pa,pb;if(face===0){pa=new T.Vector3(c*r0*1.08,y0,-r0*.96);pb=new T.Vector3(c*r1*1.08,y1,-r1*.96)}else if(face===1){pa=new T.Vector3(r0*1.09,y0,c*r0*.96);pb=new T.Vector3(r1*1.09,y1,c*r1*.96)}else if(face===2){pa=new T.Vector3(c*r0*1.08,y0,r0*.96);pb=new T.Vector3(c*r1*1.08,y1,r1*.96)}else{pa=new T.Vector3(-r0*1.09,y0,c*r0*.96);pb=new T.Vector3(-r1*1.09,y1,c*r1*.96)}towerGroup.add(tubeBetween(pa,pb,.0045,towerWindow,5));}
+ }
+for(let face=0;face<4;face++){for(let k=0;k<9;k++){let y0=.35+k*.58,y1=y0+.57,r0=towerRad(y0),r1=towerRad(y1),sign=k%2===0?1:-1;
+ let p0,p1;if(face===0){p0=new T.Vector3(-sign*.40*r0,y0,-.96*r0);p1=new T.Vector3(sign*.40*r1,y1,-.96*r1)}else if(face===1){p0=new T.Vector3(1.09*r0,y0,-sign*.40*r0);p1=new T.Vector3(1.09*r1,y1,sign*.40*r1)}else if(face===2){p0=new T.Vector3(sign*.40*r0,y0,.96*r0);p1=new T.Vector3(-sign*.40*r1,y1,.96*r1)}else{p0=new T.Vector3(-1.09*r0,y0,sign*.40*r0);p1=new T.Vector3(-1.09*r1,y1,-sign*.40*r1)}towerGroup.add(tubeBetween(p0,p1,.012,towerSilver,6));}}
+let crown=new T.Mesh(new T.CylinderGeometry(.033,.28,.53,4),towerCap);crown.rotation.y=Math.PI/4;crown.position.y=5.94;crown.scale.z=.97;towerGroup.add(crown);
+const towerElevator=new T.Group();towerGroup.add(towerElevator);
+const elevCab=new T.Mesh(new T.BoxGeometry(.24,.18,.16),new T.MeshStandardMaterial({color:0xf2b760,metalness:.32,roughness:.35,emissive:0x84521a,emissiveIntensity:.18}));towerElevator.add(elevCab);
+const elevTrim=new T.LineSegments(new T.EdgesGeometry(elevCab.geometry),new T.LineBasicMaterial({color:0x253f56}));towerElevator.add(elevTrim);
+function makeLabel(text,color='#264d6b'){const c=document.createElement('canvas');c.width=320;c.height=90;let g=c.getContext('2d');g.fillStyle='rgba(255,255,255,.95)';g.roundRect(6,7,308,74,16);g.fill();g.strokeStyle='#bacfdd';g.lineWidth=3;g.stroke();g.font='bold 33px Microsoft YaHei,Arial';g.fillStyle=color;g.textAlign='center';g.fillText(text,160,55);let t=new T.CanvasTexture(c);const sprite=new T.Sprite(new T.SpriteMaterial({map:t,transparent:true,depthTest:false}));sprite.scale.set(1.25,.36,1);return sprite}
+let nameSprite=makeLabel('平安金融中心');nameSprite.position.set(0,6.68,0);nameSprite.visible=false;towerGroup.add(nameSprite);
+let topSprite=makeLabel('115 层');topSprite.position.set(1.08,5.74,0);topSprite.visible=false;towerGroup.add(topSprite);
+let floorSprite=makeLabel('1 层');floorSprite.position.set(1.08,.18,0);floorSprite.visible=false;towerGroup.add(floorSprite);
+// Overflow droplets are visible only when theoretical liquid level exceeds the end of the capillary.
+let overflowDrops=new T.Group();root.add(overflowDrops);
+const dropMat=new T.MeshPhysicalMaterial({color:0x1389bf,transparent:true,opacity:.9,roughness:.18});
+for(let k=0;k<9;k++){const d=new T.Mesh(new T.SphereGeometry(.028,10,8),dropMat);d.userData.phase=k/9;overflowDrops.add(d)}
+overflowDrops.visible=false;
+const arrows=new T.Group();root.add(arrows);
+function forceArrow(x,y,z,dx,dz){const dir=new T.Vector3(dx,0,dz).normalize();let a=new T.ArrowHelper(dir,new T.Vector3(x,y,z),.57,0xf1864d,.23,.14);arrows.add(a);return a;}
+const arrowLong=[forceArrow(-1.55,1.78,0,1,0),forceArrow(1.55,1.78,0,-1,0)];
+const arrowShort=[forceArrow(0,1.78,-1.5,0,1),forceArrow(0,1.78,1.5,0,-1)];
+// Optional half-section:// Optional half-section: back half of outer wall; liquid is still represented as a continuous interior volume.
+let sectionCut=new T.Group();root.add(sectionCut);let cutPanel=new T.Mesh(new T.PlaneGeometry(1.75,1.45),new T.MeshBasicMaterial({color:0x86cfdf,transparent:true,opacity:.5,side:T.DoubleSide,depthWrite:false}));sectionCut.add(cutPanel);sectionCut.visible=false;
+function setSection(on){showSection=on;shell.visible=!on;silhouette.visible=false;halfShell.visible=on;sectionCut.visible=on; $('sectionInfo').classList.toggle('on',on);$('bSection').classList.toggle('active',on);}
+let currentHeight=1.7,currentHead=0,baselineHeight=1.7,prevMode=mode,readS=0;
+const PAFC_TOP_FLOOR=115,PAFC_HEIGHT_M=599.1,PAFC_TITLE='深圳平安金融中心';
+function floorToHeightM(floor){return (Math.max(1,Math.min(PAFC_TOP_FLOOR,floor))-1)/(PAFC_TOP_FLOOR-1)*PAFC_HEIGHT_M;}
+function pressureHeight(){const waterY=1.70;const floor=parms.floor;const area=Math.PI*(0.034*3.3)**2,vg=195,cm=3.3,p0=101325,waterP0=1000*9.81/100;
+ const startH=(3.98-waterY)*cm,heightM=floorToHeightM(floor),pAtm=p0*Math.exp(-heightM/8434.5);
+ const charge=Math.max(0,Math.min(MAX_CHARGE,parms.charge));let initial=(p0+charge*waterP0*startH)*(1+area*charge*startH/vg);let lo=-1,hi=110;
+ for(let i=0;i<33;i++){let mid=(lo+hi)/2,gasV=vg+area*mid,press=initial*vg/gasV,p=press-(pAtm+waterP0*mid);if(p>0)lo=mid;else hi=mid;}
+ let h=(lo+hi)/2;return {y:waterY+h/cm,delta:h-startH*charge,pressure:pAtm-p0,hCm:h,heightM,insidePressure:initial*vg/(vg+area*h),pressureDifference:initial*vg/(vg+area*h)-pAtm,blowingPressureDifference:initial-pAtm};
+}
+function waterHeight(){if(mode==='pressure')return pressureHeight();if(mode==='temp'){
+ // Qualitative model: physical sensitivity calibrated within the educational travel range.
+ return {y:4.54+(parms.waterT-22)*.050,delta:(parms.waterT-22)*.050*3.3,pressure:0,hCm:0};
+}
+return {y:4.45+parms.pinch*.55,delta:parms.pinch*.55*3.3,pressure:0,hCm:0};}
+const cfg={pressure:{name:'气压计',headline:'瓶内气体压强与外界气压',description:'密闭空气的压强高于外界气压时，细管内液面高于瓶内液面。本模式按深圳平安金融中心约 599.1 m、115 层示意从 1 层到顶层的气压变化；楼层高度采用线性近似。',steps:[['prepare','安装装置','瓶中保留空气，细管下端浸没在水中。'],['blow','向细管吹气','点击开始持续吹气；点击结束吹气后，保留实际吹入量。吹得越久，结束后液柱越高。'],['seal','结束吹气','停止送气，瓶内保留已吹入的空气。可再次点击吹气继续增加。'],['lift','乘电梯上行','随海拔升高，外界气压降低，细管水面逐渐升高。']],range:['电梯所在楼层',1,115,1,'层']},temp:{name:'温度计',headline:'液体热胀冷缩',description:'装满带颜色的水，放入较热的水中，瓶内水逐渐升温膨胀；放进冷水中则收缩。管内液柱用于显示体积变化。',steps:[['room','室温准备','装满水，不留可见的气泡。'],['hot','放入热水','液体逐渐升温，体积膨胀，细管水柱上升。'],['cold','放入冷水','液体逐渐降温，体积收缩，细管水柱下降。'],['noBath','移出水浴','撤去水浴容器，观察当前液柱位置。']],range:['水浴温度',12,48,1,'℃']},grip:{name:'微小形变',headline:'力可以使物体发生形变',description:'挤压厚玻璃瓶，瓶壁发生肉眼难以发现的弹性形变；微小的容积变化通过细管内液面升降被放大。',steps:[['neutral','无外力','水装满瓶和细管，玻璃瓶保持初始形状。'],['short','沿短轴挤压','教学模型中瓶内容积减小，管内水柱上升。'],['long','沿长轴挤压','椭圆瓶横截面趋圆，容积可能增大，水柱下降。'],['release','松开瓶身','玻璃弹性恢复，液面逐渐回到原来高度。']],range:['挤压力度（示意）',0,100,1,'%']}};
+const phases={pressure:[['prepare',1.2,1,0],['blow',6.0,1,0],['seal',3.0,1,1],['lift',8.0,115,1],['return',4.5,1,1]],temp:[['room',1.3,22,0],['hot',10.5,45,1],['cold',11,12,1],['room',4.0,22,0]],grip:[['neutral',1.3,0],['short',4.0,1],['release',2.8,0],['long',4.0,-1],['release',3.0,0]]};
+function setButtonState(id){document.querySelectorAll('.action').forEach(x=>x.classList.toggle('selected',x.dataset.key===id))}
+function enter(modeNew){mode=modeNew;playing=false;prevMode=mode;whichAction=mode==='pressure'?'prepare':mode==='temp'?'room':'neutral';Object.assign(parms,{floor:1,charge:0,bath:22,waterT:22,pinch:0});Object.assign(targets,parms);overflowLatched=false;resetIncomingAir();currentHeight=mode==='pressure'?1.70:mode==='temp'?4.54:4.45;document.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));const c=cfg[mode];$('magSettings').hidden=mode!=='grip';towerGroup.visible=showTower&&mode==='pressure';$('towerCard').style.display=(showTower&&mode==='pressure')?'block':'none';$('modeName').textContent=c.name;$('principleTitle').textContent=c.headline;$('principleDesc').textContent=c.description;
+$('actionList').innerHTML='';for(const [id,title,desc] of c.steps){let b=document.createElement('button');b.className='action';b.textContent=title;b.dataset.key=id;b.addEventListener('click',()=>runAction(id));$('actionList').appendChild(b)}const [title,min,max,step,u]=c.range;$('sliderLabel').textContent=title;let rg=$('mainRange');rg.min=min;rg.max=max;rg.step=step;rg.value=mode==='pressure'?1:mode==='temp'?22:0;$('rangeMin').textContent=min+' '+u;$('rangeMax').textContent=max+' '+u;rangeText();$('showGas').checked=mode==='pressure';showGas=mode==='pressure';$('bParticles').classList.toggle('active',showGas);$('play').textContent='▶ 连续演示整个实验';$('play').classList.remove('stop');setButtonState(whichAction);updateInsetMode();updateStatus(whichAction);let notes=mode==='pressure'?'已按 深圳平安金融中心 约 599.1 m、115 层建立 1 层到顶层的气压变化模型。细管与液柱已做投屏可视化加宽，压强计算仍按原细管截面积；高层处液面可能超过当前细管量程。':mode==='temp'?'为避免水在 0—4 ℃ 时的特殊行为，此演示在 12—48 ℃ 范围内演示；液柱灵敏度为教学示意，未用于仪器标定。':'横截面长轴为左右方向，短轴为前后方向；3D 箭头在对应轴向相向指入。放大倍率为可视化演示系数，非真实的定量测量倍率；液柱采用定性参数。';$('limitNote').textContent=notes;}
+function updateInsetMode(){const inset=$('inset');inset.classList.toggle('grip-inset',mode==='grip');const title=inset.querySelector('h4');const svg=inset.querySelector('svg');if(mode==='grip'){title.textContent='截面形变 · 大幅放大';svg.style.display='none';inset.style.width='298px';}else{title.textContent='细管液面与刻度 · 局部放大';svg.style.display='block';inset.style.width='258px';let aux=inset.querySelector('.deform-aux');if(aux)aux.innerHTML='';}}
+function updateStatus(id){const c=cfg[mode];let item=c.steps.find(x=>x[0]===id)||c.steps[0];$('stepTitle').textContent=item[1];$('stepDesc').textContent=item[2];$('statusLabel').textContent=item[1];$('exp').innerHTML='<b>观察要点：</b>'+item[2]}
+function rangeText(){let v=$('mainRange').value;$('sliderValue').textContent=v+' '+cfg[mode].range[4]}
+function runAction(id,manual=true){if(manual){playing=false;$('play').textContent='▶ 连续演示整个实验';$('play').classList.remove('stop')}whichAction=id;updateStatus(id);setButtonState(id);
+ if(mode==='pressure'){if(id==='prepare'){resetIncomingAir();parms.charge=0;parms.floor=targets.floor=1;targets.charge=0;currentHeight=1.70;overflowLatched=false;}else if(id==='blow'){targets.charge=addedAir;}else if(id==='seal'){targets.charge=addedAir;}else if(id==='lift'){targets.charge=addedAir;targets.floor=115;}}
+ if(mode==='temp'){if(id==='room'){targets.bath=22;}if(id==='hot'){targets.bath=45;}if(id==='cold'){targets.bath=12;}if(id==='noBath'){targets.bath=parms.waterT;}}
+ if(mode==='grip'){if(id==='neutral'||id==='release')targets.pinch=0;else if(id==='short')targets.pinch=1;else if(id==='long')targets.pinch=-1;}
+ if(manual){$('mainRange').value=mode==='pressure'?targets.floor:mode==='temp'?targets.bath:Math.round(Math.abs(targets.pinch)*100);rangeText();}}
+function playStep(){let seq=phases[mode];if(stepIndex>=seq.length){playing=false;$('play').textContent='▶ 重新演示';$('play').classList.remove('stop');return;}let ph=seq[stepIndex++];phaseDuration=ph[1];phaseClock=0;runAction(ph[0],false);if(mode==='pressure'){targets.floor=ph[2];targets.charge=addedAir;}if(mode==='temp'){targets.bath=ph[2];if(ph[0]==='room'&&stepIndex===1){parms.waterT=22;}}if(mode==='grip')targets.pinch=ph[2];}
+$('play').onclick=()=>{playing=!playing;if(playing){resetIncomingAir();Object.assign(parms,{floor:1,charge:0,bath:22,waterT:22,pinch:0});Object.assign(targets,parms);overflowLatched=false;stepIndex=0;playStep();$('play').textContent='■ 暂停连续演示';$('play').classList.add('stop')}else{$('play').textContent='▶ 继续从当前阶段';$('play').classList.remove('stop')}};
+$('mainRange').oninput=()=>{rangeText();playing=false;$('play').textContent='▶ 连续演示整个实验';$('play').classList.remove('stop');let v=+$('mainRange').value;if(mode==='pressure'){targets.floor=v;targets.charge=addedAir;whichAction='lift';updateStatus('lift');setButtonState('lift');}else if(mode==='temp'){targets.bath=v;whichAction=v>=22?'hot':'cold';updateStatus(whichAction);setButtonState(whichAction);}else{targets.pinch=v/100*(whichAction==='long'?-1:1);if(whichAction!=='short'&&whichAction!=='long'){whichAction='short';targets.pinch=v/100;}updateStatus(whichAction);}};
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>enter(b.dataset.mode));$('showMarks').onchange=e=>{showMarks=e.target.checked;marks.visible=showMarks};$('showTube').onchange=e=>{enhancedTube=e.target.checked;tubeEdges.visible=enhancedTube;levelMarker.visible=enhancedTube;rimDark.opacity=enhancedTube?.82:.28;innerGlass.opacity=enhancedTube?.49:.27;};$('showGas').onchange=e=>{showGas=e.target.checked;$('bParticles').classList.toggle('active',showGas)};$('showNotes').onchange=e=>{showNotes=e.target.checked;document.querySelector('.overlay').style.display=showNotes?'':'none'};$('showTower').onchange=e=>{showTower=e.target.checked;towerGroup.visible=showTower&&mode==='pressure';$('towerCard').style.display=(showTower&&mode==='pressure')?'block':'none';};$('magRange').oninput=e=>{mag=+e.target.value;$('magLabel').textContent='×'+mag;};
+$('bSection').onclick=()=>setSection(!showSection);$('bParticles').onclick=()=>{$('showGas').checked=!$('showGas').checked;$('showGas').onchange({target:$('showGas')})};$('bZoom').onclick=()=>{$('inset').classList.toggle('show');$('bZoom').classList.toggle('active')};
+let yaw=.25,pitch=.10,dist=12.6,closeUp=false,panX=0,panY=0,panZ=0;
+function orient(){const targetX=root.position.x+panX,targetY=(closeUp?2.15:3.42)+panY,targetZ=panZ,visDist=closeUp?Math.min(dist,7.1):dist;cam.position.set(targetX+Math.sin(yaw)*Math.cos(pitch)*visDist,targetY+Math.sin(pitch)*visDist,targetZ+Math.cos(yaw)*Math.cos(pitch)*visDist);cam.lookAt(targetX,targetY,targetZ)}
+const fixed={vOblique:[.30,.10,12.6],vFront:[0,.025,12.6],vTop:[0,1.14,14.0]};function viewPreset(id){closeUp=false;panX=panY=panZ=0;$('bClose').classList.remove('active');[yaw,pitch,dist]=fixed[id];orient();['vOblique','vFront','vTop'].forEach(x=>$(x).classList.toggle('active',x===id))}for(let id of Object.keys(fixed))$(id).onclick=()=>viewPreset(id);
+$('bReset').onclick=()=>viewPreset('vOblique');$('bFull').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.()};
+$('bClose').onclick=()=>{closeUp=!closeUp;panX=panY=panZ=0;$('bClose').classList.toggle('active',closeUp);orient();};
+const pointers=new Map();let dragButton=0;
+const el=renderer.domElement;el.addEventListener('contextmenu',e=>e.preventDefault());
+function pan(dx,dy){const target=new T.Vector3(root.position.x+panX,(closeUp?2.15:3.42)+panY,panZ);Navigation3D.pan(cam,target,el,dx,dy);panX=target.x-root.position.x;panY=target.y-(closeUp?2.15:3.42);panZ=target.z;}
+el.addEventListener('pointerdown',e=>{pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});dragButton=e.button;el.setPointerCapture(e.pointerId)});
+for(const name of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(name,e=>pointers.delete(e.pointerId));
+el.addEventListener('pointermove',e=>{const old=pointers.get(e.pointerId);if(!old)return;const dx=e.clientX-old.x,dy=e.clientY-old.y;
+ if(pointers.size===2){const other=[...pointers.entries()].find(([id])=>id!==e.pointerId)[1];const d0=Math.hypot(old.x-other.x,old.y-other.y),d1=Math.hypot(e.clientX-other.x,e.clientY-other.y);if(d1>0)dist=Math.max(4,Math.min(26,dist*d0/d1));pan(dx/2,dy/2);}
+ else if(dragButton===2||e.shiftKey)pan(dx,dy);else{yaw-=dx*.006;pitch=Math.max(-.65,Math.min(1.35,pitch+dy*.005));}
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});orient();['vOblique','vFront','vTop'].forEach(x=>$(x).classList.remove('active'))});
+el.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(4,Math.min(26,dist+e.deltaY*.012));orient()},{passive:false});
+function resize(){let r=view.getBoundingClientRect();renderer.setSize(Math.max(1,r.width),Math.max(1,r.height),false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix();let b=$('towerView').getBoundingClientRect();if(b.width&&b.height){towerRenderer.setSize(b.width,b.height,false);towerCamera.aspect=b.width/b.height;towerCamera.updateProjectionMatrix()}orient()}
+new ResizeObserver(resize).observe(view);new ResizeObserver(resize).observe($('towerView'));resize();orient();
+function readUpdate(w){let ref=mode==='pressure'?pressureHeight():w;let height=(currentHeight-1.7)*3.3;let stepValue=mode==='pressure'?Math.round(parms.floor)+' 层':mode==='temp'?parms.waterT.toFixed(1)+' ℃':(Math.abs(parms.pinch)*100).toFixed(0)+' %';
+ const pressureOver=mode==='pressure'&&overflowLatched;
+ const blowing=mode==='pressure'&&whichAction==='blow';
+ let dat=mode==='pressure'?[['所在楼层',stepValue],['累积吹气时长',blowSeconds.toFixed(1)+' s'],['瓶内相对外界压强',pressureOver?'—':Math.round(blowing?w.blowingPressureDifference:w.pressureDifference)+' Pa'],['管内外液面高差',pressureOver?'已溢出（失效）':blowing?'吹气中':w.hCm.toFixed(2)+' cm']]:mode==='temp'?[['瓶内水温',stepValue],['相对22℃液面变化',(height-(4.54-1.7)*3.3).toFixed(2)+' cm'],['水浴温度',parms.bath.toFixed(0)+' ℃'],['瓶内气体空间','无']]:[['挤压力度',stepValue],['相对初始液面变化',w.delta.toFixed(2)+' cm'],['挤压方向',parms.pinch>0.01?'短轴':parms.pinch<-.01?'长轴':'无'],['放大系数','×'+mag]];
+ for(let i=0;i<4;i++){$('readLabel'+(i+1)).textContent=dat[i][0];$('readValue'+(i+1)).textContent=dat[i][1];}
+ let zy=136-Math.max(0,Math.min(122,(currentHeight-1.25)/(6.1-1.25)*122));$('zoomLiquid').setAttribute('y',zy);$('zoomLiquid').setAttribute('height',136-zy);$('zoomMeniscus').setAttribute('d',`M89 ${zy}Q103.5 ${zy-5} 118 ${zy}`);$('zoomRead').textContent=mode==='pressure'?(pressureOver?'溢出':(blowing?'吹气中':('h '+w.hCm.toFixed(1)+' cm'))):(mode==='temp'?parms.waterT.toFixed(1)+' ℃':w.delta.toFixed(1)+' cm');$('zoomRead').setAttribute('y',Math.max(15,zy));}
+function makeDeformInset(){
+ let inset=$('inset'),existing=inset.querySelector('.deform-aux');if(!existing){existing=document.createElement('div');existing.className='deform-aux';inset.appendChild(existing)}
+ const ss=parms.pinch,power=Math.abs(ss),factor=mag/2000;
+ // The long axis is screen-horizontal (X). The short axis is screen-vertical (Z).
+ let rx=118,ry=76,drx=rx,dry=ry;
+ if(ss>0){drx=rx*(1+Math.min(.25,.135*power*factor));dry=ry*(1-Math.min(.36,.24*power*factor));}
+ if(ss<0){const amp=Math.min(1.1,power*factor);drx=rx*(1-.14*amp);dry=ry*(1+.22*amp);}
+ const baseY=123,baseX=194;
+ const shortForce=`<path d="M194 18 L194 42"/><path d="M194 42 l-8 -11 M194 42 l8 -11"/><path d="M194 230 L194 205"/><path d="M194 205 l-8 11 M194 205 l8 11"/>`;
+ const longForce=`<path d="M25 123 H58"/><path d="M58 123 l-10 -7 M58 123 l-10 7"/><path d="M363 123 H330"/><path d="M330 123 l10 -7 M330 123 l10 7"/>`;
+ const forcePath=ss>.01?shortForce:ss<-.01?longForce:'';
+ const state=ss>.01?'短轴受压 · 前后向内':ss<-.01?'长轴受压 · 左右向内':'无外力 · 初始形状';
+ const change=ss>.01?'瓶内容积减小，液柱上升':ss<-.01?'瓶内容积可能增大，液柱下降':'松开后恢复原始形状';
+ existing.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 388 337" role="img" aria-label="实时放大瓶身横截面及受力方向">
+ <defs><linearGradient id="currentFill" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#d9eff9"/><stop offset="1" stop-color="#a9d0e8"/></linearGradient></defs>
+ <rect x="1" y="1" width="386" height="335" rx="13" fill="#f7fbfe" stroke="#d9e7f1"/>
+ <text x="17" y="21" font-size="16" font-weight="700" fill="#244d71">瓶身横截面 · 实时形变</text>
+ <rect x="280" y="10" rx="8" width="96" height="27" fill="#e1eff8"/><text x="328" y="28" text-anchor="middle" font-size="14" font-weight="700" fill="#246c9f">×${mag}</text>
+ <ellipse cx="${baseX}" cy="${baseY}" rx="${rx}" ry="${ry}" fill="none" stroke="#9baebc" stroke-width="2.6" stroke-dasharray="8 6"/>
+ <ellipse cx="${baseX}" cy="${baseY}" rx="${drx}" ry="${dry}" fill="url(#currentFill)" stroke="#1678ac" stroke-width="3.5"/>
+ <line x1="68" y1="123" x2="320" y2="123" stroke="#83a6ba" stroke-dasharray="6 5"/><line x1="194" y1="48" x2="194" y2="198" stroke="#83a6ba" stroke-dasharray="6 5"/>
+ <g fill="none" stroke="#f1703d" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">${forcePath}</g>
+ <text x="309" y="113" font-size="15" font-weight="700" fill="#365b78">长轴</text><text x="203" y="56" font-size="15" font-weight="700" fill="#365b78">短轴</text>
+ <line x1="24" y1="245" x2="84" y2="245" stroke="#a3b5c4" stroke-width="3" stroke-dasharray="7 5"/><text x="93" y="250" font-size="13" fill="#677e90">虚线：未受力</text>
+ <line x1="215" y1="245" x2="275" y2="245" stroke="#1678ac" stroke-width="4"/><text x="282" y="250" font-size="13" fill="#365f80">实线：当前</text>
+ <rect x="15" y="269" width="358" height="52" rx="9" fill="#e8f3fa"/>
+ <text x="27" y="290" font-size="15" font-weight="700" fill="#1c618c">${state}</text><text x="27" y="309" font-size="13" fill="#456982">${change}</text>
+ </svg>`;
+}
+let frameId=0;let prev=performance.now();function frame(time){let elapsed=Math.min(1,Math.max(0,(time-prev)/1000)||.016),dt=Math.min(.055,elapsed);prev=time;if(playing){phaseClock+=elapsed;if(phaseClock>phaseDuration)playStep()}
+ if(mode==='pressure'&&whichAction==='blow'){blowSeconds+=elapsed;addedAir=Math.min(MAX_CHARGE,addedAir+elapsed*CHARGE_RATE);parms.charge=targets.charge=addedAir;}
+ const blend=(v,t,tau)=>v+(t-v)*(1-Math.exp(-dt/tau));parms.floor=blend(parms.floor,targets.floor,1.25);parms.charge=blend(parms.charge,targets.charge,.72);parms.pinch=blend(parms.pinch,targets.pinch,.42);parms.bath=blend(parms.bath,targets.bath,.6);parms.waterT=blend(parms.waterT,parms.bath,mode==='temp'?3.4:.3); const desiredRootX=0; root.position.x=blend(root.position.x,desiredRootX,.55);if(Math.abs(root.position.x-desiredRootX)>.003)orient();
+ const wh=waterHeight();if(mode==='pressure'&&whichAction!=='blow'&&wh.y>TUBE_TOP-.05)overflowLatched=true;let y=Math.max(TUBE_BOTTOM+.05,Math.min(TUBE_TOP-.05,wh.y));if(mode==='pressure'&&overflowLatched)y=TUBE_TOP-.05;if(mode==='pressure'&&whichAction==='blow')y=TUBE_BOTTOM+.025;currentHeight=blend(currentHeight,y,.36);let h=Math.max(.01,currentHeight-TUBE_BOTTOM);tubeFluid.scale.y=h; tubeFluid.position.y=TUBE_BOTTOM+h/2;meniscus.position.y=currentHeight;levelMarker.position.y=currentHeight;tubeEdges.rotation.y=yaw;
+ // The curved liquid mesh uses absolute bottle-space coordinates; never re-center it like a cylinder.
+ let pressure=mode==='pressure';waterP.visible=pressure;waterF.visible=!pressure;waterSurfaceLine.visible=pressure;surfaceHighlight.visible=pressure;fullLiquidSurface.visible=!pressure;fullLiquidMeniscus.visible=!pressure;gasGroup.visible=pressure&&showGas;bubbleGroup.visible=pressure&&whichAction==='blow';blowAir.visible=bubbleGroup.visible;blowRipples.visible=bubbleGroup.visible;blowCue.visible=pressure&&whichAction==='blow';bath.visible=mode==='temp'&&(whichAction==='hot'||whichAction==='cold');arrows.visible=mode==='grip'&&Math.abs(parms.pinch)>.03;
+ const liquidHex=mode==='temp'?'#b53370':'#1489bb';$('zoomLiquid').setAttribute('fill',liquidHex);$('zoomMeniscus').setAttribute('stroke',mode==='temp'?'#782447':'#075d84');fullLiquidSurface.material.color.set(liquidHex);fullLiquidMeniscus.material.color.set(liquidHex);tubeLiquidMat.color.set(mode==='pressure'?0x0b6fa4:mode==='temp'?0xb04b77:0x157fb7);waterF.material=mode==='temp'?waterTempMat:waterPressureMat;if(waterSurfaceLine.material&&waterSurfaceLine.material.color){waterSurfaceLine.material.color.set(mode==='temp'?0xc56592:0x3aa8d6);waterSurfaceLine.material.opacity=.95;}
+ let ds=parms.pinch,fx=1,fz=1;
+ // True instrument geometry changes only slightly; magnification applies to inset diagram, not to bottle geometry.
+ if(mode==='grip'&&ds>0){fx=1+.0006*ds;fz=1-.0011*ds;}
+ else if(mode==='grip'&&ds<0){fx=1-.0013*(-ds);fz=1+.0019*(-ds);}
+ glassHolder.scale.set(fx,1,fz);
+ waterF.scale.x=fx;waterF.scale.z=.91*fz;fullLiquidSurface.scale.set(fx,1,fz);fullLiquidMeniscus.scale.set(fx,1,fz);
+ arrows.children.forEach((o,k)=>o.visible=mode==='grip'&&Math.abs(ds)>.025&&(ds>0?k>=2:k<2));
+ towerGroup.visible=showTower&&mode==='pressure';
+ const yy=.17+Math.min(1,Math.max(0,(parms.floor-1)/114))*5.54;
+ towerElevator.position.set(0,yy,-towerRad(yy)*.96-.1);$('floorBadge').textContent=Math.round(parms.floor);$('heightBadge').textContent=floorToHeightM(parms.floor).toFixed(1)+' m';
+ const overflowNow=mode==='pressure'&&overflowLatched;
+ overflowDrops.visible=overflowNow;
+ if(overflowNow){overflowDrops.children.forEach((d,i)=>{let f=(time*.00047+d.userData.phase)%1;d.position.set(Math.sin(i*2.5)*.025+(i%2?-.12:.12),TUBE_TOP+.03-f*.75, .028);d.scale.setScalar(.65+f*.5)})}
+ $('overflowBanner').classList.toggle('show',overflowNow);
+ // Readout values are invalid after overflow, even if the theoretical pressure solution continues.
+ // Count grows during blowing and remains in the sealed bottle until preparation/reset.
+ // Stopping and moving floors never add air; only active blowing changes the dose.
+ incomingGas.count=Math.round(70*addedAir);
+ gasLegend.style.display=mode==='pressure'&&showGas?'flex':'none';$('incomingCount').textContent='+'+incomingGas.count+(addedAir>=MAX_CHARGE?'（上限）':'');
+ if(gasGroup.visible){
+  for(let i=0;i<85;i++){const p=particleInfo[i];p.phase+=dt*p.spd;tempO.position.set(p.x+Math.sin(p.phase*2+i)*.04,p.y+Math.sin(p.phase+i)*.035,p.z+Math.cos(p.phase*1.3+i)*.03);tempO.scale.setScalar(.92);tempO.updateMatrix();gasI.setMatrixAt(i,tempO.matrix);}gasI.instanceMatrix.needsUpdate=true;
+  for(let i=0;i<incomingGas.count;i++){const p=incomingInfo[i];p.phase+=dt*p.spd;p.age+=dt;const spread=Math.min(1,p.age/.9);tempO.position.set(p.x*spread+Math.sin(p.phase*2+i)*.025,1.77+(p.y-1.77)*spread+Math.sin(p.phase+i)*.025,p.z*spread+Math.cos(p.phase+i)*.025);tempO.scale.setScalar(1);tempO.updateMatrix();incomingGas.setMatrixAt(i,tempO.matrix);}incomingGas.instanceMatrix.needsUpdate=true;
+ }
+
+ if(blowAir.visible){blowAir.children.forEach((p,i)=>{let f=(time*.00042+i/14)%1;p.position.set(0,6.15-f*4.98,0);});}
+ if(bubbleGroup.visible){
+  bubbleGroup.children.forEach((b,i)=>{const ft=(time*.00046+i/5)%1;b.visible=ft<.94;const grow=.65+ft*.74;const side=i%2?1:-1;b.position.set(side*(.015+.24*Math.sin(ft*2.1)),TUBE_BOTTOM-.025+ft*.66,.025+.10*ft);b.scale.set(grow*(1+.08*Math.sin(ft*12)),grow*1.12,grow);});
+  blowRipples.children.forEach((r,i)=>{const t=(time*.00065+i/3)%1;const radius=.07+.36*t;r.scale.set(radius,radius*.91,1);r.material.opacity=.76*(1-t);});
+ }else bubbleGroup.children.forEach(b=>b.visible=false);
+
+ const hotBath=parms.bath>=26;bathMat.color.set(hotBath?0xd87539:0x76b7ed);bathMat.opacity=hotBath?.34:.19;bathTop.material.color.set(hotBath?0xe88b4b:0x86d2f3);bathTop.material.opacity=hotBath?.32:.20;
+ cutPanel.scale.y=(pressure?1.5:3.32)/1.45;cutPanel.position.y=pressure?.95:1.86;
+ if(mode==='grip'&&$('inset').classList.contains('show')&&time-lastInsetRefresh>120){lastInsetRefresh=time;makeDeformInset();}
+ if(time-readS>120){readS=time;readUpdate(wh);if(!playing&&mode==='pressure'&&whichAction==='lift'){$('mainRange').value=Math.round(targets.floor);rangeText();}}
+ renderer.render(scene,cam);if(mode==='pressure'&&showTower)towerRenderer.render(towerScene,towerCamera);frameId=requestAnimationFrame(frame)}
+window.addEventListener('pagehide',()=>{cancelAnimationFrame(frameId);renderer.dispose();towerRenderer.dispose();renderer.forceContextLoss();towerRenderer.forceContextLoss();},{once:true});
+window.__tripDebug={get airFraction(){return addedAir},get state(){return {mode,floor:parms.floor,pinch:parms.pinch,pressure:pressureHeight(),magnification:mag,incomingParticles:incomingGas.count,baseParticles:85,blowSeconds,charge:parms.charge,action:whichAction}},three:T,scene,towerScene,renderer,cam,get height(){return currentHeight}};enter('pressure');frameId=requestAnimationFrame(frame);
+}
+</script>
+</body></html>

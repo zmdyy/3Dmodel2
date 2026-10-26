@@ -332,3 +332,8 @@ node scripts/capture-motor-cover.cjs
 ## 深中通道 E15 · 沉管浮运安装
 
 新增 [沉管浮运安装案例](models/shenzhong-e15.html)，支持十阶段施工、分阶段自动跟随、局部剖视及海水氛围。采用独立离线 WebGL/Canvas 实现，封面来自真实场景截图；工程参数与验收边界见 [案例说明](docs/shenzhong-e15.md)。
+
+## 细管与玻璃瓶 · 三合一实验
+
+- 新增 [三合一细管实验](models/capillary-three-experiments.html)：自制气压计、温度计与微小形变。吹气时长联动红色空气粒子、瓶内外压强差和停止后的液柱；热水浴、半剖与 SVG 截面放大辅助观察。
+- 使用公共 Three.js、哑光材质与统一导航，封面为默认实际场景截图。参数边界与验证见 [案例说明](docs/capillary-three-experiments.md)。

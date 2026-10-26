@@ -1,5 +1,25 @@
 window.MODEL_CATALOG = [
 {
+  "id": "capillary-three-experiments",
+  "title": "细管与玻璃瓶 · 三合一实验",
+  "subtitle": "自制气压计、温度计与微小形变",
+  "category": "综合应用",
+  "summary": "同一细管装置探究气压变化、液体热胀冷缩和微小形变；吹气时长联动红色空气粒子、压强差及液柱，支持楼层实验、水浴、截面放大和连续演示。",
+  "tags": [
+    "气压计",
+    "大气压",
+    "温度计",
+    "热胀冷缩",
+    "微小形变",
+    "放大法",
+    "细管"
+  ],
+  "path": "models/capillary-three-experiments.html?v=20261026-v12",
+  "cover": "assets/covers/capillary-three-experiments-scene.jpg?v=20261026-v12",
+  "symbol": "管",
+  "accent": "blue"
+},
+{
   "id": "shenzhong-e15",
   "title": "深中通道 E15 · 沉管浮运安装",
   "subtitle": "十阶段施工演示 · 分阶段自动跟随镜头",
