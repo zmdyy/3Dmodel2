@@ -106,7 +106,7 @@ const stakes=[];for(let x of [-12,12])for(const z of [-8,8]){const o=cyl(.18,13,
 const piles=new T.Group();scene.add(piles);
 const pileGeometry=new T.CylinderGeometry(.27,.29,30,10);
 const pileInst=new T.InstancedMesh(pileGeometry,M.wood,160);piles.add(pileInst);pileInst.castShadow=true;pileInst.receiveShadow=true;
-const helper=new T.Object3D(),pilePositions=[];
+const helper=new T.Object3D(),pilePositions=[];let lastAnimatedPile=-1;
 for(let ix=0;ix<16;ix++)for(let iz=0;iz<10;iz++){const x=-7.35+.98*ix,z=-3.6+.8*iz;pilePositions.push([x,z]);helper.position.set(x,-26.4,z);helper.updateMatrix();pileInst.setMatrixAt(ix*10+iz,helper.matrix)}pileInst.instanceMatrix.needsUpdate=true;
 const guide=new T.Group();scene.add(guide);
 const guideDeck=box(18,.7,2.4,M.wood,guide,0,2,-7.5);
@@ -216,7 +216,16 @@ function updateState(){
  caisson.position.set(caissonX,bottom,0);caisson.visible=i>=2;floating.visible=i>=2&&i<=4;
  floating.position.x=caissonX;floating.position.y=waterY;moors.visible=i===3||i===4;
  for(const m of moorLines)moveBeam(m.line,[caissonX+(m.x<0?-8.7:8.7),bottom+6,(m.z<0?-5.3:5.3)],[m.x,-8.8,m.z]);
- pileInst.count=i===0?0:i===1?Math.min(160,Math.max(1,Math.floor(u*160))):160;
+ // 首根桩留出四分之一工序做慢动作；其余 159 根做时间压缩，不假装同速逐根完成
+let installed=160,embed=1;
+if(i===0){installed=0;pileInst.count=0}
+else if(i===1){if(u<.26){installed=0;embed=sm(u/.26)}else{const q=(u-.26)/.74*159;installed=1+Math.min(159,Math.floor(q));embed=sm(q-Math.floor(q))}
+pileInst.count=Math.min(160,installed+1)}
+else{pileInst.count=160}
+if(lastAnimatedPile>=0&&lastAnimatedPile!==installed){const [x,z]=pilePositions[lastAnimatedPile];helper.position.set(x,-26.4,z);helper.updateMatrix();pileInst.setMatrixAt(lastAnimatedPile,helper.matrix)}
+if(i===1&&installed<160){const [x,z]=pilePositions[installed];helper.position.set(x,mix(-20.4,-26.4,embed),z);helper.updateMatrix();pileInst.setMatrixAt(installed,helper.matrix);lastAnimatedPile=installed}
+else lastAnimatedPile=-1;
+pileInst.instanceMatrix.needsUpdate=true;
  guide.visible=i<=1;jetRig.visible=i===1;jetParticles.visible=i===1&&showDots;
  const activePile=pilePositions[clamp(pileInst.count,1,160)-1];jetRig.position.set(activePile[0],0,activePile[1]);hammer.position.y=3.5+.45*Math.sin(progress*8);
  if(i===1){const x=activePile[0],z=activePile[1];for(let k=0;k<jetParticles.children.length;k++){const t0=(k/28+progress*.34)%1;jetParticles.children[k].position.set(x+Math.sin(k)*.17,mix(-10,-15,t0),z+Math.cos(k)*.16)}}
@@ -250,7 +259,7 @@ function updateState(){
  labels[3].pos.set(caissonX,bottom+3,6);labels[4].pos.set(0,bottom+7+shaftHeight,4);labels[5].pos.set(33,spanY+8,5);labels[6].pos.set(3.4,11,2);labels[7].pos.set(-3.5,11,2);
  labels.forEach((q,k)=>q.show= k===0?seaOn:k===1?i===1:k===2?i===1||i>=4&&i<=8:k===3?i>=5&&i<=8:k===4?i>=7&&i<=8:k===5?i>=9:k>=6?access.visible:false);
  const phase=STAGES[i];$('#phaseTitle').textContent=phase.title;$('#hudPhase').textContent=phase.title;$('#hudDetail').textContent=phase.detail;
- $('#caption').textContent=phase.brief+(i>=6&&i<=7&&workingFlood>.25?' 当前供气不足，作业室进水，挖泥施工应暂停。':'');
+ $('#caption').textContent=phase.brief+(i===1&&u<.26?' 当前以单根木桩慢动作演示；其余桩随后加速完成。':'')+(i>=6&&i<=7&&workingFlood>.25?' 当前供气不足，作业室进水，挖泥施工应暂停。':'');
  $('#tideValue').textContent=(waterY>=0?'+':'')+waterY.toFixed(1)+' m（模拟）';
  $('#depthValue').textContent=caisson.visible?Math.max(0,waterY-bottom).toFixed(1)+' m':'—';
  $('#needValue').textContent=hasPressure?need.toFixed(0)+' kPa':'—';
