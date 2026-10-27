@@ -136,8 +136,8 @@ for(const x of [-6,-3,0,3,6])for(const z of [-3.4,3.4])beam([x,5.35,z],[x,.85,z]
 const chamberWater=box(17.25,.2,10.1,new T.MeshPhysicalMaterial({color:'#248ba7',opacity:.48,transparent:true,roughness:.21,depthWrite:false}),caisson,0,.13,0);
 chamberWater.castShadow=false;
 const seal=box(17.3,.2,10.2,M.seal,caisson,0,.18,0);
-const workers=new T.Group();caisson.add(workers);
-for(let i=0;i<3;i++){const w=new T.Group();w.position.set(-5+i*4,.15,-1.4);workers.add(w);box(.52,.9,.3,M.yellow,w,0,1.0,0);sphere(.25,M.concreteHi,w,0,1.63,0);beam([-.15,.65,0],[-.4,.06,0],.09,M.steelDark,w);beam([.15,.65,0],[.45,.06,0],.09,M.steelDark,w);beam([-.25,1.3,0],[-.65,.9,0],.07,M.steelDark,w);beam([.25,1.3,0],[.65,.9,0],.07,M.steelDark,w)}
+const workers=new T.Group();caisson.add(workers);const walkway=box(15,.14,1.25,M.woodDark,workers,0,.78,-1.4);
+for(let i=0;i<3;i++){const w=new T.Group();w.position.set(-5+i*4,.95,-1.4);workers.add(w);box(.52,.9,.3,M.yellow,w,0,1.0,0);sphere(.25,M.concreteHi,w,0,1.63,0);beam([-.15,.65,0],[-.4,.06,0],.09,M.steelDark,w);beam([.15,.65,0],[.45,.06,0],.09,M.steelDark,w);beam([-.25,1.3,0],[-.65,.9,0],.07,M.steelDark,w);beam([.25,1.3,0],[.65,.9,0],.07,M.steelDark,w)}
 const pier=new T.Group();scene.add(pier);
 const pierColumn=box(5,1,5.5,M.concrete,pier,0,.5,0);
 const pierHead=box(8,.65,6.6,M.concreteHi,pier,0,0,0);
@@ -211,7 +211,7 @@ function updateState(){
  const {i,t}=stageAt(progress);currentIdx=i;const u=sm(t);
  waterY=i===3?mix(.4,1.55,u):i===4?mix(1.55,-.3,u):i===9?mix(.55,1.7,u):i===10?mix(1.7,-.5,u):.25+.35*Math.sin(progress*.11);
  const sink=i<6?0:i===6?u:1;
- bottom=i<4?-4.5:i===4?mix(-4.5,-10.3,u):i===5?-10.3:mix(-10.3,-18.1,sink);
+ bottom=i<4?-4.5:i===4?mix(-4.5,-11.4,u):i===5?-11.4:mix(-11.4,-11.9,sink);
  let caissonX=i===2?mix(-30,0,u):i<2?-30:0;
  caisson.position.set(caissonX,bottom,0);caisson.visible=i>=2;floating.visible=i>=2&&i<=4;
  floating.position.x=caissonX;floating.position.y=waterY;moors.visible=i===3||i===4;
@@ -220,8 +220,8 @@ function updateState(){
  guide.visible=i<=1;jetRig.visible=i===1;jetParticles.visible=i===1&&showDots;
  const activePile=pilePositions[clamp(pileInst.count,1,160)-1];jetRig.position.set(activePile[0],0,activePile[1]);hammer.position.y=3.5+.45*Math.sin(progress*8);
  if(i===1){const x=activePile[0],z=activePile[1];for(let k=0;k<jetParticles.children.length;k++){const t0=(k/28+progress*.34)%1;jetParticles.children[k].position.set(x+Math.sin(k)*.17,mix(-10,-15,t0),z+Math.cos(k)*.16)}}
- const top=-11.3-(i>=6?7.8*sink:0);excavate.scale.y=(top+27)/12;excavate.position.y=(-27+top)/2;
- const shaftHeight=i===6?mix(5,18,u):i===7?mix(18,21,u):i>=8?21:0;
+ const top=-11.3-(i>=6?.6*sink:0);excavate.scale.y=(top+27)/12;excavate.position.y=(-27+top)/2;
+ const shaftHeight=i===6?mix(5,11,u):i===7?mix(11,14.85,u):i>=8?14.85:0;
  pier.visible=i>=6;pierColumn.scale.y=Math.max(.01,shaftHeight);pierColumn.position.y=bottom+6+shaftHeight/2;pierHead.position.y=bottom+6+shaftHeight+1.0;
  finalNearSeat.visible=i>=8;finalNearSeat.position.y=bottom+6+shaftHeight+1.55;
  access.visible=i>=5&&i<=7;
