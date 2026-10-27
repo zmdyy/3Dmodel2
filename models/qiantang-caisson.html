@@ -95,7 +95,7 @@ const labels=[makeLabel('江面 / 潮位',[-17,1.1,10]),makeLabel('射水喷管'
 const world=new T.Group();scene.add(world);
 const bed=new T.Group();world.add(bed);
 box(145,9,46,M.mud,bed,33.5,-18.8,-5);
-box(145,4.5,46,M.rock,bed,33.5,-28,-5);
+box(145,17,46,M.rock,bed,33.5,-37,-5);
 const excavate=box(18,12,11,M.sand,bed,0,-15.5,0);
 const bedSides=[];for(const x of [-17,17,50,82])bedSides.push(box(14,4,13,M.sand,bed,x,-12,0));
 const banks=box(17,18,40,M.mud,bed,-53,-9,-5);banks.rotation.z=-.03;
@@ -104,10 +104,10 @@ const waterBack=box(170,16,.09,new T.MeshBasicMaterial({color:'#3a8599',transpar
 const seabedGuide=new T.Group();world.add(seabedGuide);
 const stakes=[];for(let x of [-12,12])for(const z of [-8,8]){const o=cyl(.18,13,M.steelDark,seabedGuide,x,-5,z);stakes.push(o)}
 const piles=new T.Group();scene.add(piles);
-const pileGeometry=new T.CylinderGeometry(.27,.29,19,10);
+const pileGeometry=new T.CylinderGeometry(.27,.29,30,10);
 const pileInst=new T.InstancedMesh(pileGeometry,M.wood,160);piles.add(pileInst);pileInst.castShadow=true;pileInst.receiveShadow=true;
 const helper=new T.Object3D(),pilePositions=[];
-for(let ix=0;ix<16;ix++)for(let iz=0;iz<10;iz++){const x=-7.35+.98*ix,z=-3.6+.8*iz;pilePositions.push([x,z]);helper.position.set(x,-20.9,z);helper.updateMatrix();pileInst.setMatrixAt(ix*10+iz,helper.matrix)}pileInst.instanceMatrix.needsUpdate=true;
+for(let ix=0;ix<16;ix++)for(let iz=0;iz<10;iz++){const x=-7.35+.98*ix,z=-3.6+.8*iz;pilePositions.push([x,z]);helper.position.set(x,-26.4,z);helper.updateMatrix();pileInst.setMatrixAt(ix*10+iz,helper.matrix)}pileInst.instanceMatrix.needsUpdate=true;
 const guide=new T.Group();scene.add(guide);
 const guideDeck=box(18,.7,2.4,M.wood,guide,0,2,-7.5);
 for(const x of [-8.2,8.2]){beam([x,-10.4,-7.5],[x,6,-7.5],.18,M.steelDark,guide);beam([x,6,-7.5],[0,6,-7.5],.16,M.steelDark,guide)}
@@ -186,7 +186,7 @@ const completedDeck=new T.Group();scene.add(completedDeck);
 box(67,.45,6.5,M.deck,completedDeck,33.5,18.2,0);
 const riverFlow=new T.Group();scene.add(riverFlow);for(let i=0;i<55;i++){const x=-65+(i*19%152),z=-25+(i*17%44);const g=box(1+(i%3),.015,.025,new T.MeshBasicMaterial({color:'#dbf5ef',transparent:true,opacity:.24,depthWrite:false}),riverFlow,x,.06,z);g.castShadow=false}
 const clipPlane=new T.Plane(new T.Vector3(0,0,-1),0);
-const cuttable=[...caissonMeshes,seal,chamberWater,pierColumn,pierHead];
+const cuttable=[...caissonMeshes,seal,chamberWater,pierColumn,pierHead,...bed.children];
 cuttable.forEach(o=>{o.userData.original=o.material;o.userData.clipped=o.material.clone();o.userData.clipped.clippingPlanes=[clipPlane];o.userData.clipped.clipIntersection=false});
 let cut=true,progress=0,playing=false,speed=1,follow=true,qualityLow=false,camMode='site',seaOn=true,showLabels=true,showArrows=true,showDots=true,autoAir=true,manualAir=100;
 let bottom=-4.5,waterY=0,workingFlood=0,need=0,supplied=0,currentIdx=0;
@@ -244,7 +244,7 @@ function updateState(){
  truss.position.set(spanX,spanY,0);
  steelBarges.position.y=waterY;steelBarges.position.x=spanX-33.5;
  completedDeck.visible=i===10&&u>.98;
- waterSurface.visible=seaOn;waterBack.visible=seaOn;riverFlow.visible=seaOn;waterSurface.position.y=waterY;waterBack.position.y=waterY-8;riverFlow.position.y=waterY;
+ waterSurface.material.opacity=i>=5&&i<=8&&cut?.38:.67;waterSurface.visible=seaOn;waterBack.visible=seaOn;riverFlow.visible=seaOn;waterSurface.position.y=waterY;waterBack.position.y=waterY-8;riverFlow.position.y=waterY;
  for(let k=0;k<riverFlow.children.length;k++)riverFlow.children[k].position.y=.03+.07*Math.sin(progress*.3+k*.8);
  labels[0].pos.set(-17,waterY+1,10);labels[1].pos.set(activePile[0],-5.5,activePile[1]+2);labels[2].pos.set(-8,-17,6);
  labels[3].pos.set(caissonX,bottom+3,6);labels[4].pos.set(0,bottom+7+shaftHeight,4);labels[5].pos.set(33,spanY+8,5);labels[6].pos.set(3.4,11,2);labels[7].pos.set(-3.5,11,2);
@@ -266,7 +266,7 @@ function resize(){const r=$('#viewport').getBoundingClientRect();renderer.setSiz
 new ResizeObserver(resize).observe($('#viewport'));
 renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
 renderer.domElement.addEventListener('pointerdown',e=>{follow=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,pan:e.button===2||e.shiftKey};renderer.domElement.setPointerCapture(e.pointerId)});
-renderer.domElement.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;if(drag.pan){const right=new T.Vector3().subVectors(camera.position,target).cross(new T.Vector3(0,1,0)).normalize();const up=new T.Vector3(0,1,0);target.addScaledVector(right,-dx*dist*.00125).addScaledVector(up,dy*dist*.00125)}else{az+=dx*.006;el=clamp(el+dy*.005,-.04,1.26)}});
+renderer.domElement.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;if(drag.pan){const right=new T.Vector3(0,1,0).cross(new T.Vector3().subVectors(camera.position,target)).normalize();const up=new T.Vector3(0,1,0);target.addScaledVector(right,-dx*dist*.00125).addScaledVector(up,dy*dist*.00125)}else{az-=dx*.006;el=clamp(el-dy*.005,-.04,1.26)}});
 renderer.domElement.addEventListener('pointerup',()=>drag=null);renderer.domElement.addEventListener('pointercancel',()=>drag=null);
 renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();follow=false;dist=clamp(dist*Math.exp(e.deltaY*.001),16,185)},{passive:false});
 document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>preset(b.dataset.cam,true));
