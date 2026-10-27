@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>比较不同物质吸收热量的情况 | Three.js PBR V9</title>
+<style>
+:root{--navy:#173457;--blue:#237fc8;--oil:#d18b19;--line:#dce6f0;--soft:#eef5fb;--ink:#243b55}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#e8f3fb,#f5f8fc 45%,#eaf3fc);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink)}
+button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #8cbdf5;outline-offset:2px}
+.page{max-width:1740px;margin:auto;padding:15px 18px 22px}.head{position:relative;text-align:center;padding:14px 15px 12px;background:linear-gradient(90deg,#d8edff 5%,#f7fbff 43%,#d6ebfe 100%);border-radius:22px;border:1px solid #d1e1ee;box-shadow:0 6px 22px #356ba321}
+.head h1{margin:0;font-size:clamp(24px,2.7vw,38px);color:#123963;letter-spacing:2px;line-height:1.35}.head p{font-size:14px;color:#627a91;margin:6px 0 0}.eyebrow{position:absolute;right:19px;top:15px;background:#fff;color:#347ba9;border-radius:15px;padding:6px 11px;font-size:11px;letter-spacing:.6px;font-weight:700}
+.layout{display:grid;grid-template-columns:minmax(620px,1fr) 390px;align-items:stretch;gap:15px;margin-top:14px}.lab{min-width:0;border:1px solid #cbdde9;border-radius:23px;overflow:hidden;position:relative;min-height:610px;background:linear-gradient(180deg,#dce9f5 0%,#edf6fb 53%,#f5f6f3 50%,#e8edf0 100%);box-shadow:0 12px 32px #5d85a326}
+.lab:before{content:"";position:absolute;z-index:0;inset:0 0 20%;background:radial-gradient(ellipse at 22% 17%,#fff7 0%,transparent 42%),linear-gradient(90deg,transparent 45%,#ffffff24 53%,transparent 50%);pointer-events:none}
+.labtitle{position:absolute;z-index:3;left:23px;top:18px}.labtitle strong{display:block;font-size:17px;color:#254563}.labtitle small{display:block;margin-top:4px;font-size:11px;color:#8296a8} .modebadge{position:absolute;right:19px;top:18px;border-radius:20px;border:1px solid #d8e6ef;background:#fffd;padding:8px 13px;font-size:11px;color:#4e6f86;font-weight:700;z-index:3}
+#labCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none}#labCanvas:active{cursor:grabbing}.labPlates{position:absolute;bottom:24px;left:0;width:100%;display:flex;gap:9%;justify-content:center;align-items:stretch;pointer-events:none;z-index:3}.name{min-width:175px;width:31%;max-width:250px;border:1px solid #c8dfed;background:linear-gradient(180deg,#fffefd,#f6fcffed);border-radius:17px;padding:10px 12px;box-shadow:0 8px 18px #4f759a19;text-align:center}.name.oil{border-color:#f1d7a1;background:linear-gradient(180deg,#fffefb,#fff8eaf2)}.name h2{margin:0 0 3px;color:#1974b8;font-size:21px;letter-spacing:2px}.name.oil h2{color:#b97411}.name .v{font-size:29px;line-height:1.3;font-weight:850;font-variant-numeric:tabular-nums;color:#1974b8}.name.oil .v{color:#c47e10}.name small{font-size:11px;color:#8091a4}.hint{position:absolute;z-index:3;bottom:151px;left:50%;transform:translateX(-50%);border:1px solid #d5e5ef;border-radius:20px;padding:6px 11px;background:#ffffffc7;color:#708aa1;white-space:nowrap;font-size:11px}
+.analogy{border:1px solid #f2d9ac;border-radius:24px;background:#fffcf7;box-shadow:0 12px 32px #b68f5524;padding:14px;min-width:0;display:flex;flex-direction:column;gap:12px}.a-title{font-size:23px;font-weight:900;color:#fff;background:linear-gradient(100deg,#efa033,#ffbb52);border-radius:16px;padding:9px;text-align:center;text-shadow:0 2px 2px #b8782840}.a-desc{font-size:12px;line-height:1.75;color:#697989;padding:0 7px;text-align:center}.contestants{display:grid;grid-template-columns:1fr 1fr;gap:9px}.personCard{min-width:0;text-align:center;background:#fff;border:1px solid #e7edf3;border-radius:15px;padding:8px 6px 10px;overflow:hidden}.personCard.oil{border-color:#f4dfbd}.personCard svg{width:100%;max-width:148px;height:146px;overflow:visible}.personCard strong{display:block;font-size:16px;color:#237abb}.personCard.oil strong{color:#b98024}.personCard small{font-size:11px;color:#697a8e}.fullbar{height:10px;background:#e6eef6;border-radius:10px;overflow:hidden;margin:7px 9px 4px}.fullbar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#7ec8f0,#2779bb);border-radius:10px;transition:width .2s}.oil .fullbar{background:#f7e9d1}.oil .fullbar span{background:linear-gradient(90deg,#ffdc87,#e99c26)}.fullnum{color:#667e98;font-weight:800;font-size:11px}.bunLegend{border-radius:12px;background:#eaf4ff;text-align:center;padding:10px 12px;color:#466a8b;font-size:13px;line-height:1.7}.bunLegend b{font-size:17px;color:#205a9a}.bunStats{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center}.bunStat{border:1px solid #e8eef3;background:#fff;border-radius:12px;padding:8px 5px}.bunStat b{font-size:15px;color:#277ab8}.bunStat.oil b{color:#c78b29}.buns{display:flex;justify-content:center;gap:2px;flex-wrap:wrap;min-height:27px;margin-top:4px}.bun{display:inline-block;font-size:19px;filter:grayscale(1);opacity:.24;transition:.25s}.bun.eaten{filter:none;opacity:1}.bunStat small{font-size:11px;color:#8291a1}
+.analogyConclusion{font-size:12px;line-height:1.8;border-radius:12px;background:#fff6e8;color:#745b35;padding:12px;margin-top:auto;border:1px solid #f5e1c4}.analogyConclusion b{color:#9a5917}.caution{font-size:10px;color:#97816a;line-height:1.65;text-align:center}
+.toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:11px;margin-top:13px;padding:12px 15px;background:#fff;border:1px solid #dbe5f0;box-shadow:0 7px 18px #6e8aab15;border-radius:16px}.seg{display:flex;align-items:center;gap:4px;background:#edf3f8;border-radius:11px;padding:4px}.seg button{border:0;background:transparent;padding:9px 13px;border-radius:8px;color:#687f95;font-weight:700;font-size:12px}.seg button.active{background:white;color:#176cab;box-shadow:0 2px 7px #7188a530}.setting{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7e93}.setting select{border:1px solid #dae3ed;border-radius:9px;color:#2e5471;padding:8px 5px;background:#f8fbfe;outline-offset:2px}.toolbar .primary{border:0;background:linear-gradient(100deg,#2e91dc,#1a6fb8);color:white;padding:11px 19px;border-radius:11px;font-weight:850;box-shadow:0 5px 10px #3984ce36}.toolbar .secondary{border:1px solid #dbe4ec;border-radius:10px;background:#f7fafc;padding:10px 12px;color:#607a92;font-weight:650;font-size:12px}.stretch{flex:1}.timeStat{font-size:12px;color:#71869a}.timeStat b{font-variant-numeric:tabular-nums;font-size:21px;color:#2f5778}.infoStrip{display:grid;grid-template-columns:1fr 260px;gap:14px;margin-top:12px}.chartPanel,.resultPanel{border:1px solid #dbe5ef;border-radius:16px;background:#fff;padding:13px 16px;min-width:0}.chartPanel h3,.resultPanel h3{font-size:14px;margin:0 0 8px;color:#4c6980}.chartPanel canvas{width:100%;height:138px;display:block}.resultPanel p{font-size:12px;color:#6a798a;line-height:1.85;margin:0}.resultPanel strong{color:#b77515}.foot{color:#8491a1;text-align:center;font-size:11px;margin:12px auto 3px;line-height:1.6;max-width:1250px}
+@media(max-width:1170px){.layout{grid-template-columns:minmax(550px,1fr) 340px}.analogy{padding:10px}.lab{min-height:565px}.name{min-width:148px}.head h1{font-size:29px}}@media(max-width:940px){.layout{display:flex;flex-direction:column}.lab{height:640px;min-height:0}.analogy{display:block}.contestants{grid-template-columns:1fr 1fr;max-width:540px;margin:10px auto}.bunStats{max-width:500px;margin:9px auto}.analogyConclusion{margin-top:10px}.infoStrip{grid-template-columns:1fr 1fr}}@media(max-width:650px){.page{padding:8px}.head{padding:10px}.head h1{font-size:21px}.head p{font-size:11px}.eyebrow{display:none}.lab{height:485px}.labtitle{top:10px;left:11px}.labtitle strong{font-size:13px}.hint{bottom:129px;font-size:9px}.name{min-width:120px;padding:7px 5px}.name h2{font-size:15px}.name .v{font-size:20px}.name small{font-size:9px}.labPlates{bottom:16px}.infoStrip{grid-template-columns:1fr}.toolbar{gap:8px;padding:9px}.toolbar .primary{padding:9px 12px}.seg{width:100%}.seg button{flex:1}.timeStat b{font-size:17px}}
+
+/* ===== V2 layout + control-panel refinements ===== */
+.mainCol{display:grid;grid-template-rows:auto auto auto;gap:12px;min-width:0}
+.layout{grid-template-columns:minmax(720px,1fr) 400px;align-items:start;gap:14px}
+.lab{min-height:620px}
+.analogy{border:1px solid #e6c88c;box-shadow:0 12px 26px #c28b2a18}
+.toolbar{display:flex;align-items:stretch;flex-wrap:wrap;gap:10px;margin-top:0;padding:12px;background:linear-gradient(180deg,#fff,#f7fafc);border:1px solid #d7e3ef;box-shadow:0 8px 20px #6e8aab15;border-radius:16px}
+.toolGroup{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #d9e6f2;border-radius:14px;background:#fbfdff;min-height:54px}
+.groupLabel{padding:4px 8px;border-radius:999px;background:#eef5fb;color:#537290;font-size:11px;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.modeBlock{background:linear-gradient(180deg,#f8fbff,#edf4fb)}
+.runBlock{background:linear-gradient(180deg,#f8fcff,#eef7ff)}
+.paramBlock{background:linear-gradient(180deg,#fffefb,#faf5ed)}
+.viewBlock{background:linear-gradient(180deg,#fbfdff,#f1f6fb)}
+.runBtns{display:flex;gap:8px;flex-wrap:wrap}
+.seg{padding:3px;background:#dae8f5;border:1px solid #cadaeb}
+.seg button{padding:11px 15px;font-weight:800}
+.setting{background:#fff;border:1px solid #d8e3ef;min-height:38px}
+.setting select{background:#fff}
+.timeStat{display:flex;align-items:baseline;gap:6px;padding:0 4px 0 10px;color:#60778e;font-weight:700}
+.timeStat span{font-size:12px}
+.timeStat em{font-style:normal;font-size:12px;color:#60778e}
+.timeStat b{font-size:24px}
+.infoStrip{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px;margin-top:0}
+.chartPanel,.resultPanel{border:1px solid #d5e3ef;border-radius:18px;background:#fff;min-width:0;box-shadow:0 8px 20px #6f88a61a}
+.chartPanel{padding:0;overflow:hidden}
+.chartHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:linear-gradient(180deg,#eef6ff,#e4f0fb);border-bottom:1px solid #d5e3ef}
+.chartHead h3{margin:0;font-size:15px;color:#29506c}
+.legendPills{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:700}
+.legendPills span{padding:4px 10px;border-radius:999px;background:#fff;border:1px solid #d8e6f1}
+.legendPills .w{color:#1d78c2}.legendPills .o{color:#c98012}
+.chartInner{padding:12px 14px 8px;background:linear-gradient(180deg,#fff,#fbfdff)}
+.chartPanel canvas{width:100%;height:190px;display:block}
+.resultPanel{padding:14px 16px;background:linear-gradient(180deg,#fff,#fbfcfe)}
+.resultPanel h3{display:inline-block;margin:0 0 10px;font-size:15px;color:#4c6980;background:#eef4fa;padding:6px 12px;border-radius:999px;border:1px solid #dbe6f0}
+.resultPanel p{font-size:13px;line-height:1.82;color:#63778a}
+.resultPanel strong{color:#a86c14}
+#data{background:linear-gradient(180deg,#fff8eb,#fff);padding:10px 12px;border-radius:12px;border:1px dashed #ecd2a3}
+@media(max-width:1220px){.layout{grid-template-columns:minmax(560px,1fr) 360px}.infoStrip{grid-template-columns:1fr}.resultPanel{order:2}.chartPanel{order:1}}
+@media(max-width:940px){.layout{display:flex;flex-direction:column}.mainCol{gap:10px}.lab{height:610px}.toolbar{gap:8px}.toolGroup{width:100%;justify-content:flex-start;flex-wrap:wrap}.infoStrip{grid-template-columns:1fr}}
+@media(max-width:650px){.toolGroup{padding:8px}.groupLabel{font-size:10px}.chartPanel canvas{height:160px}.timeStat b{font-size:20px}}
+
+
+/* V3: graph inside right-side red-box location. No graph below the lab. */
+.layout{grid-template-columns:minmax(760px,1fr) 400px}
+.lab{height:620px;min-height:620px}
+#labCanvas{width:66%;right:auto;left:0;height:100%}
+.labPlates{width:65%;gap:7%;left:0;bottom:22px}
+.name{width:41%;min-width:135px;max-width:220px}
+.hint{left:32.5%;bottom:140px;max-width:62%;font-size:10px}
+.labtitle{top:16px;left:20px}
+.modebadge{right:18px;top:14px}
+.inLabGraph{position:absolute;z-index:3;right:15px;top:91px;bottom:20px;width:32.2%;border:1px solid #cbddea;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#ffffff,#f7fbff);box-shadow:0 12px 24px #42699019;display:flex;flex-direction:column}
+.inLabTop{padding:14px 14px 11px;background:linear-gradient(90deg,#e3f1ff,#f1f8ff);display:flex;align-items:center;justify-content:space-between;gap:5px;border-bottom:1px solid #d5e4f0}
+.inLabTop strong{font-size:16px;color:#174a74;white-space:nowrap}
+.inLabTop span{font-size:10px;color:#728da4;white-space:nowrap}
+.inLabReadings{padding:12px 11px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inLabReadings>div{padding:9px 7px;border-radius:12px;border:1px solid #d0e5f4;background:linear-gradient(180deg,#f0f9ff,#fff);text-align:center;display:flex;flex-direction:column;gap:5px}
+.inLabReadings>div.liveOil{background:linear-gradient(180deg,#fff7e8,#fff);border-color:#f3d6a4}
+.inLabReadings small{font-size:12px;font-weight:800;color:#247ab7}.inLabReadings .liveOil small{color:#b77a20}
+.inLabReadings b{color:#1378c4;font-size:22px;white-space:nowrap;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.inLabReadings .liveOil b{color:#c37b0c}
+.inLabReadings em{font-style:normal;color:#728ba1;font-size:10px;white-space:nowrap}
+.inLabPlot{flex:1;min-height:205px;padding:11px 10px 7px;display:flex;flex-direction:column;border-top:1px solid #eef2f6}
+.graphCaption{font-size:13px;font-weight:800;color:#345d7e;padding:0 4px 4px}
+.inLabPlot canvas{display:block;width:100%;flex:1;min-height:150px;height:100%}
+.plotLegend{display:flex;align-items:center;justify-content:center;gap:7px;color:#627c91;font-weight:750;font-size:11px;margin:2px 0 2px}
+.blueDot,.orangeDot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2182ca}.orangeDot{background:#d88b19;margin-left:8px}
+.inLabTip{padding:9px 12px 11px;border-top:1px solid #e6eff7;background:#f4f9ff;font-size:11px;line-height:1.5;color:#587895}
+.infoStrip{grid-template-columns:1fr}
+.resultPanel{padding:12px 17px}.resultPanel h3{margin-bottom:5px}.resultPanel p{display:inline-block;vertical-align:top;margin-right:15px}.resultPanel #data{margin-top:5px!important;padding-top:8px!important}
+.geometryReview{margin-top:12px;background:#fff;border:1px solid #d6e4f1;border-radius:18px;padding:14px 16px;box-shadow:0 8px 18px #6e8aab14}
+.geometryHead{display:flex;justify-content:space-between;gap:15px;align-items:center}.geometryHead strong{font-size:16px;color:#255a82}.geometryHead p{font-size:11px;color:#7891a6;margin:5px 0 0}.geometryHead button{padding:8px 14px;border:1px solid #b9d7ef;background:#eaf5ff;color:#236f9f;font-weight:800;font-size:12px;border-radius:10px;cursor:pointer}
+.geometryDraw{margin-top:12px}.geometryDraw svg{display:block;width:100%;height:auto}.geometryDraw p{font-size:11px;color:#6e8296;margin:8px 0 0}
+@media(max-width:1280px){.layout{grid-template-columns:minmax(690px,1fr) 330px}.inLabGraph{width:33.5%;right:10px}.inLabReadings b{font-size:18px}.inLabTop strong{font-size:14px}.labtitle small{font-size:10px}.labPlates{width:63%}}
+@media(max-width:1000px){.layout{display:flex;flex-direction:column}.lab{width:100%;height:600px;min-height:600px}.mainCol{width:100%}.inLabGraph{width:32%}.analogy{width:100%}}
+@media(max-width:670px){.lab{height:770px;min-height:770px}#labCanvas{top:12px;width:100%;height:420px}.labtitle{top:7px}.labtitle small{display:none}.modebadge{top:8px}.labPlates{top:357px;bottom:auto;width:100%}.hint{top:323px;bottom:auto;left:50%;max-width:96%;font-size:9px}.inLabGraph{top:467px;bottom:12px;width:calc(100% - 24px);left:12px;right:12px}.inLabReadings{padding:7px}.inLabReadings>div{padding:6px;gap:1px}.inLabReadings b{font-size:20px}.inLabPlot{min-height:140px;padding-top:5px}.inLabPlot canvas{min-height:86px}.inLabTop{padding:8px 12px}.inLabTip{padding:5px 8px}.geometryHead strong{font-size:13px}}
+
+
+/* V5 anti-overexposure: user-adjustable PBR exposure and clear grouped contrast */
+.exposureControl{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;background:#eaf2f9;border:1px solid #cedde9;border-radius:9px;font-size:12px;font-weight:700;color:#31536d;white-space:nowrap}
+.exposureControl input{width:94px;accent-color:#2878b8;cursor:pointer}
+.exposureControl output{min-width:32px;font-size:11px;color:#1d5f8f;font-variant-numeric:tabular-nums}
+@media(max-width:650px){.exposureControl input{width:76px}}
+/* V4 Three.js PBR viewer */
+#threeMount{position:absolute;z-index:1;left:0;top:0;bottom:0;width:66%;overflow:hidden;pointer-events:auto;touch-action:none;background:transparent}
+#threeMount canvas{display:block;width:100%!important;height:100%!important;cursor:grab;touch-action:none}
+#threeMount canvas:active{cursor:grabbing}
+.renderStatus{position:absolute;z-index:4;top:60px;left:20px;display:inline-flex;align-items:center;padding:5px 9px;background:#ffffffcf;border:1px solid #d9e5ef;border-radius:99px;color:#49718f;font-size:10px;box-shadow:0 3px 10px #34567810;pointer-events:none}
+@media(max-width:780px){#threeMount{top:12px;width:100%;height:420px;bottom:auto}.renderStatus{top:53px;left:12px}}
+
+/* ===== V6 UI readability refinement ===== */
+.head{padding-bottom:14px}
+.head p{display:none}
+.name{padding:12px 14px 12px;border-width:1.5px}
+.name small{display:block;margin:4px 0 2px;font-size:15px;color:#425d76;font-weight:850;letter-spacing:.2px}
+.name .massText{font-size:18px;color:#173e63;font-weight:900}
+.name.oil small{color:#70552a}
+.name.oil .massText{color:#9a6511}
+.toolGroup{box-shadow:0 3px 10px #6a86a912}
+.modeBlock{background:linear-gradient(180deg,#edf6ff,#e2f0ff);border-color:#bfd6ee}
+.runBlock{background:linear-gradient(180deg,#eef7ff,#e7f2ff);border-color:#c2d8ef}
+.paramBlock{background:linear-gradient(180deg,#fffaf1,#fff5e7);border-color:#ead5ac}
+.viewBlock{background:linear-gradient(180deg,#f4f7fb,#eef3f8);border-color:#ccd9e6}
+.seg{background:#d9e9f8;border:1px solid #c6dbef;padding:4px}
+.seg button{color:#5c7187;padding:10px 15px}
+.seg button.active{background:linear-gradient(180deg,#ffffff,#f5fbff);color:#0e67a8;box-shadow:0 3px 10px #5d87b539;border:1px solid #c3d9eb}
+.toolGroup .primary{font-size:15px;padding:12px 22px}
+.setting{font-weight:800;color:#556f87}
+.setting select{font-weight:800;background:#fff;color:#214b6d}
+.groupLabel{background:#ffffff;box-shadow:inset 0 0 0 1px #dbe7f1;color:#426988;font-size:12px}
+.inLabTop{padding:14px 16px 12px}
+.inLabTop strong{font-size:17px}
+.inLabReadings small{font-size:13px}
+.inLabReadings b{font-size:25px}
+.inLabReadings em{font-size:11px}
+@media(max-width:670px){.name small{font-size:12px}.name .massText{font-size:14px}}
+
+
+
+/* V9：矢量图表，专为课堂投屏放大标签和调整留白 */
+.inLabPlot{min-height:235px;padding:12px 13px 8px;gap:3px}
+.graphCaption{font-size:16px;line-height:1.35;font-weight:850;color:#183f62;padding:0 1px 6px;display:flex;justify-content:space-between;align-items:baseline;gap:7px;flex-wrap:wrap}
+.axisHint{font-size:11px;color:#58748e;font-weight:650;letter-spacing:.1px;white-space:nowrap}
+.inLabPlot svg#chart{display:block;width:100%;height:100%;min-height:185px;flex:1;overflow:visible;shape-rendering:geometricPrecision}
+.chartGrid{stroke:#d6e2ec;stroke-width:1.15}
+.chartGridV{stroke:#e6eef4;stroke-width:.85;stroke-dasharray:3 4}
+.chartAxis{stroke:#7c9ab0;stroke-width:1.4}
+.chartTick{fill:#315b78;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:13px;font-weight:750;paint-order:stroke fill;stroke:#fff;stroke-width:1.2;stroke-linejoin:round}
+.plotLegend{font-size:13px;font-weight:800;color:#345871;gap:9px;min-height:27px;margin:8px 0 1px}
+.blueDot,.orangeDot{width:11px;height:11px}
+.inLabTip{font-size:12px;font-weight:650;line-height:1.55;padding:11px 12px}
+@media(max-width:1280px){.graphCaption{font-size:15px}.axisHint{font-size:10px}.chartTick{font-size:12.5px}}
+@media(max-width:670px){.inLabPlot{min-height:170px;padding:9px 12px 5px}.graphCaption{font-size:14px;padding:0 1px 2px}.inLabPlot svg#chart{min-height:115px}.plotLegend{font-size:12px;min-height:23px;margin:3px 0}.inLabTip{font-size:11px}}
+
+</style></head><body><div class="page">
+<header class="head"><span class="eyebrow">九年级物理 · 比热容</span><h1>比较不同物质吸收热量的情况</h1></header>
+<main><div class="layout"><div class="mainCol"><section class="lab" aria-label="Three.js PBR 模型：真实三维几何体、铜质盘管和玻璃烧杯">
+ <div class="labtitle"><strong>双杯同步加热 · Three.js PBR 实验台</strong><small>铜质螺旋盘管 / 铁架台悬挂温度计 / 透明玻璃烧杯</small></div><span class="modebadge" id="statePill">○ 等待开始</span>
+ <canvas id="labCanvas" aria-label="离线回退：Canvas 模型"></canvas>
+ <div id="threeMount" aria-label="真实 WebGL 模型（支持三维旋转、缩放）"></div>
+ <div id="renderStatus" class="renderStatus">正在检测 Three.js PBR 渲染</div>
+ <section class="inLabGraph" aria-label="位于烧杯右侧的实时温度变化图">
+   <div class="inLabTop"><strong>实时温度变化</strong><span id="graphState">开始后显示趋势</span></div>
+   <div class="inLabReadings"><div class="liveWater"><small>清水</small><b id="wLive">20.0 ℃</b><em id="wDelta">升高 0.0 ℃</em></div><div class="liveOil"><small>食用油</small><b id="oLive">20.0 ℃</b><em id="oDelta">升高 0.0 ℃</em></div></div>
+   <div class="inLabPlot"><div class="graphCaption">温度—加热时间曲线 <span class="axisHint">纵轴：℃　横轴：s</span></div><svg id="chart" role="img" aria-label="水与食用油的温度随加热时间变化曲线"></svg><div class="plotLegend"><span class="blueDot"></span>清水 <span class="orangeDot"></span>食用油</div></div>
+   <div class="inLabTip" id="graphTip">相同加热时间，比较两种液体的温升。</div>
+ </section>
+ <div class="hint">鼠标拖动：真实三维旋转　·　滚轮：缩放　·　双击：恢复视角</div>
+ <div class="labPlates"><div class="name water"><h2>清 水</h2><small>质量 m = <span class="massText">200</span> g</small><div class="v" id="wLabel">20.0 ℃</div></div><div class="name oil"><h2>食 用 油</h2><small>质量 m = <span class="massText">200</span> g</small><div class="v" id="oLabel">20.0 ℃</div></div></div>
+</section><div class="toolbar"><div class="toolGroup modeBlock"><div class="groupLabel">实验模式</div><div class="seg" id="modes"><button type="button" class="active" data-mode="sameTime">相同加热时间</button><button type="button" data-mode="sameRise">升高相同温度</button></div></div><div class="toolGroup runBlock"><div class="groupLabel">运行控制</div><div class="runBtns"><button type="button" class="primary" id="play">▶ 开始同步加热</button><button type="button" class="secondary" id="reset">↻ 重置</button></div></div><div class="toolGroup paramBlock"><div class="groupLabel">实验参数</div><label class="setting">质量<select id="mass"><option value=".1">100 g</option><option value=".2" selected>200 g</option><option value=".3">300 g</option></select></label><label class="setting">功率<select id="power"><option value="100" selected>100 W</option><option value="150">150 W</option><option value="200">200 W</option></select></label><label class="setting" id="durationSet">时长<select id="duration"><option value="60">60 s</option><option value="120" selected>120 s</option><option value="180">180 s</option></select></label><label class="setting" id="riseSet" style="display:none">目标温升<select id="rise"><option value="10">+10 ℃</option><option value="20" selected>+20 ℃</option><option value="30">+30 ℃</option></select></label><label class="setting">速度<select id="speed"><option value="1">1×</option><option value="5">5×</option><option value="10" selected>10×</option><option value="20">20×</option></select></label></div><div class="toolGroup viewBlock"><div class="groupLabel">视图与页面</div><button type="button" class="secondary" id="glassToggle">隐藏杯壁</button><button type="button" class="secondary" data-view="front">正视</button><button type="button" class="secondary" data-view="side">侧视</button><button type="button" class="secondary" data-view="top">俯视</button><button type="button" class="secondary" id="camReset">视角复位</button><button type="button" class="secondary" id="fullscreen">⛶ 全屏</button></div><div class="stretch"></div><div class="timeStat"><span>实验时间</span><b id="time">0.0</b><em>s</em></div></div><div class="infoStrip"><section class="resultPanel"><h3>实验结论</h3><p id="result">两杯液体质量相同、初温相同，用相同功率的加热器加热。点击「开始同步加热」，观察两只温度计和包子数量。</p><p style="margin-top:8px;padding-top:8px;border-top:1px solid #ebeff3" id="data">水：20.0 ℃　油：20.0 ℃<br>每杯吸热：0 kJ</p></section></div></div><aside class="analogy">
+<div class="a-title">🥟 吃包子大赛类比</div><div class="a-desc">两位选手吃同样数量的包子，<br>为什么“吃饱程度”的变化不一样？</div>
+<div class="contestants"><div class="personCard water">
+<!-- 甲：食量大（类比水），人物为原生可缩放 SVG 绘制 -->
+<svg viewBox="0 0 180 174" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="选手甲：食量较大，吃相同包子后饱腹感变化小">
+<ellipse cx="90" cy="164" rx="70" ry="9" fill="#d9eafa"/><path d="M19 172Q19 117 55 113L125 113Q160 117 161 172" fill="#3389d0" stroke="#2767a2" stroke-width="3"/><path d="M67 118Q89 136 112 117" fill="none" stroke="#abd9fa" stroke-width="4"/><path d="M85 132 L85 168 M96 132 L96 168" stroke="#e6f7ff" stroke-width="3"/>
+<path d="M44 125Q23 128 19 155M138 125Q156 125 161 155" stroke="#2674b2" stroke-width="18" fill="none" stroke-linecap="round"/>
+<ellipse cx="89" cy="79" rx="47" ry="50" fill="#ffd6ac" stroke="#ba8459" stroke-width="2"/><path d="M42 70Q30 43 48 28Q56 5 76 20Q106 2 124 23Q150 22 137 63L133 66Q133 43 111 42Q102 58 84 42Q65 58 52 48Z" fill="#42352d"/><path d="M57 30L42 24 49 41 M83 20L76 6 94 22 M117 30L126 12 123 39" fill="#42352d"/>
+<path d="M57 82Q66 76 74 82M105 82Q113 76 123 82" fill="none" stroke="#46352c" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="49" cy="95" rx="10" ry="6" fill="#f6a5a0" opacity=".7"/><ellipse cx="128" cy="95" rx="10" ry="6" fill="#f6a5a0" opacity=".7"/><path d="M77 100Q88 116 105 99" fill="#783c3d" stroke="#783c3d" stroke-width="2"/><path d="M80 102Q90 114 101 103" fill="#fff"/>
+<g transform="translate(130 111) rotate(-14)"><path d="M-18 -7C-29 -16 -15 -34 0 -29C14 -36 30 -16 19 -5Q6 7 -18 -7Z" fill="#fff3dd" stroke="#d0a979" stroke-width="2"/><path d="M-9 -23Q-7 -8 0 -6Q8 -15 8 -23M-15 -15Q-8 -9 -6 -5 M16 -15Q8 -10 7 -5" fill="none" stroke="#deb88b" stroke-width="1.7"/></g>
+<path d="M149 132Q146 114 135 114" fill="none" stroke="#ffd5a9" stroke-width="12" stroke-linecap="round"/></svg>
+<strong>选手甲 · 大胃王</strong><small>类比水：吸热本领强</small><div class="fullbar"><span id="wFull"></span></div><div class="fullnum" id="wFullText">饱腹感变化：0%</div></div>
+<div class="personCard oil">
+<!-- 乙：食量小（类比食用油） -->
+<svg viewBox="0 0 180 174" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="选手乙：食量较小，吃相同包子后饱腹感变化大"><ellipse cx="90" cy="164" rx="70" ry="9" fill="#fae9cf"/><path d="M27 174Q26 117 56 116L127 117Q157 126 153 174" fill="#f3a13e" stroke="#c57b2f" stroke-width="3"/><path d="M86 122V173M96 122V173" stroke="#ffd597" stroke-width="3"/>
+<path d="M48 123Q29 126 25 151M133 125Q152 122 156 153" fill="none" stroke="#dd903c" stroke-width="17" stroke-linecap="round"/>
+<ellipse cx="93" cy="81" rx="47" ry="51" fill="#ffd6ae" stroke="#bd8962" stroke-width="2"/><path d="M45 73Q34 35 59 26Q82 12 96 23Q113 10 129 28Q151 39 138 72Q135 46 117 45Q104 53 96 37Q75 49 61 44Q57 66 45 73Z" fill="#513b2f"/><path d="M53 39L47 24L67 32M100 23L104 9L111 26 M128 39L143 29L133 49" fill="#513b2f"/>
+<path d="M64 80Q73 75 81 82M106 82Q115 74 124 80" fill="none" stroke="#593a29" stroke-width="3.5" stroke-linecap="round"/><circle cx="62" cy="97" r="7" fill="#f9ab9c" opacity=".75"/><circle cx="122" cy="97" r="7" fill="#f9ab9c" opacity=".75"/><path d="M78 101Q92 120 107 100" fill="#8a4941"/><path d="M81 104Q91 115 104 104" fill="#fff"/>
+<g transform="translate(125 110) rotate(8)"><path d="M-18 -7C-28 -19 -15 -31 0 -27C15 -33 29 -17 19 -4Q0 9 -18 -7Z" fill="#fff1d9" stroke="#cc9d69" stroke-width="2"/><path d="M-9 -22Q-6 -13 0 -5Q7 -15 8 -23 M-16 -15L-7 -5M16 -15L7 -5" fill="none" stroke="#d3af84" stroke-width="1.6"/></g><path d="M143 130Q139 115 130 115" stroke="#ffd2a3" stroke-width="11" fill="none" stroke-linecap="round"/></svg>
+<strong>选手乙 · 小胃口</strong><small>类比食用油：吸热本领较弱</small><div class="fullbar"><span id="oFull"></span></div><div class="fullnum" id="oFullText">饱腹感变化：0%</div></div></div>
+<div class="bunLegend"><b>🥟 热量 = 包子</b><br><span id="bunRule">相同时间 = 两人获得相同数量的包子</span></div>
+<div class="bunStats"><div class="bunStat"><b>甲获得 <span id="wBunNum">0</span> 个</b><div class="buns" id="wBuns"></div><small>温度变化较小</small></div><div class="bunStat oil"><b>乙获得 <span id="oBunNum">0</span> 个</b><div class="buns" id="oBuns"></div><small>温度变化较大</small></div></div>
+<div class="analogyConclusion" id="analogyResult"><b>课堂问题：</b>同样多的包子，大胃王不容易吃饱，小胃口的选手更容易吃饱。水与食用油吸收同样的热量后，谁升温更多？</div><div class="caution">⚠ 类比仅帮助理解“吸热能力”，饱腹感不是物理温度，不能当作严格的定量关系。</div>
+</aside></div></main><p class="foot">V4 模型升级：实际 Three.js 几何体和 PBR 材质；装配间隙采用程序检查，构件尺寸仅是照片推定，非加工图。计算采用教学近似：c<sub>水</sub> = 4200 J/(kg·℃)，c<sub>食用油</sub> ≈ 2100 J/(kg·℃)；Q = Pt = cmΔT。假定加热器输入热量全部由液体吸收，忽略散热、烧杯及器材吸热；模拟未包含沸腾、烫伤与真实实验操作。加热装置和人物均为代码绘制，不采用图片抠图。实际操作须使用符合液体介质要求的实验加热器，普通烧水加热棒不得直接用于食用油。联网加载 Three.js 后启用真正的 PBR 模型；无法联网时自动回退到原有 Canvas 演示。</p></div>
+<!-- Three.js r149 CDN: loaded asynchronously by scene initializer; local Canvas fallback runs immediately. -->
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('labCanvas'),ctx=canvas.getContext('2d'),chart=$('chart');
+const TAU=Math.PI*2,PI=Math.PI;let mode='sameTime',mass=.2,power=100,duration=120,rise=20,speed=10,elapsed=0,playing=false,done=false,last=0;
+const cp={w:4200,o:2100},liquid={w:20,o:20},absorbed={w:0,o:0};
+let theta=.10,phi=1.23,scale=1,cam={};
+const V=(x,y,z)=>[x,y,z];
+const sub=(a,b)=>a.map((x,i)=>x-b[i]);
+const dot=(a,b)=>a.reduce((sum,x,i)=>sum+x*b[i],0);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const norm=a=>{let d=Math.hypot(...a)||1;return a.map(x=>x/d)};
+function period(){return mode==='sameTime'?duration:mass*cp.w*rise/power}function stop(k){return mode==='sameTime'?duration:mass*cp[k]*rise/power}
+function recompute(){for(let k of ['w','o']){let activeT=Math.min(elapsed,stop(k));absorbed[k]=power*activeT;liquid[k]=20+absorbed[k]/(mass*cp[k]);}}
+function reset(){elapsed=0;playing=false;done=false;recompute();updateUI();}
+function camera(){const w=canvas.clientWidth,h=canvas.clientHeight;const aspect=w/Math.max(1,h);let distance=Math.max(7.45,7.35/Math.max(.96,aspect))*scale;
+ const target=V(0,1.55,0),eye=V(target[0]+distance*Math.sin(phi)*Math.sin(theta),target[1]+distance*Math.cos(phi),target[2]+distance*Math.sin(phi)*Math.cos(theta));const fw=norm(sub(target,eye)),right=norm(cross(fw,V(0,1,0))),up=cross(right,fw);cam={w,h,eye,fw,right,up,focal:h*.5/Math.tan(43*PI/360)};}
+function project(p){let rel=sub(p,cam.eye),d=dot(rel,cam.fw);if(d<.5)return null;let s=cam.focal/d;return {x:cam.w/2+dot(rel,cam.right)*s,y:cam.h/2-dot(rel,cam.up)*s,s,d};}
+function poly(points,fill,opacity=1,outline=null,width=1){let ps=points.map(project);if(ps.some(x=>!x))return;ctx.save();ctx.globalAlpha=opacity;ctx.beginPath();ps.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(outline){ctx.strokeStyle=outline;ctx.lineWidth=width;ctx.stroke()}ctx.restore();}
+function path(points,opts={}){let ps=points.map(project);if(ps.some(x=>!x)||ps.length<2)return;const s=ps.reduce((v,p)=>v+p.s,0)/ps.length;let w=(opts.radius||.012)*2*s;ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.globalAlpha=opts.opacity==null?1:opts.opacity;
+ const P=()=>{ctx.beginPath();ctx.moveTo(ps[0].x,ps[0].y);for(let i=1;i<ps.length;i++)ctx.lineTo(ps[i].x,ps[i].y)};
+ P();ctx.strokeStyle=opts.rim||'#415365';ctx.lineWidth=w+1.5;ctx.stroke();P();ctx.strokeStyle=opts.color||'#b2bdc6';ctx.lineWidth=w;ctx.stroke();if(w>2){P();ctx.strokeStyle=opts.light||'#ffffff';ctx.lineWidth=Math.max(.6,w*.23);ctx.stroke();}ctx.restore();}
+function ellipse(cx,y,cz,rx,rz,fill,alpha=1,edge=null){let pp=[];for(let i=0;i<=64;i++){let a=i/64*TAU;pp.push(V(cx+rx*Math.cos(a),y,cz+rz*Math.sin(a)))}poly(pp,fill,alpha,edge,1.3);}
+function rim(cx,y,cz,rx,rz){let p=[];for(let i=0;i<=80;i++){let a=i/80*TAU;p.push(V(cx+rx*Math.cos(a),y,cz+rz*Math.sin(a)))}path(p,{radius:.024,color:'#cfe3ef',rim:'#89aabe',light:'#fff',opacity:.9});path(p,{radius:.012,color:'#f4fcff',rim:'#d9eaf5',light:'#fff',opacity:.84});}
+function shadeWall(cx,y0,y1,r,medium,front){const bands=[];for(let i=0;i<60;i++){let a=i/60*TAU,b=(i+1)/60*TAU,mid=(a+b)/2,facing=(cam.eye[0]-cx)*Math.cos(mid)+cam.eye[2]*Math.sin(mid);if((facing>0)!==front)continue;let points=[V(cx+r*Math.cos(a),y0,r*Math.sin(a)),V(cx+r*Math.cos(b),y0,r*Math.sin(b)),V(cx+r*Math.cos(b),y1,r*Math.sin(b)),V(cx+r*Math.cos(a),y1,r*Math.sin(a))];let projected=points.map(project);if(projected.some(p=>!p))continue;bands.push({points,z:projected.reduce((s,p)=>s+p.d,0)/4,mid});}bands.sort((a,b)=>b.z-a.z);for(const b of bands){let a=medium==='glass'?(.045+.045*Math.abs(Math.cos(b.mid*1.9))):(medium==='w'?(front?.30:.23):(front?.44:.32));let fill=medium==='glass'?'#92c0dc':medium==='w'?'#6dcdf1':'#e4ab33';poly(b.points,fill,a);}}
+function shadow(cx,z,rad){let p=project(V(cx,.03,z));if(!p)return;ctx.save();ctx.translate(p.x,p.y);ctx.scale(1,.28);let rr=rad*p.s;const g=ctx.createRadialGradient(0,0,0,0,0,rr);g.addColorStop(0,'#455b714d');g.addColorStop(.7,'#657d9220');g.addColorStop(1,'#657d9200');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,rr,0,TAU);ctx.fill();ctx.restore()}
+function ground(){const y=project(V(0,0,0));if(!y)return;const grad=ctx.createLinearGradient(0,y.y-20,0,cam.h);grad.addColorStop(0,'#fff5');grad.addColorStop(1,'#cfdde84d');ctx.fillStyle=grad;ctx.fillRect(0,Math.max(0,y.y-25),cam.w,cam.h-y.y+25);}
+function base(cx){let x=cx-.95,z=-.20;shadow(cx,-.10,1.3);poly([V(x-.26,.10,z-.61),V(x+1.75,.10,z-.61),V(x+1.75,.10,z+.66),V(x-.26,.10,z+.66)],'#53616c',1,'#343b41',3);poly([V(x-.26,.10,z+.66),V(x+1.75,.10,z+.66),V(x+1.75,.015,z+.66),V(x-.26,.015,z+.66)],'#273744');poly([V(x+1.75,.10,z-.61),V(x+1.75,.10,z+.66),V(x+1.75,.015,z+.66),V(x+1.75,.015,z-.61)],'#343e48');poly([V(x-.14,.105,z-.5),V(x+1.61,.105,z-.5),V(x+1.61,.105,z+.55),V(x-.14,.105,z+.55)],'#53616b',.22);
+ const bx=cx-1.04,bz=-.3;ellipse(bx,.135,bz,.13,.10,'#a7b8c7',.95,'#324655');path([V(bx,.14,bz),V(bx,3.46,bz)],{radius:.033,color:'#687986',rim:'#3d4854',light:'#f2f7fa'});ellipse(bx,3.47,bz,.04,.04,'#cad4dc');
+ // horizontal support clamps and blue mounting knobs
+ const clampY=2.90;path([V(bx,clampY,bz+.04),V(cx-.34,clampY,bz+.04)],{radius:.027,color:'#788993',rim:'#536573',light:'#fff'});path([V(cx-.34,clampY-.10,bz+.06),V(cx-.34,clampY+.10,bz+.06)],{radius:.075,color:'#343a3e',rim:'#1f2e3d',light:'#a7adb1'});
+ const q=project(V(bx,clampY,bz+.12));if(q){const r=q.s*.102;let gr=ctx.createRadialGradient(q.x-r*.35,q.y-r*.35,1,q.x,q.y,r);gr.addColorStop(0,'#67c3ff');gr.addColorStop(.5,'#1677bf');gr.addColorStop(1,'#0d437d');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(q.x,q.y,r,0,TAU);ctx.fill();ctx.strokeStyle='#193e65';ctx.lineWidth=1.4;ctx.stroke();}
+}
+function thermometer(cx,k){const x=cx-.34,z=-.20,low=.56,high=3.29;
+ // tube silhouette and paper scale strip
+ path([V(x,low,z),V(x,high,z)],{radius:.048,color:'#ebf5fb',rim:'#adc2cc',light:'#fff'});
+ path([V(x+.008,low+.10,z+.037),V(x+.008,high-.07,z+.037)],{radius:.011,color:'#f4ded9',rim:'#ecb9b6',light:'#fffcfa'});
+ const redTop=.60+Math.min(100,liquid[k])/100*2.43;path([V(x+.006,.57,z+.050),V(x+.006,redTop,z+.050)],{radius:.018,color:'#e63232',rim:'#bb1b1d',light:'#ff9889'});
+ const bulb=project(V(x,.57,z+.04));if(bulb){let r=bulb.s*.064;let g=ctx.createRadialGradient(bulb.x-r*.3,bulb.y-r*.35,0,bulb.x,bulb.y,r);g.addColorStop(0,'#ffb2a6');g.addColorStop(.5,'#ea403b');g.addColorStop(1,'#a82429');ctx.fillStyle=g;ctx.beginPath();ctx.arc(bulb.x,bulb.y,r,0,TAU);ctx.fill();}
+ for(let i=0;i<=100;i+=5){let yy=.62+(i/100)*2.40,major=i%20===0;let p1=project(V(x+.052,yy,z+.065)),p2=project(V(x+(major?.16:.11),yy,z+.065));if(!p1||!p2)continue;ctx.strokeStyle='#51758b';ctx.lineWidth=major?1.8:1.05;ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.stroke();if(major){ctx.fillStyle='#4f7184';ctx.textAlign='left';ctx.font='bold 14px Arial';ctx.fillText(i+'',p2.x+3,p2.y+3)}}
+ const p=project(V(x,3.25,z+.07));if(p){ctx.fillStyle='#6c8096';ctx.font='bold 14px system-ui';ctx.fillText('℃',p.x+3,p.y-2)}
+}
+function heater(cx,k){const bright=playing&&elapsed<stop(k)-.001;
+ // Shared geometry with the 4-view SVG drawing. Cup interior radius .615, top y 2.12.
+ const center=t=>V(cx+.31-.17*t,.91-.41*t,.10+.02*t);
+ const helix=[];const n=288;
+ for(let i=0;i<=n;i++){let t=i/n,a=t*TAU*4.8,c=center(t);helix.push(V(c[0]+.136*Math.cos(a),c[1]-.102*Math.cos(a),c[2]+.17*Math.sin(a)))}
+ if(bright){let p=project(V(cx+.23,.66,.10));if(p){let r=p.s*.38;let g=ctx.createRadialGradient(p.x,p.y,1,p.x,p.y,r);g.addColorStop(0,'#f4a94a25');g.addColorStop(1,'#f4a94a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,TAU);ctx.fill();}}
+ path(helix,{radius:.040,color:'#c7793b',rim:'#9d532b',light:'#ffe3a0'});
+ const a=helix[0],b=helix[helix.length-1];
+ // Lead rods terminate on the exact first/last points of the coil, avoiding floating ends.
+ path([a,V(cx+.40,1.18,.10),V(cx+.42,1.65,.07),V(cx+.43,2.05,.02),V(cx+.46,2.27,.02)],{radius:.029,color:'#c57b3a',rim:'#935327',light:'#ffe5a5'});
+ path([b,V(cx+.23,.44,-.28),V(cx+.23,.95,-.32),V(cx+.26,1.40,-.31),V(cx+.35,1.90,-.17),V(cx+.41,2.27,-.10)],{radius:.028,color:'#ce8a49',rim:'#985a31',light:'#ffdfa7'});
+ // The gray handle lies entirely ABOVE the beaker lip, no sidewall collision.
+ path([V(cx+.435,2.28,-.04),V(cx+.70,2.51,-.04)],{radius:.102,color:'#bac3cb',rim:'#5f707b',light:'#f4f9fb'});
+ for(let i=0;i<4;i++){let t=.18+i*.17;let x=.435+(.70-.435)*t,y=2.28+(2.51-2.28)*t;path([V(cx+x-.025,y+.028,.052),V(cx+x+.032,y-.028,.052)],{radius:.006,color:'#75858d',rim:'#526570',light:'#dae2e7'});}
+ path([V(cx+.70,2.51,-.04),V(cx+.76,2.56,-.04)],{radius:.066,color:'#6b7a83',rim:'#4b5c66',light:'#dce4e9'});
+ const wire=[];for(let i=0;i<=30;i++){let t=i/30;wire.push(V(cx+.76+.42*t+.09*Math.sin(t*PI),2.56-.82*t+.13*Math.sin(t*PI),-.04+.04*t));}
+ path(wire,{radius:.027,color:'#68757c',rim:'#364650',light:'#a4b3bd'});
+}
+function liquidY(k){return Math.min(1.89,.39+mass/.2*1.04*(k==='o'?1.08:1))}
+function cup(cx,k){const y0=.24,top=2.12,r=.65,ly=liquidY(k);
+ shadeWall(cx,y0,top,r,'glass',false);
+ ellipse(cx,y0+.01,0,r-.02,r-.02,'#d5e9f5',.24);
+ shadeWall(cx,y0+.04,ly,r-.035,k,false);
+ ellipse(cx,ly,0,r-.035,r-.035,k==='o'?'#f7c247':'#c8eefc',k==='o'?.84:.62,k==='o'?'#c98a18':'#59bde5');
+ heater(cx,k);thermometer(cx,k);
+ if(elapsed>0)convection(cx,k,ly);
+ shadeWall(cx,y0+.04,ly,r-.035,k,true);
+ shadeWall(cx,y0,top,r,'glass',true);
+ // curved wall highlights and volume graduation that do not grow outside beaker
+ const a=.35;let dx=Math.cos(a)*r,dz=Math.sin(a)*r;path([V(cx+dx,top-.10,dz),V(cx+dx,y0+.12,dz)],{radius:.013,color:'#e6f9ff',rim:'#c1e1f2',light:'#fff',opacity:.65});
+ const aa=2.65;dx=Math.cos(aa)*r;dz=Math.sin(aa)*r;path([V(cx+dx,top-.09,dz),V(cx+dx,y0+.15,dz)],{radius:.017,color:'#e5f6fc',rim:'#d0e3f0',light:'#fff',opacity:.45});
+ rim(cx,top,0,r,r);
+ // bottom glass is present but much subtler than the top opening
+ let bottomArc=[];for(let i=0;i<=72;i++){let a=i/72*TAU;bottomArc.push(V(cx+(r-.018)*Math.cos(a),y0,(r-.018)*Math.sin(a)))}
+ path(bottomArc,{radius:.009,color:'#b8cedd',rim:'#89b2c8',light:'#f8ffff',opacity:.55});
+ for(let j=1;j<=5;j++){let yy=.38+j*.26,pts=[V(cx-.30,yy,r+.007),V(cx-.30+(j%2===0?.17:.10),yy,r+.007)],p=pts.map(project);if(p.some(x=>!x))continue;ctx.save();ctx.strokeStyle='#7e9daf';ctx.globalAlpha=.80;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(p[0].x,p[0].y);ctx.lineTo(p[1].x,p[1].y);ctx.stroke();if(j%2===0){ctx.textAlign='right';ctx.fillStyle='#5d829a';ctx.font='10px Arial';ctx.fillText(j*50+'',p[0].x-4,p[0].y+3)}ctx.restore();}
+ // spout
+ path([V(cx-.58,top,.27),V(cx-.71,top+.044,.28),V(cx-.80,top+.015,.30)],{radius:.018,color:'#dcebf1',rim:'#a1c2d5',light:'#fff',opacity:.86});
+}
+function convection(cx,k,ly){if(!playing)return;ctx.save();for(let i=0;i<17;i++){let t=(elapsed*.053+i/17)%1;let yy=.45+t*(ly-.48),a=i*2.42+elapsed*.05,xx=cx+.16+Math.cos(a)*(.15+.1*(i%3)),zz=.1+Math.sin(a)*.24,p=project(V(xx,yy,zz));if(!p)continue;ctx.globalAlpha=.22*(1-t);ctx.fillStyle=k==='o'?'#d28a12':'#1f93d4';ctx.beginPath();ctx.arc(p.x,p.y,2+(i%3),0,TAU);ctx.fill();}ctx.restore();}
+function drawScene(){let dpr=Math.min(devicePixelRatio||1,2),w=canvas.clientWidth,h=canvas.clientHeight;if(w<2||h<2)return;let bw=Math.round(w*dpr),bh=Math.round(h*dpr);if(canvas.width!==bw||canvas.height!==bh){canvas.width=bw;canvas.height=bh}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);camera();
+ // background diffuse light and tabletop. No image textures, no huge planar mesh.
+ let gl=ctx.createLinearGradient(0,h*.55,0,h);gl.addColorStop(0,'#eef7fc00');gl.addColorStop(.53,'#e7eaebc0');gl.addColorStop(1,'#cadce7a0');ctx.fillStyle=gl;ctx.fillRect(0,h*.40,w,h*.60);ground();
+ const cups=[{cx:-1.52,k:'w'},{cx:1.52,k:'o'}].sort((a,b)=>{let za=project(V(a.cx,1,0))?.d||0,zb=project(V(b.cx,1,0))?.d||0;return zb-za});
+ for(let c of cups)base(c.cx);for(let c of cups)cup(c.cx,c.k);
+}
+function graph(){
+ const w=Math.max(220,Math.round(chart.clientWidth||320));
+ const h=Math.max(170,Math.round(chart.clientHeight||210));
+ const L=48,R=23,T=17,B=34;
+ const plotW=Math.max(1,w-L-R),plotH=Math.max(1,h-T-B);
+ const maxTime=Math.max(1,period());
+ const upper=mode==='sameTime'?20+power*maxTime/mass/cp.o:20+rise;
+ const yMin=15,yMax=Math.ceil((upper+5)/5)*5;
+ const X=s=>L+(s/maxTime)*plotW;
+ const Y=temp=>T+plotH-(temp-yMin)/(yMax-yMin)*plotH;
+ const fmt=v=>Number.isInteger(v)?String(v):v.toFixed(1);
+ const elements=[];
+ elements.push(`<rect x="0" y="0" width="${w}" height="${h}" fill="transparent"/>`);
+ // Inner plot (5 horizontal values, 5 vertical values), labels remain inside SVG bounds
+ for(let i=0;i<=4;i++){
+   const value=yMin+(yMax-yMin)*i/4, y=Y(value);
+   elements.push(`<line x1="${L}" y1="${y.toFixed(2)}" x2="${w-R}" y2="${y.toFixed(2)}" class="chartGrid"/>`);
+   elements.push(`<text x="${L-11}" y="${(y+4.5).toFixed(2)}" text-anchor="end" class="chartTick">${fmt(value)}</text>`);
+ }
+ for(let i=0;i<=4;i++){
+   const sec=maxTime*i/4,x=X(sec);
+   elements.push(`<line x1="${x.toFixed(2)}" y1="${T}" x2="${x.toFixed(2)}" y2="${T+plotH}" class="chartGridV"/>`);
+   elements.push(`<text x="${x.toFixed(2)}" y="${h-9}" text-anchor="middle" class="chartTick">${fmt(sec)}</text>`);
+ }
+ elements.push(`<line x1="${L}" y1="${T}" x2="${L}" y2="${T+plotH}" class="chartAxis"/>`);
+ elements.push(`<line x1="${L}" y1="${T+plotH}" x2="${w-R}" y2="${T+plotH}" class="chartAxis"/>`);
+ // Clip paths keep curves and point markers away from tick labels.
+ elements.push(`<defs><clipPath id="temperaturePlotClip"><rect x="${L}" y="${T}" width="${plotW}" height="${plotH}"/></clipPath></defs>`);
+ for(const k of ['w','o']){
+   const end=Math.min(elapsed,stop(k));
+   const color=k==='w'?'#167bc1':'#ca7b0d';
+   let points=[];
+   for(let i=0;i<=64;i++){
+     const sec=end*i/64,temp=20+power*sec/mass/cp[k];
+     points.push(X(sec).toFixed(2)+','+Y(temp).toFixed(2));
+   }
+   elements.push(`<g clip-path="url(#temperaturePlotClip)"><polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"/>`);
+   if(end>0){
+     const temp=20+power*end/mass/cp[k];
+     elements.push(`<circle cx="${X(end).toFixed(2)}" cy="${Y(temp).toFixed(2)}" r="4.8" fill="${color}" stroke="#fff" stroke-width="1.8"/>`);
+   }
+   elements.push('</g>');
+ }
+ chart.setAttribute('viewBox',`0 0 ${w} ${h}`);
+ chart.innerHTML=elements.join('');
+}
+function buns(num,id){let q=$(id).children;for(let i=0;i<q.length;i++)q[i].classList.toggle('eaten',i<num)}
+function updateUI(){let w=liquid.w,o=liquid.o,unit=(power*period())/6;
+ const bw=Math.min(6,Math.floor(absorbed.w/unit+1e-6)),bo=Math.min(6,Math.floor(absorbed.o/unit+1e-6));$('wLabel').textContent=w.toFixed(1)+' ℃';$('oLabel').textContent=o.toFixed(1)+' ℃';$('wLive').textContent=w.toFixed(1)+' ℃';$('oLive').textContent=o.toFixed(1)+' ℃';$('wDelta').textContent='升高 '+(w-20).toFixed(1)+' ℃';$('oDelta').textContent='升高 '+(o-20).toFixed(1)+' ℃';$('graphState').textContent=playing?'正在同步绘制':done?'实验已完成':elapsed>0?'加热已暂停':'开始后显示趋势';$('graphTip').textContent=mode==='sameTime'?'相同加热时间 → 对比温度上升幅度':'升高相同温度 → 对比各自加热时间';$('time').textContent=elapsed.toFixed(1);$('wBunNum').textContent=bw;$('oBunNum').textContent=bo;buns(bw,'wBuns');buns(bo,'oBuns');
+ // Satiety is a qualitative analogy: same energy input -> oil increases twice as much as water, displayed with proportional bars.
+ const pctW=Math.min(100,(w-20)/30*100),pctO=Math.min(100,(o-20)/30*100);$('wFull').style.width=pctW+'%';$('oFull').style.width=pctO+'%';$('wFullText').textContent='饱腹感变化：'+pctW.toFixed(0)+'%';$('oFullText').textContent='饱腹感变化：'+pctO.toFixed(0)+'%';
+ $('statePill').textContent=done?'✓ 实验完成':playing?'● 正在加热':elapsed>0?'Ⅱ 已暂停':'○ 等待开始';$('play').textContent=done?'✓ 实验完成':playing?'Ⅱ 暂停加热':elapsed>0?'▶ 继续加热':'▶ 开始同步加热';$('data').innerHTML='水：<b>'+w.toFixed(1)+'</b> ℃　食用油：<b>'+o.toFixed(1)+'</b> ℃<br>水吸热：'+(absorbed.w/1000).toFixed(2)+' kJ　油吸热：'+(absorbed.o/1000).toFixed(2)+' kJ';
+ if(mode==='sameTime'){$('bunRule').textContent='同功率、相同加热时间 = 两人获得同样多的包子';if(done){$('result').innerHTML='吸收的热量相同，食用油升温 <strong>'+ (o-20).toFixed(1)+' ℃</strong>，水升温 <strong>'+(w-20).toFixed(1)+' ℃</strong>。说明水的吸热能力更强。';$('analogyResult').innerHTML='<b>类比结论：</b>两人获得同样多的包子，甲（大胃王/水）饱腹感变化小，乙（小胃口/食用油）饱腹感变化大。';}else{$('result').innerHTML='两杯液体质量相同、初温相同，用相同功率的加热器加热。点击「开始同步加热」，观察两只温度计和包子数量。';$('analogyResult').innerHTML='<b>课堂问题：</b>同样多的包子，大胃王不容易吃饱，小胃口的选手更容易吃饱。水与食用油吸收同样的热量后，谁升温更多？';}}
+ else{$('bunRule').textContent='达到相同温升 = 吃到同样饱，所需包子数不同';if(done){$('result').innerHTML='都升高 <strong>'+rise+' ℃</strong>，水吸收 <strong>'+(absorbed.w/1000).toFixed(1)+' kJ</strong>，食用油吸收 <strong>'+(absorbed.o/1000).toFixed(1)+' kJ</strong>。';$('analogyResult').innerHTML='<b>类比结论：</b>要吃到同样的饱腹程度，甲（大胃王/水）需要更多包子；水升高相同温度需要更多热量。';}else{$('result').innerHTML='相同质量的水和食用油都升高 '+rise+' ℃。观察哪一组先停止加热；先停机的吸收热量更少。';$('analogyResult').innerHTML='<b>反过来想：</b>如果都要吃到同样饱，胃口大的人需要更多包子；两种液体升高相同温度所需热量一样吗？';}}
+ graph();}
+function readControls(){mass=+$('mass').value;power=+$('power').value;duration=+$('duration').value;rise=+$('rise').value;speed=+$('speed').value;document.querySelectorAll('.massText').forEach(x=>x.textContent=Math.round(mass*1000));reset()}
+$('modes').addEventListener('click',ev=>{let b=ev.target.closest('[data-mode]');if(!b)return;mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));$('durationSet').style.display=mode==='sameTime'?'':'none';$('riseSet').style.display=mode==='sameRise'?'':'none';readControls()});
+for(let id of ['mass','power','duration','rise','speed'])$(id).addEventListener('change',readControls);
+$('play').onclick=()=>{if(done)return;playing=!playing;updateUI()};$('reset').onclick=reset;$('camReset').onclick=()=>{if(window.realThreeActive&&window.resetThreeCamera)window.resetThreeCamera();else{theta=.10;phi=1.23;scale=1}};$('fullscreen').onclick=()=>{let el=document.fullscreenElement;if(el&&document.exitFullscreen)document.exitFullscreen();else document.querySelector('.page').requestFullscreen?.()};
+let drag=null;canvas.addEventListener('pointerdown',e=>{drag={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.setPointerCapture?.(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;theta+=dx*.006;phi=Math.min(1.5,Math.max(.52,phi+dy*.005));drag.x=e.clientX;drag.y=e.clientY});for(let ev of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(ev,()=>drag=null);canvas.addEventListener('dblclick',()=>{$('camReset').click()});canvas.addEventListener('wheel',e=>{e.preventDefault();scale=Math.max(.70,Math.min(1.55,scale*Math.exp(e.deltaY*.0009)))},{passive:false});
+for(let id of ['wBuns','oBuns'])$(id).innerHTML=Array(6).fill('<span class="bun">🥟</span>').join('');
+function tick(t){let dt=Math.min(.06,(t-last)/1000||0);last=t;if(playing){elapsed=Math.min(period(),elapsed+dt*speed);if(elapsed>=period()-1e-6){elapsed=period();playing=false;done=true;}recompute();updateUI()}if(window.realThreeActive&&window.updateThreeView){window.updateThreeView({liquid,mass,playing,elapsed});}else{drawScene();}requestAnimationFrame(tick)}
+const toggleBtn=$('toggleViews');if(toggleBtn){toggleBtn.addEventListener('click',()=>{const p=$('geometryDraw'),open=p.hidden;p.hidden=!open;toggleBtn.textContent=open?'收起结构图 ▲':'展开结构图 ▼';toggleBtn.setAttribute('aria-expanded',String(open));});}new ResizeObserver(()=>graph()).observe(chart);reset();requestAnimationFrame(tick);
+})();</script>
+<script>/* True Three.js WebGL scene. Three.js r149 loaded via official distribution CDN in HTML. */
+(()=>{
+'use strict';
+function initializeThreeScene(){
+const canvasFallback = document.getElementById('labCanvas');
+const mount=document.getElementById('threeMount');
+const status=document.getElementById('renderStatus');
+if(!window.THREE){ if(status)status.textContent='离线回退 · Canvas（连接网络后显示 Three.js PBR）'; return; }
+let THREE=window.THREE;
+try {
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=0.50;
+const exposureSlider=document.getElementById('exposureControl');
+const exposureReadout=document.getElementById('exposureReadout');
+if(exposureSlider){
+ exposureSlider.addEventListener('input',()=>{
+  const v=Number(exposureSlider.value);
+  renderer.toneMappingExposure=v;
+  if(exposureReadout)exposureReadout.textContent=Math.round(v*100)+'%';
+ });
+}
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.setClearColor(0xddebf5,0);
+// Procedural studio reflection environment: soft photographic light panels for metal/glass PBR.
+const envFaces=Array.from({length:6},(_,face)=>{
+ const cv=document.createElement('canvas');cv.width=256;cv.height=256;const x=cv.getContext('2d');
+ const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,face===2?'#c4c1b7':'#8295a3');g.addColorStop(1,'#354b60');x.fillStyle=g;x.fillRect(0,0,256,256);
+ x.fillStyle='rgba(237,245,252,0.66)';x.fillRect(face%2?154:26,21,face%2?48:70,188);
+ x.fillStyle='rgba(231,200,163,0.30)';x.fillRect(face%2?18:174,46,35,154);return cv;
+});
+const envTex=new THREE.CubeTexture(envFaces);envTex.needsUpdate=true;
+renderer.domElement.setAttribute('aria-label','真实 Three.js 场景：双杯、盘管、温度计、铁架台，可拖动观察');
+mount.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+scene.background=null;
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromCubemap(envTex).texture;
+
+const camera=new THREE.PerspectiveCamera(37,1,.08,70);
+let yaw=.12,pitch=.20,dist=9.25;let aim=new THREE.Vector3(0,1.55,0);
+function updateCam(){const p=Math.max(-.02,Math.min(1.53,pitch));camera.position.set(aim.x+dist*Math.sin(yaw)*Math.cos(p),aim.y+dist*Math.sin(p),aim.z+dist*Math.cos(yaw)*Math.cos(p));camera.lookAt(aim)}
+updateCam();
+scene.add(new THREE.HemisphereLight(0xd8ebf5,0x607486,0.68));
+const ambient=new THREE.AmbientLight(0xdfeafa,.16);scene.add(ambient);
+function direction(pos,color,power,shadow){let l=new THREE.DirectionalLight(color,power);l.position.set(...pos);if(shadow){l.castShadow=true;l.shadow.mapSize.set(2048,2048);l.shadow.camera.left=-8;l.shadow.camera.right=8;l.shadow.camera.top=7;l.shadow.camera.bottom=-7;l.shadow.bias=-.0003;l.shadow.normalBias=.013;}scene.add(l);return l}
+direction([-3.5,8,6],0xfff6e9,1.48,true);
+direction([5,5,-3],0xb7d8f2,0.43,false);
+const materials={
+ copper:new THREE.MeshStandardMaterial({color:0xa85c2b,metalness:.81,roughness:.32,envMapIntensity:.60}),
+ copperHighlight:new THREE.MeshStandardMaterial({color:0xce873e,metalness:.75,roughness:.32,envMapIntensity:.65}),
+ steel:new THREE.MeshStandardMaterial({color:0x667988,metalness:.77,roughness:.32,envMapIntensity:.58}),
+ steelDark:new THREE.MeshStandardMaterial({color:0x2c3944,metalness:.69,roughness:.39,envMapIntensity:.55}),
+ clamp:new THREE.MeshStandardMaterial({color:0x202e3e,metalness:.18,roughness:.60,envMapIntensity:.45}),
+ knob:new THREE.MeshStandardMaterial({color:0x1c65a4,metalness:.24,roughness:.40,envMapIntensity:.52}),
+ plastic:new THREE.MeshStandardMaterial({color:0x858f99,metalness:.03,roughness:.62,envMapIntensity:.35}),
+ plasticDark:new THREE.MeshStandardMaterial({color:0x48515b,metalness:.02,roughness:.72,envMapIntensity:.30}),
+ rubber:new THREE.MeshStandardMaterial({color:0x333b41,metalness:0,roughness:.85}),
+ glass:new THREE.MeshPhysicalMaterial({color:0xa2c8dc,metalness:0,roughness:.12,transmission:.52,thickness:.10,ior:1.48,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.32}),
+ glassEdge:new THREE.MeshPhysicalMaterial({color:0x82aec4,metalness:0,roughness:.19,transmission:.28,thickness:.045,transparent:true,opacity:.79,depthWrite:false,envMapIntensity:.30}),
+ water:new THREE.MeshPhysicalMaterial({color:0x64cbe9,metalness:0,roughness:.18,transmission:.42,transparent:true,opacity:.56,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.34}),
+ oil:new THREE.MeshPhysicalMaterial({color:0xd7a137,metalness:0,roughness:.21,transmission:.30,transparent:true,opacity:.70,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.38}),
+ glassTube:new THREE.MeshPhysicalMaterial({color:0xaabfcf,metalness:0,roughness:.13,transmission:.39,transparent:true,opacity:.52,depthWrite:false,envMapIntensity:.25}),
+ red:new THREE.MeshStandardMaterial({color:0xdf2427,emissive:0x9d0700,emissiveIntensity:.20,roughness:.23}),
+ white:new THREE.MeshStandardMaterial({color:0xe5e7e3,metalness:0,roughness:.80}),
+ graphite:new THREE.MeshStandardMaterial({color:0x222f3d,metalness:.38,roughness:.57,envMapIntensity:.42}),
+};
+const sphereGeometry=new THREE.SphereGeometry(1,20,12);
+function m(geo,mat,parent,pos,rot){const mesh=new THREE.Mesh(geo,mat);if(pos)mesh.position.set(...pos);if(rot)mesh.rotation.set(...rot);mesh.castShadow=mat!==materials.glass&&mat!==materials.water&&mat!==materials.oil;mesh.receiveShadow=true;(parent||scene).add(mesh);return mesh}
+function v(a){return new THREE.Vector3(...a)}
+function rodBetween(a,b,r,mat,parent){let p=v(a),q=v(b),d=q.clone().sub(p);const cyl=m(new THREE.CylinderGeometry(r,r,d.length(),14),mat,parent);cyl.position.copy(p.clone().add(q).multiplyScalar(.5));cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return cyl}
+function tube(points,r,mat,parent,segments){let curve=new THREE.CatmullRomCurve3(points.map(v),false,'centripetal');let mesh=m(new THREE.TubeGeometry(curve,segments||Math.max(36,points.length*8),r,10,false),mat,parent);return mesh}
+function washer(parent,x,y,z,outer,inner,mat){const g=new THREE.RingGeometry(inner,outer,64);let mesh=m(g,mat,parent,[x,y,z],[-Math.PI/2,0,0]);return mesh}
+function labelTexture(text,color){let c=document.createElement('canvas');c.width=960;c.height=256;let ctx=c.getContext('2d');ctx.clearRect(0,0,960,256);ctx.font='bold 144px Microsoft YaHei, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=20;ctx.strokeStyle='rgba(255,255,255,.96)';ctx.strokeText(text,480,128);ctx.fillStyle=color;ctx.fillText(text,480,128);let tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;return tex}
+const groundMat=new THREE.MeshStandardMaterial({color:0xb5c7d4,roughness:.95,metalness:0});
+let ground=m(new THREE.PlaneGeometry(18,12),groundMat,scene,[0,-.12,0],[-Math.PI/2,0,0]);ground.receiveShadow=true;ground.castShadow=false;
+function createRig(cx,type){
+const group=new THREE.Group();group.position.x=cx;scene.add(group);
+// shared engineering reference: cup floor 0.27, mouth 2.20, inner radius .610, wall thickness .032
+const CUP_R=.63, CUP_IN=.595, CUP_BOTTOM=.105, CUP_TOP=2.20;
+// 1. Metal foot/stand: block does not intersect cup bottom; support behind and to the left
+const base=m(new THREE.BoxGeometry(1.95,.105,1.45),materials.graphite,group,[-.25,.025,.0]);base.castShadow=true;
+for(let x of [-1.02,.52])for(let z of [-.57,.57])m(new THREE.CylinderGeometry(.07,.07,.035,12),materials.rubber,group,[x,-.05,z]);
+rodBetween([-.87,.10,-.34],[-.87,3.34,-.34],.038,materials.steel,group);
+washer(group,-.87,.108,-.34,.093,.038,materials.steel);
+const support= m(new THREE.SphereGeometry(.104,20,14),materials.knob,group,[-.87,2.84,-.34]);
+rodBetween([-.87,2.84,-.34],[-.44,2.84,.13],.031,materials.steel,group);
+// The two jaws hold the glass tube tangentially; no solid block overlaps it.
+m(new THREE.BoxGeometry(.018,.20,.085),materials.clamp,group,[-.400,2.84,.18]);
+m(new THREE.BoxGeometry(.018,.20,.085),materials.clamp,group,[-.280,2.84,.18]);
+m(new THREE.BoxGeometry(.12,.20,.020),materials.clamp,group,[-.34,2.84,.11]);
+// 2. Cup glass: actual open sidewall geometry with thin base and rolled lip
+const cyl=m(new THREE.CylinderGeometry(CUP_R,CUP_R-.025,CUP_TOP-CUP_BOTTOM,96,1,true),materials.glass,group,[0,(CUP_BOTTOM+CUP_TOP)/2,0]);
+cyl.renderOrder=4;cyl.castShadow=false;cyl.receiveShadow=false;
+const baseGlass=m(new THREE.CylinderGeometry(CUP_R-.017,CUP_R-.025,.052,88),materials.glass,group,[0,CUP_BOTTOM,0]);baseGlass.castShadow=false;baseGlass.renderOrder=4;
+let rim=m(new THREE.TorusGeometry(CUP_R,.024,12,96),materials.glassEdge,group,[0,CUP_TOP,0],[-Math.PI/2,0,0]);rim.renderOrder=5;rim.castShadow=false;
+let lip=m(new THREE.TorusGeometry(CUP_R-.025,.014,12,96),materials.glassEdge,group,[0,CUP_BOTTOM+.028,0],[-Math.PI/2,0,0]);lip.renderOrder=5;lip.castShadow=false;
+// beaker pouring spout, fixed rim triangle (not a giant polygon)
+tube([[-.595,CUP_TOP,.18],[-.67,CUP_TOP+.037,.24],[-.745,CUP_TOP+.012,.26]],.022,materials.glassEdge,group,28);
+// 3. Liquid column and top meniscus: kept clear of glass, visual surface accurate to mass class
+const liquidMat=type==='w'?materials.water:materials.oil;
+const liquidGroup=new THREE.Group();group.add(liquidGroup);
+let liquidWall=m(new THREE.CylinderGeometry(CUP_IN,CUP_IN,.9,72,1,true),liquidMat,liquidGroup,[0,.0,0]);liquidWall.renderOrder=2;liquidWall.castShadow=false;
+const topMat=liquidMat.clone();topMat.opacity=type==='w'?.58:.76;topMat.transmission=type==='w'?.48:.34;
+const liquidTop=m(new THREE.CircleGeometry(CUP_IN,88),topMat,liquidGroup,[0,0,0],[-Math.PI/2,0,0]);liquidTop.renderOrder=2;liquidTop.castShadow=false;
+const fillLine=m(new THREE.TorusGeometry(CUP_IN-.005,.008,8,84),materials.glassEdge,liquidGroup,[0,0,0],[-Math.PI/2,0,0]);fillLine.renderOrder=5;fillLine.castShadow=false;
+// 4. Thermometer: separate glass sheath, cap and red liquid column, offset from heater
+const thermX=-.34,thermZ=.18;
+let thermometer=m(new THREE.CylinderGeometry(.047,.047,2.82,20),materials.glassTube,group,[thermX,1.91,thermZ]);thermometer.castShadow=false;
+m(new THREE.SphereGeometry(.060,24,16),materials.glassTube,group,[thermX,.49,thermZ]);
+m(new THREE.CylinderGeometry(.013,.013,2.57,12),materials.white,group,[thermX,1.83,thermZ+.040]);
+const redCol=m(new THREE.CylinderGeometry(.020,.020,1,14),materials.red,group,[thermX,.8,thermZ+.068]);
+m(new THREE.SphereGeometry(.053,24,16),materials.red,group,[thermX,.49,thermZ+.066]);
+// metallic flat cap
+m(new THREE.CylinderGeometry(.048,.048,.055,20),materials.steel,group,[thermX,3.345,thermZ]);
+// scale ticks and 20-100 digits as real geometry on front facing surface
+for(let t=0;t<=100;t+=5){let y=.52+t*.0258;let major=t%20===0;rodBetween([thermX+.026,y,thermZ+.077],[thermX+(major?.11:.072),y,thermZ+.077],.0054,materials.steelDark,group)}
+let digits=[];for(let t=20;t<=100;t+=20){let plane=m(new THREE.PlaneGeometry(.42,.18),new THREE.MeshBasicMaterial({map:labelTexture(String(t),'#244c71'),transparent:true,side:THREE.DoubleSide,depthWrite:false}),group,[thermX+.26,.52+t*.0258,thermZ+.086]);digits.push(plane)}
+// 5. Copper heater: TWO independent terminal legs join one continuous coil, no free rods penetrating glass
+const heaterGroup=new THREE.Group();group.add(heaterGroup);
+// copper spiral follows 4.4 turns along tilted center axis; radial frame lies perpendicular to axis
+const axis=new THREE.Vector3(.37,.927,0).normalize();
+const side=new THREE.Vector3(axis.y,-axis.x,0);const depth=new THREE.Vector3(0,0,1);
+const p0=new THREE.Vector3(.07,.50,-.015),coilLen=.68,coilRad=.190,nTurn=4.45;
+function coilPoint(t){const ang=2*Math.PI*nTurn*t+Math.PI*.12;return p0.clone().addScaledVector(axis,coilLen*t).addScaledVector(side,coilRad*Math.cos(ang)).addScaledVector(depth,coilRad*Math.sin(ang));}
+let coilPts=[];for(let i=0;i<=260;i++)coilPts.push(coilPoint(i/260).toArray());
+const coilMesh=tube(coilPts,.036,materials.copper,heaterGroup,440);
+let pStart=coilPoint(0),pEnd=coilPoint(1);
+// path from bottom end travels beside the helical cylinder; orange line stays behind it in z
+let legA=[pStart.toArray(),[.30,.36,-.22],[.43,.48,-.24],[.43,1.36,-.24],[.43,1.99,-.22],[.47,2.24,-.21]];
+let legB=[pEnd.toArray(),[.43,1.29,.20],[.44,1.66,.20],[.47,2.02,.14],[.49,2.24,.12]];
+tube(legA,.033,materials.copper,heaterGroup,110);
+tube(legB,.033,materials.copper,heaterGroup,110);
+// short terminating tubes enter the insulating handle's underface (single assembly)
+rodBetween([.47,2.24,-.21],[.54,2.32,-.12],.033,materials.copper,heaterGroup);
+rodBetween([.49,2.24,.12],[.55,2.32,.07],.033,materials.copper,heaterGroup);
+// handle body above the beaker mouth; actual insulating cap, collar & ribbed grip
+let handle=new THREE.Group();heaterGroup.add(handle);handle.position.set(.57,2.44,-.027);handle.rotation.z=-.40;
+m(new THREE.CylinderGeometry(.115,.125,.39,28),materials.plastic,handle,[0,0,0]);
+m(new THREE.CylinderGeometry(.12,.12,.052,24),materials.plasticDark,handle,[0,-.18,0]);
+m(new THREE.CylinderGeometry(.087,.096,.090,24),materials.plasticDark,handle,[0,.235,0]);
+for(let h of [-.12,-.07,-.02,.03,.08])m(new THREE.TorusGeometry(.114,.008,8,28),materials.plasticDark,handle,[0,h,.0],[-Math.PI/2,0,0]);
+// flexible gray power lead, grounded in insulating handle top
+const cordPts=[[.63,2.64,-.05],[.80,2.77,-.02],[1.02,2.72,.015],[1.19,2.47,.07],[1.23,2.16,.12],[1.19,1.98,.12]];
+tube(cordPts,.041,materials.rubber,heaterGroup,100);
+// grip tag in gray (product not claimed manufacturer-specific)
+let badge=m(new THREE.PlaneGeometry(.16,.07),new THREE.MeshBasicMaterial({color:0xe8ecee,side:THREE.DoubleSide}),handle,[0,.085,.122]);
+// 6. Optional teaching annotations: on reset everything restored
+return {group,liquidWall,liquidTop,fillLine,redCol,coilMesh,heaterGroup,thermometer,glass:[cyl,baseGlass,rim,lip]};
+}
+const left=createRig(-1.60,'w'),right=createRig(1.60,'o');
+let rigs=[left,right];
+function setFill(rig,mass,type){const top=(mass<=.101?1.27:mass<=.201?1.50:1.73)+(type==='o'?.07:0);const low=.14;rig.liquidWall.scale.y=(top-low)/.9;rig.liquidWall.position.y=(top+low)/2;rig.liquidTop.position.y=top;rig.fillLine.position.y=top;}
+let spinDown=0;
+function setTherm(rig,temp){let len=.022+Math.min(100,Math.max(0,temp))/100*2.58;rig.redCol.scale.y=len;rig.redCol.position.y=.49+len/2;}
+function checkAssembly(){
+// shared validation: coil-to-cup, coil-to-thermometer, heater-to-stand, rod-to-cup; mm-independent nominal model units
+const cupR=.595, thermX=-.34,thermZ=.18;
+const axis=new THREE.Vector3(.37,.927,0).normalize();const side=new THREE.Vector3(axis.y,-axis.x,0);
+let minWall=1e4,minTherm=1e4, minBase=1e4,minRodWall=1e4;
+const rodA=[[.30,.36,-.22],[.43,.48,-.24],[.43,1.36,-.24],[.43,1.99,-.22],[.47,2.24,-.21]];
+const rodB=[[.43,1.29,.20],[.44,1.66,.20],[.47,2.02,.14],[.49,2.24,.12]];
+for(const path of [rodA,rodB])for(let j=1;j<path.length;j++)for(let step=0;step<=15;step++){let t=step/15,p0=path[j-1],p1=path[j];let x=p0[0]+(p1[0]-p0[0])*t,y=p0[1]+(p1[1]-p0[1])*t,z=p0[2]+(p1[2]-p0[2])*t;if(y<2.17)minRodWall=Math.min(minRodWall,cupR-Math.hypot(x,z)-.033)}
+for(let i=0;i<=500;i++){let t=i/500,ang=2*Math.PI*4.45*t+Math.PI*.12;let p=new THREE.Vector3(.07,.50,-.015).addScaledVector(axis,.68*t).addScaledVector(side,.190*Math.cos(ang)).addScaledVector(new THREE.Vector3(0,0,1),.190*Math.sin(ang));minWall=Math.min(minWall,cupR-Math.hypot(p.x,p.z)-.036);minTherm=Math.min(minTherm,Math.hypot(p.x-thermX,p.z-thermZ)-.036-.047);minBase=Math.min(minBase,p.y-.036-.30);}
+return {minWall,minTherm,minBase,minRodWall,passed:minWall>0.06&&minTherm>0.1&&minBase>0.01&&minRodWall>0.03};
+}
+let clear=checkAssembly();window.HEATER_ASSEMBLY_CHECK=clear;
+if(!clear.passed)console.warn('装配净距检查未通过',clear);
+if(status)status.textContent=clear.passed?'Three.js PBR · 净距检查通过':'Three.js PBR · 请检查几何净距';
+let visibleGlass=true;
+window.toggleRealGlass=()=>{visibleGlass=!visibleGlass;for(let r of rigs){for(let x of r.glass)x.visible=visibleGlass;}return visibleGlass;};
+window.realThreeActive=true;
+if(exposureSlider){exposureSlider.disabled=false;exposureSlider.title='拖动调节真实三维场景曝光';}
+canvasFallback.style.visibility='hidden';canvasFallback.style.pointerEvents='none';
+let isDragging=false,lastX=0,lastY=0;
+renderer.domElement.style.touchAction='none';
+renderer.domElement.addEventListener('pointerdown',e=>{isDragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});
+renderer.domElement.addEventListener('pointermove',e=>{if(!isDragging)return;let dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;yaw-=dx*.008;pitch=Math.max(-.05,Math.min(1.50,pitch+dy*.006));updateCam()});
+for(let ev of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(ev,()=>isDragging=false);
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(5.8,Math.min(14,dist*Math.exp(e.deltaY*.0008)));updateCam()},{passive:false});
+renderer.domElement.addEventListener('dblclick',()=>window.resetThreeCamera());
+window.resetThreeCamera=()=>{yaw=.12;pitch=.20;dist=9.25;aim.set(0,1.55,0);updateCam()};
+window.setThreeView=(view)=>{if(view==='front'){yaw=0;pitch=.06;dist=9.4;aim.set(0,1.62,0)}
+else if(view==='side'){yaw=1.47;pitch=.14;dist=7.2;aim.set(1.55,1.53,0)}
+else if(view==='top'){yaw=.02;pitch=1.49;dist=8.8;aim.set(0,1.35,0)}
+else {window.resetThreeCamera();return}updateCam()};
+let frameCount=0;
+window.updateThreeView=({liquid,mass,playing,elapsed})=>{
+setFill(left,mass,'w');setFill(right,mass,'o');setTherm(left,liquid.w);setTherm(right,liquid.o);
+// realtime animation of shallow meniscus: extremely small oscillation so volume doesn't visually change
+frameCount++;if(playing){const offset=.0025*Math.sin(elapsed*2.5);left.liquidTop.position.y+=offset;right.liquidTop.position.y+=offset}
+const cw=Math.max(1,mount.clientWidth),ch=Math.max(1,mount.clientHeight);
+const aspect=cw/ch;if(Math.abs(camera.aspect-aspect)>0.002){camera.aspect=aspect;camera.updateProjectionMatrix()}
+if(renderer.domElement.width!==Math.round(cw*renderer.getPixelRatio())||renderer.domElement.height!==Math.round(ch*renderer.getPixelRatio()))renderer.setSize(cw,ch,false);
+renderer.render(scene,camera);
+};
+window.updateThreeView({liquid:{w:20,o:20},mass:.2,playing:false,elapsed:0});
+} catch(e){console.error('Three.js scene init failed',e);if(status)status.textContent='Three.js 初始化失败 · 使用 Canvas 回退';window.realThreeActive=false;mount.innerHTML='';canvasFallback.style.visibility='visible';canvasFallback.style.pointerEvents='auto'}
+}
+// Progressive enhancement: existing experimental controls work immediately while Three.js loads.
+if(window.THREE){initializeThreeScene();}
+else {
+ const status=document.getElementById('renderStatus');
+ if(status)status.textContent='Canvas 演示可用 · 正在加载 Three.js PBR';
+ const slider=document.getElementById('exposureControl');
+ if(slider){slider.disabled=true;slider.title='Three.js 加载后可用';}
+ const urls=['../shared/vendor/three-r144.min.js','https://cdnjs.cloudflare.com/ajax/libs/three.js/0.149.0/three.min.js','https://unpkg.com/three@0.149.0/build/three.min.js'];
+ let next=0;
+ function requestLib(){
+  if(next>=urls.length){if(status)status.textContent='离线回退 · Canvas（网络加载 Three.js 失败）';return;}
+  let sc=document.createElement('script');sc.async=true;sc.src=urls[next++];sc.onload=()=>window.THREE?initializeThreeScene():requestLib();sc.onerror=()=>requestLib();document.head.appendChild(sc);
+ }
+ requestLib();
+}
+})();
+</script>
+<script>document.getElementById('glassToggle').onclick=()=>{let el=document.getElementById('glassToggle');if(window.realThreeActive&&window.toggleRealGlass){const show=window.toggleRealGlass();el.textContent=show?'隐藏杯壁':'显示杯壁';}else{el.textContent='需加载 Three.js';}};</script><script>document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{if(window.realThreeActive&&window.setThreeView)window.setThreeView(b.dataset.view);else document.getElementById("renderStatus").textContent="精确视角需加载 Three.js";});</script></body></html>
