@@ -1,5 +1,28 @@
 window.MODEL_CATALOG = [
 {
+  "id": "specific-heat-water-oil",
+  "title": "水与食用油 · 比较吸热能力",
+  "subtitle": "双杯同步加热 · 温度—时间图像 · 吃包子大赛",
+  "category": "热学实验",
+  "summary": "相同质量的清水与食用油使用相同功率的浸入式加热器，比较相同加热时间的温升和升高相同温度所需热量；提供 Three.js PBR 装置、SVG 温度—时间曲线和“吃包子大赛”类比。",
+  "tags": [
+    "比热容",
+    "水",
+    "食用油",
+    "热量",
+    "温度变化",
+    "温度—时间图像",
+    "控制变量法",
+    "浸入式加热器",
+    "吃包子大赛",
+    "PBR"
+  ],
+  "path": "models/specific-heat-water-oil.html?v=20261027-v9",
+  "cover": "assets/covers/specific-heat-water-oil-scene.jpg?v=20261027-v9",
+  "symbol": "热",
+  "accent": "amber"
+},
+{
   "id": "paper-tube-camera",
   "title": "纸筒照相机 · 伸缩调焦",
   "subtitle": "靠近与远离拍摄 · 像高测量与同尺度对比",
