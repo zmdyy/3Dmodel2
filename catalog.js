@@ -102,6 +102,18 @@ window.MODEL_CATALOG = [
   "accent": "blue"
 },
 {
+  "id": "qiantang-caisson",
+  "title": "钱塘江大桥 · 历史施工全过程",
+  "subtitle": "射水打桩、气压沉箱与潮汐浮运钢梁 · 11道工序",
+  "category": "综合应用",
+  "summary": "基于茅以升桥梁工程历史，以单个木桩墩与相邻桥跨为实例，演示射水打桩、160根木桩、沉箱浮运定位、压气排水、下部挖泥与上部筑墩、封底传力及整跨钢桁梁浮运落架；带剖切、自动镜头、压强实验和低配置模式。",
+  "tags": ["钱塘江大桥","工程史","射水法","气压沉箱","流体压强","木桩基础","潮汐","浮运架梁"],
+  "path": "models/qiantang-caisson.html?v=20261027-rebuild-v2",
+  "cover": "",
+  "symbol": "桥",
+  "accent": "blue"
+},
+{
   "id": "shenzhong-e15",
   "title": "深中通道 E15 · 沉管浮运安装",
   "subtitle": "十阶段施工演示 · 分阶段自动跟随镜头",
