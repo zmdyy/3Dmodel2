@@ -159,6 +159,10 @@ const bubbles=new T.Group();scene.add(bubbles);for(let i=0;i<30;i++)sphere(.13,M
 const spoils=new T.Group();scene.add(spoils);for(let i=0;i<35;i++)sphere(.10+(i%3)*.04,M.sand,spoils,0,0,0);
 const floating=new T.Group();scene.add(floating);
 for(const z of [-8.0,8.0]){const hull=box(22,1.4,3.2,M.steelDark,floating,0,-.55,z);box(21,.22,3.3,M.wood,floating,0,.2,z);for(const x of [-8,0,8])box(.28,2,2,M.steelLight,floating,x,1.25,z)}
+// 浮具横梁、立柱和四点可伸缩下放吊索，避免船、沉箱悬空无连接
+for(const x of [-6,6]){beam([x,.45,-8],[x,4.4,-8],.18,M.steelLight,floating);beam([x,.45,8],[x,4.4,8],.18,M.steelLight,floating);beam([x,4.4,-8],[x,4.4,8],.19,M.steelDark,floating)}
+const hoistLines=new T.Group();scene.add(hoistLines);const hoistCables=[];
+for(const x of [-6,6])for(const z of [-3.8,3.8])hoistCables.push({x,z,line:beam([x,4,0],[x,0,0],.065,M.rope,hoistLines)});
 const tow=box(5,1.8,3.2,M.steel,floating,-16,.5,-8);
 cyl(.65,3,M.steelDark,floating,-16,2.5,-8);
 const moors=new T.Group();scene.add(moors);const moorLines=[];
@@ -214,7 +218,7 @@ function updateState(){
  bottom=i<4?-4.5:i===4?mix(-4.5,-11.4,u):i===5?-11.4:mix(-11.4,-11.9,sink);
  let caissonX=i===2?mix(-30,0,u):i<2?-30:0;
  caisson.position.set(caissonX,bottom,0);caisson.visible=i>=2;floating.visible=i>=2&&i<=4;
- floating.position.x=caissonX;floating.position.y=waterY;moors.visible=i===3||i===4;
+ floating.position.x=caissonX;floating.position.y=waterY;hoistLines.visible=floating.visible;for(const c of hoistCables)moveBeam(c.line,[caissonX+c.x,waterY+4.4,c.z],[caissonX+c.x,bottom+6,c.z]);moors.visible=i===3||i===4;
  for(const m of moorLines)moveBeam(m.line,[caissonX+(m.x<0?-8.7:8.7),bottom+6,(m.z<0?-5.3:5.3)],[m.x,-8.8,m.z]);
  // 首根桩留出四分之一工序做慢动作；其余 159 根做时间压缩，不假装同速逐根完成
 let installed=160,embed=1;
