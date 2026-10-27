@@ -1,5 +1,31 @@
 window.MODEL_CATALOG = [
 {
+  "id": "light-spectrum-color-vision",
+  "title": "光与光谱 · 色散、滤光与物体颜色",
+  "subtitle": "三棱镜色散 · 可见与不可见光 · 滤光片 · 物体颜色",
+  "category": "光学现象",
+  "summary": "一屏交互光学实验室：用三棱镜展示白光入射、玻璃内初步色散与出射后进一步色散；探索可见光和不可见光、滤光片以及不同照明下物体呈现的颜色。含物理折射计算与教学增强显示。",
+  "tags": [
+    "色散",
+    "三棱镜",
+    "光谱",
+    "折射",
+    "白光",
+    "可见光",
+    "不可见光",
+    "红外线",
+    "紫外线",
+    "滤光片",
+    "物体颜色",
+    "Three.js",
+    "React",
+    "PBR"
+  ],
+  "path": "models/light-spectrum-color-vision.html?v=20261027-v1",
+  "symbol": "谱",
+  "accent": "blue"
+},
+{
   "id": "specific-heat-water-oil",
   "title": "水与食用油 · 比较吸热能力",
   "subtitle": "双杯同步加热 · 温度—时间图像 · 吃包子大赛",
