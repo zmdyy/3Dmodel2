@@ -16,19 +16,89 @@ canvas{display:block;width:100%;height:100%;touch-action:none}.toolbar{position:
 #fallback{display:none;position:absolute;left:25%;right:25%;top:35%;padding:20px;border-radius:10px;background:#fff;border:1px solid #d8e3e9;z-index:10}
 aside{background:#fff;border-left:1px solid #d8e3e9;overflow:auto;padding:18px 18px 28px}.state{border-radius:11px;padding:13px 14px;background:#e8f4ef;margin-bottom:12px;line-height:1.45}.state.open{background:#edf1f4}.state.warn{background:#fff1e8}.state strong{font-size:20px;display:block;margin-bottom:3px}.primary{width:100%;border:0;border-radius:10px;background:#176d80;color:#fff;font-size:17px;font-weight:750;padding:12px;cursor:pointer}.primary:hover{background:#0f5e70}.minirow{display:flex;gap:7px;margin:8px 0 4px}.minirow button{flex:1;padding:9px 7px;font-size:13px}.section{margin-top:18px}.section h2{font-size:17px;margin:0 0 10px}.rangehead{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:14px}.rangehead b{font-size:18px;color:#0f6475}input[type=range]{width:100%;accent-color:#17748a;margin:10px 0}.preset{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.preset button{padding:7px 4px;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{border:1px solid #dce7ec;background:#f8fbfc;border-radius:9px;padding:9px}.metric span{display:block;color:#6d818d;font-size:12px}.metric b{display:block;font-size:18px;margin-top:3px}.metric small{display:block;margin-top:2px;color:#70838e}.meterok{color:#166f59}.meterlimit{color:#b56a13}.meterover{color:#c63d32}.check{display:flex;align-items:center;gap:8px;margin:9px 0;font-size:14px}.check input{accent-color:#16758a}.note{color:#5b727f;line-height:1.65;font-size:13px}.rulebox{border:1px solid #d9e6eb;border-radius:10px;padding:10px;background:#f8fbfc;font-size:12px;line-height:1.55}.wirelist{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}.wirelist div{white-space:nowrap}.wirelist b{display:inline-flex;width:21px;height:21px;border-radius:50%;align-items:center;justify-content:center;background:#fff0df;color:#9c5a1a;margin-right:5px}.answer details{border:1px solid #dce6ea;border-radius:10px;background:#fbfcfd;padding:9px 10px}.answer summary{cursor:pointer;font-weight:750}.answer ol{padding-left:21px;margin:9px 0 0;line-height:1.65;font-size:13px}.schematic{display:none;margin-top:9px;border:1px solid #dce6ea;border-radius:10px;padding:8px;background:#fafcfd}.schematic.show{display:block}.schematic svg{width:100%;height:auto}.small{font-size:11px;color:#788b95;line-height:1.55}
 @media(max-width:900px){body{overflow:auto}header{height:auto;align-items:flex-start}.badge{display:none}main{display:block;height:auto}.toolbar{max-width:calc(100% - 28px)}#stage{height:64vh;min-height:460px}aside{border-left:0;border-top:1px solid #d8e3e9}header h1{font-size:21px}}
+
+/* V2 teaching studio: restrained exposure, structured controls, readable typography */
+:root{--ink:#20363e;--sub:#637980;--blue:#225e70;--teal:#188275;--edge:#d8e4e5;--panel:#f8fbfa}
+html,body{background:#e5eceb;color:var(--ink)}
+header{height:82px;padding:13px 25px;background:#fdfefd;border-bottom-color:var(--edge)}
+header h1{font-size:23px;letter-spacing:0;font-weight:800}
+header p{font-size:12px;line-height:1.5;color:var(--sub)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;color:#257a78;margin-bottom:3px}
+.badge{font-size:12px;font-weight:700;color:#44727c;background:#edf6f5;border-color:#dae9e8}
+main{height:calc(100dvh - 82px);grid-template-columns:minmax(0,1fr) minmax(342px,375px);min-height:0}
+#stage{background:radial-gradient(ellipse at 35% 15%,#f2f6f5,#d9e6e8 65%,#cfdfe1);isolation:isolate}
+.toolbar{left:16px;top:16px;gap:7px;max-width:calc(100% - 32px)}
+.toolbar button,.minirow button,.preset button,.panelbtn{font-size:12px;font-weight:720;min-height:37px;padding:8px 11px;border-color:#d0dddd;background:#ffffffed;border-radius:10px;box-shadow:0 1px 4px #34434a0d;transition:background .15s,border-color .15s}
+.toolbar button:hover,.minirow button:hover,.preset button:hover,.panelbtn:hover{background:#e6f5f1;border-color:#9bbfba}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #68b8ae;outline-offset:2px}
+.label3d{font-size:12px;font-weight:750;letter-spacing:.01em;border:1px solid #d6e4e5;background:#ffffffed;box-shadow:0 2px 9px #1e48501c}
+.label3d.force{font-size:16px;background:#fff3e4;color:#a7531c;border:1px solid #e9b586}
+.label3d.terminal{font-size:11px;color:#315365;border-color:#c9dadd}
+.label3d.wire{font-size:12px;width:25px;height:25px}
+.hint,.cornernote{font-size:11px;line-height:1.5;background:#f8fbfaee;color:#597279;border:1px solid #d7e4e4}
+.cornernote{right:15px;max-width:330px;color:#e4f2f0;background:#254650e8;border-color:#254650e8}
+#stageReadout{position:absolute;z-index:4;right:16px;top:72px;background:#fefefef2;border:1px solid #d3e4e2;border-radius:13px;padding:10px 13px;min-width:166px;box-shadow:0 4px 17px #294b5016;pointer-events:none}
+#stageReadout .micro{display:block;font-size:10px;letter-spacing:.06em;color:#648087;font-weight:800}
+#stageReadout strong{display:block;font-size:21px;font-variant-numeric:tabular-nums;color:#246678}
+#stageReadout small{color:#748589;font-size:11px}
+aside{background:#f8fbfa;padding:14px 16px 24px;border-left-color:#d5e1df;scrollbar-width:thin;scrollbar-color:#bdcece transparent}
+.state{margin-bottom:8px;padding:11px 13px;border:1px solid #cee5db;display:flex;flex-direction:column;gap:2px}
+.state strong{font-size:16px;margin:0}
+.state span{font-size:12px;color:#46625d}
+.state.warn{border-color:#f0cfad}.state.warn strong{color:#a65b1c}.state.open{border-color:#d8e1e5}
+.primary{font-size:14px;padding:11px;background:#176f76;border-radius:9px}
+.primary:hover{background:#105967}
+.minirow{margin:7px 0 2px}.minirow button{font-size:12px}
+.section{margin-top:15px}
+.section h2{font-size:15px;margin-bottom:8px;letter-spacing:.005em}
+.rangehead span{font-weight:750}.rangehead b{font-size:19px}
+input[type=range]{height:17px;margin:8px 0 10px;accent-color:#228a86}
+.preset{gap:6px}.preset button{min-height:30px;padding:5px 4px}
+.preset button.selected{border-color:#3c9a91;color:#0b7770;background:#e4f4ee}
+.grid{gap:7px}.metric{padding:11px 10px;background:#fff;border-color:#d9e7e5;min-height:78px}
+.metric span{font-size:11px;color:#667f80}
+.metric b{font-size:19px;color:#183d48;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.metric small{font-size:10px}
+.section .small{font-size:11px;line-height:1.5;color:#678080}
+.check{font-size:12px;margin:7px 0;cursor:pointer}
+.rulebox{font-size:11px;background:white}
+.answer details{background:white}
+.schematic{background:white}.schematic svg{display:block;width:100%}
+#safetyHint{margin:6px 0 0;font-size:11px;font-weight:700;color:#21786e}
+#safetyHint.danger{color:#b75730}
+.chart-card{border:1px solid #d7e5e4;border-radius:10px;background:#fff;padding:10px;margin:8px 0 0}
+.chart-card svg{width:100%;height:auto;display:block;overflow:visible}
+.chart-head{font-size:12px;font-weight:750;display:flex;justify-content:space-between;align-items:center;color:#30555d}
+.chart-head small{font-size:10px;color:#718589;font-weight:500}
+.chart-axis{stroke:#a8c2c2;stroke-width:1;fill:none}
+.chart-grid{stroke:#e3eeee;stroke-width:1}
+.chart-line{fill:none;stroke:#237f7e;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.chart-danger{fill:none;stroke:#db8b52;stroke-width:2.7;stroke-dasharray:5 4}
+.chart-guide{stroke:#c1d5d4;stroke-width:1;stroke-dasharray:4 4}
+.chart-dot{fill:#fff;stroke:#127b7b;stroke-width:3}
+.plot-note{font-size:11px;line-height:1.5;color:#688183;margin-top:6px}
+#valueStrip{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#4b6e72;margin:8px 0 0}
+#valueStrip b{color:#155568}
+details > summary{cursor:pointer}
+@media(min-width:1250px){#stageReadout{top:72px}}
+@media(max-width:1100px){main{grid-template-columns:minmax(0,1fr) 345px}.toolbar button{padding:7px 9px;font-size:11px}.cornernote{display:none}}
+@media(max-width:900px){body{overflow:auto}header{height:auto;min-height:75px}main{height:auto;display:block}.toolbar{max-width:calc(100% - 24px)}#stage{height:67vh;min-height:440px}aside{border-left:0;border-top:1px solid #d8e3e9;overflow:visible}#stageReadout{top:72px;right:12px}}
+@media(max-width:520px){header{padding:12px 15px}header h1{font-size:19px}header p{font-size:11px}#stage{height:57vh;min-height:385px}.toolbar{left:8px;top:8px;gap:4px}.toolbar button{min-height:31px;font-size:10px;padding:5px 7px}.hint{display:none}#stageReadout{top:auto;bottom:12px;right:12px;padding:7px 10px}.badge{display:none}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+
 </style>
 <script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
 <body>
-<header><div><h1>压力电子秤 · 3D 实物接线</h1><p>6 V 电源 · R₀=6 Ω · A表 0~0.6 A · V表 0~3 V · 七根导线按固定端子连接</p></div><div class="badge">敏感电阻与自动控制 · 标准案例</div></header>
+<header><div><div class="eyebrow">PHYSICS LAB / 电学与传感</div><h1>压力电子秤 · 三维实物接线</h1><p>6 V 电源 · R₀ = 6 Ω · 电流表 0–0.6 A · 电压表 0–3 V · 七根导线固定端子</p></div><div class="badge">压敏电阻 × 电学测量</div></header>
 <main>
 <section id="stage">
-  <div id="labels"></div>
+  <div id="labels"></div><div id="stageReadout" aria-live="off"><span class="micro">压力 / PRESSURE</span><strong id="sceneForce">0 N</strong><small id="sceneState">电路闭合 · 安全</small></div>
   <div class="toolbar">
     <button id="home">默认视角</button><button id="top">俯视接线</button><button id="sensorView">近看传感器</button><button id="meterView">近看仪表</button><button id="export">导出 PNG</button><button id="full">全屏</button>
   </div>
   <div class="hint">拖动旋转 · 滚轮缩放 · 双指缩放 · 点击开关可直接断开/闭合</div>
-  <div class="cornernote">橙色导线只表示接线；红色箭头才表示约定电流方向</div>
+  <div class="cornernote">琥珀色：绝缘导线　/　红色箭头：约定电流方向</div>
   <div id="fallback">当前浏览器无法启用 WebGL，请使用支持 WebGL 的 Chrome 或 Edge。</div>
 </section>
 <aside>
@@ -36,28 +106,34 @@ aside{background:#fff;border-left:1px solid #d8e3e9;overflow:auto;padding:18px 1
   <button id="switchBtn" class="primary">断开开关</button>
   <div class="minirow"><button id="reset">重置</button><button id="transparentBtn" class="active">透明观察：开</button><button id="diagramBtn">电路图</button></div>
   <div id="diagram" class="schematic">
-    <svg viewBox="0 0 330 210" aria-label="标准电路图">
-      <g fill="none" stroke="#244557" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M35 45H110 M137 45H190 M214 45H272V165H35V45"/>
-        <path d="M110 45l20 -12"/><circle cx="110" cy="45" r="3" fill="#244557"/><circle cx="137" cy="45" r="3" fill="#244557"/>
-        <path d="M190 45h8m0 0 4-7 8 14 8-14 8 14 8-7h4"/>
-        <circle cx="272" cy="90" r="18"/><path d="M272 72v36" opacity=".0"/>
-        <path d="M150 165h10m8-11v22m12-17v12m10-6h16"/>
-        <path d="M35 165h72m32 0h11"/>
-        <path d="M214 45v-25h58v25"/><circle cx="243" cy="20" r="17"/>
+    <svg viewBox="0 0 520 260" role="img" aria-label="压敏电阻串联定值电阻与电流表，电压表并联在定值电阻两端的电路原理图">
+      <g fill="none" stroke="#31555d" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M72 69H124 M161 69H216 M216 69H242 M318 69H338 M338 69H387 M429 69H474V123 M474 181V223H72V174 M72 141V69"/>
+        <path d="M124 69L157 50"/><circle cx="124" cy="69" r="3.5" fill="#31555d"/><circle cx="161" cy="69" r="3.5" fill="#31555d"/>
+        <rect x="242" y="55" width="76" height="28" rx="2"/>
+        <circle cx="408" cy="69" r="21"/>
+        <rect x="459" y="123" width="30" height="58" rx="2"/>
+        <path d="M55 144H89 M62 158H82"/>
+        <path d="M216 69V141H272 M313 141H338V69"/>
+        <circle cx="292" cy="141" r="20"/>
       </g>
-      <g font-size="14" fill="#244557" font-family="Microsoft YaHei, sans-serif">
-        <text x="91" y="72">S</text><text x="199" y="72">R₀</text><text x="266" y="95" text-anchor="middle">A</text><text x="243" y="25" text-anchor="middle">V</text><text x="167" y="199" text-anchor="middle">电源 6 V</text><text x="64" y="151">R（压敏）</text><text x="206" y="18">P</text><text x="278" y="18">Q</text>
+      <g fill="#234653" font-size="17" font-weight="700" text-anchor="middle">
+        <text x="143" y="37">S</text><text x="280" y="46">R₀</text><text x="408" y="75">A</text><text x="474" y="157">R</text><text x="292" y="147">V</text>
       </g>
+      <g fill="#52747a" font-size="13" text-anchor="middle">
+        <text x="216" y="50">P</text><text x="338" y="50">Q</text><text x="42" y="141">+</text><text x="42" y="169">−</text>
+        <text x="112" y="154">6 V</text><text x="280" y="102">6 Ω</text><text x="478" y="202">R(F)</text>
+      </g>
+      <circle cx="216" cy="69" r="4" fill="#198279"/><circle cx="338" cy="69" r="4" fill="#198279"/>
     </svg>
-    <div class="small">主回路：E+ → S → R₀ → A → R → E−；V表只跨接 R₀ 的 P、Q 两端。</div>
+    <div class="small">E+ → S → P → R₀ → Q → A → R → E−；电压表并联在 P、Q 两端，不属于主回路。</div>
   </div>
 
-  <div class="section"><div class="rangehead"><span>压力 F</span><b id="forceText">0 N</b></div><input id="force" type="range" min="0" max="1000" step="10" value="0"><div class="preset"><button data-f="0">0 N</button><button data-f="200">200 N</button><button data-f="300">300 N</button><button data-f="600">600 N</button><button data-f="800">800 N</button><button data-f="1000">1000 N</button></div><div class="small">表中间压力按分段线性插值，仅作为教学近似。机构形变为便于观察而放大。</div></div>
+  <div class="section"><div class="rangehead"><span>施加压力 F</span><b id="forceText">0 N</b></div><input aria-label="施加压力，0到1000牛顿" id="force" type="range" min="0" max="1000" step="10" value="0"><div class="preset"><button data-f="0">0 N</button><button data-f="200">200 N</button><button data-f="300">300 N</button><button data-f="600">600 N</button><button data-f="800">800 N</button><button data-f="1000">1000 N</button></div><div id="safetyHint">安全操作区：0–600 N</div><div class="small">电阻值按题设节点分段线性插值；为方便观察，机械形变进行了放大。</div></div>
 
   <div class="section"><h2>实时计算</h2><div class="grid"><div class="metric"><span>压敏电阻 R</span><b id="rText">24.0 Ω</b><small id="interpText">题表节点</small></div><div class="metric"><span>电流 I</span><b id="iText">0.000 A</b><small id="aState"></small></div><div class="metric"><span>R₀两端 U₀</span><b id="vText">0.00 V</b><small id="vState"></small></div><div class="metric"><span>量程限制</span><b id="limitText">600 N</b><small>V表先达到上限</small></div></div></div>
 
-  <div class="section"><h2>观察选项</h2><label class="check"><input id="flow" type="checkbox" checked>显示主回路电流箭头</label><label class="check"><input id="names" type="checkbox" checked>显示元件、端子和导线编号</label><label class="check"><input id="loadPath" type="checkbox" checked>透明时显示载荷传递路径</label></div>
+  <div class="section plot-section"><h2>物理量随压力变化</h2><div class="chart-card"><div class="chart-head">压敏电阻 R–F <small>Ω / N</small></div><svg role="img" aria-label="压力与压敏电阻关系" viewBox="0 0 308 128"><path class="chart-grid" d="M30 16H296 M30 60H296 M30 104H296"/><path class="chart-axis" d="M30 12V104H296"/><path id="resCurve" class="chart-line"/><line id="resGuide" class="chart-guide" x1="30" y1="12" x2="30" y2="104"/><circle id="resDot" class="chart-dot" cx="30" cy="18" r="5"/><g fill="#789191" font-size="10"><text x="6" y="20">24</text><text x="12" y="107">0</text><text x="28" y="122">0</text><text x="171" y="122">600</text><text x="274" y="122">1000</text></g></svg></div><div class="chart-card"><div class="chart-head">电压表示数 U₀–F <small>V / N</small></div><svg role="img" aria-label="压力与电压关系，以及安全量程" viewBox="0 0 308 128"><path class="chart-grid" d="M30 16H296 M30 60H296 M30 104H296"/><path class="chart-axis" d="M30 12V104H296"/><line class="chart-guide" x1="189.6" y1="12" x2="189.6" y2="104"/><path id="voltageCurve" class="chart-line"/><path id="overCurve" class="chart-danger"/><line id="voltGuide" class="chart-guide" x1="30" y1="12" x2="30" y2="104"/><circle id="voltDot" class="chart-dot" cx="30" cy="80" r="5"/><g fill="#789191" font-size="10"><text x="6" y="20">4.5</text><text x="12" y="107">0</text><text x="28" y="122">0</text><text x="171" y="122">600</text><text x="274" y="122">1000</text><text x="196" y="18" fill="#b97643">3 V 限</text></g></svg></div><p class="plot-note">曲线表示闭合电路的理论计算值。600 N 后电压表超量程，橙色虚线仅供分析，不代表仪表可以安全读出。</p></div><div class="section"><h2>观察选项</h2><label class="check"><input id="flow" type="checkbox" checked>显示主回路电流箭头</label><label class="check"><input id="names" type="checkbox" checked>显示元件、端子和导线编号</label><label class="check"><input id="loadPath" type="checkbox" checked>透明时显示载荷传递路径</label></div>
 
   <div class="section"><h2>七根导线</h2><div class="rulebox wirelist"><div><b>1</b>E+ → S1</div><div><b>5</b>R1 → E−</div><div><b>2</b>S2 → P</div><div><b>6</b>P → V3</div><div><b>3</b>Q → A0.6</div><div><b>7</b>Q → V−</div><div><b>4</b>A− → R2</div><div>A3、V15 留空</div></div></div>
 
