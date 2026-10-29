@@ -1,0 +1,53 @@
+name: Capture three homepage model covers
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/capture-featured-covers.yml'
+      - 'scripts/capture-featured-covers.cjs'
+
+permissions:
+  contents: write
+
+jobs:
+  covers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser and image dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/cover-deps" playwright@1.56.1 sharp@0.34.3
+          "$RUNNER_TEMP/cover-deps/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Capture real model scenes and update catalog metadata
+        env:
+          COVER_NODE_MODULES: ${{ runner.temp }}/cover-deps/node_modules
+        run: node scripts/capture-featured-covers.cjs
+      - name: Verify generated cards
+        run: |
+          test -s assets/covers/water-boiling-scene.jpg
+          test -s assets/covers/light-spectrum-color-vision-scene.jpg
+          test -s assets/covers/qiantang-bridge-complete-scene.jpg
+          node -e "const fs=require('fs'), vm=require('vm'); const ctx={window:{}}; vm.runInNewContext(fs.readFileSync('catalog.js','utf8'),ctx); for(const id of ['water-boiling','light-spectrum-color-vision','qiantang-caisson']){const item=ctx.window.MODEL_CATALOG.find(x=>x.id===id); if(!item||!item.cover||!fs.existsSync(item.cover.split('?')[0]))process.exit(1)}"
+          git diff --check
+      - name: Commit homepage covers to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog.js assets/covers/water-boiling-scene.jpg assets/covers/light-spectrum-color-vision-scene.jpg assets/covers/qiantang-bridge-complete-scene.jpg
+          if git diff --cached --quiet; then
+            echo "No cover changes"
+          else
+            git commit -m "feat(gallery): add actual scene covers for three featured models"
+            git push
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: homepage-cover-evidence
+          path: cover-captures/featured/
+          if-no-files-found: ignore
