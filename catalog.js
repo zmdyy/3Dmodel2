@@ -576,11 +576,11 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "pressure-scale",
-    "cover": "assets/covers/pressure-scale.png?v=20261016-scene",
+    "cover": "assets/covers/pressure-scale-scene.jpg?v=20261029-v2",
     "title": "压力电子秤",
-    "subtitle": "压敏电阻、双电表与称重机构联动",
+    "subtitle": "压敏电阻 · 七线实物接线 · 仪表读数与 R–F 曲线",
     "category": "综合应用",
-    "summary": "按标准端子和七根导线重建压力电子秤。调节压力可观察称重机构压缩、压敏电阻变化、电流表与电压表同步读数，并检查600 N量程边界和超量程状态。",
+    "summary": "通过 Three.js PBR 展示压敏电阻式压力电子秤的实物接线与传力机构，支持自动计算、电流表与电压表读数、实时 R–F/U₀–F 曲线、600 N 量程边界、剖视与平滑视角切换。",
     "tags": [
       "压力电子秤",
       "压敏电阻",
