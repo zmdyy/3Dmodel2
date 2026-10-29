@@ -1,5 +1,31 @@
 window.MODEL_CATALOG = [
   {
+    "id": "melting-freezing-lab",
+    "title": "海波与石蜡 · 熔化与凝固实验室",
+    "subtitle": "水浴加热 · 物态显色 · 熔化平台 · 手动开始凝固",
+    "category": "热学实验",
+    "summary": "三维交互演示海波和石蜡在水浴中的熔化与凝固，包含默认教学显色、颗粒沉降与液相变化、温度计局部放大、样品温度—时间描点、横轴自动缩放。熔化完成后由用户决定何时进入凝固，酒精灯外焰接近陶土网。完整离线运行。",
+    "tags": [
+      "熔化与凝固",
+      "海波",
+      "石蜡",
+      "晶体",
+      "非晶体",
+      "水浴加热",
+      "酒精灯",
+      "外焰",
+      "陶土网",
+      "样品温度",
+      "物态显色",
+      "Three.js",
+      "PBR",
+      "React"
+    ],
+    "path": "models/melting-freezing-lab.html?v=20261030-v12",
+    "symbol": "熔",
+    "accent": "coral"
+  },
+  {
     "id": "cr400af-railway-power",
     "title": "高铁，如何持续取电 · CR400AF",
     "subtitle": "受电弓升降 · 弓网接触 · 张力补偿 · 棘轮断线制动",
