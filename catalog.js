@@ -22,6 +22,7 @@ window.MODEL_CATALOG = [
       "React"
     ],
     "path": "models/melting-freezing-lab.html?v=20261030-v12",
+    "cover": "assets/covers/melting-freezing-lab-scene.svg",
     "symbol": "熔",
     "accent": "coral"
   },
@@ -46,6 +47,7 @@ window.MODEL_CATALOG = [
       "Blender"
     ],
     "path": "models/cr400af-railway-power.html?v=20261029-v1",
+    "cover": "assets/covers/cr400af-railway-power-scene.svg",
     "symbol": "铁",
     "accent": "green"
   },
