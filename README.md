@@ -4,7 +4,7 @@
 
 面向初中物理课堂与自主探究的 3D 教学作品集：通过 **Three.js / WebGL、SVG、Canvas** 等技术，把实验器材的结构、实验现象的变化过程与物理量之间的关系呈现在浏览器中。部分案例使用 React、PBR 材质及 Blender / glTF 模型；不同案例的实现方式并不完全相同。
 
-**当前案例：60 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-10-29）
+**当前案例：61 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-10-29）
 
 [查看作品集入口](./index.html) · [浏览完整案例目录](#完整案例目录) · [快速开始](#快速开始) · [新增案例](#新增案例与维护)
 
@@ -35,6 +35,7 @@
 | [纸筒照相机](./models/paper-tube-camera.html) | 伸缩调焦与清晰成像的同尺度对比 |
 | [钱塘江大桥施工](./models/qiantang-bridge-complete.html) | 四阶段施工过程与潮汐落梁 |
 | [深中通道 E15](./models/shenzhong-e15.html) | 沉管浮运、沉放、对接与回填 |
+| [CR400AF 高铁持续取电](./models/cr400af-railway-power.html) | 受电弓、接触网与张力补偿机构联动 |
 | [DZ47 系列参考断路器](./models/dz47-breaker.html) | 单极教学近似：热磁脱扣，非原厂 CAD |
 | [三脚插头](./models/three-pin-plug.html) | 观察保护接地的先接通、后断开 |
 
@@ -42,13 +43,13 @@
 
 ## 完整案例目录
 
-作品集中的 60 个正式入口均由 `catalog.js` 登记。下列列表按现有分类分组；点击分类可展开。
+作品集中的 61 个正式入口均由 `catalog.js` 登记。下列列表按现有分类分组；点击分类可展开。
 
 | 分类 | 数量 | 分类 | 数量 |
 |:---|---:|:---|---:|
 | 热学实验 | 2 | 光学现象 | 8 |
 | 光学仪器 | 3 | 力学实验 | 18 |
-| 综合应用 | 7 | 电学元件 | 7 |
+| 综合应用 | 8 | 电学元件 | 7 |
 | 电学实验 | 2 | 声学与电磁 | 5 |
 | 能源与发电 | 3 | 家庭电路 | 1 |
 | 通信与信息 | 1 | 精密机械 | 1 |
@@ -110,8 +111,9 @@
 </details>
 
 <details>
-<summary><strong>综合应用（7）</strong></summary>
+<summary><strong>综合应用（8）</strong></summary>
 
+- [高铁，如何持续取电 · CR400AF](./models/cr400af-railway-power.html) — 受电弓升降、弓网接触、张力补偿与棘轮断线制动
 - [细管与玻璃瓶 · 三合一实验](./models/capillary-three-experiments.html) — 自制气压计、温度计与微小形变
 - [钱塘江大桥 · 四阶段完整施工](./models/qiantang-bridge-complete.html) — 射水打桩 → 沉箱浮运 → 压气筑墩 → 钢梁落潮架设
 - [油量测量装置](./models/fuel-gauge.html) — 浮子—滑杆—变阻器联动
@@ -223,6 +225,8 @@ python -m http.server 8000
 本仓库使用相对路径组织资源，可部署到 **GitHub Pages** 或其他静态文件服务器。部署目录必须包含 `index.html`、`catalog.js`、`models/`、`shared/`、`assets/` 等资源；**仅上传首页 HTML 并不能运行所有案例**。GitHub Pages 的开启状态和实际站点地址以仓库设置为准。
 
 ### 离线使用边界
+
+- **CR400AF 案例**：案例库版 `cr400af-railway-power.html` 按相对路径加载 `cr400af-railway-power-assets/` 中的本地资源分包，需要将资源目录一同部署到静态服务器；用户提供的原始版本仍为单文件离线 HTML。
 
 - **整仓本地部署**：下载完整仓库，在断网环境用本地 HTTP 服务器运行；仍需逐一确认所选案例没有外部 CDN/API 请求。
 - **单文件离线分享**：只有已将脚本、纹理、模型等依赖完整内嵌的案例才能直接作为单个 HTML 使用。仓库里的普通 `models/*.html` **不保证**全部具备这种能力。

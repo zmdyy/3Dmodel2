@@ -1,5 +1,29 @@
 window.MODEL_CATALOG = [
   {
+    "id": "cr400af-railway-power",
+    "title": "高铁，如何持续取电 · CR400AF",
+    "subtitle": "受电弓升降 · 弓网接触 · 张力补偿 · 棘轮断线制动",
+    "category": "综合应用",
+    "summary": "以 CR400AF 单节动车组的教学模型，观察站台与接触网、受电弓升降、弓网动态接触、张力自动补偿与棘轮断线制动；提供七个视角、车厢剖视、部件聚焦与自动跟随。局部装配采用教学推定，非厂家制造级 CAD。",
+    "tags": [
+      "高铁",
+      "CR400AF",
+      "电气化铁路",
+      "受电弓",
+      "接触网",
+      "弓网接触",
+      "张力补偿",
+      "棘轮机构",
+      "断线制动",
+      "车厢结构",
+      "Three.js",
+      "Blender"
+    ],
+    "path": "models/cr400af-railway-power.html?v=20261029-v1",
+    "symbol": "铁",
+    "accent": "green"
+  },
+  {
     "id": "water-boiling",
     "title": "观察水沸腾 · 三维精密实验室",
     "subtitle": "酒精灯加热 · 气泡演化 · 分层水温 · 余热冷却",
