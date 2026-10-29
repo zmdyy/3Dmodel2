@@ -1,5 +1,16 @@
 window.MODEL_CATALOG = [
 {
+  "id": "water-boiling",
+  "title": "观察水沸腾 · 三维精密实验室",
+  "subtitle": "酒精灯加热 · 气泡演化 · 分层水温 · 余热冷却",
+  "category": "热学实验",
+  "summary": "使用 Three.js PBR 与 React 演示水加热、沸腾前后气泡变化、烧杯分层水温及移灯余热冷却；支持温度计局部放大、气压与水量调节、温度—时间描点和历史实验对比。完整离线运行。",
+  "tags": ["水的沸腾", "沸点", "温度计", "酒精灯", "气压", "气泡", "热对流", "分层水温", "温度—时间图像", "余热冷却", "Three.js", "PBR", "React"],
+  "path": "models/water-boiling.html?v=20261029-v12",
+  "symbol": "沸",
+  "accent": "amber"
+},
+{
   "id": "light-spectrum-color-vision",
   "title": "光与光谱 · 色散、滤光与物体颜色",
   "subtitle": "三棱镜色散 · 可见与不可见光 · 滤光片 · 物体颜色",
