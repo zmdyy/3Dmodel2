@@ -86,6 +86,16 @@ details > summary{cursor:pointer}
 @media(max-width:520px){header{padding:12px 15px}header h1{font-size:19px}header p{font-size:11px}#stage{height:57vh;min-height:385px}.toolbar{left:8px;top:8px;gap:4px}.toolbar button{min-height:31px;font-size:10px;padding:5px 7px}.hint{display:none}#stageReadout{top:auto;bottom:12px;right:12px;padding:7px 10px}.badge{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
 
+
+/* Three deliberate teaching pages keep common controls visible without a long sidebar. */
+.tabbar{position:sticky;top:-14px;z-index:8;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:9px 0 7px;background:#f8fbfa}
+.tabbar button{border:1px solid #cededb;border-radius:9px;padding:8px 2px;background:#fff;color:#5b7679;font:700 12px system-ui,"Microsoft YaHei",sans-serif;cursor:pointer;min-height:36px}
+.tabbar button.active{background:#1d7174;color:#fff;border-color:#1d7174}
+.tabpage[hidden]{display:none!important}
+.tabpage .section:first-child{margin-top:8px}
+.insight{border-left:3px solid #3b9891;background:#edf7f4;padding:10px 12px;border-radius:4px 9px 9px 4px;font-size:12px;line-height:1.55;color:#375d5d;margin-top:10px}
+#diagram.tab-diagram{margin-top:8px}
+@media(max-width:900px){.tabbar{top:0}}
 </style>
 <script src="../shared/navigation-style.js?v=20261018-nav1"></script>
 </head>
@@ -133,7 +143,7 @@ details > summary{cursor:pointer}
 
   <div class="section"><h2>实时计算</h2><div class="grid"><div class="metric"><span>压敏电阻 R</span><b id="rText">24.0 Ω</b><small id="interpText">题表节点</small></div><div class="metric"><span>电流 I</span><b id="iText">0.000 A</b><small id="aState"></small></div><div class="metric"><span>R₀两端 U₀</span><b id="vText">0.00 V</b><small id="vState"></small></div><div class="metric"><span>量程限制</span><b id="limitText">600 N</b><small>V表先达到上限</small></div></div></div>
 
-  <div class="section plot-section"><h2>物理量随压力变化</h2><div class="chart-card"><div class="chart-head">压敏电阻 R–F <small>Ω / N</small></div><svg role="img" aria-label="压力与压敏电阻关系" viewBox="0 0 308 128"><path class="chart-grid" d="M30 16H296 M30 60H296 M30 104H296"/><path class="chart-axis" d="M30 12V104H296"/><path id="resCurve" class="chart-line"/><line id="resGuide" class="chart-guide" x1="30" y1="12" x2="30" y2="104"/><circle id="resDot" class="chart-dot" cx="30" cy="18" r="5"/><g fill="#789191" font-size="10"><text x="6" y="20">24</text><text x="12" y="107">0</text><text x="28" y="122">0</text><text x="171" y="122">600</text><text x="274" y="122">1000</text></g></svg></div><div class="chart-card"><div class="chart-head">电压表示数 U₀–F <small>V / N</small></div><svg role="img" aria-label="压力与电压关系，以及安全量程" viewBox="0 0 308 128"><path class="chart-grid" d="M30 16H296 M30 60H296 M30 104H296"/><path class="chart-axis" d="M30 12V104H296"/><line class="chart-guide" x1="189.6" y1="12" x2="189.6" y2="104"/><path id="voltageCurve" class="chart-line"/><path id="overCurve" class="chart-danger"/><line id="voltGuide" class="chart-guide" x1="30" y1="12" x2="30" y2="104"/><circle id="voltDot" class="chart-dot" cx="30" cy="80" r="5"/><g fill="#789191" font-size="10"><text x="6" y="20">4.5</text><text x="12" y="107">0</text><text x="28" y="122">0</text><text x="171" y="122">600</text><text x="274" y="122">1000</text><text x="196" y="18" fill="#b97643">3 V 限</text></g></svg></div><p class="plot-note">曲线表示闭合电路的理论计算值。600 N 后电压表超量程，橙色虚线仅供分析，不代表仪表可以安全读出。</p></div><div class="section"><h2>观察选项</h2><label class="check"><input id="flow" type="checkbox" checked>显示主回路电流箭头</label><label class="check"><input id="names" type="checkbox" checked>显示元件、端子和导线编号</label><label class="check"><input id="loadPath" type="checkbox" checked>透明时显示载荷传递路径</label></div>
+  <div class="section plot-section"><h2>物理量随压力变化</h2><div class="chart-card"><div class="chart-head">压敏电阻 R–F <small>Ω / N</small></div><svg role="img" aria-label="压力与压敏电阻关系" viewBox="0 0 308 128"><path class="chart-grid" d="M30 16H296 M30 60H296 M30 104H296"/><path class="chart-axis" d="M30 12V104H296"/><path id="resCurve" class="chart-line"/><line id="resGuide" class="chart-guide" x1="30" y1="12" x2="30" y2="104"/><circle id="resDot" class="chart-dot" cx="30" cy="18" r="5"/><g fill="#789191" font-size="10"><text x="6" y="20">24</text><text x="12" y="107">0</text><text x="28" y="122">0</text><text x="171" y="122">600</text><text x="274" y="122">1000</text></g></svg></div><div class="chart-card"><div class="chart-head">电压表示数 U₀–F <small>V / N</small></div><svg role="img" aria-label="压力与电压关系，以及安全量程" viewBox="0 0 308 128"><path class="chart-grid" d="M30 16H296 M30 60H296 M30 104H296"/><path class="chart-axis" d="M30 12V104H296"/><line class="chart-guide" x1="189.6" y1="12" x2="189.6" y2="104"/><path id="voltageCurve" class="chart-line"/><path id="overCurve" class="chart-danger"/><line id="voltGuide" class="chart-guide" x1="30" y1="12" x2="30" y2="104"/><circle id="voltDot" class="chart-dot" cx="30" cy="80" r="5"/><g fill="#789191" font-size="10"><text x="6" y="20">4.5</text><text x="12" y="107">0</text><text x="28" y="122">0</text><text x="171" y="122">600</text><text x="274" y="122">1000</text><text x="196" y="18" fill="#b97643">3 V 限</text></g></svg></div><p class="plot-note">曲线表示闭合电路的理论计算值。600 N 后电压表超量程，橙色虚线仅供分析，不代表仪表可以安全读出。</p></div><div id="insight" class="insight" aria-live="polite">压力增大，压敏电阻减小，主回路电流增大。</div><div class="section"><h2>观察选项</h2><label class="check"><input id="flow" type="checkbox" checked>显示主回路电流箭头</label><label class="check"><input id="names" type="checkbox" checked>显示元件、端子和导线编号</label><label class="check"><input id="loadPath" type="checkbox" checked>透明时显示载荷传递路径</label></div>
 
   <div class="section"><h2>七根导线</h2><div class="rulebox wirelist"><div><b>1</b>E+ → S1</div><div><b>5</b>R1 → E−</div><div><b>2</b>S2 → P</div><div><b>6</b>P → V3</div><div><b>3</b>Q → A0.6</div><div><b>7</b>Q → V−</div><div><b>4</b>A− → R2</div><div>A3、V15 留空</div></div></div>
 
@@ -148,6 +158,34 @@ details > summary{cursor:pointer}
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id), stage=$('stage'), labelsRoot=$('labels');
+function setupPanelTabs(){
+ const aside=document.querySelector('aside'),sections=[...aside.querySelectorAll(':scope > .section')];
+ const byHeading=word=>sections.find(e=>e.querySelector('h2')?.textContent.includes(word));
+ const forceSection=$('force').closest('.section'),metricsSection=byHeading('实时计算');
+ const chartsSection=byHeading('物理量随压力'),optionsSection=byHeading('观察选项');
+ const wiresSection=byHeading('七根导线'),answerSection=aside.querySelector('.answer');
+ if(!forceSection||!metricsSection||!chartsSection||!optionsSection||!wiresSection||!answerSection)throw Error('侧栏分区不完整');
+ const bar=document.createElement('nav');bar.className='tabbar';bar.setAttribute('aria-label','实验内容切换');
+ aside.querySelector('.minirow').after(bar);
+ const pages={},items=[['operate','实验操作'],['graphs','图像分析'],['wiring','实物接线']];
+ for(const [key,label] of items){
+  const btn=document.createElement('button');btn.type='button';btn.textContent=label;btn.dataset.panel=key;
+  btn.setAttribute('aria-controls','panel-'+key);btn.setAttribute('aria-label',label);bar.appendChild(btn);
+  const panel=document.createElement('div');panel.className='tabpage';panel.id='panel-'+key;panel.hidden=true;
+  aside.appendChild(panel);pages[key]=panel;btn.addEventListener('click',()=>activatePanel(key));
+ }
+ pages.operate.append(forceSection,metricsSection,$('insight'),optionsSection);
+ pages.graphs.append(chartsSection);
+ pages.wiring.append($('diagram'),wiresSection,answerSection);
+ const foot=aside.querySelector(':scope > p.small');if(foot)pages.wiring.append(foot);
+ $('diagram').classList.add('tab-diagram');
+ function activatePanel(which){
+  for(const [key] of items){pages[key].hidden=key!==which;const btn=bar.querySelector('[data-panel='+key+']');btn.classList.toggle('active',key===which);btn.setAttribute('aria-selected',key===which?'true':'false');}
+  aside.scrollTo({top:0,behavior:'auto'});
+ }
+ activatePanel('operate');return activatePanel;
+}
+const activatePanel=setupPanelTabs();
 if(!window.THREE){$('fallback').style.display='block';return;}
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0xdce7e8);
 const camera=new THREE.PerspectiveCamera(34,1,.1,100);
@@ -291,11 +329,12 @@ function updateSpringAndLoad(){const ratio=visualForce/1000,dy=.62*ratio;moving.
 function updateSwitch(){pivot.rotation.z=switchClosed?0:.42}
 function meterClass(el,state){el.className=state}
 function updatePhysics(){const rr=resistance(force),R=rr.r;const Icalc=6/(R+6),Vcalc=6*Icalc;const I=switchClosed?Icalc:0,V=switchClosed?Vcalc:0;const aOver=switchClosed&&Icalc>.6000001,vOver=switchClosed&&Vcalc>3.000001;ammeter.update(Math.min(I,.6),aOver);voltmeter.update(Math.min(V,3),vOver);$('forceText').textContent=force+' N';$('rText').textContent=R.toFixed(2).replace(/\.00$/,'')+' Ω';$('interpText').textContent=rr.node?'题表节点':'分段线性插值';$('iText').textContent=I.toFixed(3)+' A';$('vText').textContent=V.toFixed(2)+' V';const aState=$('aState'),vState=$('vState');if(!switchClosed){aState.textContent='开关断开：0 A';vState.textContent='开关断开：0 V';meterClass(aState,'meterok');meterClass(vState,'meterok')}else{aState.textContent=aOver?'A表超量程':Math.abs(I-.6)<1e-6?'A表达到上限':'A表量程内';vState.textContent=vOver?'V表超量程':Math.abs(V-3)<1e-6?'V表达到上限':'V表量程内';meterClass(aState,aOver?'meterover':Math.abs(I-.6)<1e-6?'meterlimit':'meterok');meterClass(vState,vOver?'meterover':Math.abs(V-3)<1e-6?'meterlimit':'meterok')}
-const state=$('state');if(!switchClosed){state.className='state open';state.innerHTML='<strong>开关断开</strong><span>A = 0 A · V = 0 V；可继续改变压力观察机构。</span>'}else if(aOver||vOver){state.className='state warn';state.innerHTML=`<strong>闭合 · ${vOver&&aOver?'两表超量程':vOver?'电压表超量程':'电流表超量程'}</strong><span>实际计算：I=${Icalc.toFixed(3)} A，U₀=${Vcalc.toFixed(2)} V；指针只停在机械上限。</span>`}else{state.className='state';state.innerHTML=`<strong>闭合 · 安全范围</strong><span>I=${Icalc.toFixed(3)} A · U₀=${Vcalc.toFixed(2)} V</span>`}
+$('insight').textContent=!switchClosed?'开关断开，电流为 0；机械结构仍可随压力变化。':force>600?'已超过电压表量程！曲线中的计算值用于分析，不能作为仪表的安全读数。':force===600?'压力 600 N：R=6 Ω，I=0.500 A，U₀=3.00 V，电压表刚好达到量程上限。':'压力越大，压敏电阻 R 越小；串联电路电流 I 增大，定值电阻两端电压 U₀ 也随之增大。';
+ const state=$('state');if(!switchClosed){state.className='state open';state.innerHTML='<strong>开关断开</strong><span>A = 0 A · V = 0 V；可继续改变压力观察机构。</span>'}else if(aOver||vOver){state.className='state warn';state.innerHTML=`<strong>闭合 · ${vOver&&aOver?'两表超量程':vOver?'电压表超量程':'电流表超量程'}</strong><span>实际计算：I=${Icalc.toFixed(3)} A，U₀=${Vcalc.toFixed(2)} V；指针只停在机械上限。</span>`}else{state.className='state';state.innerHTML=`<strong>闭合 · 安全范围</strong><span>I=${Icalc.toFixed(3)} A · U₀=${Vcalc.toFixed(2)} V</span>`}
 $('switchBtn').textContent=switchClosed?'断开开关':'闭合开关';flowGroup.visible=switchClosed&&$('flow').checked;updateCharts(force,R,Vcalc,switchClosed);updateSpringAndLoad();updateSwitch();window.pressureScaleState={force,R,Icalc,Vcalc,switchClosed,aOver,vOver}}
 function setTransparent(v){transparentOn=v;for(const g of glassParts){g.material.opacity=v?.18:.72;g.material.transparent=true;g.material.depthWrite=!v} $('transparentBtn').textContent='透明观察：'+(v?'开':'关');$('transparentBtn').classList.toggle('active',v);updateSpringAndLoad()}
 
-$('switchBtn').onclick=()=>{switchClosed=!switchClosed;updatePhysics()};$('force').oninput=e=>{force=+e.target.value;updatePhysics()};document.querySelectorAll('.preset button').forEach(b=>b.onclick=()=>{force=+b.dataset.f;$('force').value=force;updatePhysics()});$('reset').onclick=()=>{force=0;switchClosed=true;$('force').value=0;setTransparent(true);$('flow').checked=true;$('names').checked=true;$('loadPath').checked=true;labelsRoot.style.display='block';viewHome();updatePhysics()};$('transparentBtn').onclick=()=>setTransparent(!transparentOn);$('flow').onchange=()=>flowGroup.visible=switchClosed&&$('flow').checked;$('names').onchange=()=>{showNames=$('names').checked;labelsRoot.style.display=showNames?'block':'none'};$('loadPath').onchange=()=>updateSpringAndLoad();$('diagramBtn').onclick=()=>{$('diagram').classList.toggle('show')};
+$('switchBtn').onclick=()=>{switchClosed=!switchClosed;updatePhysics()};$('force').oninput=e=>{force=+e.target.value;updatePhysics()};document.querySelectorAll('.preset button').forEach(b=>b.onclick=()=>{force=+b.dataset.f;$('force').value=force;updatePhysics()});$('reset').onclick=()=>{force=0;switchClosed=true;$('force').value=0;setTransparent(true);$('flow').checked=true;$('names').checked=true;$('loadPath').checked=true;labelsRoot.style.display='block';viewHome();updatePhysics()};$('transparentBtn').onclick=()=>setTransparent(!transparentOn);$('flow').onchange=()=>flowGroup.visible=switchClosed&&$('flow').checked;$('names').onchange=()=>{showNames=$('names').checked;labelsRoot.style.display=showNames?'block':'none'};$('loadPath').onchange=()=>updateSpringAndLoad();$('diagramBtn').onclick=()=>{activatePanel('wiring');$('diagram').classList.toggle('show')};
 
 let theta=.58,phi=.84,distance=25,target=new THREE.Vector3(-.25,1.8,.55),cameraTween=null;
 function view(t,p,d,targ){cameraTween={start:performance.now(),duration:620,theta0:theta,phi0:phi,d0:distance,target0:target.clone(),theta1:t,phi1:p,d1:d,target1:targ.clone()};}function viewHome(){view(.58,.84,25,new THREE.Vector3(-.2,1.8,.7))}$('home').onclick=viewHome;$('top').onclick=()=>view(.04,.13,27,new THREE.Vector3(-.5,.45,.7));$('sensorView').onclick=()=>view(.42,.83,10,new THREE.Vector3(-5,2.25,-1.55));$('meterView').onclick=()=>view(.18,.74,12,new THREE.Vector3(4.5,1.8,-.8));$('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
