@@ -52,7 +52,12 @@ async function main(){
   check('Reset restores closed, 0 N',st.switchClosed&&st.force===0&&st.R===24,st);
   const curves=await page.evaluate(()=>['resCurve','voltageCurve','overCurve'].map(id=>document.getElementById(id)?.getAttribute('d')?.length||0));
   check('Three working SVG chart lines',curves.every(x=>x>30),curves);
+  check('Teaching tab defaults to experiment',!(await page.locator('#panel-operate').evaluate(e=>e.hidden)));
+  await page.locator('[data-panel=graphs]').click();
+  check('Graphs can be opened',!(await page.locator('#panel-graphs').evaluate(e=>e.hidden)));
+  await page.locator('[data-panel=operate]').click();
   await page.locator('#diagramBtn').click();
+  check('Circuit button opens wiring tab',!(await page.locator('#panel-wiring').evaluate(e=>e.hidden)));
   check('Corrected SVG circuit available',await page.locator('#diagram').evaluate(el=>el.classList.contains('show')));
   await page.locator('#diagramBtn').click();
   await page.locator('#sensorView').click();await page.waitForTimeout(750);
@@ -70,9 +75,10 @@ async function main(){
   const meta=JSON.parse(fs.readFileSync(path.join(root,'catalog.js'),'utf8').replace(/^\s*window\.MODEL_CATALOG\s*=\s*/,'').replace(/;\s*$/,''));
   const item=meta.find(x=>x.id==='pressure-scale');
   check('Catalog entry found',!!item);
-  item.cover='assets/covers/pressure-scale-scene.jpg?v=20261029-v2';
-  item.subtitle='压敏电阻 · 七线实物接线 · 仪表读数与 R–F 曲线';
-  item.summary='通过 Three.js PBR 展示压敏电阻式压力电子秤的实物接线与传力机构，支持自动计算、电流表与电压表读数、实时 R–F/U₀–F 曲线、600 N 量程边界、剖视与平滑视角切换。';
+  item.cover='assets/covers/pressure-scale-scene.jpg?v=20261029-v3';
+  item.path='models/pressure-scale.html?v=20261029-v3';
+  item.subtitle='压敏电阻 · 七线实物接线 · 仪表读数 · 三页教学面板';
+  item.summary='Three.js PBR 三维实物接线与压力传感演示：修正传力弹簧结构，展示电表实时示数、R–F 和 U₀–F 图像、600 N 量程边界；使用实验操作、图像分析、实物接线三页教学面板。';
   fs.writeFileSync(path.join(root,'catalog.js'),'window.MODEL_CATALOG = '+JSON.stringify(meta,null,2)+';\n');
   fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify({checks,errors,size,entropy:stat.entropy},null,2));
   console.log('PRESSURE_SCALE_ACCEPTED='+JSON.stringify({checks:checks.length,coverBytes:size,entropy:stat.entropy}));
