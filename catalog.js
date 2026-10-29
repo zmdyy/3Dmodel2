@@ -576,11 +576,11 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "pressure-scale",
-    "cover": "assets/covers/pressure-scale-scene.jpg?v=20261029-v2",
+    "cover": "assets/covers/pressure-scale-scene.jpg?v=20261029-v3",
     "title": "压力电子秤",
-    "subtitle": "压敏电阻 · 七线实物接线 · 仪表读数与 R–F 曲线",
+    "subtitle": "压敏电阻 · 七线实物接线 · 仪表读数 · 三页教学面板",
     "category": "综合应用",
-    "summary": "通过 Three.js PBR 展示压敏电阻式压力电子秤的实物接线与传力机构，支持自动计算、电流表与电压表读数、实时 R–F/U₀–F 曲线、600 N 量程边界、剖视与平滑视角切换。",
+    "summary": "Three.js PBR 三维实物接线与压力传感演示：修正传力弹簧结构，展示电表实时示数、R–F 和 U₀–F 图像、600 N 量程边界；使用实验操作、图像分析、实物接线三页教学面板。",
     "tags": [
       "压力电子秤",
       "压敏电阻",
@@ -589,7 +589,7 @@ window.MODEL_CATALOG = [
       "传感器",
       "实物接线"
     ],
-    "path": "models/pressure-scale.html?v=20261018-nav1",
+    "path": "models/pressure-scale.html?v=20261029-v3",
     "symbol": "⚖",
     "accent": "green"
   },
