@@ -215,8 +215,8 @@ window.MODEL_CATALOG = [
   },
   {
     "id": "capillary-three-experiments",
-    "title": "细管与玻璃瓶 · 三合一实验",
-    "subtitle": "自制气压计、温度计与微小形变",
+    "title": "自制气压计、温度计与微小形变",
+    "subtitle": "玻璃瓶细管装置 · 三种物理探究",
     "category": "综合应用",
     "summary": "同一细管装置探究气压变化、液体热胀冷缩和微小形变；吹气时长联动红色空气粒子、压强差及液柱，支持楼层实验、水浴、截面放大和连续演示。",
     "tags": [
