@@ -32,3 +32,7 @@
 ## 浮力与密度实验室封面
 
 `assets/covers/buoyancy-density-lab-scene.jpg` 为标准实验中木块部分浸入水中的真实 WebGL/SVG 场景截图，960×540 JPEG。仅隐藏页面操作界面并扩大画布，保持实际器材、相机、材质与照明；没有生成或另画封面模型。详见 [案例说明](buoyancy-density-lab.md)。
+
+## 温度计与热膨胀封面
+
+`assets/covers/thermometers-thermal-expansion-scene.jpg` 为当前案例金属杆加热至160°C的实际 WebGL 截图，960×540 JPEG。保留原模型、材质和光照，仅隐藏界面并调整构图；不是生成图片。重现脚本：`scripts/capture-thermometers-cover.cjs`。

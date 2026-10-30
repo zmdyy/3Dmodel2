@@ -1,5 +1,31 @@
 window.MODEL_CATALOG = [
   {
+    "id": "thermometers-thermal-expansion",
+    "title": "温度计与热膨胀 · 九种结构探究",
+    "subtitle": "水银狭道 · 双金属直片 · 波登管 · 金属杆 · 空气温度计",
+    "category": "热学实验",
+    "summary": "九个交互视图，观察液柱测温、水银体温计断口与最高值保持、双金属片差异膨胀、波登管传动、喷灯加热金属杆伸长及两种空气温度计。含剖切、局部特写、彩色位移区和增强刻度，完整单文件离线运行。",
+    "tags": [
+      "温度计",
+      "热膨胀",
+      "水银体温计",
+      "狭道",
+      "双金属片",
+      "波登管",
+      "酒精喷灯",
+      "空气温度计",
+      "刻度读数",
+      "Three.js",
+      "PBR",
+      "SVG",
+      "React"
+    ],
+    "path": "models/thermometers-thermal-expansion.html?v=20261030-v5",
+    "cover": "assets/covers/thermometers-thermal-expansion-scene.jpg",
+    "symbol": "温",
+    "accent": "coral"
+  },
+  {
     "id": "melting-freezing-lab",
     "title": "海波与石蜡 · 熔化与凝固实验室",
     "subtitle": "水浴加热 · 物态显色 · 熔化平台 · 手动开始凝固",
