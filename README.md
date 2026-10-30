@@ -114,7 +114,7 @@
 <summary><strong>综合应用（8）</strong></summary>
 
 - [高铁，如何持续取电 · CR400AF](./models/cr400af-railway-power.html) — 受电弓升降、弓网接触、张力补偿与棘轮断线制动
-- [细管与玻璃瓶 · 三合一实验](./models/capillary-three-experiments.html) — 自制气压计、温度计与微小形变
+- [自制气压计、温度计与微小形变](./models/capillary-three-experiments.html) — 玻璃瓶细管装置的三种物理探究
 - [钱塘江大桥 · 四阶段完整施工](./models/qiantang-bridge-complete.html) — 射水打桩 → 沉箱浮运 → 压气筑墩 → 钢梁落潮架设
 - [油量测量装置](./models/fuel-gauge.html) — 浮子—滑杆—变阻器联动
 - [压力电子秤](./models/pressure-scale.html) — 压敏电阻、双电表与称重机构联动
