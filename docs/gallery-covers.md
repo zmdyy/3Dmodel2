@@ -36,3 +36,12 @@
 ## 温度计与热膨胀封面
 
 `assets/covers/thermometers-thermal-expansion-scene.jpg` 为当前案例金属杆加热至160°C的实际 WebGL 截图，960×540 JPEG。保留原模型、材质和光照，仅隐藏界面并调整构图；不是生成图片。重现脚本：`scripts/capture-thermometers-cover.cjs`。
+
+## 海波与石蜡、CR400AF 高铁封面（2026-10-30）
+
+两张卡片均改用当前案例实际运行的 Chromium/WebGL 截图（960×540 JPEG），替代原 SVG 示意封面。
+
+- `melting-freezing-lab-scene.jpg`：完整水浴加热装置及温度计圆形放大，海波熔化平台附近的模拟状态。
+- `cr400af-railway-power-scene.jpg`：当前 CR400AF 停站阶段的车头近景，保留车体、轨道与站台背景。
+
+仅隐藏截图中的操作界面、调整观察构图；保留原模型、材质与照明。重现：`CHROMIUM_PATH=/path/to/chrome node scripts/capture-thermal-rail-covers.cjs`。
