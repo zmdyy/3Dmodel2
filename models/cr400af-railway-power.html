@@ -3,12 +3,14 @@
 @media(max-width:1180px){.app{grid-template-columns:208px minmax(0,1fr) 232px}.inspector{padding:20px 15px}.hint{font-size:9px}.stage-head{left:18px}.stage-head h2{font-size:22px}.sidebar{padding-left:10px;padding-right:10px}.view-btn{padding:10px}}
 @media(max-width:960px){.app{grid-template-columns:190px minmax(0,1fr)}.inspector{display:none;position:absolute;right:0;top:72px;bottom:110px;width:280px;z-index:7;box-shadow:-10px 0 40px #20443015}.inspector.open{display:block}.mobile-info{display:grid}.chip{display:none}.stats{display:none}}
 @media(max-width:640px){header{height:62px;padding:0 13px;gap:10px}.brand h1{font-size:15px}.brand small{font-size:8px}.logo{width:31px;height:31px}.header-right .btnlabel{display:none}.app{height:calc(100dvh - 188px);grid-template-columns:1fr;grid-template-rows:57px minmax(0,1fr)}.sidebar{padding:6px 9px;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line)}.sidebar .eyebrow,.sidebar .divider,.sidebar .layergrid,.sidebar .foot{display:none}.nav{flex-direction:row;width:max-content;gap:5px}.view-btn{padding:7px 10px;gap:7px;min-width:114px}.view-btn strong{font-size:11px}.view-btn small{font-size:8px;margin-top:2px}.stage-head{top:16px;left:16px}.stage-head h2{font-size:21px}.stage-head p{font-size:10px;max-width:240px;line-height:1.6}.stage-tools{right:10px;top:13px}.hint{bottom:10px;font-size:9px;padding:7px 9px}.timeline{height:126px;padding:11px 12px}.transport{gap:9px}.playbtn{width:36px;height:36px}.phasebar{gap:0;justify-content:space-between;flex-wrap:wrap}.phasebar button{padding:7px 7px;font-size:9px}.time-now{font-size:11px;min-width:62px}.looplabel{display:none}.inspector{top:119px;bottom:126px;width:270px}.speed{max-width:61px;font-size:10px}.stage-head .badge{font-size:8px}.tinybtn{padding:7px}.header-right{gap:5px}}
-</style></head><body data-loading="true"><header><div class="logo" aria-hidden="true">⌁</div><div class="brand"><small>RAILWAY PHYSICS LAB</small><h1>高铁，如何持续取电</h1></div><div class="header-right"><span class="chip">CR400AF · 单节 Tp 车</span><button class="tinybtn" id="snapshot" title="保存当前画面">▧ <span class="btnlabel">保存画面</span></button><button class="tinybtn" id="aboutBtn">ⓘ <span class="btnlabel">使用说明</span></button></div></header>
+
+.tour-start{border:0;background:#176f5b;color:#fff;border-radius:7px;font-weight:700;font-size:11px;padding:8px 11px;cursor:pointer}.tour-start:hover{background:#0b5848}.tour-start.active{background:#ad6540}.tour-hud{position:absolute;left:22px;top:111px;border:1px solid #d7e4db;background:rgba(249,252,247,.94);box-shadow:0 8px 30px #234f3d0e;padding:12px 15px;border-radius:11px;z-index:3;min-width:205px;pointer-events:none}.tour-hud[hidden]{display:none}.tour-hud .tour-kicker{font-size:9px;color:#638778;letter-spacing:1.2px;display:flex;gap:12px;justify-content:space-between}.tour-hud strong{font-size:16px;font-weight:700;display:block;margin:6px 0;color:#175e4e}.tour-hud #tourVelocity{font-size:12px;color:#4b665a;font-variant-numeric:tabular-nums}.tour-hud small{font-size:9px;color:#82958b;display:block;margin-top:5px}@media(max-width:640px){.tour-hud{left:9px;top:100px;padding:8px 9px;min-width:160px}.tour-hud strong{font-size:13px}.tour-start{font-size:10px;padding:7px}}
+</style></head><body data-loading="true"><header><div class="logo" aria-hidden="true">⌁</div><div class="brand"><small>RAILWAY PHYSICS LAB</small><h1>高铁，如何持续取电</h1></div><div class="header-right"><span class="chip">CR400AF · 头车 + Tp 车</span><button class="tinybtn" id="snapshot" title="保存当前画面">▧ <span class="btnlabel">保存画面</span></button><button class="tinybtn" id="aboutBtn">ⓘ <span class="btnlabel">使用说明</span></button></div></header>
 <div class="app"><nav class="sidebar" aria-label="教学场景"><div class="eyebrow">七个观察视角</div><div class="nav" id="viewNav"></div><div class="divider"></div><div class="eyebrow">结构图层</div><div class="layergrid" id="layers"></div><div class="divider"></div><button class="focusbtn" id="cutaway">剖开车厢 · 查看内部</button><div class="foot">左键旋转 · 右键平移<br>滚轮缩放 · 点击部件查看说明</div></nav>
-<main class="stage" id="stage"><canvas id="canvas" aria-label="可交互的高铁三维教学模型"></canvas><div class="stage-head"><div class="badge"><span class="dot"></span>EXPLORE IN 3D</div><h2 id="viewTitle">站台与列车</h2><p id="viewSubtitle">沿着接触网，追踪电能进入列车的第一步。</p></div><div class="stage-tools"><button class="iconbtn" id="homeView" title="恢复当前场景视角" aria-label="恢复当前场景视角">⌂</button><button class="iconbtn" id="quality" title="切换画质" aria-label="切换画质">◐</button><button class="iconbtn mobile-info" id="showInfo" title="观察提示" aria-label="观察提示">ⓘ</button></div><div class="stats" id="stats"></div><div class="hint">拖动旋转 · 右键平移 · 滚轮缩放 · 点击零件</div><div style="position:absolute;left:18px;bottom:52px;z-index:4;background:rgba(255,255,255,.94);border:1px solid #dbe5df;border-radius:10px;padding:10px 12px;max-width:calc(100% - 36px)"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="check"><input id="autoFollow" type="checkbox" checked>自动跟随</label><label class="check"><input id="autoViewPlay" type="checkbox" checked>切换即播放</label><button id="replayMechanism" class="tinybtn">重播本机构</button></div><div id="demoCaption" style="margin-top:6px;color:#126a59;font-weight:600">手动观察</div></div><div id="loader" class="loader"><div class="spinner"></div><strong id="loadTitle">正在打开三维模型</strong><p id="loadNote">模型和渲染引擎随案例资源包提供，无需外部 CDN。</p></div><div class="toast" id="toast" role="status"></div></main>
+<main class="stage" id="stage"><canvas id="canvas" aria-label="可交互的高铁三维教学模型"></canvas><div class="stage-head"><div class="badge"><span class="dot"></span>EXPLORE IN 3D</div><h2 id="viewTitle">站台与列车</h2><p id="viewSubtitle">沿着接触网，追踪电能进入列车的第一步。</p></div><div class="stage-tools"><button class="iconbtn" id="homeView" title="恢复当前场景视角" aria-label="恢复当前场景视角">⌂</button><button class="iconbtn" id="quality" title="切换画质" aria-label="切换画质">◐</button><button class="iconbtn mobile-info" id="showInfo" title="观察提示" aria-label="观察提示">ⓘ</button></div><div class="stats" id="stats"></div><div class="hint">拖动旋转 · 右键平移 · 滚轮缩放 · 点击零件</div><div style="position:absolute;left:18px;bottom:52px;z-index:4;background:rgba(255,255,255,.94);border:1px solid #dbe5df;border-radius:10px;padding:10px 12px;max-width:calc(100% - 36px)"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="check"><input id="autoFollow" type="checkbox" checked>自动跟随</label><label class="check"><input id="autoViewPlay" type="checkbox" checked>切换即播放</label><button id="tourToggle" class="tour-start">◉ 七景自动导览</button><button id="noseFocus" class="tinybtn" title="查看飞龙车头外形">车头近景</button><button id="replayMechanism" class="tinybtn">重播本机构</button></div><div id="demoCaption" style="margin-top:6px;color:#126a59;font-weight:600">手动观察</div><div id="tourProgress" style="height:3px;background:#dce7de;border-radius:6px;margin-top:7px;overflow:hidden;display:none"><div id="tourProgressFill" style="height:100%;width:0;background:#16816a;transition:width .08s linear"></div></div></div><div id="tourHud" class="tour-hud" hidden><div class="tour-kicker">CINEMATIC · SEVEN SCENES <span id="tourShot">01 / 08</span></div><strong id="tourPhaseName">进站减速</strong><div id="tourVelocity">演示速度 0.00 m/s</div><small>教学慢放 · 不代表真实运行时速</small></div><div id="loader" class="loader"><div class="spinner"></div><strong id="loadTitle">正在打开三维模型</strong><p id="loadNote">模型和渲染引擎由同目录资源包加载，无需外部 CDN。</p></div><div class="toast" id="toast" role="status"></div></main>
 <aside class="inspector" id="inspector"><div class="sectiontag">观察与思考</div><h3 id="lessonTitle">持续取电的起点</h3><p id="lessonText"></p><div class="callout" id="lessonKey"></div><div class="diagram" id="svgArea"></div><div class="diagram-note" id="diagramNote">原理投影示意 · 非安装尺寸图</div><div class="readouts" id="readouts"></div><div class="tempbox" id="tempBox" hidden><label class="check"><input type="checkbox" id="autoTemp" checked>温度随动画变化</label><label><span>线索温度</span><span id="tempValue">20.0 °C</span></label><input type="range" id="temperature" min="-5" max="45" step=".1" value="20" aria-label="线索温度"><div class="mutednote">温度升高，线索伸长，坠砣下降。</div></div><section id="brakeBox" hidden style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)"><h3 style="font-size:14px">棘轮断线制动</h3><select id="brakeTarget"><option value="CONTACT">接触线补偿装置</option><option value="MESSENGER">承力索补偿装置</option></select><div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button class="tinybtn" id="breakLine">线索端断线</button><button class="tinybtn" id="resetBrake">卸载解锁／复位</button><button class="tinybtn" id="brakeClose">机构放大</button></div><p id="brakeStatus" style="font-weight:600"></p><p id="brakeStroke"></p><p style="color:var(--muted);line-height:1.6">正常温度补偿：卡板脱离，可双向转动。断线制动：轮架下摆，齿面接触后锁止。慢放为教学展示；解锁包含重新承托卸载。</p></section><div class="part-box"><div class="sectiontag">点击模型，识别部件</div><div id="partTitle" class="part-title">等待选择</div><div id="partName" class="part-name">在三维画面中点击任意可见零件。</div><div id="partDesc" class="part-desc"></div><button id="focusPart" class="focusbtn" disabled>聚焦所选部件</button></div></aside></div>
 <footer class="timeline"><div class="transport"><button class="playbtn" id="play" aria-label="播放动画" title="播放 / 暂停（空格）">▶</button><div class="scrub-wrap"><input id="scrub" type="range" min="0.041667" max="40" step="0.041667" value="14.041667" aria-label="动画进度"><div class="times"><span>升弓</span><span>列车行进 · 弓网接触</span><span>降弓</span><span>补偿观察</span></div></div><div class="time-now" id="timeNow">14.0 / 40 s</div><select id="speed" class="speed" aria-label="动画速度"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1× 速度</option><option value="2">2×</option></select><label class="check looplabel"><input type="checkbox" id="loop" checked>循环</label></div><div class="phasebar"><button data-time="0.041667">01　静止升弓</button><button data-time="4.041667">02　行进取电</button><button data-time="28.041667">03　停车降弓</button><button data-time="32.041667">04　温度补偿</button></div></footer>
-<dialog id="about"><h3>把实物关系带进课堂</h3><p>页面直接加载你提供的 GLB 模型，将 60 条零件动画同步到同一条时间轴。动画采用教学慢放，40 秒流程不代表实际列车速度或设备响应时间。</p><p>七个视角可以自由旋转、平移和缩放。点击零件查看作用；使用结构图层或“剖开车厢”观察内部。温度可以跟随时间，也可以独立调节。</p><p>补偿绳、传动钢丝绳和柔性导线在网页中按模型的连接关系补充联动；金色标记是当前弓网接触位置，橙色是本次流程已划过的区域，不代表实际发热或瞬时磨耗。</p><p>案例库版的模型和 Three.js 位于同目录资源分包中，可在本地静态服务器上离线运行；原始单文件版可以直接离线打开。GLB 未包含 Blender 的程序化贴图，网页按材质名补回颜色与细微表面变化，视觉效果与 Cycles 渲染会有差别。模型属于参考资料重建，非厂家 1∶1 CAD；不含断线制动的真实动力学仿真。</p><p>正常模式使用 Three.js PBR 渲染。若浏览器未提供 WebGL 2，会改用同一 GLB 几何的兼容显示，材质与光影简化。建议使用开启硬件加速的 Chrome、Edge 或 Firefox。Three.js r170 · MIT License。</p><p>局部装配修正：重建带孔铰耳、轴套、分层连杆、定长滑动阻尼器和折叠承托；轮组采用整体回转轮廓，H形构架避开车轮。保留原始模型数据，由网页载入时替换相关局部。新增局部尺寸为教学装配推定，不是厂家制造图。车轮已统一外法线，一级减振器补齐两端铰接。断线制动参考CN101722867B的铰接轮架与固定卡板关系，按教学推定质量与尺寸演示，冲击动力学未标定。切换视图可自动播放当前机构，镜头可跟随关键部件；断线下摆以4秒慢放并切换啮合特写。浏览器目视复验尚未完成。</p><button class="tinybtn" id="closeAbout">开始观察</button></dialog>
+<dialog id="about"><h3>把实物关系带进课堂</h3><p>页面直接加载你提供的 GLB 模型，将 60 条零件动画同步到同一条时间轴。动画采用教学慢放，40 秒流程不代表实际列车速度或设备响应时间。</p><p>新增“七景自动导览”：从车头入站、进站减速、停站观察到加速离站，镜头依次近远变焦和环绕，覆盖全部七个视角；用底部进度条可任意跳转，鼠标拖动可退出导览。正常进出站期间受电弓保持升起，不模拟无依据的停站降弓。七个视角可以自由旋转、平移和缩放。点击零件查看作用；使用结构图层或“剖开车厢”观察内部。温度可以跟随时间，也可以独立调节。</p><p>补偿绳、传动钢丝绳和柔性导线在网页中按模型的连接关系补充联动；金色标记是当前弓网接触位置，橙色是本次流程已划过的区域，不代表实际发热或瞬时磨耗。</p><p>本案例与同目录资源包配套，可通过本地静态服务器离线打开。GLB 未包含 Blender 的程序化贴图，网页按材质名补回颜色与细微表面变化，视觉效果与 Cycles 渲染会有差别。模型新增 CR400AF 头车流线型鼻锥、司机室玻璃、车灯、外观饰带和独立轮对，头车局部几何按公开照片教学重建，不是厂家 CAD；不含断线制动的真实动力学仿真。</p><p>正常模式使用 Three.js PBR 渲染。若浏览器未提供 WebGL 2，会改用同一 GLB 几何的兼容显示，材质与光影简化。建议使用开启硬件加速的 Chrome、Edge 或 Firefox。Three.js r170 · MIT License。</p><p>局部装配修正：重建带孔铰耳、轴套、分层连杆、定长滑动阻尼器和折叠承托；轮组采用整体回转轮廓；SWT-400E1拖车转向架现已改为箱型侧梁、两根管状横梁、转臂式轴箱、一系悬挂、二系空气弹簧、中央牵引、抗蛇行与抗侧滚装置、每轴3片轴装制动盘及制动夹钳。部分零部件局部尺寸及制动吊架为教学推定。保留原始模型数据，由网页载入时替换相关局部。新增局部尺寸为教学装配推定，不是厂家制造图。车轮已统一外法线，一级减振器补齐两端铰接。断线制动参考CN101722867B的铰接轮架与固定卡板关系，按教学推定质量与尺寸演示，冲击动力学未标定。切换视图可自动播放当前机构，镜头可跟随关键部件；断线下摆以4秒慢放并切换啮合特写。浏览器目视复验尚未完成。</p><button class="tinybtn" id="closeAbout">开始观察</button></dialog>
 <!-- Three.js r170 / MIT License
 The MIT License
 
@@ -34,6 +36,7 @@ THE SOFTWARE.
 
 Source model SHA256: 05dc2d83f8de01af910cedf56e7c3a0b3cef2357f74982ab4ff1d2456ce1847e -->
 <script>
+
 function repairRailMechanics({T,model,train,panto,head,elbow,find,nameOf,suppress,allTracks,dynamicObjects}){
  const V=(x=0,y=0,z=0)=>new T.Vector3(x,y,z),Z=V(0,0,1),Y=V(0,1,0);
  const steel=new T.MeshStandardMaterial({color:0x596770,metalness:.8,roughness:.36}),alum=new T.MeshStandardMaterial({color:0xa3afb5,metalness:.8,roughness:.32}),bronze=new T.MeshStandardMaterial({color:0x9b7950,metalness:.73,roughness:.39}),rubber=new T.MeshStandardMaterial({color:0x272d30,metalness:.02,roughness:.82}),dark=new T.MeshStandardMaterial({color:0x38454b,metalness:.65,roughness:.5});
@@ -96,37 +99,161 @@ function repairRailMechanics({T,model,train,panto,head,elbow,find,nameOf,suppres
  const valve=find('Pneumatic valve enclosure');if(valve)valve.position.z=-.82;
  box(panto,'气阀外移安装托板',[.32,.025,.46],[.75,4.2625,-.64],steel);suppress('Pneumatic supply hose');
  mesh(panto,'气阀到气囊的供气软管',new T.TubeGeometry(new T.CatmullRomCurve3([V(.61,4.35,-.82),V(.35,4.30,-.82),V(-.75,4.30,-.82),V(-.75,4.38,0),V(-.62,4.38,0)]),64,.009,8,false),rubber);
- // Replace the solid bogie slab by an H frame with two wheelset windows.
- for(const o of old)if(/^(Trailer bogie cross member|Trailer bogie side|Bogie longitudinal frame|Secondary air spring|Primary suspension coil|Bogie damper|Underframe$|Wheel flange|Wheel hub|Wheel web)/.test(nameOf(o)))suppress(nameOf(o));
- const under=group(train,'Bogie 重建的车底与转向架');box(under,'Underframe 中央纵梁',[24.7,.16,.45],[0,1.14,0],dark);for(const s of[-1,1])box(under,'Underframe 边梁',[24.7,.15,.15],[0,1.14,s*1.4],dark);
- function addPrimaryDamper(wx,s){const z=s*1.26,lo=V(wx-.13,.60,z),hi=V(wx+.04,.83,z),u=hi.clone().sub(lo).normalize();
-  cylinderBetween(under,'Bogie damper 下端连接颈',lo.clone().addScaledVector(u,.018),lo.clone().addScaledVector(u,.045),.014,steel);cylinderBetween(under,'Bogie damper 上端连接颈',hi.clone().addScaledVector(u,-.045),hi.clone().addScaledVector(u,-.018),.012,alum);
-  cylinderBetween(under,'Bogie damper 一级减振器缸筒',lo.clone().addScaledVector(u,.035),lo.clone().addScaledVector(u,.175),.027,steel);
-  cylinderBetween(under,'Bogie damper 定长活塞杆',hi.clone().addScaledVector(u,-.145),hi.clone().addScaledVector(u,-.035),.012,alum);
-  for(const [p,k]of[[lo,0],[hi,1]]){ring(under,'Bogie damper 带孔连接耳环',.0085,.026,.018,p.toArray(),steel);ring(under,'Bogie damper 贯穿连接销',0,.008,.072,p.toArray(),alum);
-   for(const d of[-.023,.023]){const ear=strap(under,'Bogie damper 双耳铰接座',.07,.048,.012,z+d,.0085);ear.g.position.set(p.x,p.y,z+d);ear.g.rotation.z=-Math.PI/2;}
-   box(under,k?'Bogie damper 构架端支座底板':'Bogie damper 轴箱端支座底板',[.17,.025,.32],[p.x,p.y-(k?.07:.045),s*1.15],dark);
+ // CR400AF Tp trailer bogie SWT-400E1. Known envelopes: wheel 920 mm,
+ // 2500 mm wheelbase, 2360 mm air-spring spacing, 3 axle-mounted discs/axle.
+ // Brackets and non-published local dimensions are reconstructed for teaching.
+ for(const o of old)if(/^(Trailer bogie cross member|Trailer bogie side|Bogie longitudinal frame|Secondary air spring|Primary suspension coil|Bogie damper|Underframe$|Wheel flange|Wheel hub|Wheel web|Axlebox|Wheelset axle)/.test(nameOf(o)))suppress(nameOf(o));
+ const under=group(train,'Bogie SWT-400E1 真实结构分层重建');
+ const framePaint=new T.MeshStandardMaterial({color:0x68777e,metalness:.72,roughness:.46});
+ const machined=new T.MeshStandardMaterial({color:0x9ba7ad,metalness:.85,roughness:.32});
+ const discMat=new T.MeshStandardMaterial({color:0x78838a,metalness:.83,roughness:.49});
+ const caliperMat=new T.MeshStandardMaterial({color:0x566772,metalness:.62,roughness:.49});
+ const springMat=new T.MeshStandardMaterial({color:0x657780,metalness:.70,roughness:.34});
+ const hoseMat=new T.MeshStandardMaterial({color:0x252e33,metalness:.03,roughness:.85});
+ const padMat=new T.MeshStandardMaterial({color:0x343536,metalness:.02,roughness:.78});
+ const hubMat=new T.MeshStandardMaterial({color:0x414b53,metalness:.6,roughness:.51});
+ // The body underframe is above, not through, the secondary air bellows.
+ box(under,'Underframe 中央承载底架',[24.7,.075,.50],[0,1.223,0],framePaint);
+ for(const side of[-1,1])box(under,'Underframe 车底侧梁',[24.7,.09,.16],[0,1.222,side*1.43],framePaint);
+ function cBetween(parent,label,a,b,r,mat=framePaint,r2=r){const m=mesh(parent,label,new T.CylinderGeometry(r2,r,a.distanceTo(b),24),mat,a.clone().add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(Y,b.clone().sub(a).normalize());return m;}
+ function softTube(parent,label,pts,r=.01){return mesh(parent,label,new T.TubeGeometry(new T.CatmullRomCurve3(pts.map(p=>V(...p))),Math.max(20,pts.length*12),r,7,false),hoseMat);}
+ function sheet(parent,label,points,depth,z,mat=framePaint){const sh=new T.Shape();sh.moveTo(...points[0]);for(const p of points.slice(1))sh.lineTo(...p);sh.closePath();const geo=new T.ExtrudeGeometry(sh,{depth,steps:1,bevelEnabled:true,bevelThickness:.007,bevelSize:.007,bevelSegments:2});geo.translate(0,0,-depth/2);return mesh(parent,label,geo,mat,V(0,0,z));}
+ function cappedTube(parent,label,x,y,z,r,h,mat=framePaint){const m=mesh(parent,label,new T.CylinderGeometry(r,r,h,32,1),mat,V(x,y,z));m.rotation.x=Math.PI/2;return m;}
+ function helix(parent,label,x,z,lo,hi,rad=.075,turns=5,wire=.010){const pts=[];for(let i=0;i<=110;i++){const t=i/110,a=t*turns*Math.PI*2;pts.push(V(x+rad*Math.cos(a),lo+(hi-lo)*t,z+rad*Math.sin(a)));}return mesh(parent,label,new T.TubeGeometry(new T.CatmullRomCurve3(pts),126,wire,7,false),springMat);}
+ function eye(parent,label,p,r=.027,inner=.011,depth=.020,mat=framePaint){return ring(parent,label,inner,r,depth,p,mat);}
+ function addAxlebox(wx,side,bc){
+  const z=side*1.015;
+  // Closed bearing body on axle end, cast ribs and bolted end cap.
+  const bearing=mesh(under,'Bogie 轴箱主体 · 圆锥滚子轴承外壳',ringGeo(.054,.155,.19),hubMat,V(wx,.460,z));
+  const out=z+side*.103;
+  ring(under,'Bogie 轴箱密封压盖',.023,.116,.012,[wx,.46,out],machined);
+  ring(under,'Bogie 轴箱检修端盖',0,.092,.013,[wx,.46,out+side*.013],framePaint);
+  for(let k=0;k<8;k++){const a=k*Math.PI/4;cappedTube(under,'Bogie 轴箱端盖螺栓',wx+.125*Math.cos(a),.46+.125*Math.sin(a),out+side*.014,.009,.014,machined);}
+  for(const a of[-.72,.72])box(under,'Bogie 轴箱铸造加强肋',[.115,.016,.18],[wx+a*.12,.46+a*.14,z],framePaint);
+  // Trailing-arm locating structure. It connects the axlebox with a frame pivot.
+  const dir=wx>bc?-1:1;
+  const start=V(wx+dir*.09,.48,z),end=V(wx+dir*.46,.675,side*1.10);
+  cBetween(under,'Bogie 轴箱转臂定位臂',start,end,.058,framePaint);
+  cBetween(under,'Bogie 转臂后端橡胶节点座',V(end.x,end.y,side*1.02),V(end.x,end.y,side*1.18),.061,hubMat);
+  cappedTube(under,'Bogie 轴箱端导向套',wx,.46,z,.065,.20,hubMat);
+  box(under,'Bogie 一系弹簧下托座',[.23,.037,.24],[wx,.626,side*1.08],framePaint);
+  box(under,'Bogie 一系弹簧上帽筒',[.245,.035,.245],[wx,.795,side*1.08],framePaint);
+  helix(under,'Bogie 一系钢圆簧',wx,side*1.08,.657,.772,.078,5.3,.011);
+  for(const yy of[.649,.780])cappedTube(under,'Bogie 一系弹簧端座',wx,yy,side*1.08,.098,.017,hubMat).rotation.set(0,0,0);
+  // Primary vertical damper: real cylinder and piston rod with pinned mountings.
+  const a=V(wx-dir*.18,.62,side*1.26),b=V(wx-dir*.34,.875,side*1.28),v=b.clone().sub(a).normalize();
+  cBetween(under,'Bogie 一系垂向油压减振器缸筒',a.clone().addScaledVector(v,.036),a.clone().addScaledVector(v,.166),.031,hubMat);
+  cBetween(under,'Bogie 一系垂向减振器活塞杆',a.clone().addScaledVector(v,.16),b.clone().addScaledVector(v,-.022),.015,machined);
+  for(const p of[a,b]){
+   eye(under,'Bogie 一系减振器铰接耳环',[p.x,p.y,p.z]);
+   cBetween(under,'Bogie 一系减振器连接销',V(p.x,p.y,p.z-.041),V(p.x,p.y,p.z+.041),.011,machined);
+   for(const dz of[-.041,.041])box(under,'Bogie 一系减振器双耳座',[.078,.061,.012],[p.x,p.y,p.z+dz],framePaint);
   }
  }
+ const rotors=[];
  for(const bc of[-8.9,8.9]){
-  refs.frames.push(box(under,'Bogie H形中央横梁',[.30,.20,2.20],[bc,.85,0],dark));for(const s of[-1,1])refs.frames.push(box(under,'Bogie H形侧梁',[3,.20,.16],[bc,.85,s*1.10],dark));
-  box(under,'Bogie 车体枕梁',[.5,.04,2.54],[bc,1.205,0],steel);
-  for(const s of[-1,1]){const air=mesh(under,'Secondary air spring 重建空气弹簧',new T.CylinderGeometry(.18,.18,.18,40,12),rubber,V(bc,1.07,s*1.10));const p=air.geometry.attributes.position;for(let i=0;i<p.count;i++){const f=1+.045*Math.cos(p.getY(i)*Math.PI*2/.045);p.setX(i,p.getX(i)*f);p.setZ(i,p.getZ(i)*f);}air.geometry.computeVertexNormals();for(const y of[.965,1.175])mesh(under,'Secondary air spring 端板',new T.CylinderGeometry(.20,.20,.02,40),alum,V(bc,y,s*1.10));
-   for(const wx of[bc-1.25,bc+1.25]){const points=[];for(let i=0;i<=128;i++){const t=i/128;points.push(V(wx+.075*Math.cos(12*Math.PI*t),.613+.126*t,s*1.02+.075*Math.sin(12*Math.PI*t)));}mesh(under,'Primary suspension coil 承托弹簧',new T.TubeGeometry(new T.CatmullRomCurve3(points),128,.009,8,false),steel);for(const y of[.6065,.7445])mesh(under,'Primary suspension 弹簧座',new T.CylinderGeometry(.095,.095,.013,32),dark,V(wx,y,s*1.02));addPrimaryDamper(wx,s);}
+  const bg=group(under,'Bogie SWT-400E1 拖车转向架底盘 '+(bc<0?'A':'B'));
+  // Longitudinal box side members, formed U profile. Span wheelsets rather than fill the gap.
+  for(const side of[-1,1]){
+   const xs=[-1.61,-1.46,-1.28,-1.02,-.68,-.42,.42,.68,1.02,1.28,1.46,1.61];
+   const top=[.924,.951,.965,.944,.910,.892,.892,.910,.944,.965,.951,.924];
+   const profile=xs.map((x,i)=>[bc+x,top[i]]).concat(xs.map((x,i)=>[bc+x,top[i]-.201]).reverse());
+   refs.frames.push(sheet(bg,'Bogie H形箱型侧梁 · 变截面U形',profile,.195,side*1.13,framePaint));
+   for(const x of[-1.35,-.75,.75,1.35])box(bg,'Bogie 侧梁焊接加强板',[.105,.02,.225],[bc+x,.90,side*1.13],machined);
+   // The 2360 mm spacing is measured between air spring centers.
+   box(bg,'Bogie 空气弹簧托梁',[.63,.070,.53],[bc,.909,side*1.18],framePaint);
+   box(bg,'Bogie 空气弹簧承座',[.58,.028,.54],[bc,.950,side*1.18],machined);
+   // Rubber bellows (effective diameter 534 mm): top and bottom ring plates.
+   const profileAir=[[0,.0],[.218,.0],[.244,.012],[.255,.047],[.230,.071],[.257,.099],[.260,.125],[.231,.148],[.253,.176],[.246,.201],[.225,.216],[0,.216]].map(([r,y])=>new T.Vector2(r,y));
+   mesh(bg,'Bogie 二系空气弹簧 · 橡胶气囊',new T.LatheGeometry(profileAir,48),hoseMat,V(bc,.970,side*1.18));
+   for(const [y,r,t,mat]of[[.968,.261,.019,framePaint],[1.188,.253,.018,machined],[1.223,.216,.018,hubMat]]){
+    mesh(bg,'Bogie 二系空气弹簧上下法兰',new T.CylinderGeometry(r,r,t,48),mat,V(bc,y,side*1.18));
+   }
+   box(bg,'Bogie 车体侧空气弹簧承载板',[.60,.056,.59],[bc,1.259,side*1.18],framePaint);
+   // Antihunting yaw dampers outside the side member, reaching a separate carbody bracket.
+   const a=V(bc-.82,.92,side*1.39),b=V(bc+.66,1.154,side*1.43),v=b.clone().sub(a).normalize();
+   cBetween(bg,'Bogie 抗蛇行油压减振器缸筒',a.clone().addScaledVector(v,.085),a.clone().addScaledVector(v,.64),.041,hubMat);
+   cBetween(bg,'Bogie 抗蛇行减振器活塞杆',a.clone().addScaledVector(v,.58),b.clone().addScaledVector(v,-.054),.020,machined);
+   for(const p of[a,b]){
+    cBetween(bg,'Bogie 抗蛇行减振器端部横销',V(p.x,p.y,p.z-.085),V(p.x,p.y,p.z+.085),.016,machined);
+    box(bg,'Bogie 抗蛇行减振器铰座',[.13,.083,.035],[p.x,p.y-.055,p.z],framePaint);
+   }
+  }
+  // CR400AF has TWO transverse seamless tubes (not a solid cross-member slab).
+  for(const dx of[-.42,.42]){
+   const a=V(bc+dx,.798,-1.095),b=V(bc+dx,.798,1.095);
+   cBetween(bg,'Bogie H形构架 · 无缝钢管横梁',a,b,.091,framePaint);
+   for(const side of[-1,1]){
+    cBetween(bg,'Bogie 横梁与侧梁焊接套管',V(bc+dx,.798,side*1.01),V(bc+dx,.798,side*1.15),.110,hubMat);
+   }
+  }
+  for(const side of[-1,1]){
+   box(bg,'Bogie 两横梁间纵向连接梁',[.88,.12,.14],[bc,.792,side*.37],framePaint);
+   if(side===-1)cBetween(bg,'Bogie 抗侧滚扭杆横向杆',V(bc+.69,1.014,-1.27),V(bc+.69,1.014,1.27),.023,hubMat);
+   const za=side*1.27;
+   cBetween(bg,'Bogie 抗侧滚扭杆竖向连杆',V(bc+.69,.97,za),V(bc+.89,.82,side*1.13),.016,machined);
+   for(const x of[bc+.69,bc+.89])cappedTube(bg,'Bogie 抗侧滚扭杆球铰',x,x===bc+.69?.97:.82,za,.028,.030,framePaint);
+  }
+  // Centre draw gear and single longitudinal traction link (not a rigid bolster).
+  box(bg,'Bogie 中央牵引座',[.48,.13,.55],[bc,.955,0],framePaint);
+  cBetween(bg,'Bogie 中央牵引拉杆',V(bc-.63,.976,0),V(bc+.43,.976,0),.064,hubMat);
+  for(const dx of[-.63,.43])cBetween(bg,'Bogie 中央牵引杆弹性节点',V(bc+dx,.976,-.12),V(bc+dx,.976,.12),.054,framePaint);
+  box(bg,'Bogie 车体中央牵引固定座',[.26,.10,.39],[bc+.46,1.21,0],machined);
+  cBetween(bg,'Bogie 中央牵引竖向连接',V(bc+.43,1.00,0),V(bc+.46,1.16,0),.038,framePaint);
+  for(const dx of[-1.25,1.25]){
+   const wx=bc+dx;
+   // Each wheelset must have exactly 3 axle-mounted brake discs. This is a trailer bogie.
+   const rotor=group(under,'Bogie 轴装制动盘和车轴 · 随轮对同步旋转');rotor.position.set(wx,.46,0);rotors.push(rotor);
+   ring(rotor,'Bogie 空心车轴 · 车轴内孔',.015,.051,2.18,[0,0,0],machined);
+   for(const zz of[-.435,0,.435]){
+    // Two friction faces sandwich a ventilated web and a central hub.
+    ring(rotor,'Bogie 轴装制动盘 · 中心毂套',.052,.145,.067,[0,0,zz],hubMat);
+    ring(rotor,'Bogie 轴装制动盘 · 制动摩擦面A',.145,.285,.019,[0,0,zz-.029],discMat);
+    ring(rotor,'Bogie 轴装制动盘 · 制动摩擦面B',.145,.285,.019,[0,0,zz+.029],discMat);
+    for(let k=0;k<16;k++){
+     const a=k*Math.PI/8;
+     cappedTube(rotor,'Bogie 轴装通风制动盘 · 中间导流筋',.220*Math.cos(a),.220*Math.sin(a),zz,.016,.045,hubMat);
+    }
+    for(let k=0;k<8;k++){
+     const a=k*Math.PI/4;
+     cappedTube(rotor,'Bogie 轴装制动盘轮毂螺栓',.115*Math.cos(a),.115*Math.sin(a),zz+.045,.009,.018,machined);
+    }
+    // Brake shoes grip the OUTER disc annulus; the supporting yoke stays stationary.
+    const xPad=wx+.175,yy=.46+.205;
+    for(const offset of[-.053,.053]){
+     box(under,'Bogie 轴盘制动夹钳闸片',[.078,.105,.013],[xPad,yy,zz+offset],padMat);
+     box(under,'Bogie 制动夹钳夹持臂',[.095,.125,.023],[xPad+.062,yy+.068,zz+offset*1.53],caliperMat);
+    }
+    box(under,'Bogie 制动夹钳跨接桥',[.11,.064,.215],[xPad+.108,yy+.132,zz],caliperMat);
+    cBetween(under,'Bogie 制动缸与夹钳传力杆',V(xPad+.11,yy+.14,zz),V(xPad+.13,yy+.235,zz),.024,machined);
+    // Vehicle frame hanger to the caliper body, kept outside the disc sweep.
+    cBetween(under,'Bogie 基础制动吊杆',V(xPad+.12,yy+.19,zz),V(wx+Math.sign(dx)*.44,.87,zz),.022,framePaint);
+    box(under,'Bogie 基础制动支架',[.125,.044,.12],[wx+Math.sign(dx)*.44,.88,zz],framePaint);
+   }
+   for(const side of[-1,1])addAxlebox(wx,side,bc);
+  }
+  // Braking and height-control hoses are visible but not rigid bars.
+  for(const side of[-1,1]){
+   softTube(bg,'Bogie 空气弹簧高度控制阀气管',[[bc,1.22,side*1.18],[bc+.30,1.15,side*1.14],[bc+.36,1.02,side*1.27],[bc+.48,.97,side*1.30]],.009);
+   box(bg,'Bogie 空气弹簧高度阀',[.18,.105,.12],[bc+.47,.983,side*1.29],machined);
+   softTube(bg,'Bogie 制动空气软管',[[bc-.3,1.05,side*.8],[bc-.05,.91,side*.65],[bc+.35,.78,side*.5],[bc+.98,.75,side*.45]],.012);
   }
  }
+ function rotateRotors(){const travel=train.position.x+24;for(const r of rotors)r.rotation.z=-travel/.46;}
+ rotateRotors();
+ const bogieDrive={update:rotateRotors,rotors,kind:'SWT-400E1',wheelbase:2.5,diameter:.92,axleDiscs:3};
  for(const o of old){const n=nameOf(o);if(/^Wheel tread(?:\.|$)/.test(n)){
    const sign=Math.sign(o.position.z),profile=[[.0805,-.092],[.15,-.092],[.16,-.052],[.33,-.032],[.39,-.043],[.455,-.065],[.46,.044],[.485,.056],[.485,.072],[.445,.079],[.36,.051],[.18,.043],[.15,.092],[.0805,.092],[.0805,-.092]].map(([r,y])=>new T.Vector2(r,-y*sign));if(sign<0)profile.reverse();o.geometry=new T.LatheGeometry(profile,96);const wi=o.geometry.index.array;for(let i=0;i<wi.length;i+=3){const t=wi[i+1];wi[i+1]=wi[i+2];wi[i+2]=t;}o.geometry.computeVertexNormals();o.material=steel;o.userData.sourceName=n+' · 整体轮缘踏面轮辐轮毂与轴孔';refs.wheels.push(o);
-  }else if(/^Axlebox(?:\.|$)/.test(n)){o.geometry=ringGeo(.081,.14,.18);o.quaternion.identity();o.material=dark;for(const z of[-.095,.095])ring(o,'Axlebox 轴承端盖',.081,.125,.01,[0,0,z],alum);for(let k=0;k<6;k++)ring(o,'Axlebox 端盖螺栓',0,.009,.012,[.112*Math.cos(k*Math.PI/3),.112*Math.sin(k*Math.PI/3),.106],alum);}
+  }
  }
- function update(time){const p=pose(thetaAt(time));elbow.position.copy(p.B);head.position.copy(p.C);head.quaternion.setFromAxisAngle(Z,p.angle);for(const key of['A','B','C','D','E'])joints[key].position.copy(p[key]);pickup.position.copy(p.F);
+ function update(time){bogieDrive.update();const p=pose(thetaAt(time));elbow.position.copy(p.B);head.position.copy(p.C);head.quaternion.setFromAxisAngle(Z,p.angle);for(const key of['A','B','C','D','E'])joints[key].position.copy(p[key]);pickup.position.copy(p.F);
   for(let i=0;i<2;i++){place(refs.lower[i],p.A,p.B);place(refs.upper[i],p.B,p.C);place(refs.crank[i],p.B,p.E);place(refs.pull[i],p.D,p.E);place(refs.level[i],p.F,p.G);}cam.position.copy(p.A);cam.rotation.z=p.theta;
   const px=flangeX(p.theta),len=px-fixedX;bellMesh.position.set((fixedX+px)/2,4.38,0);bellMesh.scale.y=len;movingFlange.position.set(px,4.38,0);
   const high=V(.85*Math.cos(p.theta),4.32+.85*Math.sin(p.theta),.58),dir=high.clone().sub(damLow).normalize();damHighPin.position.set(high.x,high.y,0);const b0=damLow.clone().addScaledVector(dir,.065),b1=damLow.clone().addScaledVector(dir,.315);barrel.position.copy(b0).add(b1).multiplyScalar(.5);barrel.quaternion.setFromUnitVectors(Z,dir);const rodEnd=high.clone().addScaledVector(dir,-.035);piston.position.copy(rodEnd).addScaledVector(dir,-.2);piston.quaternion.setFromUnitVectors(Y,dir);gland.position.copy(b1);gland.quaternion.copy(barrel.quaternion);eyes[0].position.copy(damLow);eyes[1].position.copy(high);
   const originalFlange=find('Bellows moving flange');if(originalFlange)originalFlange.position.set(px,4.38,0);return {...p,px};
  }
  for(const o of[bellMesh,movingFlange,barrel,piston,gland,...eyes])dynamicObjects.add(o);
- update(1/24);return{update,pose,thetaAt,refs,ropeLength,ropeConstant,params:{L1,L2,CR,TIE,levLen,down,up}};
+ update(1/24);return{update,pose,thetaAt,refs,bogieDrive,ropeLength,ropeConstant,params:{L1,L2,CR,TIE,levLen,down,up}};
 }
 
 // CN101722867B topology; local dimensions and low-speed fault dynamics are teaching estimates.
@@ -252,16 +379,16 @@ let brakeFocus='assembly';const followAnchor=new T.Vector3();
 const V=(x,y,z)=>new T.Vector3(x,y,z),Z=V(0,0,1),startTime=1/24;
 const layers={body:true,interior:true,roof:true,station:true,canopy:true,catenary:true,compensators:true,pantograph:true,undercarriage:true,track:true};
 const views=[
-{id:'station',title:'站台与列车',en:'STATION & TRAIN',subtitle:'沿着接触网，追踪电能进入列车的第一步。',eye:[25,17,39],target:[-3,2,-1.8],lesson:'持续取电的起点',text:'观察单节受电弓拖车、站台与接触网的空间关系。列车的受电弓向上接触导线，车轮则始终与钢轨接触。',key:'从导线到列车的取电过程，依靠稳定的弓网接触。'},
+{id:'station',title:'站台与列车',en:'STATION & TRAIN',subtitle:'沿着接触网，追踪电能进入列车的第一步。',eye:[25,17,39],target:[-3,2,-1.8],lesson:'持续取电的起点',text:'观察一节 Tp 受电弓拖车与前方相邻的头车、站台及接触网的空间关系。列车的受电弓向上接触导线，车轮则始终与钢轨接触。',key:'从导线到列车的取电过程，依靠稳定的弓网接触。'},
 {id:'overview',title:'供电线路全景',en:'THE WHOLE SYSTEM',subtitle:'把支撑、悬挂与端部张力补偿连成整体。',eye:[85,90,145],target:[0,3,0],lesson:'导线为什么保持张紧',text:'接触网由支柱和腕臂支撑，承力索通过吊弦悬挂接触线。线路端部的坠砣补偿温度变化引起的线索伸缩。',key:'承力索与接触线分别下锚、分别补偿，不能把两组绳路混接。'},
 {id:'compensation',title:'张力补偿装置',en:'TENSION COMPENSATION',subtitle:'沿着轮槽和切线，检查钢丝绳的每一处连接。',eye:[-69,9.2,14],target:[-77,4.4,3.6],lesson:'温度变，张力尽量不变',text:'大轮上的钢丝绳向下连接坠砣；两侧小轮的连续绳经过平衡轮，再通过绝缘子连接线索。固定导向杆限制坠砣横向摆动。',key:'升温时线索伸长，坠砣下降。正常补偿允许双向转动，制动卡板与棘齿保持间隙。'},
 {id:'pantograph',title:'受电弓升降机构',en:'PANTOGRAPH MECHANISM',subtitle:'固定杆长、闭合铰点，观察升降过程中的联动。',eye:[-8,6.7,5.4],target:[-6,4.8,0],follow:true,lesson:'谁驱动，谁抑制振动',text:'气囊通过钢丝绳与凸轮产生升弓力矩；下臂、上臂和拉杆联动展开。弓头平衡杆控制姿态，阻尼器通过活塞杆滑动抑制过快运动。',key:'气囊属于升弓驱动系统；阻尼器负责抑制运动与振动，不是主动升弓的作动器。'},
 {id:'carbon',title:'碳滑板接触区域',en:'CONTACT & SWEPT AREA',subtitle:'看清接触点怎样沿滑板横向移动。',eye:[-6,8.8,.1],target:[-6,5.25,0],follow:true,lesson:'为什么不会只磨一个位置',text:'接触线沿线路方向按“之”字形布置。列车行进时，导线在碳滑板上的横向接触位置随之改变。金色标记显示当前接触点。',key:'橙色标记是本流程已划过的区域，代表接触路径；不表示瞬时磨耗或发热。'},
 {id:'interior',title:'车厢内部',en:'PASSENGER INTERIOR',subtitle:'进入客室，观察车窗、座椅与中央过道。',eye:[8.8,2.65,-.225],target:[-8,2.3,-.225],follow:true,fov:70,lesson:'一节车厢里的空间',text:'客室设有 18 排 3+2 座椅，共 90 席。可观察中央过道、透明车窗、行李架、扶手、头枕和灯带。剖切功能用于从外部查看内部布置。',key:'座椅、车窗节距与设备外形为参考重建，不能作为特定车号的制造尺寸。'},
-{id:'bogie',title:'轮轨与转向架',en:'WHEEL–RAIL CONTACT',subtitle:'靠近轨面，观察轮缘、轮对与悬挂。',eye:[-7,1.5,4.2],target:[-8.9,.63,0],follow:true,lesson:'支承、导向与滚动',text:'两只车轮通过车轴组成轮对，转向架负责支承车体并引导运行。观察轮缘与钢轨内侧的相对位置，以及车轮滚动时的转动方向。',key:'本车是受电弓拖车；这里观察轮轨与悬挂，不展示牵引电机齿轮。'}
+{id:'bogie',title:'轮轨与转向架',en:'WHEEL–RAIL CONTACT',subtitle:'SWT-400E1 拖车转向架 · 轮对、双横梁、悬挂及轴盘制动。',eye:[-7,2.45,4.45],target:[-8.9,.79,0],follow:true,lesson:'SWT-400E1 · 两轴无摇枕拖车转向架',text:'两轮对固定轴距 2500 mm；新轮直径 920 mm。H形焊接构架包含两根管状横梁，轴箱由转臂定位，一系钢簧和二系空气弹簧分级隔振。每根拖车车轴安装三片轴装制动盘。',key:'Tp 拖车不安装牵引电机与齿轮箱。可点击轴箱、两系悬挂、抗蛇行减振器、制动夹钳和牵引拉杆，逐一检查连接。'}
 ];
 const layerLabels={body:'车体与车窗',interior:'客室与座椅',roof:'车顶与内顶棚',station:'站台设施',canopy:'雨棚顶板',catenary:'接触网与支柱',compensators:'张力补偿装置',pantograph:'受电弓',undercarriage:'转向架与车底',track:'轨道与地基'};
-for(const [i,v]of views.entries()){const b=document.createElement('button');b.className='view-btn'+(i===0?' active':'');b.dataset.view=v.id;b.innerHTML=`<span class="num">0${i+1}</span><span><strong>${v.title}</strong><small>${v.en}</small></span>`;b.onclick=()=>setView(v.id);$('viewNav').append(b);}
+for(const [i,v]of views.entries()){const b=document.createElement('button');b.className='view-btn'+(i===0?' active':'');b.dataset.view=v.id;b.innerHTML=`<span class="num">0${i+1}</span><span><strong>${v.title}</strong><small>${v.en}</small></span>`;b.onclick=()=>{if(tour.active)tour.stop();setView(v.id);};$('viewNav').append(b);}
 for(const [id,title]of Object.entries(layerLabels)){const l=document.createElement('label');l.className='check';l.innerHTML=`<input type="checkbox" data-layer="${id}" checked>${title}`;l.querySelector('input').onchange=e=>{layers[id]=e.target.checked;applyVisibility();};$('layers').append(l);}
 for(const e of document.querySelectorAll('button,input,select'))e.disabled=true;
 let renderer;try{renderer=new T.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});}catch(e){software=true;const replacement=document.createElement('canvas');replacement.id='canvas';replacement.setAttribute('aria-label','可交互的高铁三维教学模型');canvas.replaceWith(replacement);canvas=replacement;renderer=new RailCanvasRenderer(canvas,T);}
@@ -315,15 +442,460 @@ for(const b of batches.values()){
  const merged=mergeGeometries(geos,false);if(!merged){for(const o of b.list){perLayer[b.layer].push(o);nativeMeshes.push(o);}continue;}
  merged.computeBoundingSphere();const mesh=new T.Mesh(merged,b.mat);mesh.userData={layer:b.layer,ranges,sourceName:layerLabels[b.layer]};mesh.castShadow=!['track'].includes(b.layer);mesh.receiveShadow=true;b.anchor.add(mesh);perLayer[b.layer].push(mesh);for(const o of b.list)o.visible=false;for(const g of geos)g.dispose();batchCount++;if(batchCount%30===0)await new Promise(requestAnimationFrame);
 }
+// Educational CR400AF leading cab car, adjacent to the supplied Tp coach.
+// Photographic references inform the shape; local panels and dimensions are inferred.
+// CR400AF standard (non-Z) 'Feilong' head car.
+// Dimensioned envelope from published model data; curved appearance is a photo-calibrated
+// teaching reconstruction, not manufacturer CAD / CFD / production surface data.
+function addLeadingCabCar(){
+ const cab=new T.Group();cab.name='CR400AF 普通型飞龙头车 · 端面匹配与风挡修复';train.add(cab);
+ const mats={
+  silver:new T.MeshPhysicalMaterial({color:0xcbd2d4,metalness:.49,roughness:.34,clearcoat:.24,clearcoatRoughness:.35,side:T.DoubleSide}),
+  roof:new T.MeshStandardMaterial({color:0xb6c1c6,metalness:.45,roughness:.38,side:T.DoubleSide}),
+  lower:new T.MeshStandardMaterial({color:0x69777d,metalness:.57,roughness:.46,side:T.DoubleSide}),
+  glass:new T.MeshPhysicalMaterial({color:0x09232b,metalness:.11,roughness:.13,clearcoat:.87,clearcoatRoughness:.07,side:T.DoubleSide}),
+  windscreen:new T.MeshPhysicalMaterial({color:0x102932,metalness:.08,roughness:.22,clearcoat:.55,clearcoatRoughness:.13,side:T.DoubleSide}),
+  trim:new T.MeshStandardMaterial({color:0x1c252b,metalness:.20,roughness:.35,side:T.DoubleSide}),
+  red:new T.MeshPhysicalMaterial({color:0xb51d34,metalness:.26,roughness:.31,clearcoat:.65,side:T.DoubleSide}),
+  darkred:new T.MeshStandardMaterial({color:0x7f172b,metalness:.29,roughness:.35,side:T.DoubleSide}),
+  wheel:new T.MeshStandardMaterial({color:0x3b454c,metalness:.63,roughness:.43}),
+  steel:new T.MeshStandardMaterial({color:0x7c898f,metalness:.76,roughness:.34}),
+  light:new T.MeshStandardMaterial({color:0xf2f1df,emissive:0x9eaa9a,emissiveIntensity:.22,roughness:.18,side:T.DoubleSide}),
+  rubber:new T.MeshStandardMaterial({color:0x323c41,roughness:.75})
+ };
+ const objects=[];
+ function add(mesh,name,layer='body'){
+  mesh.name=name;mesh.userData.sourceName=name;mesh.userData.layer=layer;
+  mesh.castShadow=layer==='body';mesh.receiveShadow=true;cab.add(mesh);
+  objects.push(mesh);perLayer[layer].push(mesh);return mesh;
+ }
+ function box(name,pos,dim,material,layer='body'){
+  const obj=new T.Mesh(new T.BoxGeometry(...dim),material);obj.position.set(...pos);return add(obj,name,layer);
+ }
+ function cylinder(name,pos,r,depth,material,layer='undercarriage',rotateX=Math.PI/2){
+  const obj=new T.Mesh(new T.CylinderGeometry(r,r,depth,32),material);obj.rotation.x=rotateX;obj.position.set(...pos);return add(obj,name,layer);
+ }
+ // CR400AF standard Feilong: defined reference envelope (not manufacturing CAD).
+ // Longitudinal X; Y vertical; Z lateral. Nose profile is broad and low rather than needle-shaped.
+ // 27.525 m total length; the front cap is a filled, sealed, slightly convex oval.
+ const rings=[
+  [12.880,2.585,1.480,1.680], [16,2.585,1.480,1.680], [22,2.585,1.480,1.680],
+  [27.7,2.585,1.478,1.680], [29.2,2.590,1.474,1.678],
+  [30.35,2.585,1.470,1.660], [31.3,2.568,1.452,1.638],
+  [32.30,2.530,1.400,1.593], [33.25,2.470,1.327,1.535],
+  [34.15,2.395,1.230,1.464], [35.05,2.308,1.139,1.375],
+  [35.90,2.220,1.048,1.280], [36.65,2.145,.948,1.180],
+  [37.35,2.070,.844,1.066], [38.05,2.010,.715,.944],
+  [38.65,1.960,.596,.817], [39.20,1.919,.487,.688],
+  [39.65,1.885,.357,.665], [39.96,1.858,.289,.585],
+  [40.20,1.838,.242,.535], [40.405,1.821,.193,.475]
+ ];
+ function sample(x){
+  let i=0;while(i<rings.length-2&&x>rings[i+1][0])i++;
+  const a=rings[i],b=rings[i+1],d=b[0]-a[0],u=Math.max(0,Math.min(1,(x-a[0])/d)),res=[x];
+  for(let k=1;k<=3;k++){
+   const p=rings[Math.max(0,i-1)],q=rings[Math.min(rings.length-1,i+2)];
+   const m0=(b[k]-p[k])/(b[0]-p[0])*d,m1=(q[k]-a[k])/(q[0]-a[0])*d;
+   res.push((2*u*u*u-3*u*u+1)*a[k]+(u*u*u-2*u*u+u)*m0+(-2*u*u*u+3*u*u)*b[k]+(u*u*u-u*u)*m1);
+  }
+  return res;
+ }
+ const ease=(u)=>{u=Math.max(0,Math.min(1,u));return u*u*(3-2*u);};
+ function point(x,ang,offset=0){
+  const [,cy,h,w]=sample(x),c=Math.cos(ang),ss=Math.sin(ang);
+  const nose=ease((x-31.0)/3.0)*(1-ease((x-39.75)/.7));
+  const a=Math.atan2(Math.abs(ss),Math.abs(c));
+  const gaussian=(u,m,sd)=>Math.exp(-.5*Math.pow((u-m)/sd,2));
+  // Three subtle crests on each flank (six principal lines total).
+  // Modeled as surface sculpt, not separate wires glued to the body.
+  const sculpt=nose*(.047*gaussian(a,.22,.065)-.028*gaussian(a,.37,.072)
+                    +.041*gaussian(a,.59,.075)-.020*gaussian(a,.79,.075)
+                    +.020*gaussian(a,1.07,.10));
+  // Match the original Tp car's straight side walls and arched roof at the rear.
+  // The aerodynamic rounded cross-section fades in only at the driver's cab.
+  const shoulder=a<=.615;
+  let bz,by;
+  if(ss>=0){
+   if(shoulder){bz=w+offset;by=cy+(h+offset)*.590*(a/.615);}
+   else{const u=(a-.615)/(Math.PI/2-.615);
+    bz=(w+offset)*Math.pow(Math.cos(u*Math.PI/2),.68);
+    by=cy+(h+offset)*(.590+.410*Math.sin(u*Math.PI/2));}
+  }else{
+   if(a<=1.015){bz=w+offset;by=cy-(h+offset)*.870*(a/1.015);}
+   else{const u=(a-1.015)/(Math.PI/2-1.015);
+    bz=(w+offset)*Math.pow(Math.cos(u*Math.PI/2),.64);
+    by=cy-(h+offset)*(.870+.130*Math.sin(u*Math.PI/2));}
+  }
+  const rearMix=ease((x-27.9)/5.4);
+  const ovalZ=(w+offset)*Math.pow(Math.abs(c),.80)+sculpt*Math.pow(Math.abs(c),.48);
+  const ovalY=cy+(h+offset)*Math.sign(ss)*Math.pow(Math.abs(ss),.79);
+  return[x,by*(1-rearMix)+ovalY*rearMix,Math.sign(c)*(bz*(1-rearMix)+ovalZ*rearMix)];
+ }
+ function surface(name,x0,x1,thetaLo,thetaHi,material,offset=.022,layer='body',nx=40,nt=16){
+  const pos=[],inds=[];
+  for(let i=0;i<=nx;i++){
+   const u=i/nx,x=x0+(x1-x0)*u,low=typeof thetaLo==='function'?thetaLo(u,x):thetaLo,
+         hi=typeof thetaHi==='function'?thetaHi(u,x):thetaHi;
+   for(let j=0;j<=nt;j++)pos.push(...point(x,low+(hi-low)*j/nt,offset));
+  }
+  for(let i=0;i<nx;i++)for(let j=0;j<nt;j++){
+   const a=i*(nt+1)+j,b=a+nt+1;
+   inds.push(a,b,a+1,a+1,b,b+1);
+  }
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setIndex(inds);g.computeVertexNormals();
+  return add(new T.Mesh(g,material),name,layer);
+ }
+ const positions=[],indices=[],radial=80,sections=224;
+ for(let i=0;i<=sections;i++){
+  const x=12.880+(40.405-12.880)*i/sections;
+  for(let j=0;j<=radial;j++)positions.push(...point(x,Math.PI*2*j/radial));
+ }
+ for(let i=0;i<sections;i++)for(let j=0;j<radial;j++){
+  const a=i*(radial+1)+j,b=a+radial+1;indices.push(a,b,a+1,a+1,b,b+1);
+ }
+ const geom=new T.BufferGeometry();geom.setAttribute('position',new T.Float32BufferAttribute(positions,3));geom.setIndex(indices);geom.computeVertexNormals();
+ add(new T.Mesh(geom,mats.silver),'CR400AF 飞龙 · 六主棱反弧连续车壳');
+ // The former head-car rear ended with an open ellipse x=12.88, 0.38 m from
+ // the Tp coach's x=12.50 end wall. Seal it and bridge that gap explicitly.
+ // 1) Rear partition with a central *intended* passenger gangway aperture.
+ const rearX=12.880,joiningRadial=80,wallVerts=[],wallTriangles=[];
+ for(let j=0;j<=joiningRadial;j++){
+  const theta=j*2*Math.PI/joiningRadial;
+  const outer=point(rearX,theta,-.003);
+  const inner=[rearX-.008,2.355+1.010*Math.sin(theta),.575*Math.cos(theta)];
+  wallVerts.push(...outer,...inner);
+ }
+ for(let j=0;j<joiningRadial;j++){
+  const n=j*2;wallTriangles.push(n,n+1,n+2,n+1,n+3,n+2);
+ }
+ const wallGeo=new T.BufferGeometry();wallGeo.setAttribute('position',new T.Float32BufferAttribute(wallVerts,3));
+ wallGeo.setIndex(wallTriangles);wallGeo.computeVertexNormals();
+ add(new T.Mesh(wallGeo,mats.silver),'CR400AF 头车尾端封闭端墙 · 保留贯通道','body');
+ // 2) Continuous exterior wind-shield sleeve. The Tp car's rear end and our
+ // head car use the same rear profile; the rubber is compressed into a *slim*
+ // band, rather than the old protruding white oval ring.
+ const sealMat=new T.MeshStandardMaterial({color:0x5b666a,metalness:.15,roughness:.83,side:T.DoubleSide});
+ function connectionSkin(name,x0,x1,material,offset,nu=10){
+  const verts=[],faces=[];
+  for(let i=0;i<=nu;i++){
+   const x=x0+(x1-x0)*i/nu;
+   for(let j=0;j<=joiningRadial;j++){
+    const th=2*Math.PI*j/joiningRadial;
+    verts.push(...point(x,th,offset));
+   }
+  }
+  for(let i=0;i<nu;i++)for(let j=0;j<joiningRadial;j++){
+   const a=i*(joiningRadial+1)+j,b=a+joiningRadial+1;
+   faces.push(a,b,a+1,a+1,b,b+1);
+  }
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(verts,3));
+  g.setIndex(faces);g.computeVertexNormals();
+  return add(new T.Mesh(g,material),name,'body');
+ }
+ connectionSkin('CR400AF 车端外风挡 · 前侧平顺蒙皮',12.495,12.648,mats.silver,.002,8);
+ connectionSkin('CR400AF 车端压缩橡胶外风挡 · 狭缝',12.648,12.697,sealMat,-.010,3);
+ connectionSkin('CR400AF 车端外风挡 · 后侧平顺蒙皮',12.697,12.893,mats.silver,.002,9);
+ // 3) Inside the central opening, connect the two existing gangways without
+ // blocking passengers' passage. This is a visual sleeve, not rigid CAD.
+ const innerSeal=new T.MeshStandardMaterial({color:0x424b4c,roughness:.86,side:T.DoubleSide});
+ const tunnelV=[],tunnelI=[];
+ const tunnelX=[12.70,12.90];
+ for(const x of tunnelX)for(let j=0;j<=joiningRadial;j++){
+  const th=2*Math.PI*j/joiningRadial;
+  tunnelV.push(x,2.355+1.015*Math.sin(th),.577*Math.cos(th));
+ }
+ for(let j=0;j<joiningRadial;j++){
+  const a=j,b=j+joiningRadial+1;tunnelI.push(a,b,a+1,a+1,b,b+1);
+ }
+ const tunnelG=new T.BufferGeometry();tunnelG.setAttribute('position',new T.Float32BufferAttribute(tunnelV,3));
+ tunnelG.setIndex(tunnelI);tunnelG.computeVertexNormals();
+ add(new T.Mesh(tunnelG,innerSeal),'CR400AF 车间贯通道柔性内风挡','body');
+
+ // The former geometry was an uncapped tube. Construct a filled convex cover, not a hollow ring.
+ const capX=40.405,capCenter=sample(capX),capRim=[],capPositions=[],capIndices=[];
+ capPositions.push(40.429,capCenter[1],0);
+ for(let j=0;j<=radial;j++){
+  const theta=2*Math.PI*j/radial;
+  let v=point(capX,theta,.003);v[0]+= .008;
+  capPositions.push(...v);if(j<radial)capIndices.push(0,j+1,j+2);
+  capRim.push(new T.Vector3(...v));
+ }
+ const capGeo=new T.BufferGeometry();capGeo.setAttribute('position',new T.Float32BufferAttribute(capPositions,3));capGeo.setIndex(capIndices);capGeo.computeVertexNormals();
+ const noseCapMat=mats.silver;
+ add(new T.Mesh(capGeo,noseCapMat),'CR400AF 前端闭合式自动车钩罩盖');
+ const lipCurve=new T.CatmullRomCurve3(capRim.slice(0,-1),true,'centripetal');
+ // No contrasting tube lip: it looked like a hollow circular inlet in previous versions.
+ // The seam of the flush access panel is represented separately on the lower nose.
+ // Slender 3-D seam along nose underside, with a filled body behind it.
+ // Standard under-window passenger glazing and level red side belt.
+ const sideAngles=(side,low,high)=>side>0?[low,high]:[Math.PI-high,Math.PI-low];
+ for(const side of [-1,1]){
+  let[lo,hi]=sideAngles(side,-.03,.34);
+  surface('CR400AF 头车纵列侧窗',14.0,28.32,lo,hi,mats.glass,.032,'body',82,10);
+  for(let x=14.65;x<27.8;x+=2.35)
+   surface('CR400AF 客室侧窗立柱',x,x+.055,lo,hi,mats.trim,.044,'body',2,8);
+  // The Tp coach's red belt is y=2.10..2.22. Keep the new belt level
+  // at the junction, then blend into the normal aerodynamic side section.
+  const beltT=(x)=>ease((x-26.7)/3.0);
+  const beltLo=(u,x)=>-.355*(1-beltT(x))-.210*beltT(x);
+  const beltHi=(u,x)=>-.285*(1-beltT(x))-.180*beltT(x);
+  surface('CR400AF 普通型侧面细红腰线',12.50,29.3,
+    side>0?beltLo:(u,x)=>Math.PI-beltHi(u,x),
+    side>0?beltHi:(u,x)=>Math.PI-beltLo(u,x),mats.red,.041,'body',94,3);
+  [lo,hi]=sideAngles(side,-.68,-.57);
+  surface('CR400AF 头车底部保护灰带',13.3,28.6,lo,hi,mats.lower,.024,'body',65,5);
+  // Angular cab-side quarter light blends forward from the continuous passenger-window belt.
+  const sl=(u)=>.11+.32*ease(u), sh=(u)=>.33+.29*ease(u);
+  const frameLow=side>0?sl:(u)=>Math.PI-sh(u);
+  const frameHigh=side>0?sh:(u)=>Math.PI-sl(u);
+  surface('CR400AF 司机室三角侧窗 · 黑色密封框',27.95,33.18,frameLow,frameHigh,mats.trim,.031,'body',53,12);
+  const vlow=(u)=>.14+.32*ease(u),vhigh=(u)=>.30+.28*ease(u);
+  surface('CR400AF 司机室三角侧窗 · 嵌入式玻璃',28.16,32.95,
+    side>0?vlow:(u)=>Math.PI-vhigh(u),side>0?vhigh:(u)=>Math.PI-vlow(u),mats.glass,.045,'body',53,10);
+  // Red 'dragon whisker': one bounded wedge that grows then tapers to a thin curved line.
+  const redGuide=[[28.0,2.34,.015],[29.5,2.43,.095],[31,2.55,.22],
+   [32.55,2.60,.315],[33.9,2.62,.260],[35.2,2.55,.190],[36.6,2.38,.115],
+   [37.8,2.19,.058],[39.25,1.99,.008]];
+  function redAt(x,k){let i=0;while(i<redGuide.length-2&&x>redGuide[i+1][0])i++;
+   const a=redGuide[i],b=redGuide[i+1],u=ease((x-a[0])/(b[0]-a[0]));return a[k]+(b[k]-a[k])*u;}
+  function stripeAngle(x,upper){const [,cy,h]=sample(x);
+   const val=(redAt(x,1)+(upper?1:-1)*redAt(x,2)-cy)/h;
+   const angle=Math.asin(Math.max(-.985,Math.min(.985,val)));
+   return side>0?angle:Math.PI-angle;}
+  const bot=(u,x)=>stripeAngle(x,false),top=(u,x)=>stripeAngle(x,true);
+  surface('CR400AF 飞龙 · 闭合曲面龙髯红带',28.0,39.25,side>0?bot:top,side>0?top:bot,mats.red,.052,'body',120,10);
+  // Thin dark separator between windshield, headlights and silver nose shoulders.
+  const base=(u)=>.515+.050*u,amount=(u)=>.155*Math.sin(Math.PI*u);
+  surface('CR400AF 飞龙前大灯 · 流线黑色底座',34.95,37.88,
+   side>0?base:(u)=>Math.PI-(base(u)+amount(u)),
+   side>0?(u)=>base(u)+amount(u):(u)=>Math.PI-base(u),mats.trim,.046,'body',44,12);
+  const lampBase=(u)=>.540+.043*u, lampSize=(u)=>.100*Math.sin(Math.PI*u);
+  surface('CR400AF 飞龙前大灯 · LED灯组罩',35.18,37.63,
+   side>0?lampBase:(u)=>Math.PI-(lampBase(u)+lampSize(u)),
+   side>0?(u)=>lampBase(u)+lampSize(u):(u)=>Math.PI-lampBase(u),mats.light,.058,'body',42,12);
+ }
+ // The windscreen is flush to the single-arch roof, not a bulbous black pod.
+ // Broad central glass area and black rim, tapering at the aft and forward ends.
+ const wWidth=(u)=>.07+.66*Math.pow(Math.sin(Math.PI*u),.85);
+ surface('CR400AF 司机室前风挡 · 平贴式黑色胶圈',31.85,37.25,
+   (u)=>Math.PI/2-wWidth(u),(u)=>Math.PI/2+wWidth(u),mats.trim,.031,'body',84,38);
+ const glassWidth=(u)=>.025+.585*Math.pow(Math.sin(Math.PI*u),.86);
+ surface('CR400AF 司机室前风挡 · 连续曲面一体玻璃',32.12,36.95,
+   (u)=>Math.PI/2-glassWidth(u),(u)=>Math.PI/2+glassWidth(u),mats.windscreen,.043,'body',84,36);
+ function rod(name,a,b,r,material,layer='body'){
+  const va=new T.Vector3(...a),vb=new T.Vector3(...b),delta=vb.clone().sub(va);
+  const mesh=new T.Mesh(new T.CylinderGeometry(r,r,delta.length(),8),material);
+  mesh.position.copy(va).add(vb).multiplyScalar(.5);
+  mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize());return add(mesh,name,layer);
+ }
+ for(const side of [-1,1]){
+  const theta=side>0?Math.PI*.38:Math.PI*.62;
+  const a=point(36.12,theta,.06),b=point(35.57,theta+(side>0?.045:-.045),.06);
+  rod('CR400AF 嵌装风挡雨刷',a,b,.009,mats.trim);
+ }
+ // A fine, closed panel line on the lower coupling cover; the underlying nose remains solid.
+ surface('CR400AF 前端车钩检修盖接缝',39.60,40.25,Math.PI*1.33,Math.PI*1.67,
+   mats.lower,.024,'body',13,11);
+ // Dimensional running gear: 17.8m bogie centers, 2.5m axle wheelbase, 920mm wheel diameter.
+ box('CR400AF 头车底架主梁',[24.0,1.25,0],[20.4,.21,2.05],mats.lower,'undercarriage');
+ const rotorGroups=[];
+ for(const bc of [16.40,34.20]){
+  box('CR400AF 头车H形横梁',[bc,.81,0],[1.14,.24,2.14],mats.steel,'undercarriage');
+  for(const side of [-1,1]){
+   box('CR400AF 头车焊接侧梁',[bc,.81,side*1.15],[3.35,.28,.25],mats.wheel,'undercarriage');
+   cylinder('CR400AF 头车二系空气弹簧',[bc,1.17,side*1.13],.31,.27,mats.rubber);
+  }
+  for(const dx of [-1.25,1.25]){
+   const xx=bc+dx,rg=new T.Group();rg.name='CR400AF 头车轮对 · 可旋转';rg.position.set(xx,.46,0);cab.add(rg);rotorGroups.push(rg);
+   const ax=new T.Mesh(new T.CylinderGeometry(.09,.09,2.15,18),mats.steel);ax.rotation.x=Math.PI/2;rg.add(ax);
+   for(const side of [-1,1]){
+    const z=side*.75;
+    const wh=new T.Mesh(new T.CylinderGeometry(.46,.46,.16,48),mats.wheel);wh.rotation.x=Math.PI/2;wh.position.z=z;rg.add(wh);
+    const hub=new T.Mesh(new T.CylinderGeometry(.19,.19,.17,24),mats.steel);hub.rotation.x=Math.PI/2;hub.position.z=z+side*.035;rg.add(hub);
+    cylinder('CR400AF 头车轮对轴箱',[xx,.46,side*1.00],.20,.30,mats.lower);
+    box('CR400AF 头车一系悬挂弹簧支座',[xx,.86,side*1.10],[.42,.19,.38],mats.steel,'undercarriage');
+   }
+  }
+ }
+ // The lower wheel/running gear is visible, but top wheel quarters belong within
+ // the aerodynamic side-fairing envelope. Keep these panels in the BODY layer so
+ // hiding the body still exposes a fully inspectable teaching bogie.
+ const skirtSilver=new T.MeshStandardMaterial({color:0xb3bdc2,metalness:.48,roughness:.42,side:T.DoubleSide});
+ const skirtDark=new T.MeshStandardMaterial({color:0x414d52,metalness:.37,roughness:.50,side:T.DoubleSide});
+ const seam=new T.MeshStandardMaterial({color:0x737e81,metalness:.35,roughness:.58,side:T.DoubleSide});
+ function skirtBottom(x){
+  // Lower fairing is below the wheel crown but above rail and rolling surface.
+  // The tapered nose lifts the lower edge toward the end of the cab car.
+  const nose=Math.max(0,Math.min(1,(x-34.8)/1.8));
+  return .63 + .18*nose*nose*(3-2*nose);
+ }
+ function fairingPanel(name,a,b,side,material){
+  const nx=Math.max(12,Math.ceil((b-a)*5)),ny=12,vertices=[],idx=[];
+  for(let i=0;i<=nx;i++){
+   const x=a+(b-a)*i/nx, [,cy,h,w]=sample(x);
+   const top=point(x,side>0?-.51:Math.PI+.51,.013);
+   // Side fairing rolls inward at its bottom edge: outer panel never touches
+   // axleboxes or wheel faces, which are deeper inside the car underframe.
+   const botY=skirtBottom(x),botZ=side*Math.max(.79,w*.74);
+   for(let j=0;j<=ny;j++){
+    const v=j/ny,q=v*v*(3-2*v);
+    vertices.push(x,top[1]+(botY-top[1])*v,top[2]+(botZ-top[2])*q);
+   }
+  }
+  for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){
+   const aa=i*(ny+1)+j,bb=aa+ny+1;
+   idx.push(aa,bb,aa+1,aa+1,bb,bb+1);
+  }
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(vertices,3));
+  g.setIndex(idx);g.computeVertexNormals();
+  return add(new T.Mesh(g,material),name,'body');
+ }
+ for(const side of [-1,1]){
+  // Separate panels respect the real car's seam pattern. The shaded central
+  // underfloor equipment apron prevents the bogies looking like external carts.
+  fairingPanel('CR400AF 头车后转向架侧裙板',13.02,20.35,side,skirtSilver);
+  fairingPanel('CR400AF 头车车底深灰设备裙板',20.35,29.30,side,skirtDark);
+  fairingPanel('CR400AF 头车前转向架流线侧裙板',29.30,36.65,side,skirtSilver);
+  // Fine continuous lower rolled edge, separated from the wheel circumference.
+  for(const [a,b] of [[13.05,20.28],[20.42,29.23],[29.38,36.55]]){
+   const p0=sample(a),p1=sample(b),z0=side*Math.max(.79,p0[3]*.74),z1=side*Math.max(.79,p1[3]*.74);
+   rod('CR400AF 头车侧裙板底部折边',[a,skirtBottom(a)+.018,z0],[b,skirtBottom(b)+.018,z1],.012,seam,'body');
+  }
+ }
+ cab.userData.wheelRotors=rotorGroups;
+ cab.userData.update=(travel)=>{for(const wheel of rotorGroups)wheel.rotation.z=-travel/.46;};
+ cab.userData.meshCount=objects.length;
+ cab.userData.dimensionInfo={length:27.525,bogieCenters:17.8,axleSpacing:2.5,wheelDiameter:.92};
+ return cab;
+}
+const leadingCab=addLeadingCabCar();
+leadingCab.userData.update(train.position.x+82);
+
 const pickTargets=Object.values(perLayer).flat(),raycaster=new T.Raycaster(),pointer=new T.Vector2(),highlight=new T.Box3Helper(new T.Box3(),0xdd9b35);highlight.material.depthTest=false;highlight.material.transparent=true;highlight.material.opacity=.9;highlight.renderOrder=20;highlight.visible=false;scene.add(highlight);let selection=null;
 const parentSample=V(0,0,0),followBase={x:0},cameraTween={active:false,start:0,fromEye:V(0,0,0),fromTarget:V(0,0,0),toEye:V(0,0,0),toTarget:V(0,0,0)};
 const viewDemo=createRailDemoDriver({clear(){brakes.restoreAll(20);prevRepair='';},start(id){state.autoTemp=id!=='compensation';state.manualTemp=20;$('autoTemp').checked=state.autoTemp;},seek(t){seek(t,false);},temp(t){state.manualTemp=t;},fault(){brakes.trigger($('brakeTarget').value,getTemp());},reset(){brakes.reset($('brakeTarget').value);},mode(){return brakes.units.find(u=>u.prefix===$('brakeTarget').value).mode;},zoom(mode){brakeFocus=mode;if(state.view==='compensation'&&state.autoFollow)aimAtBrake(mode);}});
+
+// Seven-scene film tour. Camera paths are generated from moving world anchors and
+// spherical dolly/orbit keyframes; all poses are continuously interpolated.
+// The full-scale vehicle position uses intentionally slowed educational motion.
+const journey={active:false,t:0,total:144,segmentIndex:-1,velocity:0,viewHistory:[],lastPose:null};
+const tourSegments=[
+ {id:'station',start:0,end:12,heading:'站台 · 真实车头入站',r:[42,30,26],az:[1.18,1.05,.56],el:[.25,.18,.22],fov:[44,41,41],anchor:'nose'},
+ {id:'station',start:12,end:32,heading:'站台 · 进站减速',r:[48,36,44],az:[1.02,1.44,2.0],el:[.31,.20,.27],fov:[44,42,42],anchor:'car'},
+ {id:'bogie',start:32,end:49,heading:'转向架 · 制动至停车',r:[8.4,3.8,6.0],az:[.55,1.50,2.85],el:[.35,.24,.3],fov:[48,45,43],anchor:'bogie'},
+ {id:'interior',start:49,end:64,heading:'客室 · 停站观察',r:[12,5.7,8.5],az:[.54,1.52,2.6],el:[.56,.35,.46],fov:[53,62,53],anchor:'interior'},
+ {id:'pantograph',start:64,end:80,heading:'受电弓 · 铰点与连杆',r:[7.5,2.9,5.0],az:[1.0,2.1,3.6],el:[.50,.30,.35],fov:[47,46,43],anchor:'bow'},
+ {id:'compensation',start:80,end:96,heading:'张力补偿 · 棘轮与坠砣',r:[11.5,4.5,8],az:[.1,1.25,2.45],el:[.3,.2,.36],fov:[47,42,45],anchor:'tension'},
+ {id:'overview',start:96,end:111,heading:'线路全景 · 准备出站',r:[147,98,70],az:[.66,1.18,1.9],el:[.58,.50,.46],fov:[45,44,46],anchor:'overview'},
+ {id:'carbon',start:111,end:128,heading:'碳滑板 · 加速接触',r:[9,3.2,6.5],az:[.6,1.9,3.25],el:[.63,.97,.57],fov:[43,42,46],anchor:'carbon'},
+ {id:'station',start:128,end:144,heading:'站台 · 加速驶离',r:[22,35,64],az:[2.2,2.95,3.85],el:[.21,.30,.47],fov:[43,45,49],anchor:'leaving'}
+];
+const tourPhaseButtons=[...document.querySelectorAll('.phasebar [data-time]')];
+const tourPhaseBackups=tourPhaseButtons.map(b=>({text:b.textContent,time:b.dataset.time}));
+const tourScaleLabels=[...document.querySelectorAll('.times span')];
+const tourScaleBackups=tourScaleLabels.map(x=>x.textContent);
+const smooth=(x)=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
+const mix=(a,b,u)=>a+(b-a)*u;
+function cinematicTrainPos(t){
+ if(t<=32){const u=Math.max(0,t)/32;return -82+82*(1-Math.pow(1-u,3));}
+ if(t<=96)return 0;
+ const u=Math.max(0,Math.min(1,(t-96)/48));return 39*u*u;}
+function cinematicVelocity(t){
+ if(t<32)return 246/32*Math.pow(1-t/32,2);
+ if(t<96)return 0;
+ return 78/(48*48)*Math.max(0,t-96);}
+function cinemaAnchor(mode){
+ const x=train.position.x;
+ if(mode==='nose'){const u=smooth((journey.t-3)/9);return V(mix(-4,x+38.0,u),2.45,0);}
+ if(mode==='car')return V(x+28.0,2.65,0);
+ if(mode==='bogie')return V(x-8.9,.85,0);
+ if(mode==='interior')return V(x-6.5,2.6,-.1);
+ if(mode==='bow')return viewFocus('pantograph');
+ if(mode==='carbon')return V(x-6,5.25,0);
+ if(mode==='tension')return viewFocus('compensation');
+ if(mode==='leaving'){const u=Math.max(0,Math.min(1,(journey.t-128)/16));return V(x*(1-.68*u)-2.5,2.7,0);}
+ return V(-2,3,0);}
+function cinemaPose(shot,u){
+ const anchor=cinemaAnchor(shot.anchor);
+ const at=(a)=>u<=.5?mix(a[0],a[1],smooth(u*2)):mix(a[1],a[2],smooth((u-.5)*2));
+ const r=at(shot.r),az=at(shot.az),el=at(shot.el),fov=at(shot.fov);
+ const eye=anchor.clone().add(V(Math.cos(az)*r*Math.cos(el),r*Math.sin(el),Math.sin(az)*r*Math.cos(el)));
+ return{eye,target:anchor,fov};}
+function cinemaBlendedPose(t,idx){
+ const shot=tourSegments[idx],u=Math.max(0,Math.min(1,(t-shot.start)/(shot.end-shot.start)));
+ let pose=cinemaPose(shot,u);
+ const blend=(a,b,q)=>({eye:a.eye.clone().lerp(b.eye,q),target:a.target.clone().lerp(b.target,q),fov:mix(a.fov,b.fov,q)});
+ if(idx>0&&t<shot.start+2.1){
+  const from=cinemaPose(tourSegments[idx-1],1),q=smooth((t-(shot.start-2.1))/4.2);
+  pose=blend(from,pose,q);}
+ if(idx+1<tourSegments.length&&t>shot.end-2.1){
+  const to=cinemaPose(tourSegments[idx+1],0),q=smooth((t-(shot.end-2.1))/4.2);
+  pose=blend(pose,to,q);} 
+ return pose;}
+function cinematicSourceTime(t){
+ if(t<=96)return 14;
+ return mix(14,24,smooth((t-96)/48));}
+function cinematicPhase(t){return t>=144?3:t<32?0:t<96?1:2;}
+function cinematicLabel(t){return t<32?'进站减速':t<96?'停稳观察':'加速出站';}
+function setJourneyScale(active){
+ const marks=active?[['01 进站减速','0'],['02 站内观察','32'],['03 加速出站','96'],['04 终点','144']]:tourPhaseBackups.map(v=>[v.text,v.time]);
+ tourPhaseButtons.forEach((b,i)=>{b.textContent=marks[i][0];b.dataset.time=marks[i][1];});
+ const captions=active?['进站减速','停站','加速出站','终点']:tourScaleBackups;
+ tourScaleLabels.forEach((e,i)=>e.textContent=captions[i]);
+ $('scrub').max=active?journey.total:40;
+ $('scrub').min=active?0:startTime;
+ $('scrub').step=active?.05:1/24;
+ $('tourHud').hidden=!active;$('tourProgress').style.display=active?'block':'none';
+ $('tourToggle').textContent=active?'■ 结束七景导览':'◉ 七景自动导览';$('tourToggle').classList.toggle('active',active);
+}
+function applyCinematicFrame(forceUI=false){
+ const t=journey.t;let idx=tourSegments.findIndex(s=>t>=s.start&&t<s.end);
+ if(idx<0)idx=tourSegments.length-1;
+ const shot=tourSegments[idx];
+ if(idx!==journey.segmentIndex){
+  journey.segmentIndex=idx;journey.viewHistory.push(shot.id);
+  if(state.view!==shot.id)setView(shot.id,true,false);
+  if(state.cutaway!==(shot.id==='interior'))setCutaway(shot.id==='interior');
+  cameraTween.active=false;
+  updateSun(cinemaAnchor(shot.anchor),shot.id==='overview'?100:shot.id==='station'?52:shot.id==='compensation'?14:10);
+ }
+ state.time=cinematicSourceTime(t);
+ mixer.setTime(state.time);
+ train.position.x=cinematicTrainPos(t);leadingCab.userData.update(train.position.x+82);
+ // Ensure parent transforms are current before calculating anchored camera poses.
+ model.updateMatrixWorld(true);
+ state.autoTemp=false;
+ state.manualTemp=shot.id==='compensation'?20+14*Math.sin(Math.PI*Math.max(0,Math.min(1,(t-68)/16))):20;
+ repairCurves();model.updateMatrixWorld(true);
+ const pose=cinemaBlendedPose(t,idx);
+ camera.position.copy(pose.eye);controls.target.copy(pose.target);
+ camera.fov=pose.fov;camera.updateProjectionMatrix();
+ cameraTween.active=false;followAnchor.copy(controls.target);followBase.x=train.position.x;
+ journey.lastPose={position:camera.position.toArray(),target:controls.target.toArray(),fov:camera.fov};
+ journey.velocity=cinematicVelocity(t);
+ $('tourShot').textContent=String(idx+1).padStart(2,'0')+' / '+String(tourSegments.length).padStart(2,'0');
+ $('tourPhaseName').textContent=cinematicLabel(t)+' · '+shot.heading;
+ $('tourVelocity').textContent='演示速度 '+journey.velocity.toFixed(2)+' m/s';
+ $('tourProgressFill').style.width=(t/journey.total*100).toFixed(2)+'%';
+ if(forceUI)updateUI();
+}
+const tour={
+ get active(){return journey.active;},get time(){return journey.t;},get total(){return journey.total;},
+ get shots(){return tourSegments.map(s=>({view:s.id,start:s.start,end:s.end,heading:s.heading}));},
+ get history(){return journey.viewHistory.slice();},
+ get velocity(){return journey.velocity;},get currentShot(){return tourSegments[journey.segmentIndex]?.id;},
+ start(){stopDemo();brakes.restoreAll(20);journey.active=true;journey.t=0;journey.segmentIndex=-1;journey.viewHistory=[];setJourneyScale(true);setPlaying(true);applyCinematicFrame(true);},
+ stop(){if(!journey.active)return;journey.active=false;setJourneyScale(false);state.autoTemp=true;$('autoTemp').checked=true;setPlaying(false);updateUI();},
+ seek(t){journey.t=Math.max(0,Math.min(journey.total,t));applyCinematicFrame(true);},
+ tick(dt){if(!journey.active||!state.playing)return;journey.t=Math.min(journey.total,journey.t+dt);applyCinematicFrame(false);if(journey.t>=journey.total){if(state.loop){journey.t=0;journey.segmentIndex=-1;journey.viewHistory=[];applyCinematicFrame(true);}else{setPlaying(false);}}}
+};
+
 function viewFocus(id){if(id==='compensation'){const u=brakes.units.find(u=>u.prefix===$('brakeTarget').value),p=brakeFocus==='detail'?V(-.265+u.center.x*.35,-.51+u.center.y*.35,.091):u.center.clone().add(V(-.16,-.10,0));return u.root.localToWorld(p);}if(id==='pantograph')return panto.localToWorld(V(.32,(4.32+head.position.y)/2,0));const v=views.find(v=>v.id===id);return V(...v.target).add(V(v.follow?train.position.x:0,0,0));}
 function aimAtBrake(mode){const target=viewFocus('compensation'),eye=target.clone().add(mode==='detail'?V(.10,.08,.66):V(.70,.35,1.9));Object.assign(cameraTween,{active:true,start:performance.now(),fromEye:camera.position.clone(),fromTarget:controls.target.clone(),toEye:eye,toTarget:target});followAnchor.copy(target);}
 function stopDemo(){viewDemo.stop();$('demoCaption').textContent='手动观察';}
 function applyVisibility(){for(const [k,items]of Object.entries(perLayer))for(const o of items)o.visible=layers[k]&&!(state.cutaway&&k==='interior'&&/Warm interior ceiling|Curved ceiling side/.test(nameOf(o)));for(const e of document.querySelectorAll('[data-layer]'))e.checked=layers[e.dataset.layer];if(selection&&!layers[selection.layer])highlight.visible=false;}
 function setCutaway(value){state.cutaway=value;layers.body=!value;layers.roof=!value;$('cutaway').textContent=value?'还原完整车厢':'剖开车厢 · 查看内部';applyVisibility();}
-function setView(id,instant=false,autostart=true){const v=views.find(v=>v.id===id);state.view=id;if(autostart&&state.autoPlayViews){viewDemo.start(id);state.playing=true;}else if(!autostart){viewDemo.stop();}else{viewDemo.stop();setPlaying(false);}brakeFocus='assembly';$('inspector').scrollTop=0;if(id==='interior'&&state.cutaway)setCutaway(false);document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));$('viewTitle').textContent=v.title;$('viewSubtitle').textContent=v.subtitle;$('lessonTitle').textContent=v.lesson;$('lessonText').textContent=v.text;$('lessonKey').textContent=v.key;$('tempBox').hidden=id!=='compensation';$('brakeBox').hidden=id!=='compensation';camera.fov=v.fov||42;camera.updateProjectionMatrix();const off=v.follow?train.position.x:0,toTarget=viewFocus(id),toEye=id==='compensation'?toTarget.clone().add(V(.70,.35,1.9)):id==='pantograph'?toTarget.clone().add(V(-.65,.55,2.8)):V(...v.eye).add(V(off,0,0));followAnchor.copy(toTarget);followBase.x=train.position.x;if(instant){camera.position.copy(toEye);controls.target.copy(toTarget);controls.update();cameraTween.active=false;}else{Object.assign(cameraTween,{active:true,start:performance.now(),fromEye:camera.position.clone(),fromTarget:controls.target.clone(),toEye,toTarget});}updateSun(toTarget,id==='overview'?95:id==='station'?50:12);setPlaying(state.playing);updateUI();}
+function setView(id,instant=false,autostart=true){const v=views.find(v=>v.id===id);state.view=id;if(autostart&&state.autoPlayViews){viewDemo.start(id);state.playing=true;}else if(!autostart){viewDemo.stop();}else{viewDemo.stop();setPlaying(false);}brakeFocus='assembly';$('inspector').scrollTop=0;if(id!=='interior'&&state.cutaway)setCutaway(false);document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));$('viewTitle').textContent=v.title;$('viewSubtitle').textContent=v.subtitle;$('lessonTitle').textContent=v.lesson;$('lessonText').textContent=v.text;$('lessonKey').textContent=v.key;$('tempBox').hidden=id!=='compensation';$('brakeBox').hidden=id!=='compensation';camera.fov=v.fov||42;camera.updateProjectionMatrix();const off=v.follow?train.position.x:0,toTarget=viewFocus(id),toEye=id==='compensation'?toTarget.clone().add(V(.70,.35,1.9)):id==='pantograph'?toTarget.clone().add(V(-.65,.55,2.8)):V(...v.eye).add(V(off,0,0));followAnchor.copy(toTarget);followBase.x=train.position.x;if(instant){camera.position.copy(toEye);controls.target.copy(toTarget);controls.update();cameraTween.active=false;}else{Object.assign(cameraTween,{active:true,start:performance.now(),fromEye:camera.position.clone(),fromTarget:controls.target.clone(),toEye,toTarget});}updateSun(toTarget,id==='overview'?95:id==='station'?50:12);setPlaying(state.playing);updateUI();}
 function updateSun(target,extent){sun.target.position.copy(target);sun.position.copy(target).add(V(-25,55,35));const c=sun.shadow.camera;Object.assign(c,{left:-extent,right:extent,top:extent,bottom:-extent});c.updateProjectionMatrix();sun.shadow.needsUpdate=true;}
 function notify(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>$('toast').classList.remove('show'),2500);}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -339,12 +911,12 @@ function repairCurves(){mechanical.update(state.time);const temp=getTemp(),dl=17
  if(elbow){const theta=Math.atan2(elbow.position.y-4.32,elbow.position.x),flange=find('Bellows moving flange'),px=flange?flange.position.x:-.35,r=.121,d=Math.hypot(px,.06),tangent=Math.atan2(.06,px)-Math.acos(r/d),end=1.5*Math.PI+theta,pts=[V(px,4.38,0)];for(let j=0;j<=40;j++){const a=tangent+(end-tangent)*j/40;pts.push(V(r*Math.cos(a),4.32+r*Math.sin(a),0));}drive.update(pts);const b=elbow.position,c=head.position;braid.update([V(0,4.32,-.36),V(b.x*.4,4.32+(b.y-4.32)*.4,-.36),V(b.x,b.y,-.36),V(b.x+.03,b.y+.05,-.29),V(c.x,c.y,-.29)]);}
  if(marks&&state.time!==prevWearTime){const cold=new T.Color(.045,.049,.053),hot=new T.Color(.65,.12,.018);for(let i=0;i<wear.length;i++)marks.setColorAt(i,state.time>=wear[i].first?hot:cold);marks.instanceColor.needsUpdate=true;prevWearTime=state.time;}
 }
-function seek(t,refreshUI=true){state.time=Math.max(startTime,Math.min(40,t));mixer.setTime(state.time);if(cameraTween.active&&views.find(v=>v.id===state.view).follow){const dx=train.position.x-followBase.x;for(const p of[cameraTween.fromEye,cameraTween.toEye,cameraTween.fromTarget,cameraTween.toTarget])p.x+=dx;followBase.x=train.position.x;}model.updateMatrixWorld(true);repairCurves();model.updateMatrixWorld(true);if(refreshUI)updateUI();}
+function seek(t,refreshUI=true){if(tour.active)tour.stop();state.time=Math.max(startTime,Math.min(40,t));mixer.setTime(state.time);if(cameraTween.active&&views.find(v=>v.id===state.view).follow){const dx=train.position.x-followBase.x;for(const p of[cameraTween.fromEye,cameraTween.toEye,cameraTween.fromTarget,cameraTween.toTarget])p.x+=dx;followBase.x=train.position.x;}model.updateMatrixWorld(true);repairCurves();model.updateMatrixWorld(true);if(refreshUI)updateUI();}
 function phase(){return state.time<=4?0:state.time<=28?1:state.time<=32?2:3;}
 function setPlaying(value){if(value&&!viewDemo.active&&brakes.units.some(u=>u.mode!=='normal'))return;state.playing=value;$('play').textContent=value?'❚❚':'▶';$('play').setAttribute('aria-label',value?'暂停动画':'播放动画');}
-function updateUI(){$('demoCaption').textContent=viewDemo.active?viewDemo.label:'手动观察';const temp=getTemp(),dl=17e-6*750*(temp-20),selectedBrake=brakes.units.find(u=>u.prefix===$('brakeTarget').value),drop=selectedBrake?-2.5-selectedBrake.weightAnchor.y:3*dl;$('scrub').value=state.time;$('timeNow').textContent=state.time.toFixed(1)+' / 40 s';document.querySelectorAll('[data-time]').forEach((b,i)=>b.classList.toggle('current',i===phase()));$('tempValue').textContent=temp.toFixed(1)+' °C';if(state.autoTemp)$('temperature').value=temp;
+function updateUI(){$('demoCaption').textContent=tour.active?('自动镜头 · '+tourSegments[journey.segmentIndex]?.heading+' · '+journey.t.toFixed(1)+' / '+journey.total+' s'):(viewDemo.active?viewDemo.label:'手动观察');const temp=getTemp(),dl=17e-6*750*(temp-20),selectedBrake=brakes.units.find(u=>u.prefix===$('brakeTarget').value),drop=selectedBrake?-2.5-selectedBrake.weightAnchor.y:3*dl;$('scrub').value=tour.active?journey.t:state.time;$('timeNow').textContent=(tour.active?journey.t:state.time).toFixed(1)+' / '+(tour.active?journey.total:40)+' s';document.querySelectorAll('[data-time]').forEach((b,i)=>b.classList.toggle('current',i===(tour.active?cinematicPhase(journey.t):phase())));$('tempValue').textContent=temp.toFixed(1)+' °C';if(state.autoTemp)$('temperature').value=temp;
  const v=state.view,contactActive=state.time>=4&&state.time<=28,currentY=stagger(train.position.x+panto.position.x+head.position.x-.18);
- $('readouts').innerHTML=v==='compensation'?`<div class="readout"><span>线索温度</span><b>${temp.toFixed(1)} <small>°C</small></b></div><div class="readout"><span>坠砣向下位移</span><b>${drop.toFixed(3)} <small>m</small></b></div><div class="readout"><span>选中线索端张力</span><b>${selectedBrake.mode==='falling'||selectedBrake.mode==='locked'?'0.00':selectedBrake.prefix==='CONTACT'?'20.60':'17.66'} <small>kN</small></b></div><div class="readout"><span>制动机构</span><b style="font-size:14px">${selectedBrake.mode==='normal'?'脱离':selectedBrake.mode==='locked'?'锁止':selectedBrake.mode==='resetting'?'卸载复位':'摆落'}</b></div>`:v==='carbon'?`<div class="readout"><span>当前横向接触位置</span><b>${contactActive?(currentY*1000).toFixed(0):'—'} <small>mm</small></b></div><div class="readout"><span>已划过的滑板单元</span><b>${wear.filter(w=>w.first<=state.time).length}<small> / ${wear.length}</small></b></div>`:v==='interior'?'<div class="readout"><span>座位总数</span><b>90 <small>席</small></b></div><div class="readout"><span>横向排列</span><b>3 + 2</b></div>':`<div class="readout"><span>动画阶段</span><b style="font-size:14px">${viewDemo.active?viewDemo.label:['静止升弓','行进取电','停车降弓','温度补偿'][phase()]}</b></div><div class="readout"><span>参考接触线高度</span><b>5.30 <small>m</small></b></div>`;
+ $('readouts').innerHTML=v==='compensation'?`<div class="readout"><span>线索温度</span><b>${temp.toFixed(1)} <small>°C</small></b></div><div class="readout"><span>坠砣向下位移</span><b>${drop.toFixed(3)} <small>m</small></b></div><div class="readout"><span>选中线索端张力</span><b>${selectedBrake.mode==='falling'||selectedBrake.mode==='locked'?'0.00':selectedBrake.prefix==='CONTACT'?'20.60':'17.66'} <small>kN</small></b></div><div class="readout"><span>制动机构</span><b style="font-size:14px">${selectedBrake.mode==='normal'?'脱离':selectedBrake.mode==='locked'?'锁止':selectedBrake.mode==='resetting'?'卸载复位':'摆落'}</b></div>`:v==='carbon'?`<div class="readout"><span>当前横向接触位置</span><b>${contactActive?(currentY*1000).toFixed(0):'—'} <small>mm</small></b></div><div class="readout"><span>已划过的滑板单元</span><b>${wear.filter(w=>w.first<=state.time).length}<small> / ${wear.length}</small></b></div>`:v==='interior'?'<div class="readout"><span>座位总数</span><b>90 <small>席</small></b></div><div class="readout"><span>横向排列</span><b>3 + 2</b></div>':v==='bogie'?'<div class="readout"><span>固定轴距</span><b>2500 <small>mm</small></b></div><div class="readout"><span>新轮直径</span><b>920 <small>mm</small></b></div><div class="readout"><span>制动盘</span><b>3 <small>片/轴</small></b></div><div class="readout"><span>空气弹簧中心距</span><b>2360 <small>mm</small></b></div>':`<div class="readout"><span>动画阶段</span><b style="font-size:14px">${tour.active?cinematicLabel(journey.t):viewDemo.active?viewDemo.label:['静止升弓','行进取电','停车降弓','温度补偿'][phase()]}</b></div><div class="readout"><span>参考接触线高度</span><b>5.30 <small>m</small></b></div>`;
  drawDiagram(temp,drop,currentY,contactActive);
 }
 const svgWrap=s=>`<svg viewBox="0 0 240 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="当前场景原理示意"><g font-size="10" fill="#667d6b">${s}</g></svg>`;
@@ -352,39 +924,58 @@ function drawDiagram(temp,drop,y,active){const green='#1d715a',orange='#d78b32',
  else if(state.view==='carbon'){const sx=120+y*125,visited=overlayNodes.filter((o,i)=>state.time>=wear[i].first).map(o=>-o.position.z),lo=visited.length?Math.min(...visited):0,hi=visited.length?Math.max(...visited):0,band=visited.length?`<rect x="${120+lo*125-1.3}" y="67" width="${(hi-lo)*125+2.6}" height="21" fill="${orange}" opacity=".7"/>`:'';s=`<rect x="22" y="65" width="196" height="25" rx="5" fill="#5f6d62"/>${band}<path d="${active?`M${sx-22},24 L${sx+18},129`:'M30,30 H210'}" stroke="${green}" stroke-width="2"/>${active?`<circle cx="${sx}" cy="77" r="5" fill="#efb343"/>`:''}<path d="M82.5,104 V114 M157.5,104 V114 M82.5,110 H157.5" stroke="${gray}"/><text x="120" y="133" text-anchor="middle">拉出值 ±300 mm</text><text x="120" y="154" text-anchor="middle">接触位置随列车行进变化</text><text x="27" y="51">碳滑板横向观察</text>`;}
  else if(state.view==='pantograph'){const a=[48,142],b=[48+elbow.position.x*95,142-(elbow.position.y-4.32)*95],c=[48+head.position.x*95,142-(head.position.y-4.32)*95];s=`<path d="M20,142 H210 M18,48.9 H218" stroke="${gray}"/><path d="M${a} L${b} L${c}" fill="none" stroke="${green}" stroke-width="5" stroke-linejoin="round"/><path d="M${a[0]+58},${a[1]+14} L${b[0]},${b[1]+8}" fill="none" stroke="${orange}" stroke-width="1.5"/><path d="M${c[0]-20},${c[1]-10.45} H${c[0]+20}" stroke="${green}" stroke-width="4"/>${[a,b,c].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#edf3e7" stroke="${green}"/>`).join('')}<text x="18" y="23">气囊 → 凸轮 → 连杆展开</text><text x="120" y="164" text-anchor="middle">杆长固定，铰点连续联动</text>`;}
  else if(state.view==='interior'){s=`<rect x="36" y="22" width="170" height="126" rx="20" fill="none" stroke="${gray}"/>${[0,1,2].flatMap(row=>[0,1,2,3,4].map(i=>{const x=i<3?48+i*23:139+(i-3)*23;return`<rect x="${x}" y="${36+row*32}" width="19" height="24" rx="4" fill="#b8cbb5"/>`;})).join('')}<path d="M126,33 V134" stroke="${orange}" stroke-width="2" stroke-dasharray="4 3"/><text x="120" y="165" text-anchor="middle">3 座　·　过道　·　2 座</text>`;}
- else if(state.view==='bogie'){s=`<path d="M25,124 H215" stroke="${green}" stroke-width="5"/><rect x="45" y="48" width="150" height="24" rx="4" fill="#c3d2be"/><circle cx="76" cy="99" r="24" fill="#8ea88c" stroke="${green}"/><circle cx="168" cy="99" r="24" fill="#8ea88c" stroke="${green}"/><path d="M76,99 H168" stroke="${orange}" stroke-width="3"/><text x="120" y="153" text-anchor="middle">车体 → 悬挂 → 轮对 → 钢轨</text>`;}
+ else if(state.view==='bogie'){
+ s=`<text x="14" y="17" font-weight="700" fill="#315f55">SWT-400E1 · 拖车转向架侧面示意</text><path d="M14 141H226" stroke="${green}" stroke-width="5"/><path d="M20 132H221" stroke="#bac9c0" stroke-width="2"/><path d="M38 68H204" stroke="#788b87" stroke-width="14" stroke-linecap="round"/><path d="M60 70H182" stroke="#b7c6be" stroke-width="3"/><rect x="24" y="45" width="192" height="7" rx="2" fill="#9faeae"/><rect x="110" y="58" width="20" height="18" rx="4" fill="#2d3b43"/><path d="M107 45V69 M133 45V69" stroke="${orange}" stroke-width="2"/>${[61,179].map(x=>`<circle cx="${x}" cy="112" r="22" fill="#66747a" stroke="#33474e" stroke-width="3"/><circle cx="${x}" cy="112" r="8" fill="#a9bab8"/><path d="M${x-26} 83V94" stroke="${orange}" stroke-width="7"/><path d="M${x-26} 78V90" stroke="#778e94" stroke-width="3"/>`).join('')}<path d="M61 112H179" stroke="#6d8780" stroke-width="3"/><text x="18" y="37">二系空气弹簧</text><text x="152" y="35">H形构架</text><text x="83" y="102">轮轴 · 三片轴盘</text><text x="120" y="164" text-anchor="middle">载荷：车体 → 二系 → 构架 → 一系 → 轮轨</text>`;
+ }
+
  else{const pts=[[-60,.3],[-30,-.3],[0,.3],[30,-.3],[60,.3]].map(([x,z])=>`${20+(x+60)/120*200},${78+z*45}`);const px=20+(train.position.x+panto.position.x+head.position.x+60)/120*200;s=`<path d="M20,49 H220 M20,110 H220" stroke="${gray}"/><polyline points="${pts.join(' ')}" fill="none" stroke="${green}" stroke-width="2.5"/><rect x="${px-12}" y="62" width="24" height="32" rx="4" fill="#dce8d4" stroke="${orange}"/><path d="M${px},56 V102" stroke="${orange}" stroke-width="3"/><text x="120" y="27" text-anchor="middle">接触线的“之”字形布置</text><text x="120" y="145" text-anchor="middle">平面俯视 · 列车沿线路行进</text>`;}$('svgArea').innerHTML=svgWrap(s);}
-function describe(n){const defs=[[/Bogie damper/,'一级悬挂减振器','通过两端耳环、连接销与双耳座连接轴箱和构架。缸筒内的活塞运动提供阻尼。'],[/制动齿圈|制动卡板|摆动连板|铰接支柱/,'棘轮断线制动机构','正常补偿时卡板与轮齿脱离。线索端失去拉力后，轮架下摆，轮齿接触卡板并锁止。解锁复位演示包含重新承托卸载，不是带载直接扳开。'],[/counterweight disc/,'坠砣片','重力通过补偿绳与轮槽向线索提供拉力。数量与质量决定理想张力，不直接决定某个固定位移。'],[/guide rail|guide sleeve|guide bracket|sleeve tie/,'坠砣导向机构','导杆固定不动，导向套随坠砣升降，限制横向摆动。它不额外提供补偿拉力。'],[/large rope|small_left rope|small_right rope|balance U rope/,'补偿钢丝绳','轮槽内按圆弧绕行，出槽后沿切线受拉；绳端分别与坠砣或平衡轮连接。'],[/ratchet teeth|brake card/,'棘轮齿与制动卡板','正常温度补偿时留有间隙。可演示线索端断线后的摆落与几何接触锁止；质量、局部尺寸与运动时间为教学推定，冲击动力学未标定。'],[/balance pulley/,'平衡轮','连接两侧小轮绳，平衡绳路，并通过连接件、绝缘子把拉力传给线索。'],[/drum|groove lip|groove flange/,'补偿轮与轮槽','大小轮同轴转动。选定绳中心半径比为 3∶1，用同一个位移状态计算轮转角、线端位置与坠砣位移。'],[/bellows|Bellows/,'升弓气囊','充气膨胀，通过钢丝绳和凸轮传动产生升弓力矩。这里展示外形与几何联动，不计算真实气压。'],[/Damper/,'阻尼器','固定桶体与滑动活塞杆相配合，抑制过快运动和振动；不负责主动抬升弓头。'],[/Carbon|carbon|swept|划过/,'碳滑板','与接触线接触并取电。之字形布线让横向接触位置变化，减少集中磨耗；橙色仅为教学路径标记。'],[/frame arm|pull rod|levelling rod|bell crank|Pivot/,'受电弓连杆与铰点','零件保持固定长度，通过闭合铰接关系联动。弓头姿态由平衡连杆计算，在工作高度与接触线接触。'],[/insulator|porcelain/,'绝缘子','在传递机械载荷的同时，将带电部分与支架或接地结构电气隔离。'],[/Dropper/,'吊弦与线夹','从承力索悬挂接触线，维持接触线的空间位置；上下线夹分别连接对应线索。'],[/Contact wire/,'接触线','受电弓直接接触的导线。沿线路按之字形布置，模型取参考高度 5.30 m。'],[/Messenger/,'承力索','通过吊弦悬挂接触线。线索在自重作用下存在垂度，不与接触线混用补偿装置。'],[/Registration/,'定位器','约束接触线的横向位置，使各支撑点具有交替的拉出值。'],[/Cantilever|cantilever/,'腕臂支撑','支承接触悬挂并通过绝缘部件与支柱连接。'],[/Seat /,'二等座座椅','按 3+2 布局排列，18 排共 90 席。座椅外观为教学参考重建。'],[/window|Window|glazing|glazing/i,'车窗与玻璃','车体在窗户位置留有真实开口，玻璃采用透射材质，可从窗外观察客室。'],[/Wheel|wheel|Axlebox|axle/,'轮对与轴箱','轮对支承、导向并沿钢轨滚动，轴箱和悬挂把载荷传递至转向架。'],[/Steel rail|Fastener|rail clip/,'钢轨与扣件','钢轨提供滚动与导向面，扣件把钢轨固定在轨道结构上。'],[/Platform|Granite|safety|Tactile|Raised tactile/,'站台与安全设施','观察站台边缘、安全线和触觉提示带与列车活动区域的关系。'],[/Luggage/,'行李架','位于客室两侧上方，保留通透托板、支撑与外缘栏杆。'],[/Canopy|roof|Roof/,'雨棚或车顶结构','可使用图层开关隐藏遮挡，观察下方机械或客室。']];for(const [re,title,desc]of defs)if(re.test(n))return{title,desc};return{title:'模型部件',desc:'这是上传模型中的独立结构。可聚焦观察其形状、连接位置与相邻零件。'};}
+function describe(n){const defs=[[/CR400AF 飞龙头车|CR400AF 飞龙 ·|CR400AF 司机室|CR400AF 车头前照灯|CR400AF 前端自动/, 'CR400AF 飞龙头车', '普通型 CR400AF 的流线型头车。整体尺寸参照公开资料重建，车头长棱线与红色龙髯为外观特征；局部曲面为照片校准的教学几何，非制造级 CAD。'],[/Bogie .*轴装制动盘|Bogie .*轴盘制动|Bogie .*制动摩擦面|Bogie .*通风制动盘/,'SWT-400E1 轴盘制动','无动力拖车每根车轴安装三片轴装制动盘，夹钳闸片夹紧盘面实现摩擦制动；与动力转向架的轮盘制动不同。'],[/Bogie .*制动夹钳|Bogie .*基础制动|Bogie .*闸片/,'拖车基础制动夹钳','制动气缸推动夹钳，闸片从制动盘两侧夹持；吊杆及支架将制动力矩传递给构架。'],[/Bogie .*轴箱|Bogie .*转臂|Bogie .*一系钢圆簧/,'轴箱转臂定位与一系悬挂','轴箱内安装轴承，转臂通过橡胶节点实现轮对纵向定位，轴箱钢簧将簧下振动隔离到构架。'],[/Bogie .*二系空气弹簧|Bogie .*空气弹簧/,'二系空气弹簧','空气弹簧连接车体与转向架构架。左右中心距约2360 mm，实际依靠高度控制阀适应载荷变化。'],[/Bogie .*抗蛇行/,'抗蛇行减振器','两端通过铰接节点连接转向架与车体，提供抑制高速蛇行运动的阻尼，不是车轮的驱动装置。'],[/Bogie .*抗侧滚/,'抗侧滚扭杆','左右通过扭杆和连杆联动，为车体侧滚提供附加刚度，同时尽量保持空气弹簧的垂向舒适性。'],[/Bogie .*中央牵引/,'中央牵引拉杆','车体和转向架之间通过牵引杆和弹性节点传递纵向牵引、制动力，同时允许必要的相对运动。'],[/Bogie .*无缝钢管横梁|Bogie .*箱型侧梁|Bogie H形/,'H形焊接构架','两条箱型侧梁、两根无缝钢管横梁和纵向连接梁组成轻量化H形焊接构架，与纯实心平板不同。'],[/Bogie .*一系垂向|Bogie .*一系减振器/,'一系垂向减振器','活塞杆、缸筒和上下铰接座分别连接轴箱与构架，耗散一系悬挂的垂向振动。'],[/Bogie damper/,'一级悬挂减振器','通过两端耳环、连接销与双耳座连接轴箱和构架。缸筒内的活塞运动提供阻尼。'],[/制动齿圈|制动卡板|摆动连板|铰接支柱/,'棘轮断线制动机构','正常补偿时卡板与轮齿脱离。线索端失去拉力后，轮架下摆，轮齿接触卡板并锁止。解锁复位演示包含重新承托卸载，不是带载直接扳开。'],[/counterweight disc/,'坠砣片','重力通过补偿绳与轮槽向线索提供拉力。数量与质量决定理想张力，不直接决定某个固定位移。'],[/guide rail|guide sleeve|guide bracket|sleeve tie/,'坠砣导向机构','导杆固定不动，导向套随坠砣升降，限制横向摆动。它不额外提供补偿拉力。'],[/large rope|small_left rope|small_right rope|balance U rope/,'补偿钢丝绳','轮槽内按圆弧绕行，出槽后沿切线受拉；绳端分别与坠砣或平衡轮连接。'],[/ratchet teeth|brake card/,'棘轮齿与制动卡板','正常温度补偿时留有间隙。可演示线索端断线后的摆落与几何接触锁止；质量、局部尺寸与运动时间为教学推定，冲击动力学未标定。'],[/balance pulley/,'平衡轮','连接两侧小轮绳，平衡绳路，并通过连接件、绝缘子把拉力传给线索。'],[/drum|groove lip|groove flange/,'补偿轮与轮槽','大小轮同轴转动。选定绳中心半径比为 3∶1，用同一个位移状态计算轮转角、线端位置与坠砣位移。'],[/bellows|Bellows/,'升弓气囊','充气膨胀，通过钢丝绳和凸轮传动产生升弓力矩。这里展示外形与几何联动，不计算真实气压。'],[/Damper/,'阻尼器','固定桶体与滑动活塞杆相配合，抑制过快运动和振动；不负责主动抬升弓头。'],[/Carbon|carbon|swept|划过/,'碳滑板','与接触线接触并取电。之字形布线让横向接触位置变化，减少集中磨耗；橙色仅为教学路径标记。'],[/frame arm|pull rod|levelling rod|bell crank|Pivot/,'受电弓连杆与铰点','零件保持固定长度，通过闭合铰接关系联动。弓头姿态由平衡连杆计算，在工作高度与接触线接触。'],[/insulator|porcelain/,'绝缘子','在传递机械载荷的同时，将带电部分与支架或接地结构电气隔离。'],[/Dropper/,'吊弦与线夹','从承力索悬挂接触线，维持接触线的空间位置；上下线夹分别连接对应线索。'],[/Contact wire/,'接触线','受电弓直接接触的导线。沿线路按之字形布置，模型取参考高度 5.30 m。'],[/Messenger/,'承力索','通过吊弦悬挂接触线。线索在自重作用下存在垂度，不与接触线混用补偿装置。'],[/Registration/,'定位器','约束接触线的横向位置，使各支撑点具有交替的拉出值。'],[/Cantilever|cantilever/,'腕臂支撑','支承接触悬挂并通过绝缘部件与支柱连接。'],[/Seat /,'二等座座椅','按 3+2 布局排列，18 排共 90 席。座椅外观为教学参考重建。'],[/window|Window|glazing|glazing/i,'车窗与玻璃','车体在窗户位置留有真实开口，玻璃采用透射材质，可从窗外观察客室。'],[/Wheel|wheel|Axlebox|axle/,'轮对与轴箱','轮对支承、导向并沿钢轨滚动，轴箱和悬挂把载荷传递至转向架。'],[/Steel rail|Fastener|rail clip/,'钢轨与扣件','钢轨提供滚动与导向面，扣件把钢轨固定在轨道结构上。'],[/Platform|Granite|safety|Tactile|Raised tactile/,'站台与安全设施','观察站台边缘、安全线和触觉提示带与列车活动区域的关系。'],[/Luggage/,'行李架','位于客室两侧上方，保留通透托板、支撑与外缘栏杆。'],[/Canopy|roof|Roof/,'雨棚或车顶结构','可使用图层开关隐藏遮挡，观察下方机械或客室。']];for(const [re,title,desc]of defs)if(re.test(n))return{title,desc};return{title:'模型部件',desc:'这是上传模型中的独立结构。可聚焦观察其形状、连接位置与相邻零件。'};}
 function visibleThroughParents(o){for(let p=o;p;p=p.parent)if(!p.visible)return false;return true;}
 function selectionBox(){if(!selection)return null;if(selection.entry)return selection.entry.box.clone().applyMatrix4(selection.entry.anchor.matrixWorld);return new T.Box3().setFromObject(selection.object);}
 function pick(event){const r=canvas.getBoundingClientRect();pointer.set((event.clientX-r.left)/r.width*2-1,-(event.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(pickTargets.filter(visibleThroughParents),false);const hit=hits.find(h=>h.object.userData.layer!=='track')||hits[0];if(!hit)return;let entry=null,n=nameOf(hit.object);if(hit.object.userData.ranges){entry=hit.object.userData.ranges.find(a=>hit.faceIndex>=a.start&&hit.faceIndex<a.end);if(entry)n=entry.name;}const info=describe(n);selection={object:hit.object,entry,layer:hit.object.userData.layer};$('partTitle').textContent=info.title;$('partName').textContent=n;$('partDesc').textContent=info.desc;$('focusPart').disabled=false;highlight.box.copy(selectionBox());highlight.visible=true;$('inspector').classList.add('open');}
 let pointerDown=null;canvas.addEventListener('pointerdown',e=>{pointerDown={x:e.clientX,y:e.clientY,button:e.button};});canvas.addEventListener('pointerup',e=>{if(pointerDown?.button===0&&Math.hypot(e.clientX-pointerDown.x,e.clientY-pointerDown.y)<5)pick(e);pointerDown=null;});
-$('focusPart').onclick=()=>{if(!selection)return;const box=selectionBox(),target=box.getCenter(V(0,0,0)),size=box.getSize(V(0,0,0)),dist=Math.max(size.length()*1.4,.5),direction=camera.position.clone().sub(controls.target).normalize();Object.assign(cameraTween,{active:true,start:performance.now(),fromEye:camera.position.clone(),fromTarget:controls.target.clone(),toEye:target.clone().addScaledVector(direction,dist),toTarget:target});updateSun(target,Math.max(5,size.length()));};
-$('homeView').onclick=()=>setView(state.view);$('cutaway').onclick=()=>{if(state.view==='interior')setView('station');setCutaway(!state.cutaway);};$('play').onclick=()=>setPlaying(!state.playing);$('scrub').oninput=e=>{stopDemo();setPlaying(false);seek(Number(e.target.value));};$('speed').onchange=e=>state.speed=Number(e.target.value);$('loop').onchange=e=>state.loop=e.target.checked;
-for(const b of document.querySelectorAll('[data-time]'))b.onclick=()=>{stopDemo();setPlaying(false);seek(Number(b.dataset.time));};
-$('temperature').oninput=e=>{stopDemo();setPlaying(false);state.autoTemp=false;$('autoTemp').checked=false;state.manualTemp=Number(e.target.value);repairCurves();model.updateMatrixWorld(true);updateUI();};$('autoTemp').onchange=e=>{stopDemo();setPlaying(false);state.autoTemp=e.target.checked;prevRepair='';repairCurves();updateUI();};
+$('focusPart').onclick=()=>{if(!selection)return;if(tour.active)tour.stop();const box=selectionBox(),target=box.getCenter(V(0,0,0)),size=box.getSize(V(0,0,0)),dist=Math.max(size.length()*1.4,.5),direction=camera.position.clone().sub(controls.target).normalize();Object.assign(cameraTween,{active:true,start:performance.now(),fromEye:camera.position.clone(),fromTarget:controls.target.clone(),toEye:target.clone().addScaledVector(direction,dist),toTarget:target});updateSun(target,Math.max(5,size.length()));};
+$('homeView').onclick=()=>{if(tour.active)tour.stop();setView(state.view);};$('cutaway').onclick=()=>{if(tour.active)tour.stop();if(state.view==='interior')setView('station');setCutaway(!state.cutaway);};$('play').onclick=()=>setPlaying(!state.playing);$('scrub').oninput=e=>{if(tour.active){tour.seek(Number(e.target.value));return;}stopDemo();setPlaying(false);seek(Number(e.target.value));};$('speed').onchange=e=>state.speed=Number(e.target.value);$('loop').onchange=e=>state.loop=e.target.checked;
+for(const b of document.querySelectorAll('[data-time]'))b.onclick=()=>{if(tour.active){tour.seek(Number(b.dataset.time));return;}stopDemo();setPlaying(false);seek(Number(b.dataset.time));};
+$('temperature').oninput=e=>{if(tour.active)tour.stop();stopDemo();setPlaying(false);state.autoTemp=false;$('autoTemp').checked=false;state.manualTemp=Number(e.target.value);repairCurves();model.updateMatrixWorld(true);updateUI();};$('autoTemp').onchange=e=>{if(tour.active)tour.stop();stopDemo();setPlaying(false);state.autoTemp=e.target.checked;prevRepair='';repairCurves();updateUI();};
 $('showInfo').onclick=()=>$('inspector').classList.toggle('open');$('quality').onclick=()=>{state.quality=!state.quality;renderer.shadowMap.enabled=state.quality;renderer.setPixelRatio(state.quality?Math.min(devicePixelRatio||1,1.5):1);resize();notify(state.quality?'标准画质：柔和阴影已开启':'流畅画质：关闭阴影，降低渲染负担');};$('aboutBtn').onclick=()=>$('about').showModal();$('closeAbout').onclick=()=>$('about').close();
 $('snapshot').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='高铁教学_'+state.view+'_'+state.time.toFixed(1)+'s.png';a.href=canvas.toDataURL('image/png');a.click();notify('已保存当前三维画面');};
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName)&&!$('about').open){e.preventDefault();setPlaying(!state.playing);}if(e.key==='Escape'){highlight.visible=false;selection=null;}});
-controls.addEventListener('start',()=>{cameraTween.active=false;});
+controls.addEventListener('start',()=>{if(tour.active)tour.stop();cameraTween.active=false;});
 
 function updateBrakeUI(){const u=brakes.units.find(u=>u.prefix===$('brakeTarget').value);if(!u)return;const normal=u.mode==='normal';$('breakLine').disabled=!normal;$('resetBrake').disabled=u.mode!=='locked';$('brakeTarget').disabled=brakes.units.some(x=>x.mode!=='normal');$('brakeStatus').textContent=({normal:'正常补偿 · 轮齿与卡板脱离',falling:'断线失衡 · 轮架下摆（慢放）',locked:'齿面接触 · 制动锁止',resetting:'重新承托卸载 · 解锁复位'})[u.mode];$('brakeStroke').textContent='轮心下移 '+(-u.center.y*1000).toFixed(1)+' mm · 坠砣下移 '+((u.mode==='normal'?0:-u.base*.45-2.5-u.weightAnchor.y)*1000).toFixed(1)+' mm';$('play').disabled=!normal&&!viewDemo.active;$('scrub').disabled=!normal;$('temperature').disabled=!normal;$('autoTemp').disabled=!normal;}
-$('brakeTarget').onchange=()=>{if(state.autoPlayViews){viewDemo.start('compensation');setPlaying(true);}else{brakeFocus='assembly';aimAtBrake('assembly');}updateBrakeUI();updateUI();};
-$('breakLine').onclick=()=>{stopDemo();aimAtBrake(brakeFocus='detail');const t=getTemp();state.manualTemp=t;state.autoTemp=false;$('autoTemp').checked=false;setPlaying(false);brakes.trigger($('brakeTarget').value,t);repairCurves();updateUI();};
-$('resetBrake').onclick=()=>{stopDemo();setPlaying(false);brakes.reset($('brakeTarget').value);updateBrakeUI();};
+$('brakeTarget').onchange=()=>{if(tour.active)tour.stop();if(state.autoPlayViews){viewDemo.start('compensation');setPlaying(true);}else{brakeFocus='assembly';aimAtBrake('assembly');}updateBrakeUI();updateUI();};
+$('breakLine').onclick=()=>{if(tour.active)tour.stop();stopDemo();aimAtBrake(brakeFocus='detail');const t=getTemp();state.manualTemp=t;state.autoTemp=false;$('autoTemp').checked=false;setPlaying(false);brakes.trigger($('brakeTarget').value,t);repairCurves();updateUI();};
+$('resetBrake').onclick=()=>{if(tour.active)tour.stop();stopDemo();setPlaying(false);brakes.reset($('brakeTarget').value);updateBrakeUI();};
 $('brakeClose').onclick=()=>{brakeFocus='detail';aimAtBrake('detail');};
 
-$('autoFollow').onchange=e=>{state.autoFollow=e.target.checked;followAnchor.copy(viewFocus(state.view));};
-$('autoViewPlay').onchange=e=>{state.autoPlayViews=e.target.checked;if(!state.autoPlayViews){stopDemo();setPlaying(false);}else setView(state.view);};
-$('replayMechanism').onclick=()=>{viewDemo.start(state.view);setPlaying(true);if(state.view==='compensation')aimAtBrake('assembly');};
+$('autoFollow').onchange=e=>{if(tour.active)tour.stop();state.autoFollow=e.target.checked;followAnchor.copy(viewFocus(state.view));};
+$('autoViewPlay').onchange=e=>{if(tour.active)tour.stop();state.autoPlayViews=e.target.checked;if(!state.autoPlayViews){stopDemo();setPlaying(false);}else setView(state.view);};
+$('tourToggle').onclick=()=>{if(tour.active)tour.stop();else tour.start();};
+$('noseFocus').onclick=()=>{
+ if(tour.active)tour.stop();
+ setView('station',true,false);setPlaying(false);
+ state.autoFollow=false;$('autoFollow').checked=false;
+ cameraTween.active=false;
+ const target=V(train.position.x+35.85,2.40,0);
+ camera.position.copy(target).add(V(12.8,4.9,-12.7));
+ controls.target.copy(target);camera.fov=40;camera.updateProjectionMatrix();controls.update();
+ updateSun(target,34);followAnchor.copy(target);followBase.x=train.position.x;
+ $('demoCaption').textContent='车头近景 · 左键环绕 · 滚轮缩放';
+};
+
+$('replayMechanism').onclick=()=>{if(tour.active)tour.stop();viewDemo.start(state.view);setPlaying(true);if(state.view==='compensation')aimAtBrake('assembly');};
 
 let last=performance.now(),lastUI=0;seek(state.time);applyVisibility();setView('station',true,false);$('loader').classList.add('hidden');document.body.dataset.loading='false';for(const e of document.querySelectorAll('button,input,select'))if(e.id!=='focusPart')e.disabled=false;updateBrakeUI();$('stats').textContent=software?'兼容显示 · 同一 GLB 几何 · 简化光影':'教学慢放 · 内嵌模型 · 可离线观察';if(software){document.querySelector('.chip').textContent='兼容显示 · 简化光影';}
-function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,1);last=now;if((!viewDemo.active||state.playing)&&brakes.advance(dt*state.speed)){repairCurves();model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}if(viewDemo.active&&state.playing&&!cameraTween.active){viewDemo.tick(dt*state.speed);repairCurves();model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}if(state.playing&&!viewDemo.active){let t=state.time+dt*state.speed;if(t>40){if(state.loop)t=startTime+(t-40);else{t=40;setPlaying(false);}}state.time=t;mixer.setTime(t);model.updateMatrixWorld(true);repairCurves();model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}
- const focus=viewFocus(state.view);if(cameraTween.active){const t=Math.min(1,(now-cameraTween.start)/650),q=t*t*(3-2*t);camera.position.lerpVectors(cameraTween.fromEye,cameraTween.toEye,q);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,q);if(t===1)cameraTween.active=false;}else if(state.autoFollow){const delta=focus.clone().sub(followAnchor);camera.position.add(delta);controls.target.add(delta);}followAnchor.copy(focus);followBase.x=train.position.x;
+// Enter cinema by default; a single button returns to independent scene inspection.
+tour.start();
+function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,1);last=now;if((!viewDemo.active||state.playing)&&brakes.advance(dt*state.speed)){repairCurves();model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}if(viewDemo.active&&state.playing&&!cameraTween.active){viewDemo.tick(dt*state.speed);repairCurves();model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}if(state.playing&&!viewDemo.active&&!tour.active){let t=state.time+dt*state.speed;if(t>40){if(state.loop)t=startTime+(t-40);else{t=40;setPlaying(false);}}state.time=t;mixer.setTime(t);model.updateMatrixWorld(true);repairCurves();model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}
+ if(tour.active&&state.playing){tour.tick(dt*state.speed);model.updateMatrixWorld(true);sun.shadow.needsUpdate=true;if(now-lastUI>80){updateUI();lastUI=now;}}
+ const focus=viewFocus(state.view);if(!tour.active&&cameraTween.active){const t=Math.min(1,(now-cameraTween.start)/650),q=t*t*(3-2*t);camera.position.lerpVectors(cameraTween.fromEye,cameraTween.toEye,q);controls.target.lerpVectors(cameraTween.fromTarget,cameraTween.toTarget,q);if(t===1)cameraTween.active=false;}else if(!tour.active&&state.autoFollow){const delta=focus.clone().sub(followAnchor);camera.position.add(delta);controls.target.add(delta);}followAnchor.copy(focus);followBase.x=train.position.x;
  if(selection&&highlight.visible)highlight.box.copy(selectionBox());controls.update();renderer.userStateToken=brakes.revision+'|'+state.time+'|'+getTemp()+'|'+Object.values(layers).join(',')+'|'+state.cutaway;renderer.render(scene,camera);
 }
 requestAnimationFrame(animate);
-window.__rail={ready:true,state,seek,setView,setPlaying,setCutaway,layers,applyVisibility,scene,model,train,head,panto,comp,renderer,camera,controls,mixer,mechanical,brakes,viewDemo,stats:{software,sourceNodes:gltf.parser.json.nodes.length,animationClips:gltf.animations.length,batches:batchCount},diagnostics(){const errors=[];for(const c of comp){const pts=c.large.object.geometry.attributes.position;let count=0;for(const x of pts.array)if(!Number.isFinite(x))count++;if(count)errors.push(c.prefix+' rope nonfinite');}return{time:state.time,temp:getTemp(),trainX:train.position.x,headY:head.getWorldPosition(V(0,0,0)).y+.11,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,errors};}};
+window.__rail={ready:true,state,tour,seek,setView,setPlaying,setCutaway,layers,applyVisibility,scene,model,train,head,panto,comp,leadingCab,renderer,camera,controls,mixer,mechanical,brakes,viewDemo,stats:{software,sourceNodes:gltf.parser.json.nodes.length,animationClips:gltf.animations.length,batches:batchCount},diagnostics(){const errors=[];for(const c of comp){const pts=c.large.object.geometry.attributes.position;let count=0;for(const x of pts.array)if(!Number.isFinite(x))count++;if(count)errors.push(c.prefix+' rope nonfinite');}return{time:state.time,temp:getTemp(),trainX:train.position.x,headY:head.getWorldPosition(V(0,0,0)).y+.11,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,errors};}};
 }
 
 
