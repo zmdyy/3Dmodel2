@@ -29,12 +29,16 @@ window.MODEL_CATALOG = [
   {
     "id": "cr400af-railway-power",
     "title": "高铁，如何持续取电 · CR400AF",
-    "subtitle": "受电弓升降 · 弓网接触 · 张力补偿 · 棘轮断线制动",
+    "subtitle": "飞龙头车 · SWT-400E1 转向架 · 进出站自动导览 · 弓网取电",
     "category": "综合应用",
-    "summary": "以 CR400AF 单节动车组的教学模型，观察站台与接触网、受电弓升降、弓网动态接触、张力自动补偿与棘轮断线制动；提供七个视角、车厢剖视、部件聚焦与自动跟随。局部装配采用教学推定，非厂家制造级 CAD。",
+    "summary": "CR400AF 普通型飞龙头车与 Tp 车联合三维演示：连续曲面车头、封闭端面与风挡衔接、SWT-400E1 拖车转向架、受电弓、接触网和张力补偿。含七场景、九段镜头、144 秒进站减速—停站—出站加速自动导览；可切换车头近景、剖切客室、聚焦零件和演示棘轮断线制动。局部造型与装配为教学参考重建，非厂家 CAD。",
     "tags": [
       "高铁",
       "CR400AF",
+      "飞龙车头",
+      "SWT-400E1",
+      "七场景自动导览",
+      "车厢风挡",
       "电气化铁路",
       "受电弓",
       "接触网",
@@ -46,7 +50,7 @@ window.MODEL_CATALOG = [
       "Three.js",
       "Blender"
     ],
-    "path": "models/cr400af-railway-power.html?v=20261029-v1",
+    "path": "models/cr400af-railway-power.html?v=20261030-v2",
     "cover": "assets/covers/cr400af-railway-power-scene.svg",
     "symbol": "铁",
     "accent": "green"
