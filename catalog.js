@@ -1,5 +1,31 @@
 window.MODEL_CATALOG = [
   {
+    "id": "wet-dry-bulb-psychrometer",
+    "title": "干湿球温度计 · 蒸发吸热与空气湿度",
+    "subtitle": "双温度计 · 蒸发降温 · 湿度估算 · 放大读数",
+    "category": "热学实验",
+    "summary": "传统干湿球温度计的三维交互演示：调节气温、相对湿度、风速及湿纱布供水，观察干湿球液柱连续响应、温差及相对湿度估算。支持 SVG 纯黑刻度读数、双温度计放大观察、湿球特写和断水失效演示；完整单文件离线运行。估算采用简化通风湿球模型，仅供教学。",
+    "tags": [
+      "干湿球温度计",
+      "干球",
+      "湿球",
+      "蒸发吸热",
+      "空气湿度",
+      "相对湿度",
+      "湿纱布",
+      "毛细吸水",
+      "刻度读数",
+      "局部放大",
+      "Three.js",
+      "PBR",
+      "SVG",
+      "离线"
+    ],
+    "path": "models/wet-dry-bulb-psychrometer.html?v=20261030-v11",
+    "symbol": "湿",
+    "accent": "blue"
+  },
+  {
     "id": "thermometers-thermal-expansion",
     "title": "温度计与热膨胀 · 九种结构探究",
     "subtitle": "水银狭道 · 双金属直片 · 波登管 · 金属杆 · 空气温度计",
