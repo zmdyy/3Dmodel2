@@ -22,6 +22,7 @@ window.MODEL_CATALOG = [
       "离线"
     ],
     "path": "models/wet-dry-bulb-psychrometer.html?v=20261030-v11",
+    "cover": "assets/covers/wet-dry-bulb-psychrometer-scene.jpg?v=20261030-webgl",
     "symbol": "湿",
     "accent": "blue"
   },

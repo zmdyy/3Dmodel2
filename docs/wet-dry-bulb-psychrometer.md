@@ -25,14 +25,19 @@
 
 该模型用于说明蒸发吸热与湿度关系：固定气压、忽略辐射误差，低风速修正仅为教学近似，不等同于气象部门的正式湿度查算表或校准仪器。干球温度和相对湿度是实验设定值，不是实际测量采样值。
 
-## 验收记录及待补充
+## 验收记录与截图
 
 - 入库前检查：页面源码包含内嵌 Three.js，未使用 CDN；刻度两侧共用同一模板；45 ℃ 量程、断水状态、放大观察及示数绑定均可由源码追溯。
-- 历史迭代已进行 JavaScript 语法和模型逻辑测试；当前运行环境的浏览器访问本地文件与测试服务被限制，因此 **V11 的真实 WebGL 页面截图和视觉回归尚未完成**，不可声称已做实际渲染验收。
-- 尚未上传封面：按 `docs/gallery-covers.md` 规定，必须使用实际运行画面，避免虚构或使用不对应版本的封面。
+- 使用 Chromium 144、Xvfb 虚拟显示器与 Mesa llvmpipe/SwiftShader 软件 WebGL 成功创建 WebGL2 上下文，内嵌 Three.js r170 正常加载，场景帧渲染成功且未报告 JavaScript 页面错误。
+- 已用真实 V11 场景渲染生成 960×540 JPEG 首页封面：`assets/covers/wet-dry-bulb-psychrometer-scene.jpg`。仅隐藏操作界面并调整画布与取景，保留实际模型、材质和光影；不是备用 SVG 示意图。
+- 曾在无头 Chromium 下出现 `BindToCurrentSequence failed`，且访问本地 `file://` 受到浏览器环境限制；改用 `xvfb-run` 的有头软件渲染及 `page.setContent()` 后已完成真实截图。
 
 ## 参考与维护
 
 - 结构参照传统干湿球温度计的湿纱布—水杯连续吸水布局。
 - 导航规范：`docs/navigation.md`；材质规范：`MATERIALS.md`。
 - 物理与结构均属于教学可视化，不用于标准气象观测或器材制造。
+
+## 封面截图复现
+
+运行 `xvfb-run -a -s '-screen 0 1920x1080x24 +extension GLX' env LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe node scripts/capture-wet-dry-bulb-cover.cjs`。需要安装 Playwright 与 Chromium。脚本只截取当前 HTML 的真实 Three.js 画布，不重新绘制仪器。

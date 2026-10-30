@@ -45,3 +45,7 @@
 - `cr400af-railway-power-scene.jpg`：当前 CR400AF 停站阶段的车头近景，保留车体、轨道与站台背景。
 
 仅隐藏截图中的操作界面、调整观察构图；保留原模型、材质与照明。重现：`CHROMIUM_PATH=/path/to/chrome node scripts/capture-thermal-rail-covers.cjs`。
+
+## 干湿球温度计封面（2026-10-30）
+
+`assets/covers/wet-dry-bulb-psychrometer-scene.jpg` 为 `models/wet-dry-bulb-psychrometer.html` V11 的实际 Chromium/WebGL 画布截图，960×540 JPEG。隐藏舞台说明、视角工具栏及状态浮层后，仅调整默认镜头缩放；保留双温度计、湿纱布、水杯、原有材质与光影。截图时 Chromium headless 在当前环境报错 `BindToCurrentSequence failed`，转为 Xvfb 虚拟屏幕下的 Chromium 非无头模式与 Mesa 软件 WebGL 后成功。重现：`scripts/capture-wet-dry-bulb-cover.cjs`，使用 `xvfb-run` 执行。
