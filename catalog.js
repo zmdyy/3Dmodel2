@@ -351,7 +351,7 @@ window.MODEL_CATALOG = [
       "SVG",
       "离线"
     ],
-    "path": "models/buoyancy-measurement.html?v=20261031-v1",
+    "path": "models/buoyancy-measurement.html?v=20261031-v2-svg-sharp",
     "symbol": "浮",
     "accent": "blue"
   },
