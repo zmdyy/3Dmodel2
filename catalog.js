@@ -47,7 +47,7 @@ window.MODEL_CATALOG = [
       "SVG",
       "React"
     ],
-    "path": "models/thermometers-thermal-expansion.html?v=20261030-v5",
+    "path": "models/thermometers-thermal-expansion.html?v=20261031-v6",
     "cover": "assets/covers/thermometers-thermal-expansion-scene.jpg",
     "symbol": "温",
     "accent": "coral"
