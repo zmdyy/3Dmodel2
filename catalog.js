@@ -331,6 +331,31 @@ window.MODEL_CATALOG = [
     "accent": "blue"
   },
   {
+    "id": "buoyancy-measurement",
+    "title": "浮力的测量",
+    "subtitle": "空气中称重 · 浸入液体 · 弹簧测力计精细读数",
+    "category": "力学实验",
+    "summary": "同一套铁架台、弹簧测力计与玻璃容器完成空气中称重和浸入液体两种实验。重物初始放在地面，拖动滑块提升重物；浸入液体时连续观察示数变化与浮力。包含精细SVG读数窗、可缩放视角与一屏布局，完整单文件离线运行。",
+    "tags": [
+      "浮力",
+      "浮力的测量",
+      "弹簧测力计",
+      "空气中称重",
+      "称重法",
+      "浸入液体",
+      "示数变化",
+      "读数放大",
+      "铁架台",
+      "玻璃容器",
+      "Three.js",
+      "SVG",
+      "离线"
+    ],
+    "path": "models/buoyancy-measurement.html?v=20261031-v1",
+    "symbol": "浮",
+    "accent": "blue"
+  },
+  {
     "id": "buoyancy-density-lab",
     "title": "浮力与密度实验室",
     "subtitle": "标准实验、溢水杯、剪绳、底部拴绳与套杯托起",
