@@ -4,7 +4,7 @@
 
 面向初中物理课堂与自主探究的 3D 教学作品集：通过 **Three.js / WebGL、SVG、Canvas** 等技术，把实验器材的结构、实验现象的变化过程与物理量之间的关系呈现在浏览器中。部分案例使用 React、PBR 材质及 Blender / glTF 模型；不同案例的实现方式并不完全相同。
 
-**当前案例：64 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-10-30）
+**当前案例：65 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-10-30）
 
 [查看作品集入口](./index.html) · [浏览完整案例目录](#完整案例目录) · [快速开始](#快速开始) · [新增案例](#新增案例与维护)
 
@@ -35,6 +35,7 @@
 
 | 案例 | 课堂探究重点 |
 |:---|:---|
+| [浮力的测量](./models/buoyancy-measurement.html) | 从地面提升重物、空气称重、浸入液体与精细读数 |
 | [浮力与密度实验室](./models/buoyancy-density-lab.html) | 五种实验联动受力图、曲线与三维装置 |
 | [弹簧测力计（三种结构）](./models/spring-force-meters.html) | 加载、剖切、分解和矢量刻度读数 |
 | [光与光谱](./models/light-spectrum-color-vision.html) | 三棱镜色散、滤光片和物体颜色 |
@@ -49,12 +50,12 @@
 
 ## 完整案例目录
 
-作品集中的 63 个正式入口均由 `catalog.js` 登记。下列列表按现有分类分组；点击分类可展开。
+作品集中的 65 个正式入口均由 `catalog.js` 登记。下列列表按现有分类分组；点击分类可展开。
 
 | 分类 | 数量 | 分类 | 数量 |
 |:---|---:|:---|---:|
 | 热学实验 | 5 | 光学现象 | 8 |
-| 光学仪器 | 3 | 力学实验 | 18 |
+| 光学仪器 | 3 | 力学实验 | 19 |
 | 综合应用 | 8 | 电学元件 | 7 |
 | 电学实验 | 2 | 声学与电磁 | 5 |
 | 能源与发电 | 3 | 家庭电路 | 1 |
@@ -96,12 +97,13 @@
 </details>
 
 <details>
-<summary><strong>力学实验（18）</strong></summary>
+<summary><strong>力学实验（19）</strong></summary>
 
 - [大气压与按压泵](./models/pressure-pumps.html) — 洗手液泵与气囊取水器 · 双案例剖面
 - [绿豆密度 · 等体积替代](./models/mung-bean-density.html) — 四步实验、四次称量与物理量总览
 - [弹簧测力计 · 三种结构](./models/spring-force-meters.html) — 圆筒式、条形盒式与开放式
 - [深中通道 E15 · 沉管浮运安装](./models/shenzhong-e15.html) — 十阶段施工演示 · 分阶段自动跟随镜头
+- [浮力的测量](./models/buoyancy-measurement.html) — 重物由地面提升、空气中称量与浸入液体，联动测力计SVG放大读数
 - [浮力与密度实验室](./models/buoyancy-density-lab.html) — 标准实验、溢水杯、剪绳、底部拴绳与套杯托起
 - [托盘天平 · 质量测量](./models/tray-balance.html) — 手动调零、砝码与游码配平、读数及误差
 - [筒车灌田 · 机械能转化](./models/water-wheel.html) — 水流驱动、竹筒提水与梯田灌溉
