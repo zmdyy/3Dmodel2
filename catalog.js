@@ -1,5 +1,29 @@
 window.MODEL_CATALOG = [
   {
+    "id": "mobile-crane-simple-machines",
+    "title": "汽车起重机 · 简单机械实验室",
+    "subtitle": "四阶段作业流程 · 支腿 · 吊臂 · 滑轮组 · 卷扬",
+    "category": "综合应用",
+    "summary": "汽车起重机三维交互教学：运输收拢、缓慢展开支腿、起重准备时挂住重物，以及卷扬起吊四阶段。可调回转、变幅、伸缩、卷扬和承重绳股数，结合滑轮组、杠杆、轮轴与支腿压强进行初中物理探究。内嵌模型数据，支持离线单文件运行。",
+    "tags": [
+      "汽车起重机",
+      "吊车",
+      "支腿",
+      "滑轮组",
+      "定滑轮",
+      "动滑轮",
+      "杠杆",
+      "轮轴",
+      "起重",
+      "卷扬",
+      "WebGL",
+      "离线"
+    ],
+    "path": "models/mobile-crane-simple-machines.html?v=20261031-v20",
+    "symbol": "吊",
+    "accent": "amber"
+  },
+  {
     "id": "wet-dry-bulb-psychrometer",
     "title": "干湿球温度计 · 蒸发吸热与空气湿度",
     "subtitle": "双温度计 · 蒸发降温 · 湿度估算 · 放大读数",
