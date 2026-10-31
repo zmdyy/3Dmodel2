@@ -20,6 +20,7 @@ window.MODEL_CATALOG = [
       "离线"
     ],
     "path": "models/mobile-crane-simple-machines.html?v=20261031-v20",
+    "cover": "assets/covers/mobile-crane-simple-machines.svg?v=20261031-v20",
     "symbol": "吊",
     "accent": "amber"
   },
