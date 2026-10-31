@@ -1,0 +1,634 @@
+{
+  "schema_version": 1,
+  "release": "1.2.1",
+  "restoration": "2026-10-31: source restored from conversation implementation and original cases after workspace cleanup; verification rerun before publication. Not byte-identical recovery of old unpublished commits.",
+  "entrypoint": "AGENTS.md",
+  "source_commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+  "units": {
+    "length": "m",
+    "force": "N",
+    "time": "s",
+    "angle": "rad"
+  },
+  "resources": [
+    {
+      "id": "camera-navigation",
+      "name": "手动视角与阶段镜头",
+      "aliases": [
+        "镜头",
+        "视角",
+        "旋转",
+        "平移",
+        "双指",
+        "缩放",
+        "自动跟随",
+        "深中通道",
+        "钱塘江大桥"
+      ],
+      "status": "extracted",
+      "version": "1.0.0",
+      "engine": [
+        "engine-neutral"
+      ],
+      "files": [
+        "shared/lab-kit/navigation.js"
+      ],
+      "requires": [],
+      "api": [
+        "LabKit.createNavigation",
+        "LabKit.fitPose",
+        "LabKit.sampleShots",
+        "LabKit.lerpPose"
+      ],
+      "parameters": {
+        "pose": "{target:[x,y,z],dist>0,yaw,pitch}; scene units, radians",
+        "fov": "vertical degrees; must match camera",
+        "update": "seconds; once per host animation frame"
+      },
+      "anchors": {},
+      "example": "const nav=LabKit.createNavigation({element:canvas,pose:{target:[0,.3,0],dist:1.4,yaw:.4,pitch:.2},fov:camera.fov,apply(p,eye){camera.position.set(...eye);camera.lookAt(...p.target);},onManual(){auto=false;}});\n// existing rAF: if(auto)nav.follow(goal);nav.update(dtSeconds);",
+      "sources": [
+        {
+          "path": "models/shenzhong-e15.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "cam / v26LerpPose / v26Fit / v26Step",
+          "sha256": "24813bfdc0aa23573c14dcafd9ec6693c19b23781e79a5b95bb7b102df71b477"
+        },
+        {
+          "path": "models/qiantang-bridge-complete.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "loadModule / advance",
+          "sha256": "5db98dce596eee2bff6ecde54897088d86f073883e68a2d23119798ef3b2a542"
+        }
+      ],
+      "limits": [
+        "Perspective/Y-up only. Host owns ONE rAF and renderer.",
+        "Manual input stops automatic; host must stop issuing follow until explicit resume.",
+        "Do not copy engineering shot coordinates or use CR400AF navigation as standard."
+      ],
+      "acceptance": [
+        "pan/pinch/orbit",
+        "manual takeover/resume",
+        "shortest-angle/log-distance interpolation",
+        "wide/tall box fitting"
+      ],
+      "documentation": "docs/reuse/API.md#camera-navigation",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "svg-scale",
+      "name": "SVG刻度与文字",
+      "aliases": [
+        "SVG",
+        "svg",
+        "刻度",
+        "文字",
+        "数字",
+        "读数",
+        "单位",
+        "字体"
+      ],
+      "status": "extracted",
+      "version": "1.0.1",
+      "engine": [
+        "engine-neutral",
+        "three-r160"
+      ],
+      "files": [
+        "shared/lab-kit/svg.js"
+      ],
+      "requires": [],
+      "api": [
+        "LabKit.svg.linearScale",
+        "LabKit.svg.label",
+        "LabKit.svg.texture"
+      ],
+      "parameters": {
+        "linearScale": "min,max,step,majorEvery,unit,value,width,height,x,top,bottom,fontSize; grows DOWNWARD",
+        "texture": "(THREE,markup,{renderer}) => {texture,ready}"
+      },
+      "anchors": {},
+      "example": "const svg=LabKit.svg.linearScale({value:2.4});zoom.innerHTML=svg;\nconst {texture,ready}=LabKit.svg.texture(THREE,svg,{renderer});await ready;",
+      "sources": [
+        {
+          "path": "models/spring-force-meters.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "svgMarkup / frontPanel",
+          "sha256": "6122dc2fe20561d4f5b08f522f0338c900a4ff9be498feca541a841d83e432e5"
+        },
+        {
+          "path": "models/thermometers-thermal-expansion.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "dialTexture / svgMap",
+          "sha256": "4b5441941d97b4cdb6559ece7b01c483ce2ac3149f5edd09efebc6af005fc875"
+        }
+      ],
+      "limits": [
+        "Only linear downward scale, not thermometer or circular dial.",
+        "3D texture rasterizes SVG; formal zoom readout renders source SVG directly.",
+        "CJK fonts rely on device font fallback.",
+        "Red pointer must stay inside central gap, avoiding black ticks."
+      ],
+      "acceptance": [
+        "zero/full/decimal reading",
+        "no black tick occlusion",
+        "SVG escaping and texture readiness"
+      ],
+      "documentation": "docs/reuse/API.md#svg-scale",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "glass-beaker",
+      "name": "玻璃容器与液体",
+      "aliases": [
+        "玻璃",
+        "玻璃杯",
+        "烧杯",
+        "容器",
+        "液体",
+        "液面",
+        "水体",
+        "光影",
+        "反光"
+      ],
+      "status": "extracted",
+      "version": "1.0.0",
+      "engine": [
+        "three-r160"
+      ],
+      "files": [
+        "shared/lab-kit/glassware.js"
+      ],
+      "requires": [],
+      "api": [
+        "LabKit.createGlassLab",
+        "LabKit.createBeaker",
+        "LabKit.disposeObject"
+      ],
+      "parameters": {
+        "dimensions": "radius,height,wall,level in metres; level is depth ABOVE inner bottom",
+        "setLevel": "0 <= level <= height-2*wall"
+      },
+      "anchors": {
+        "base": [
+          0,
+          0,
+          0
+        ],
+        "mouth": "[0,height,0]"
+      },
+      "example": "const light=LabKit.createGlassLab(THREE,{renderer,scene});\nconst cup=LabKit.createBeaker(THREE,{radius:.055,height:.14,wall:.0018,level:.1});scene.add(cup.group);cup.setLevel(.11);",
+      "sources": [
+        {
+          "path": "models/archimedes-principle.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "glass / waterMat / surfaceMat / vessel / lights",
+          "sha256": "1cb452698a4b294ea5d81382ee327efcb9b01b8a310ec8583700d6c68dfdd170"
+        }
+      ],
+      "limits": [
+        "Reuse geometry, lights, exposure, background and transparent order together.",
+        "Generic cylindrical teaching container, no calibrated capacity or overflow spout.",
+        "Not exact refraction. Nested cups require independent verification.",
+        "disposeObject only on privately owned object trees."
+      ],
+      "acceptance": [
+        "empty/filled/zero",
+        "independent instances",
+        "multi-angle glass and underwater visibility"
+      ],
+      "documentation": "docs/reuse/API.md#glass-beaker",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "adjustable-stand",
+      "name": "铁架台与可调支架",
+      "aliases": [
+        "铁架台",
+        "支架",
+        "夹具",
+        "挂接",
+        "连接点"
+      ],
+      "status": "extracted",
+      "version": "1.0.0",
+      "engine": [
+        "three-r160"
+      ],
+      "files": [
+        "shared/lab-kit/stand.js"
+      ],
+      "requires": [
+        "glass-beaker"
+      ],
+      "api": [
+        "LabKit.createStand"
+      ],
+      "parameters": {
+        "height/armLength/clampHeight": "metres",
+        "setClampHeight": "valid .04 through pole height"
+      },
+      "anchors": {
+        "mount": "getMountAnchor() returns resource-root metres"
+      },
+      "example": "const stand=LabKit.createStand(THREE);scene.add(stand.group);stand.setClampHeight(.48);const mount=stand.getMountAnchor();",
+      "sources": [
+        {
+          "path": "models/archimedes-principle.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "stand / bracket",
+          "sha256": "1cb452698a4b294ea5d81382ee327efcb9b01b8a310ec8583700d6c68dfdd170"
+        }
+      ],
+      "limits": [
+        "Basic teaching support, not manufacturer CAD.",
+        "Transform anchors into common coordinates when parent groups differ."
+      ],
+      "acceptance": [
+        "clamp limits",
+        "mount follows arm",
+        "no floating connections"
+      ],
+      "documentation": "docs/reuse/API.md#adjustable-stand",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "spring-meter-10n",
+      "name": "FEIDIE条形盒式弹簧测力计10 N",
+      "aliases": [
+        "测力计",
+        "弹簧测力计",
+        "浮力",
+        "称量",
+        "拉力",
+        "FEIDIE",
+        "10 N",
+        "10N"
+      ],
+      "status": "extracted",
+      "version": "1.0.1",
+      "engine": [
+        "three-r160"
+      ],
+      "files": [
+        "shared/lab-kit/spring-meter.js"
+      ],
+      "requires": [
+        "glass-beaker",
+        "svg-scale"
+      ],
+      "api": [
+        "LabKit.createSpringMeter"
+      ],
+      "parameters": {
+        "setForce": "0–10 N, finite; rejects invalid values",
+        "range": "10 N, .2 N graduations",
+        "getReadoutDetail": "{svg,viewBox,focus,readout,subtitle}"
+      },
+      "anchors": {
+        "upperAttachment": [
+          0,
+          0.113,
+          0
+        ],
+        "hook": "getHookAnchor(), changes with force; resource-root metres"
+      },
+      "example": "const meter=LabKit.createSpringMeter(THREE,{renderer});scene.add(meter.group);await meter.ready;meter.setForce(2.4);\nconst a=stand.getMountAnchor(),b=meter.anchors.upperAttachment;meter.group.position.set(...a.map((v,i)=>v-b[i]));\nconst reading=meter.getReadoutDetail();",
+      "sources": [
+        {
+          "path": "models/spring-force-meters.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "hanger / springGeo / buildB / pointer / updateSpring",
+          "sha256": "6122dc2fe20561d4f5b08f522f0338c900a4ff9be498feca541a841d83e432e5"
+        }
+      ],
+      "limits": [
+        "Source geometry retained in mm internally; public group/anchors are metres, do not scale twice.",
+        "Only existing 10 N box meter; never relabel as 2 N without calibration/geometry review.",
+        "Scene computes force; apparatus displays it."
+      ],
+      "acceptance": [
+        "0/2.4/10 N travel",
+        "independent instances",
+        "cutaway restore",
+        "readout/force sync"
+      ],
+      "documentation": "docs/reuse/API.md#spring-meter-10n",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "classroom-typography",
+      "name": "课堂字体与字号规范",
+      "aliases": [
+        "字号",
+        "字体大小",
+        "投影",
+        "排版",
+        "按钮"
+      ],
+      "status": "implemented",
+      "version": "1.0.0",
+      "engine": [
+        "engine-neutral"
+      ],
+      "files": [
+        "shared/lab-kit/typography.css"
+      ],
+      "requires": [],
+      "api": [
+        ".lab-kit CSS scope"
+      ],
+      "parameters": {
+        "screen_px": "title24,heading20,body18,button18,note16,readout36; button>=44px"
+      },
+      "anchors": {},
+      "example": "<link rel=\"stylesheet\" href=\"../shared/lab-kit/typography.css\">\n<body class=\"lab-kit\">...</body>",
+      "sources": [],
+      "limits": [
+        "Screen glyph size must be checked separately for SVG viewBox scaling.",
+        "CJK fonts are not embedded."
+      ],
+      "acceptance": [
+        "desktop/narrow layout",
+        "readability and no horizontal overflow"
+      ],
+      "documentation": "docs/reuse/API.md#classroom-typography",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "detail-view",
+      "name": "统一局部放大窗",
+      "aliases": [
+        "局部放大",
+        "放大窗",
+        "读数放大",
+        "可缩放读数窗",
+        "读数窗",
+        "放大镜"
+      ],
+      "status": "implemented",
+      "version": "1.0.0",
+      "engine": [
+        "engine-neutral"
+      ],
+      "files": [
+        "shared/lab-kit/detail-view.css",
+        "shared/lab-kit/detail-view.js"
+      ],
+      "requires": [],
+      "api": [
+        "LabKit.createDetailView"
+      ],
+      "parameters": {
+        "createDetailView": "{host,compactHost,title,subtitle,width,top,right,minZoom,maxZoom,onVisibilityChange}",
+        "setSVG": "trusted svg, {viewBox:[x,y,w,h],focus:[x,y]}; preserves zoom",
+        "setContent": "DOM node, {update({zoom,visible,viewport}),dispose}"
+      },
+      "anchors": {},
+      "example": "const panel=LabKit.createDetailView({host:stage,compactHost:belowStage,title:'测力计读数'});\nconst r=meter.getReadoutDetail();panel.setSVG(r.svg,{viewBox:r.viewBox,focus:r.focus});panel.setReadout(r.readout);\n// panel.show()/hide()/toggle()/reset()/setZoom(2)/dispose()",
+      "sources": [],
+      "limits": [
+        "SVG must be trusted app-generated content.",
+        "host: position relative; compactHost outside viewport for host width<620px.",
+        "Zoom is relative to supplied focus region, not absolute model magnification.",
+        "No private clock/renderer. 3D content needs a host adapter."
+      ],
+      "acceptance": [
+        "right-side placement",
+        "drag/clamp/reset/close/reopen",
+        "zoom preserved and focus followed",
+        "mobile below scene",
+        "independent content disposal"
+      ],
+      "documentation": "docs/reuse/API.md#detail-view",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "cylinder-linked-lens",
+      "name": "量筒圆形定位放大镜",
+      "aliases": [
+        "圆形放大镜",
+        "圆形放大",
+        "定位连线",
+        "液面放大",
+        "量筒"
+      ],
+      "status": "extracted",
+      "version": "1.0.0",
+      "engine": [
+        "engine-neutral"
+      ],
+      "files": [
+        "shared/lab-kit/instrument-details.js"
+      ],
+      "requires": [],
+      "api": [
+        "LabKit.cylinderWithLens"
+      ],
+      "parameters": {
+        "value": "5–50 mL",
+        "after": "flips sides",
+        "object": "{id:stone|aluminum|iron,volume}; null hides object"
+      },
+      "anchors": {},
+      "example": "target.innerHTML=LabKit.cylinderWithLens({value:39,after:true});",
+      "sources": [
+        {
+          "path": "docs/reuse/references/measurement-1-source.txt",
+          "commit": "8cd976dd4764eed2fad424de73478899bee2262f",
+          "repository": "zmdyy/measurement-1",
+          "locator": "water / markings / drawScene / instrument",
+          "sha256": "93ace23c7e23309cb1b3193db35c12ce216b7575070579dcefb4c0e0368000e1"
+        }
+      ],
+      "limits": [
+        "Original 50 mL/1 mL cylinder type, not a universal calibration.",
+        "Source and zoom use identical water/ticks; preserve adjacent numbered major marks.",
+        "Artwork is not a displacement solver."
+      ],
+      "acceptance": [
+        "liquid source/zoom sync",
+        "unique clip IDs",
+        "circle and location link"
+      ],
+      "documentation": "docs/reuse/API.md#cylinder-linked-lens",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    },
+    {
+      "id": "instrument-face-detail",
+      "name": "原仪器面板矩形放大",
+      "aliases": [
+        "原面板放大",
+        "矩形放大",
+        "测力计局部",
+        "指针遮挡",
+        "黑色刻度"
+      ],
+      "status": "extracted",
+      "version": "1.0.0",
+      "engine": [
+        "engine-neutral"
+      ],
+      "files": [
+        "shared/lab-kit/instrument-details.js"
+      ],
+      "requires": [],
+      "api": [
+        "LabKit.springReadoutDetail",
+        "LabKit.cropInstrumentSVG"
+      ],
+      "parameters": {
+        "force/max/step/majorEvery": "N calibration; defaults10/.2/5",
+        "return": "{svg,viewBox,focus,readout,subtitle}"
+      },
+      "anchors": {},
+      "example": "const r=LabKit.springReadoutDetail({force:.6});zoom.innerHTML=LabKit.cropInstrumentSVG(r);\n// Or panel.setSVG(r.svg,{viewBox:r.viewBox,focus:r.focus});",
+      "sources": [
+        {
+          "path": "docs/reuse/references/measurement-1-source.txt",
+          "commit": "8cd976dd4764eed2fad424de73478899bee2262f",
+          "repository": "zmdyy/measurement-1",
+          "locator": "water / markings / drawScene / instrument",
+          "sha256": "93ace23c7e23309cb1b3193db35c12ce216b7575070579dcefb4c0e0368000e1"
+        }
+      ],
+      "limits": [
+        "Pointer within channel, with 1.25 source-unit tick clearance.",
+        "2D type appearance is not a claim of matching all physical 3D details.",
+        "For quizzes, keep numeric readout hidden until requested."
+      ],
+      "acceptance": [
+        "2/5/10 N types",
+        "zero/intermediate/full",
+        "pointer avoids black ticks"
+      ],
+      "documentation": "docs/reuse/API.md#instrument-face-detail",
+      "validation": {
+        "report": "assets/reuse-evidence/validation.json",
+        "user_visual_approval": "pattern preference confirmed only where explicitly recorded"
+      }
+    }
+  ],
+  "references": [
+    {
+      "id": "thermal-glass-reference",
+      "name": "熔化凝固玻璃效果",
+      "aliases": [
+        "熔化",
+        "凝固",
+        "水浴"
+      ],
+      "status": "reference-only",
+      "sources": [
+        {
+          "path": "models/melting-freezing-lab.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "glass-fresnel-v2",
+          "sha256": "28305c26b04c2c5729a20f20b49abefbc3feb34f5160ffa0945a418ccb5068e9"
+        }
+      ],
+      "notes": "尚未独立提取。读取源案例并核验后再使用，不可编造现成API。"
+    },
+    {
+      "id": "thermometer-reference",
+      "name": "温度计与圆形表盘",
+      "aliases": [
+        "温度计",
+        "圆形表盘"
+      ],
+      "status": "reference-only",
+      "sources": [
+        {
+          "path": "models/thermometers-thermal-expansion.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "dialTexture",
+          "sha256": "4b5441941d97b4cdb6559ece7b01c483ce2ac3149f5edd09efebc6af005fc875"
+        }
+      ],
+      "notes": "尚未独立提取。读取源案例并核验后再使用，不可编造现成API。"
+    },
+    {
+      "id": "nested-glass-reference",
+      "name": "套杯与多层容器",
+      "aliases": [
+        "套杯",
+        "大杯",
+        "小杯"
+      ],
+      "status": "reference-only",
+      "sources": [
+        {
+          "path": "models/buoyancy-density-lab.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "套杯模式",
+          "sha256": "4823e599294f85fb2faa16291513624ab5710d37581314dd99b5249f14aceefd"
+        }
+      ],
+      "notes": "尚未独立提取。读取源案例并核验后再使用，不可编造现成API。"
+    },
+    {
+      "id": "thermal-apparatus-reference",
+      "name": "酒精灯、陶土网与试管",
+      "aliases": [
+        "酒精灯",
+        "陶土网",
+        "试管"
+      ],
+      "status": "reference-only",
+      "sources": [
+        {
+          "path": "models/melting-freezing-lab.html",
+          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "repository": "zmdyy/3Dmodel2",
+          "locator": "groups.lamp / groups.gauze",
+          "sha256": "28305c26b04c2c5729a20f20b49abefbc3feb34f5160ffa0945a418ccb5068e9"
+        }
+      ],
+      "notes": "尚未独立提取。读取源案例并核验后再使用，不可编造现成API。"
+    }
+  ],
+  "demo": "examples/reuse-lab.html",
+  "offline_demo": "examples/reuse-lab-offline.html",
+  "pattern_demo": "examples/instrument-details.html",
+  "excluded_templates": [
+    {
+      "path": "models/cr400af-railway-power.html",
+      "scope": "camera/navigation",
+      "reason": "用户明确不认可其当前视角控制，不作为标准。"
+    }
+  ]
+}

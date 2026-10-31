@@ -1,0 +1,54 @@
+{
+  "case": "reuse-lab",
+  "engine": "three-r160",
+  "resources": [
+    {
+      "id": "camera-navigation",
+      "version": "1.0.0"
+    },
+    {
+      "id": "svg-scale",
+      "version": "1.0.1"
+    },
+    {
+      "id": "glass-beaker",
+      "version": "1.0.0"
+    },
+    {
+      "id": "adjustable-stand",
+      "version": "1.0.0"
+    },
+    {
+      "id": "spring-meter-10n",
+      "version": "1.0.1"
+    },
+    {
+      "id": "classroom-typography",
+      "version": "1.0.0"
+    },
+    {
+      "id": "detail-view",
+      "version": "1.0.0"
+    }
+  ],
+  "configurations": [
+    "weigh",
+    "immerse"
+  ],
+  "units": {
+    "length": "m",
+    "force": "N",
+    "time": "s",
+    "angle": "rad"
+  },
+  "connections": [
+    "stand.getMountAnchor -> meter.anchors.upperAttachment",
+    "meter.getHookAnchor -> thread -> load top"
+  ],
+  "state": "One sync() calculates water displacement and F=mg-rho*g*V; apparatus/SVG/status share state.",
+  "camera": {
+    "durationSeconds": 28,
+    "shotCount": 7
+  },
+  "validation": "assets/reuse-evidence/validation.json"
+}

@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-31",
+  "restored_from_record": true,
+  "results": [
+    "real WebGL weighing; shared panel placement/drag/zoom/reset/close/reopen; focus preserved at zero; independent custom adapter cleanup",
+    "immersion/displacement/readout sync, eight mode round trips and cutaway restore",
+    "manual takeover/resume and all seven camera shots",
+    "390px layout and detail docking below scene",
+    "offline file:// with all HTTP(S) blocked, full 28-second camera tour and disposal",
+    "three SVG patterns offline; cylinder source/lens sync; narrow pointer clearance; rescalable window retained; narrow layout",
+    "measurement-1 main and detail pointer corrected"
+  ],
+  "errors": [],
+  "externalRequests": []
+}

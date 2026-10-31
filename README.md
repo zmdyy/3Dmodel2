@@ -10,6 +10,12 @@
 
 > 本项目强调**结构准确、运动连贯、物理关系可信、课堂表达清晰**。模型中的剖切、示踪、慢放、颜色增强及局部比例放大，可能用于教学说明；它们不一定等于真实器材的外观、尺寸或实验观测值。
 
+## 制作新案例：先查可复用资源
+
+公共资源包含玻璃容器与完整光影配置、10 N测力计、可调铁架台、SVG刻度与文字、课堂字号、视角控制及三类局部放大。AI先读 [AGENTS.md](./AGENTS.md)，再运行 `python scripts/reuse-context.py --query "实验需求" --engine three-r160` 获取真实接口、依赖、单位、连接点和示例。
+
+[资源目录](./docs/reuse/README.md) · [API](./docs/reuse/API.md) · [三类放大复用清单](./docs/reuse/DETAIL-PATTERNS.md) · [组装演示](./examples/reuse-lab.html) · [离线单文件](./examples/reuse-lab-offline.html) · [三类放大对照](./examples/instrument-details.html) · [验收记录](./docs/reuse/VALIDATION.md)
+
 ## 场景预览
 
 | **浮力与密度实验室** | **深中通道 E15 沉管安装** | **纸筒照相机与调焦** |
