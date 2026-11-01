@@ -1,0 +1,69 @@
+name: Validate bicycle controls and overview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-bicycle-ui.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install browser
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright >/dev/null 2>&1
+          npx playwright install --with-deps chromium
+      - name: Serve
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8000/models/bicycle-v346.html >/dev/null && exit 0; sleep 1; done
+          cat /tmp/http.log; exit 1
+      - name: Validate
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+            const page=await browser.newPage({viewport:{width:1820,height:900}});
+            page.on('console',m=>console.log('[browser]',m.type(),m.text()));
+            page.on('pageerror',e=>console.log('[pageerror]',e.message));
+            await page.goto('http://127.0.0.1:8000/models/bicycle-v346.html?v=validation',{waitUntil:'domcontentloaded',timeout:120000});
+            await page.waitForFunction(()=>window.__bikeGetStatus?.()?.ready===true,{timeout:120000});
+            await page.waitForFunction(()=>document.querySelector('#reactControls')?.dataset.compactTab==='adjust',{timeout:30000});
+            await page.waitForTimeout(2500);
+            const state=await page.evaluate(()=>{
+              const root=document.querySelector('#reactControls');
+              const stage=document.querySelector('#stage');
+              const status=window.__bikeGetStatus?.()||{};
+              const rr=root?.getBoundingClientRect(), sr=stage?.getBoundingClientRect();
+              return {
+                compactTab:root?.dataset.compactTab||null,
+                controlsText:(root?.innerText||'').replace(/\s+/g,' ').slice(0,1000),
+                controlsRect:rr?{x:rr.x,y:rr.y,width:rr.width,height:rr.height}:null,
+                stageRect:sr?{x:sr.x,y:sr.y,width:sr.width,height:sr.height}:null,
+                controlsDisplay:root?getComputedStyle(root).display:null,
+                controlsVisibility:root?getComputedStyle(root).visibility:null,
+                view:status.view||null,
+                playing:window.__machineLab?.playing??null,
+                mode:window.__machineLab?.mode??null,
+                sectionCount:root?.querySelectorAll(':scope > div > section.section').length||0,
+                navVisible:!!root?.querySelector('.compactNav')
+              };
+            });
+            console.log('VALIDATION_STATE='+JSON.stringify(state));
+            if(state.compactTab!=='adjust') throw new Error('Default tab is not adjust');
+            if(state.view!=='iso') throw new Error('Default view is not iso: '+state.view);
+            if(state.playing!==false) throw new Error('Demo auto-started');
+            if(!state.navVisible) throw new Error('Right operation nav missing');
+            if(!state.controlsRect || state.controlsRect.width<250 || state.controlsRect.height<400) throw new Error('Right operation panel has invalid geometry');
+            if(!/教学操作/.test(state.controlsText) || !/操作/.test(state.controlsText)) throw new Error('Right operation panel text missing');
+            await page.screenshot({path:'/tmp/bicycle-validation.png',fullPage:false});
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
