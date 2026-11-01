@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/capture-featured-covers.yml'
       - 'scripts/capture-featured-covers.cjs'
+      - 'models/mobile-crane-simple-machines.html'
 
 permissions:
   contents: write
@@ -31,8 +32,9 @@ jobs:
         run: |
           test -s assets/covers/water-boiling-scene.jpg
           test -s assets/covers/light-spectrum-color-vision-scene.jpg
-          test -s assets/covers/qiantang-bridge-complete-scene.jpg
-          node -e "const fs=require('fs'), vm=require('vm'); const ctx={window:{}}; vm.runInNewContext(fs.readFileSync('catalog.js','utf8'),ctx); for(const id of ['water-boiling','light-spectrum-color-vision','qiantang-caisson']){const item=ctx.window.MODEL_CATALOG.find(x=>x.id===id); if(!item||!item.cover||!fs.existsSync(item.cover.split('?')[0]))process.exit(1)}"
+          test -s assets/covers/qiantang-bridge-complete-scene.jpg assets/covers/mobile-crane-simple-machines-scene.jpg
+          test -s assets/covers/mobile-crane-simple-machines-scene.jpg
+          node -e "const fs=require('fs'), vm=require('vm'); const ctx={window:{}}; vm.runInNewContext(fs.readFileSync('catalog.js','utf8'),ctx); for(const id of ['water-boiling','light-spectrum-color-vision','qiantang-caisson','mobile-crane-simple-machines']){const item=ctx.window.MODEL_CATALOG.find(x=>x.id===id); if(!item||!item.cover||!fs.existsSync(item.cover.split('?')[0]))process.exit(1)}"
           git diff --check
       - name: Commit homepage covers to main
         run: |
