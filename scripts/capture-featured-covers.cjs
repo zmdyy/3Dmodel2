@@ -13,6 +13,7 @@ const models=[
  {id:'water-boiling',output:'water-boiling-scene.jpg'},
  {id:'light-spectrum-color-vision',output:'light-spectrum-color-vision-scene.jpg'},
  {id:'qiantang-bridge-complete',catalogId:'qiantang-caisson',output:'qiantang-bridge-complete-scene.jpg'},
+ {id:'mobile-crane-simple-machines',output:'mobile-crane-simple-machines-scene.jpg'},
 ];
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.glb':'model/gltf-binary','.gltf':'model/gltf+json','.png':'image/png','.svg':'image/svg+xml','.jpg':'image/jpeg','.jpeg':'image/jpeg','.json':'application/json','.webp':'image/webp'};
 const server=http.createServer((req,res)=>{
@@ -35,6 +36,11 @@ async function capture(browser,model){
   try{
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
     await page.waitForTimeout(9000);
+    if(model.id==='mobile-crane-simple-machines'){
+      await page.waitForFunction(()=>window.__craneCamera && document.querySelector('#view')?.width>300,{timeout:60000});
+      await page.evaluate(()=>{const c=window.__craneCamera;c.az=1.03;c.el=0.27;c.dist=38;c.tar=[0,11.7,0];c.manualTakeover=true;});
+      await page.waitForTimeout(1100);
+    }
     const candidates=[];
     for(const frame of page.frames()){
       let count=0;
@@ -95,7 +101,7 @@ async function capture(browser,model){
     for(const model of models){
       const item=data.find(x=>x.id===(model.catalogId||model.id));
       if(!item)throw Error('Catalog entry missing: '+(model.catalogId||model.id));
-      item.cover='assets/covers/'+model.output+'?v=20261029-featured';
+      item.cover='assets/covers/'+model.output+'?v=20261101-crane-cover';
     }
     fs.writeFileSync(catalogPath,'window.MODEL_CATALOG = '+JSON.stringify(data,null,2)+';\n');
     fs.writeFileSync(path.join(evidence,'manifest.json'),JSON.stringify(result,null,2));
