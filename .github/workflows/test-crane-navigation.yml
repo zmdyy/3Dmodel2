@@ -1,0 +1,61 @@
+name: Validate crane unified orbit and pan
+on:
+  push:
+    paths:
+      - 'models/mobile-crane-simple-machines.html'
+      - '.github/workflows/test-crane-navigation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/nav-test-deps" playwright@1.56.1
+          "$RUNNER_TEMP/nav-test-deps/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Start local server
+        run: python3 -m http.server 8064 --bind 127.0.0.1 >/tmp/crane-nav-server.log 2>&1 &
+      - name: Validate real browser camera gestures
+        env:
+          NAV_NODE_MODULES: ${{ runner.temp }}/nav-test-deps/node_modules
+        run: |
+          xvfb-run -a node <<'NODE'
+          const { chromium } = require(process.env.NAV_NODE_MODULES+'/playwright');
+          const assert = require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:false,args:['--no-sandbox','--enable-webgl','--enable-unsafe-swiftshader','--use-gl=angle','--use-angle=swiftshader']});
+            const page=await browser.newPage({viewport:{width:1366,height:850},deviceScaleFactor:1});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8064/models/mobile-crane-simple-machines.html',{waitUntil:'domcontentloaded',timeout:90000});
+            await page.waitForFunction(()=>!!window.__craneCamera,{timeout:90000});
+            const get=()=>page.evaluate(()=>({az:__craneCamera.az,el:__craneCamera.el,dist:__craneCamera.dist,tar:[...__craneCamera.tar],manual:!!__craneCamera.manualTakeover}));
+            const box=await page.locator('#view').boundingBox();
+            assert(box && box.width>300 && box.height>200,'canvas is not visible');
+            const x=box.x+box.width*.46, y=box.y+box.height*.56;
+            const a=await get();
+            await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+78,y+18,{steps:4});await page.mouse.up();
+            const b=await get();
+            assert(b.az<a.az-.1,'left-drag orbit must use gallery direction');
+            assert(b.manual,'manual orbit takes camera control');
+            await page.mouse.move(x,y);await page.mouse.down({button:'right'});await page.mouse.move(x+68,y+24,{steps:3});await page.mouse.up({button:'right'});
+            const c=await get();
+            assert(Math.hypot(...c.tar.map((v,i)=>v-b.tar[i]))>.07,'right drag pans in camera screen plane');
+            await page.mouse.move(x,y);await page.keyboard.down('Shift');await page.mouse.down();await page.mouse.move(x+40,y+11,{steps:3});await page.mouse.up();await page.keyboard.up('Shift');
+            const d=await get();
+            assert(Math.hypot(...d.tar.map((v,i)=>v-c.tar[i]))>.02,'Shift+left drag pans');
+            await page.mouse.move(x,y);await page.mouse.wheel(0,-280);
+            const e=await get();assert(e.dist<d.dist,'wheel zooms in');
+            await page.locator('[data-view="iso"]').first().click();
+            const f=await get();assert(!f.manual,'explicit view resets manual takeover');
+            assert(errors.length===0,'JavaScript errors: '+errors.join('; '));
+            console.log(JSON.stringify({passed:true,orbit:[a.az,b.az],panStart:b.tar,panEnd:c.tar,shiftPan:d.tar,zoom:[d.dist,e.dist],viewReset:!f.manual},null,2));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE

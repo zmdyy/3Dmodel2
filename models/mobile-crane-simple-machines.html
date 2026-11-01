@@ -552,13 +552,13 @@ function renderSchematic(a){const sv=$('schematic');if(topic==='pulley'){let n=r
 function refreshControl(){for(let k of Object.keys(labels)){let el=$(k),v=target[k],pct=100*(v-Number(el.min))/(Number(el.max)-Number(el.min));el.style.setProperty('--val',pct+'%');let out=$('out'+k.charAt(0).toUpperCase()+k.slice(1));out.textContent=v+(k==='angle'||k==='swing'?'°':k==='padWidth'?' cm':k==='extend'||k==='hoist'||k==='eff'||k==='legOut'||k==='legDown'?'%':' kg')}}
 for(let key of Object.keys(labels)){$(key).addEventListener('input',e=>{sceneMode='manual';target[key]=Number(e.target.value);demo=false;$('demo').textContent='▶ 自动演示';refreshControl();if(key==='mass'||key==='eff'||key==='padWidth'){lastUpdate=0;render()}})}
 function setValue(k,value){target[k]=clamp(value,Number($(k).min),Number($(k).max));$(k).value=target[k];refreshControl()}
-function setView(type){viewType=type;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('on',b.dataset.view===type);b.classList.toggle('selected',b.dataset.view===type)});let p=boomPose();
+function setView(type,force=false){if(camera.manualTakeover&&!force)return;camera.manualTakeover=false;viewType=type;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('on',b.dataset.view===type);b.classList.toggle('selected',b.dataset.view===type)});let p=boomPose();
  const defaults={iso:[1.00,.33,27,[0,13.1,0]],front:[Math.PI,.09,26,[-.7,13.5,0]],back:[0,.09,26,[-.7,13.5,0]],side:[Math.PI/2,.04,23,[.1,13.5,0]],right:[-Math.PI/2,.04,23,[.1,13.5,0]],top:[.90,1.52,30,[-.5,12.5,0]]};
  let v=defaults[type];if(type==='hook')v=[1.35,.17,Math.min(16,Math.max(7,p.drop*1.65)),[p.hWorld[0],(p.hWorld[1]+p.hookWorld[1])*.5,p.hWorld[2]]];
  else if(type==='cyl')v=[1.43,.09,3.8,tp(p.swing,tp(p.elev,[.43,13.81,.55]))];
  else if(type==='leg')v=[1.02,.41,25.5,[-1.0,10.8,0]];
  if(v){camera.az=v[0];camera.el=v[1];camera.dist=v[2];camera.tar=[...v[3]]}}
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view,true)));
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(e=>e.classList.toggle('active',e===b));for(let p of document.querySelectorAll('.pane'))p.classList.toggle('active',p.id==='pane-'+b.dataset.tab);if(b.dataset.tab==='physics'){lastUpdate=0;render()}}));
 $('reeving').addEventListener('click',e=>{let b=e.target.closest('[data-n]');if(!b)return;ropes=Number(b.dataset.n);$('reeving').querySelectorAll('button').forEach(t=>t.classList.toggle('selected',t===b));lastUpdate=0;render()});
 $('topics').addEventListener('click',e=>{let b=e.target.closest('[data-topic]');if(!b)return;topic=b.dataset.topic;$('topics').querySelectorAll('button').forEach(t=>t.classList.toggle('selected',t===b));if(topic==='lever'||topic==='hydraulic')setView('side');if(topic==='pulley')setView('hook');lastUpdate=0;render()});
@@ -620,11 +620,59 @@ function advanceDemo(dt){
  }
  if(demoTime>24){demo=false;$('demo').textContent='▶ 自动演示';flash('四个作业阶段演示完毕')}
 }
-canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,button:e.button};});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(drag.button===2||e.shiftKey){let r=camera.dist*.0018;camera.tar[0]-=dx*r;camera.tar[1]+=dy*r}else{camera.az+=dx*.008;camera.el=clamp(camera.el+dy*.006,-1.45,1.48)}drag.x=e.clientX;drag.y=e.clientY;viewType='free'});
-canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);canvas.addEventListener('contextmenu',e=>e.preventDefault());
-canvas.addEventListener('wheel',e=>{e.preventDefault();camera.dist=clamp(camera.dist*Math.exp(e.deltaY*.001),2.7,58)},{passive:false});
-let tDist=null;canvas.addEventListener('touchmove',e=>{if(e.touches.length===2){let a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(tDist)camera.dist=clamp(camera.dist*tDist/d,2.7,58);tDist=d}},{passive:false});canvas.addEventListener('touchend',()=>tDist=null);
+// Unified gallery navigation (docs/navigation.md).
+// Pointer coordinates are interpreted in the CURRENT screen plane, not world X/Y.
+canvas.style.touchAction='none';
+const pointerPositions=new Map();
+let gesture=null;
+const FOV=42*Math.PI/180;
+function panCraneScreen(dx,dy){
+ const h=Math.max(1,canvas.clientHeight);
+ const scale=2*camera.dist*Math.tan(FOV/2)/h;
+ const ca=Math.cos(camera.az),sa=Math.sin(camera.az),se=Math.sin(camera.el),ce=Math.cos(camera.el);
+ const right=[ca,0,-sa],up=[-se*sa,ce,-se*ca];
+ for(let k=0;k<3;k++)camera.tar[k]+=(-dx*right[k]+dy*up[k])*scale;
+}
+function releaseCraneCamera(){camera.manualTakeover=true;viewType='free';}
+canvas.addEventListener('pointerdown',e=>{
+ if(e.button!==0&&e.button!==2&&e.pointerType!=='touch')return;
+ try{canvas.setPointerCapture(e.pointerId)}catch(err){}
+ pointerPositions.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointerPositions.size===1)gesture={x:e.clientX,y:e.clientY,button:e.button,shift:e.shiftKey};
+ e.preventDefault();
+});
+canvas.addEventListener('pointermove',e=>{
+ if(!pointerPositions.has(e.pointerId))return;
+ const old=pointerPositions.get(e.pointerId);
+ if(pointerPositions.size>=2){
+  const before=[...pointerPositions.values()].slice(0,2);
+  const d0=Math.hypot(before[0].x-before[1].x,before[0].y-before[1].y);
+  const c0={x:(before[0].x+before[1].x)/2,y:(before[0].y+before[1].y)/2};
+  pointerPositions.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const after=[...pointerPositions.values()].slice(0,2);
+  const d1=Math.hypot(after[0].x-after[1].x,after[0].y-after[1].y);
+  const c1={x:(after[0].x+after[1].x)/2,y:(after[0].y+after[1].y)/2};
+  if(d0>.001&&d1>.001)camera.dist=clamp(camera.dist*d0/d1,2.7,58);
+  panCraneScreen(c1.x-c0.x,c1.y-c0.y);
+  releaseCraneCamera();
+ }else{
+  const dx=e.clientX-old.x,dy=e.clientY-old.y;
+  if((gesture?.button===2)||gesture?.shift||e.shiftKey)panCraneScreen(dx,dy);
+  else{camera.az-=dx*.006;camera.el=clamp(camera.el+dy*.005,-1.45,1.48)}
+  pointerPositions.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(Math.abs(dx)+Math.abs(dy)>.1)releaseCraneCamera();
+ }
+ e.preventDefault();
+});
+function stopCranePointer(e){pointerPositions.delete(e.pointerId);if(pointerPositions.size===0)gesture=null}
+canvas.addEventListener('pointerup',stopCranePointer);
+canvas.addEventListener('pointercancel',stopCranePointer);
+canvas.addEventListener('lostpointercapture',stopCranePointer);
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('wheel',e=>{e.preventDefault();camera.dist=clamp(camera.dist*Math.exp(e.deltaY*.001),2.7,58);releaseCraneCamera()},{passive:false});
+canvas.addEventListener('dblclick',()=>setView('iso',true));
+window.__craneCamera=camera;
+window.__craneNavigation={standard:'left orbit · right/shift-left screen pan · wheel zoom · two-finger touch zoom/pan',get:{pose:()=>({...camera,tar:[...camera.tar]})}};
 function frame(t){let dt=clamp((t-last)/1000,0,.06);last=t;if(demo)advanceDemo(dt);let sm=1-Math.exp(-dt*3.4);let legSm=1-Math.exp(-dt*1.05);for(let k of ['swing','angle','extend','hoist','legOut','legDown'])current[k]+=(target[k]-current[k])*(k==='legOut'||k==='legDown'?legSm:sm);if(pendingLegDown&&current.legOut>=96){pendingLegDown=false;setValue('legDown',100)};if(viewType==='hook'||viewType==='cyl'){let p=boomPose(),q=viewType==='hook'?[p.hWorld[0],(p.hWorld[1]+p.hookWorld[1])*.5,p.hWorld[2]]:tp(p.swing,[-.25,12,.55]);camera.tar=camera.tar.map((v,i)=>v+(q[i]-v)*sm)}if(engineReady)render();requestAnimationFrame(frame)}
 refreshControl();renderSchematic({g:1960,F:1153,eta:.85});setView('iso');load();requestAnimationFrame(frame);
 })();
