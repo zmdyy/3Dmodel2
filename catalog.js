@@ -358,7 +358,7 @@ window.MODEL_CATALOG = [
       "落潮",
       "浮运架设"
     ],
-    "path": "models/qiantang-bridge-complete.html?v=20261027-integrated-v1",
+    "path": "models/qiantang-bridge-complete.html?v=20261101-layout-v2",
     "cover": "assets/covers/qiantang-bridge-complete-scene.jpg?v=20261101-crane-cover",
     "symbol": "桥",
     "accent": "blue"

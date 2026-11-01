@@ -174,7 +174,7 @@
     let url=item.path;
     const params=new URLSearchParams();
     params.set('mat','matte-v2-20261008');
-    if(item.id==='eye-accommodation' && embedded) params.set('embedded','1');
+    if(['eye-accommodation','qiantang-caisson'].includes(item.id) && embedded) params.set('embedded','1');
     url+=(url.includes('?')?'&':'?')+params.toString();
     return url;
   }
