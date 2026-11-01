@@ -304,3 +304,9 @@ python scripts/add-model.py ./新案例.html --id new-demo --category 力学实�
 
 **项目地址：** [github.com/zmdyy/3Dmodel2](https://github.com/zmdyy/3Dmodel2)  
 **资料反馈：** 欢迎通过 [Issues](https://github.com/zmdyy/3Dmodel2/issues) 提交模型结构、教学原理、加载与交互问题。
+
+### 生活中的杠杆 · 七种实物观察
+
+[打开案例源码](models/life-levers.html) · [入库与验收说明](docs/life-levers.md)
+
+开瓶器、食品镊、拉杆箱、独轮车、羊角锤、剪刀和指甲钳：观察支点、转轴及作用点，支持实物对照、慢动作和局部观察。复用本地 Three.js r160、公共导航和哑光材质；首页封面来自默认开瓶器场景的真实浏览器截图。

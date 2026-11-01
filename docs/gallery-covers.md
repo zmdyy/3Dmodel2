@@ -53,3 +53,7 @@
 ## 金属箔验电器封面（2026-11-01）
 
 `assets/covers/gold-leaf-electroscope-scene.jpg` 为当前金属箔验电器真实 Chromium/WebGL2 三维画面截图，960×540 JPEG（未采用生成图或重画器材）。状态：橡胶棒靠近金属球，箔片因静电感应张开；红色正电荷固定、蓝色电子重新分布。截取时仅隐藏按钮、说明和计数浮层以突出真实场景，保持模型几何、Three.js r160 材质和场景照明。案例：`models/gold-leaf-electroscope.html`；单文件：`models/gold-leaf-electroscope-offline.html`。
+
+## 生活中的杠杆（2026-11-01）
+
+`assets/covers/life-levers-scene.jpg` 为 `models/life-levers.html` 默认开瓶器场景的真实 Chromium/WebGL 截图，960×540 JPEG。仅隐藏界面并按画布比例重新取景；保留原模型、材质、灯光、瓶盖及支点。重现：`CHROMIUM_PATH=/path/to/chromium node scripts/capture-life-levers-cover.cjs`。
