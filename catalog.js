@@ -1,5 +1,33 @@
 window.MODEL_CATALOG = [
   {
+    "id": "bicycle-cad-simple-machines",
+    "title": "自行车 · 链传动、碟刹与简单机械",
+    "subtitle": "真实 CAD · 踩踏传动 · 转向轮轴 · 刹车杠杆 · 后轮甩水",
+    "category": "综合应用",
+    "summary": "基于原始自行车 CAD 网格的高保真三维教学案例。演示脚踏曲柄与牙盘、链条和后飞轮、前叉转向、刹车把手与碟刹的联动，另含后轮浸水飞溅和摩擦力方向示意。提供演示、操作、视角、显示四个页签；部分铰接与水动力为教学重建近似模型。",
+    "tags": [
+      "自行车",
+      "简单机械",
+      "杠杆",
+      "轮轴",
+      "链传动",
+      "后飞轮",
+      "碟刹",
+      "刹车手柄",
+      "转向",
+      "摩擦力",
+      "水花",
+      "Three.js",
+      "WebGL",
+      "PBR",
+      "CAD"
+    ],
+    "path": "models/bicycle-v346.html?v=20261101",
+    "cover": "assets/covers/bicycle-v346-scene.jpg?v=20261101",
+    "symbol": "车",
+    "accent": "green"
+  },
+  {
     "id": "mobile-crane-simple-machines",
     "title": "汽车起重机 · 简单机械实验室",
     "subtitle": "四阶段作业流程 · 支腿 · 吊臂 · 滑轮组 · 卷扬",

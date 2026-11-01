@@ -1,0 +1,476 @@
+QcoeWZRR1M7YBi0ZTz3eqMWUsl9EQBcnCZGNGmZOsbeUT3m8wSEegzF/iIDQDWz8xJsKzv0944nFhXNOJFzLCM//8MzgzVpRnZWyJmhS+uMocQ6qElnRW0HB6TZwEyQdZm3HWlWk7enRGtulSNz7yf/0ya1tMs8D/iaWz8qqOWzIrAnm6BSvn67g2dKjtZAtOZtZxLTgBoJOtWKlrx7WRjOibno5jhDt+URzQ1KnENJr7nUOlXyCZeLKFC0iK7tPAKCVD1MHnKp9qk4wexzUq7lnJepxPeVxFPpDpVQjrvX1v43+xyD85SEzcPG6MaJmcrMPpasfVMoayybqctHa/VbFroBqXOHMyPky2J6WjX5TQOMkEwE+wZQSZuKEpC4b58Gx1MaAeBSQG4EKe6tPAYryoF2yKg3CE7rmbBg/26uuBYyS4NMZIUEuHoJZjU2wpqLGo9hga0/+MwnSEetQySeqNVo9ubV25ahTOu3f+befOZ6L+VfkIOIfuKFXpw69//N39W2htJppQZdT5Pn6zFKBaParERCI63nRnk9J9bz/4aPvLN9BaFGi4x9SA80zYuUulQnmLLfHFmhX3Krf97Qc7f/ylZG5BmZz1HmWMLc/LJLmFRSV7Cx7f7QffSs5jK6+zSbM0JAPqsD+/topyKcoCW9hkGVdVeBNfhc+ouo+8ICr4ri158Ku9IdXU7vhkcEJJ9w5gsc3GH8BWWCtczVhuJU4TVIHD5sCrYbOFwULyaOyujNzFDH4SOVChn+EHm0bCH9wEW1AMyUCblqMumXrlXSCC2G+GWWX8CMlYqgZ7+ZJojaMLVp0If75F7PAaIfKhVv+GFr6Mm3As1SYyoKlrqg2X3dvpXs2hnAiqV00SAkAcwU3SWmnEUgbLpfBe7dDw0CHLVor8mS/hsp557oKEbyw8XUAxaC9qw4ori3Q4tMLKnxqcaxbyPawjYDE+101AdGda9aVeHbOskFZTuMV5/Ft9K5kMVlJ8GqMDF/L/LTwRhuGTeaWMlNKLQCV2Q7ogwl7OTPkVv1Se8p8oK/sxrZJ8MVx45vwl+QYXq9Nv1duteixhgdF8oHctPANDBU6alUUqYvA6XnId1DePwvcikKiLUW8V5SJwNnVnJKhsbYTtS4iNjYSrCXi6EZqSra2KXynNeFbNaK3fXevTlDkSFyzPpWdOmQ8GFLg+eG+6XTQ5u1w6efrpeXjkVluNy+Z7JjA+8PFaLwwqpalpa8zk0g8wJSeDshhxwNEMe/1T5EJSyJDfSCxBCrV9WvJ+8H5SiiRa/Gcxxj8FvDhPJEx5Y/HE4sLiol/eOLH4ZPjkE/5UaeqYZ/tmc8UzrR7jOXhaVc3FxXJz0Z8uTXk1tLnUoRdQlVOc9o/5x9WBwgEoA1KKLt5uj243nAoXF+EAlZ44BlQZgLotz/jTfvGY3TLCGAEXZmM9O7aDRfo/6ODYMdx2Bk8MH/s/AYsxY3ekYKEzmUg7inp2SAu5EIA3Qx3QZabsz5Q9/yCJGMLp8Mlw2k608OQJdCKgfko9IS1KG0GRDvTFc5NTUqZHPwiKpemKqpEOFWEtG4LoqSz1dHjwZ+DPZ8M23KzCMX/qGJyNxvHmTONJ+KN5PJxqPunVEDrRZ/lJq20sh6YdlHcmXFhbQlcuABLRk6+Osc8WGZav1rAW9RZa/WBT4iBdjOJE6DbYoDLs0jSe2coJT0WoukzEZQK2VJn2S5Upv4xqPTakcCOFUGcl05dX69SvEdnW6p9MYuiCXjXAVvCC2/nz1oNUSE9/2fkmgUttTDUPjRTW/WUV1lWGWCe0GqxPLrvWHxe12YqEhMVUdrLWaUKdx4g8JckhavwvzoETpofXAguJljrRusl1GqF6AL6Y+TUtUyFAFT6Wktzbm6yQOxI1CB9rSt68Or8Ku7ocVPjQwuNfKDb7R57wUjvRDnvd1E74ugX2OFArodT+YrGe/TlwWuOjoUPiZlfJGMVlCbhhBiJVYX1WTiptfmpINWUTNzFxOMMkjVmaeqeFkW8Kzb7xFer12D83QTEgICzT02xzOKZQ5SHEhmgbgBBhL42CcUYT07v7/3vniy8w76Zy1nr0wXu712/s/vKbhx+T9tSnVuAA99fiy2i+m3drspWjEgWhQf370gQHBv0aY1fvfvjJwztvEHk9TBE8cyWHCqR81s70ec08fWOEBrIxCR7rHwEJ2NcrcRb9igt4gvF2jCs9pCmodM5mztaMTpdXgQtWqZoXgtmFfaW1L0ClgsmOjG2gOc5Icq3BClXoJiMt54EcD7PsBPsRHkl0GczD1JfCyW5niWoY/8SFVmPQaIdF5cRRRG+DIgaEQljjlwhErJpWvhVH0ErOPhZ7977eefvn6CT46RsYTkrE+Ntf/PEv13+Td7wayZycZme4evbe89EXchiwyThx58+0F9CSFPUPErdgFdia9iW4iInEkub50RCeAaaCdbbSQUL4XGcxKmBvlr0oXqVzsgr8XDpF/DJZflZuMQ2JenC/I98UYE9KCHAhROEJOu5eai2xv+da90WkBvg3IQ3un1BE+sJosYjCGfUOXn0WcOBtX6/3OrAllgE8M8IYReXuLUwQ5kuV2tDexL/84u2cbCFqYjR/j0FvX5guzUxJKRTuvP4lZri/+cbuhz/mKEd7N24DbsgdzT28+buH77z28Pbvdj/7c972gXTOCxvNW8bSRp7sIi2ynPZPoK/r0HBGFubcVMTfQq++gsR4o11f7RawN+Bm4FuIj5MP5ILn9/D+B0tAyhEDEF9hKPxQrKArCeq+gEXqhy8uh2H7zABYxlYjJgR9SKuCUWkN3BWgJYK6dPGC91SpXD7huR/JsHJyMvciOqdRbM8WRjOBzQN2uxs24TDAcH0qQoZ8HeuhWyjw8LAQcTVHX2KYXj3u1zDXSatzFOnQXNztRY2VsB9TaxjHU9V/muo2A55YDAwHDII803FE5uucO9ZJWplqWVPS1Nhzq+FSPXAhjwj1eWRq8jiCE+DFZUBzRwNT6UiTVMq9emdFytQYnPoIxgFS0Tf27zHkaatDMfOauYWBGKVapO/FczVYLo6Neva5Sy+evHTGrOQh5VuPS2RqvRKYIdYEYrEHnPEIkEOSa4Du5MlO82yvRWdODgGM9iQtCCx9GOJTm6tv8Igw7iZa7efqQGRwONdlNCvury2EbPhLExK733q7pEesmrID1InS9iQ0fhKNhwsKCL/4spP4Sa3oZIVuiWoT3quV+XYYXgtj/XZFwWykLHaDw9LGcrR+FmDPdTB3j6fnf7YdbiDcaeRGnQiV0gHtrr2IZrt5nc7CoSz21jqUd4e2KbcAWwO/YjY9DntFqh5ivp2VMOyyLfUi4NJct13vI12KopdetEHXvT3ItWE+1sJRq+fDRWczi9ZAbLhLSHuPAjTTQpTbh4UxgNbppXuSOsPawGIZaLtO0IiWzmBipCR+UUFJYOJoHkrAxUKxVD4ObDRLGU9HS5fqzdZafDQglnNebjp+bLnNFRM1vCOFBJl93DOs8XI3kAkCEqoDIxuu9QzVugwFIRl3+cv1fQHpBDYDvWC9Xiu0YLqta5GmtEvx2kJhuWsGEsMVCZbrpY0jzdKgCH8M4A8MBUgFzdIrPtrVt/pryi6ZLT2wVIBsgxbqmjNGBRTXo1x6pTh+YK/o6ksRbAOjdGi3wA9HQfbFabsIU4BzAFge1nRSD9AvVjAGKa869NCZKvAQfTXOMUtJLgGwzTiK4n5wozY3XW8cClmu+/t2ZN8EXr9U1MwxfXolRuAFwZWnMbQBPFecegvOF/x/zE9ZDihnCtsC6H8dHsYuRrsc5OJ1QhAxcVsY3ISEkRy0JVeP9dsnub/Qe0LIZBx+UCxYl2QajaNL5SdqekZL7r0uUKVidnF6zZ+wLhQPdx7e0oCmM0/dAnaKMFnapDaphzND8tBpGAqhCumMJmT1VgxMizUFJEvkjNkCoyW+WEd+Bri+hqxrF7pG6hw95ymAGr5ETEtMKuxWQ00aUerwZK1AxbXOSoymWhgmXCjMJoWdwQicgLSBhIWVFrrrNPYDD6Kv8KJ5Nk4hxXWx3oztp4JeZPXu8P7weNwHORMi8d64MNR/LYm5s2Cyrko2HAWlQh9d690kdxgTOY5jAIzPaVqzvGOCA6UvnSMJUFVnwqJVPtdkh2DdrTdXkJebdvtCJBmYzBy8Kv+giZBaGihXhyt5FroDLiEkTjj2xpTpJaAAvrMUGNZdNuplYuKwGzN21BzTY5nvRvAfPN4NARlf/Lcf0SEr6glF8o8W1WHR5gY6RC3pfDbtxC1uN+zq74zqCmpjenk/T6c8f9UEaOeIDHP2ea9eyWuiBqoYwgV+mKMLPxBZ0T+EpEe2SifCPhC1obpzGIbhAtJhWeun8dxKUnh3jHR5bQHGP9F4vkLMg33ftWgP8SyCHQFSZ6rsFbOBvCMrGURYZiOVKa84GtBtiJBGRiulyhOmkQSQ04KmzTMbMSPJgON2hOzphsCWJXipwpQmJWn3FSF3vEwCVeY5XVEgHrLLGFO05434DnzniBKgY/vc5giA2VJlJiFddNo9lMuNFGHxE1SkeSS8NdxZl/rRWTx6BTZe3a9BWrhEg/TtMdshyj3RDn3T7UzZnpSIW59uB/u1SnB5wmpSxZN/nY4yKITMbrv15gE6BSjuksA9+q/TnSY+yj4UPlPvXlj1Ev25+uAh6p2BliDlJHqs1hdyQF41i9HiYjUnLiHw+g9yy61mM0QaA7BPnFN0CQVkRaTXaqBLrNgO4m1w9UDz/ajLL1ZQiLpkKxNsDtlw0ggndKSNlEBFSzLwLGKo12cHzV5UikhQUa6ZL0DXrbXrvZONRth2ClYjIG0uR70frYXUyDpSrk9T9vMIc1LQb1xH6DtWv+e79fXOZZhrm+pYzwW+FQRyUU3e65baMEg9B4z5wTNlczOixGMWh4mAChq1+Hn4NdQWA2jMjwI0kjaTipH/InOn58+xIZ72v1diMZIDqEgtve5q1V1IHxe5atbbp1FUrRH5NJKqNaph7RD8z93NZ8L+PAn1AjaUoUH4dNbJrjRebnWrTo3TTpkfh/X+eaDmqxQMs1qpzPj0+NBBdWvOC+hcyUAMYSJAHaCpaKtXTZMNXOATSqKw0BcprbQDSGtCponcdVZjZ7mAIrWRh7J5iOn9rCZ0nU5hWr2prHRQKyBLTJEdgexzW4J3379Wb7ea1Ktb9oL+7mdsMIvzRgk6ffy3aj6ldzvjRDTqTTK9ENqTf/nc72kpU9fTT8ojfcQXxKjEVYxoTI0MfXp46UJU7ad4zuJ3fCKaaGIOIH12AJGeSMPhVwdMUQxut/LRgaSV+J+ata0mHvo5mzHuR2w46PHxr27SE1XNwPs+775dJOcBObHY/k4qA1jXWNuc/b1drD/6Qr9VDx9W80Go89jenCLu/AYaDjcTMKejXtOA4AjO02AurFYrM6WpIb4fsGVL+IRU1VvCe1Klc6HYhSuVq3Mcdkm3hkufACongaADonDDRVa8JW7nRaeQ8MVplNIoEj4bR2i8cikUAp7mPQKf9AyQb8y1cXyw5/kXpkvTx/M+SlNPRe3+2Vbitp81BT4/BMuDuNXgY66fnSGXVVWoF7lF9NEXCSzsc9URyeLGs4zvTC/qwsrYT5Pfx+cIHq4+miImXikfNV9VihhDdoBdHtPJtWZy+Czlxu9DmqPaqfQkVQkiJVjfNi4gHKPUDqgCn7xrYFSZcE6ZAn02WsNEaXEmrCr0UaYOl7UyNT1zzIV81iohMJR8pUFIfGmJx6tpifmcupOudLyaJTL3F21JeaI/R4qOYvtwlZ6mjK2YV2W+lvRnApkiumF0+EY8mpekfI6ZvcsRAVK1kxvt8IVWDMg7XcWU+SawQjVDFWlMZSm1FXd2ss1msGS453xEQvY0elVV8zrMMWoaJV5gZQbYnpmKET/1oxyNm0UyeX07M9blpF1EvV5CQu8kRemzsR6/B8qZrRQD6VhoBLONMZIcDBL25DGPsd6IZuU5etx2p6Zm4MWAtzHxGi25L5GhN54l+bsNbMrmEqLcoaXdbrIB1mXfkCEiCgZiQBRTBbSmJpqRfg6phE0sTBH/5jIylDFF9HOIyf7CQt3bNMqVoF4zlOkQj3eXNLeWFnfoI0OCkb8PZqHlGuFkWOxYRp1ZJiPDYS2BuPpMngQNNppNFaPtQyA2EDXklSSnR46MWnMUdXKtmyOtdWyHFAKin8Je1jE4PcoN6qQkDDEAiXKOFZOyuL4YnkJLAm0fwSbAjnXQSKOeO1/tvndv5517mCKTNOsZ9ju7v/ho9/++y0AcaIurkRIe25+YsCx6trYsayLvaJ5zg0Dth7d/u/vvb+99+vrOe799+Kt/w/z1P/3o0fUPd778f7v/en33w09kVXZv39u9dUNZ19cOoQuuYm6JWyBKBsP7ojkKRiTzdHnaxubMcxeEwz0P0GEz76sFQ6e2ONTrh7LnoYf//f+VqE2pzqELAA==");
+ document.body.appendChild(s);
+}catch(e){console.error('离线模型引擎解压或初始化失败',e);document.getElementById('status').textContent='三维引擎启动失败：'+e.message;}
+</script>
+<style id="v337_ui_patch">
+.layout{display:grid !important;grid-template-columns:minmax(0,1fr) 320px !important;grid-template-rows:minmax(0,1fr) !important;grid-template-areas:"viewport controls" !important;height:calc(100vh - 75px) !important;min-height:550px;overflow:hidden;}
+.stage{grid-area:viewport !important;grid-row:1 !important;grid-column:1 !important;min-height:0 !important;min-width:0 !important;height:100% !important;}
+.left{grid-area:controls !important;grid-row:1 !important;grid-column:2 !important;min-width:0 !important;min-height:0 !important;height:100% !important;border-left:1px solid #dce6de !important;border-right:none !important;overflow-y:auto !important;overflow-x:hidden !important;background:#f7faf7 !important;}
+.right{display:none !important;}
+#annotationToggle,#assemblyPanel{display:none !important;}
+#reactControls .section h2{font-size:14px}
+#reactControls .hint{font-size:11px;line-height:1.55}
+.machine-overlay{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+.machine-title-tag{position:absolute;left:16px;top:68px;background:rgba(255,255,255,.92);border:1px solid #d7e4dc;border-radius:12px;padding:7px 12px;font-size:12px;font-weight:700;color:#315e53;box-shadow:0 8px 18px rgba(37,64,53,.08)}
+.machine-title-tag small{display:block;font-size:10px;font-weight:600;color:#6c8277;margin-top:2px}
+.machine-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:#ffffff;border:3px solid #2f7b67;box-shadow:0 0 0 3px rgba(47,123,103,.16);margin:-5px 0 0 -5px}
+.machine-line{position:absolute;height:2px;transform-origin:0 50%;background:linear-gradient(90deg, rgba(47,123,103,.85), rgba(47,123,103,.15));}
+.machine-callout{position:absolute;min-width:150px;max-width:190px;padding:10px 12px 10px 12px;border-radius:14px;background:rgba(255,255,255,.94);border:1px solid #d9e6df;box-shadow:0 12px 24px rgba(34,61,50,.12);transform:translate(-50%,-50%);backdrop-filter:blur(2px)}
+.machine-callout .kind{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;opacity:.95}
+.machine-callout .title{font-size:14px;font-weight:800;color:#23483e;margin-top:1px}
+.machine-callout .note{font-size:11px;line-height:1.45;color:#51675f;margin-top:3px}
+.machine-callout .meter{height:5px;border-radius:999px;background:#e9f0eb;margin-top:8px;overflow:hidden}
+.machine-callout .meter i{display:block;height:100%;width:18%;border-radius:999px;background:currentColor;transition:width .12s linear}
+.machine-callout.active{box-shadow:0 0 0 2px rgba(255,255,255,.92),0 0 0 5px rgba(47,123,103,.15),0 14px 28px rgba(34,61,50,.18)}
+.machine-callout.active .title{animation:machinePulse 1s ease-in-out infinite alternate}
+.machine-callout[data-kind="杠杆"] .kind,.machine-callout[data-kind="杠杆"] .meter{color:#cb663c}
+.machine-callout[data-kind="杠杆"] .machine-dot{border-color:#cb663c}
+.machine-callout[data-kind="轮轴"] .kind,.machine-callout[data-kind="轮轴"] .meter{color:#2f7b67}
+.machine-callout[data-kind="轮轴"] .machine-dot{border-color:#2f7b67}
+.machine-callout[data-kind="传动"] .kind,.machine-callout[data-kind="传动"] .meter{color:#4a66c7}
+@keyframes machinePulse{from{opacity:.82;transform:translateY(0)}to{opacity:1;transform:translateY(-1px)}}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr) 285px !important}}
+@media(max-width:860px){.layout{display:flex !important;flex-direction:column !important;grid-template-areas:none !important;grid-template-rows:none !important;height:auto !important;min-height:0 !important;overflow:visible !important}.stage{order:0 !important;height:64vh !important;min-height:410px !important;flex:none !important}.left{order:1 !important;height:auto !important;max-height:none !important;overflow:visible !important;border-left:none !important;border-top:1px solid #dce6de !important}.machine-callout{max-width:160px;min-width:132px;padding:8px 10px}.machine-title-tag{top:48px;left:12px}}
+</style>
+
+<style id="machineLabStyles">
+/* V3.39: replace on-bike text cards with actual articulated WebGL guides. */
+.machine-overlay{display:none!important}
+#machineLab{padding:14px 13px 16px;margin-bottom:20px;border:1px solid #d4e7d9;border-radius:14px;background:linear-gradient(135deg,#f2f8f3,#fffdf8)}
+#machineLab h2{margin:0 0 8px;font-size:15px;color:#214a3e}
+#machineLab h2 small{font-size:9px;color:#73978a}
+.machineLabHelp{font-size:11px;line-height:1.5;color:#667c70;margin-bottom:12px}
+.machineLabModes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.machineLabModes button{padding:10px 3px;font-size:12px;font-weight:750;background:#fff;color:#476759;border:1px solid #cddfd3;border-radius:10px;cursor:pointer}
+.machineLabModes button.on{background:#317b65;color:white;border-color:#317b65;box-shadow:0 3px 9px #225f4026}
+.machineLabFooter{display:flex;gap:7px;margin-top:9px}
+.machineLabFooter button{flex:1;border-radius:9px;border:1px solid #b6d2be;background:#eff7f1;color:#27624c;padding:9px 4px;font-size:11px;font-weight:750;cursor:pointer}
+.machineLabCurrent{padding:10px 2px 6px;display:grid;gap:4px}
+.machineLabCurrent b{font-size:13px;color:#305a4d}
+.machineLabCurrent span{font-size:11px;color:#617a6d}
+.machineLabDiagram{border:1px solid #e3eae2;border-radius:12px;background:#fff;padding:7px}
+.machineLabDiagram svg{display:block;width:100%;max-height:132px}
+.machineLabCaution{font-size:10px;color:#82938b;line-height:1.5;margin:9px 0 0}
+
+</style>
+<script id="machineLabScript">
+(()=>{'use strict';
+  const start=()=>{
+    const stage=document.getElementById('stage');
+    const controls=document.getElementById('reactControls');
+    if(!stage||!controls||!window.THREE){requestAnimationFrame(start);return;}
+    document.querySelectorAll('.machine-overlay').forEach(el=>el.remove());
+    const T=window.THREE;
+    const panel=document.createElement('section');
+    panel.id='machineLab';panel.className='section';
+    panel.innerHTML=`
+      <h2>简单机械 · 动态实验 <small>01 / MACHINE LAB</small></h2>
+      <div class="machineLabHelp">直接让车上的机构工作；左侧显示同步旋转轴、力臂、转动方向。</div>
+      <div class="machineLabModes">
+        <button data-demo="tour" class="on">自动巡演</button>
+        <button data-demo="brake">刹车杠杆</button>
+        <button data-demo="steer">转向轴</button>
+        <button data-demo="pedal">脚踏曲柄</button>
+        <button data-demo="wheel">后轮轮轴</button>
+        <button data-demo="chain">链传动</button>
+      </div>
+      <div class="machineLabFooter"><button id="machineLabPlay" type="button">暂停演示</button><button id="machineLabEffects" type="button">隐藏运动标记</button></div>
+      <div class="machineLabCurrent"><b id="machineLabName">脚踏曲柄</b><span id="machineLabLive">正在建立机械演示</span></div>
+      <div class="machineLabDiagram" aria-label="简单机械实时示意图">
+        <svg viewBox="0 0 300 136" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="machArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#ce6f40"/></marker></defs>
+          <g id="machSimpleWheel"><circle cx="79" cy="67" r="49" fill="none" stroke="#c6d7cc" stroke-width="7"/><circle cx="79" cy="67" r="10" fill="#467b6c"/><g id="machSpinLine" transform="rotate(0 79 67)"><line x1="79" y1="67" x2="79" y2="20" stroke="#e0b932" stroke-width="6" stroke-linecap="round"/><circle cx="79" cy="20" r="5" fill="#e0b932"/></g><path d="M126 35 A52 52 0 0 1 128 93" fill="none" stroke="#ce6f40" stroke-width="3" stroke-linecap="round" marker-end="url(#machArrow)"/></g>
+          <g id="machSimpleLever" transform="translate(83 67)"><circle r="11" fill="#467b6c"/><g id="machLeverLine"><rect x="-8" y="-5" width="100" height="10" rx="5" fill="#ce6f40"/><circle cx="84" cy="0" r="7" fill="#e8b448"/></g><path d="M70 -32 Q94 -45 100 -65" fill="none" stroke="#ce6f40" stroke-width="2.5" marker-end="url(#machArrow)"/></g>
+          <text x="170" y="46" id="machDiagramText1" font-size="15" fill="#275447" font-weight="700">转动输入</text>
+          <text x="170" y="72" id="machDiagramText2" font-size="12" fill="#57746b">转轴固定</text>
+          <text x="170" y="92" id="machDiagramText3" font-size="12" fill="#57746b">力臂产生力矩</text>
+        </svg>
+      </div>
+      <p class="machineLabCaution">橙色线条为转轴提示；银色刹车手柄直接使用原始 CAD 网格绕支点运动，手握处固定。</p>`;
+    controls.prepend(panel);
+    let mode='tour', isPlaying=true, effects=true, startTime=performance.now(), lastControl=0, lastInfo=0;
+    const names={tour:'自动巡演',brake:'刹车手柄 · 杠杆',steer:'车把与前叉 · 转向轴',pedal:'脚踏与曲柄 · 轮轴',wheel:'后轮轮毂 · 轮轴',chain:'牙盘—链条—飞轮'};
+    const descriptions={
+      brake:'银色CAD手柄绕铰点靠近握把 · 左右同步',steer:'前叉绕倾斜转向轴左右摆动',
+      pedal:'脚踏经曲柄施加转矩，带动牙盘',wheel:'后轮绕固定车轴连续转动',
+      chain:'链速与牙盘、飞轮角速度联动'
+    };
+    const buttons=[...panel.querySelectorAll('[data-demo]')];
+    const labPlay=panel.querySelector('#machineLabPlay'), labEffect=panel.querySelector('#machineLabEffects');
+    const title=panel.querySelector('#machineLabName'), live=panel.querySelector('#machineLabLive');
+    const svgWheel=panel.querySelector('#machSimpleWheel'),svgLever=panel.querySelector('#machSimpleLever');
+    const spinLine=panel.querySelector('#machSpinLine'), leverLine=panel.querySelector('#machLeverLine');
+    const words=[panel.querySelector('#machDiagramText1'),panel.querySelector('#machDiagramText2'),panel.querySelector('#machDiagramText3')];
+    let pointerLabel=null, rigs=null;
+    const V=(x,y,z)=>new T.Vector3(x,y,z);
+    const makeMat=(color,alpha=1)=>new T.MeshBasicMaterial({color,transparent:alpha<1,opacity:alpha,depthTest:false,depthWrite:false});
+    function thinRod(a,b,r,material,parent){
+      const d=b.clone().sub(a), mesh=new T.Mesh(new T.CylinderGeometry(r,r,d.length(),12),material);
+      mesh.position.copy(a).add(b).multiplyScalar(.5);
+      mesh.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());mesh.renderOrder=60;parent.add(mesh);return mesh;
+    }
+    function markerRing(parent,center,radius,color,axis=V(0,0,1),arc=1.7){
+      const root=new T.Group();root.position.copy(center);root.quaternion.setFromUnitVectors(V(0,0,1),axis.clone().normalize());parent.add(root);
+      const pts=[];for(let i=0;i<=60;i++){const a=(-arc/2)+(i/60)*arc;pts.push(V(Math.cos(a)*radius,Math.sin(a)*radius,0));}
+      const geometry=new T.BufferGeometry().setFromPoints(pts);
+      const path=new T.Line(geometry,new T.LineBasicMaterial({color,transparent:true,opacity:.92,depthTest:false,depthWrite:false}));path.renderOrder=70;root.add(path);
+      const head=new T.Mesh(new T.ConeGeometry(.009,.024,10),makeMat(color));root.add(head);
+      const a=arc/2;head.position.set(Math.cos(a)*radius,Math.sin(a)*radius,0);head.rotation.z=a;head.renderOrder=71;
+      return {root,path,head};
+    }
+    function makePulseDot(parent,color,radius){const dot=new T.Mesh(new T.SphereGeometry(radius,14,10),makeMat(color),parent);dot.renderOrder=72;return dot;}
+    // Both brake handles are present in the original CAD export, meshes 259/260.
+    // Most of each mesh is the silver moving lever, but each also contains several
+    // independent tiny fasteners. Separate only the lever's connected islands;
+    // keep pins, clamp and rubber grip stationary on the steering assembly.
+    function buildOriginalBrakeLevers(moving,sourceMeshes){
+      const result=[];
+      for(const spec of [
+        {id:259,side:1,pivot:V(.657,-.610, .211)},
+        {id:260,side:-1,pivot:V(.657,-.610,-.211)}
+      ]){
+        const mesh=sourceMeshes[spec.id];
+        if(!mesh||!mesh.parent||!mesh.geometry.index){
+          console.warn('刹车手柄CAD几何不存在',spec.id);continue;
+        }
+        // V3.40 BUG: these two original CAD meshes were correctly nested under
+        // '左右侧换挡拨杆与锁定外壳', not directly under moving.steering.
+        // The old strict parent equality skipped both genuine levers entirely.
+        // Keep the hinge under the existing steering-following housing and convert
+        // its CAD-space point through actual world matrices into that host's space.
+        const host=mesh.parent;
+        moving.steering.updateWorldMatrix(true,true);
+        mesh.updateWorldMatrix(true,false);
+        const hingeInHost=host.worldToLocal(mesh.localToWorld(spec.pivot.clone()));
+        const originalLocalPosition=mesh.position.clone();
+        const originalLocalRotation=mesh.quaternion.clone();
+        const originalLocalScale=mesh.scale.clone();
+        const src=mesh.geometry,index=src.index,positions=src.attributes.position;
+        const parents=new Int32Array(positions.count);
+        for(let i=0;i<parents.length;i++)parents[i]=i;
+        const find=(i)=>{while(parents[i]!==i){parents[i]=parents[parents[i]];i=parents[i];}return i;};
+        const union=(a,b)=>{a=find(a);b=find(b);if(a!==b)parents[b]=a;};
+        for(let i=0;i<index.count;i+=3){const x=index.getX(i),y=index.getX(i+1),z=index.getX(i+2);union(x,y);union(x,z);}
+        const components=new Map();
+        for(let i=0;i<index.count;i+=3){
+          const x=index.getX(i),y=index.getX(i+1),z=index.getX(i+2),k=find(x);
+          let part=components.get(k);
+          if(!part){part={indices:[],near:Infinity,far:0};components.set(k,part);}
+          part.indices.push(x,y,z);
+          for(const v of [x,y,z]){
+            const distance=spec.side*positions.getZ(v);
+            part.near=Math.min(part.near,distance);
+            part.far=Math.max(part.far,distance);
+          }
+        }
+        const movable=[],staticTriangles=[];
+        let movingComponents=0,stationaryComponents=0;
+        for(const part of components.values()){
+          // Two large connected lever shells per side + small fragments near tip.
+          // Small hinge pins and stationary clamp surfaces stay at their CAD seat.
+          const use=(part.indices.length>=1400&&part.far>.245)||
+            (part.indices.length>=90&&part.near>.259&&part.far>.265);
+          (use?movable:staticTriangles).push(...part.indices);
+          if(use)movingComponents++;else stationaryComponents++;
+        }
+        if(movable.length<10000){console.warn('刹车手柄分离不完整',spec.id,movable.length);continue;}
+        const stationary=src.clone();stationary.setIndex(staticTriangles);stationary.computeBoundingSphere();mesh.geometry=stationary;
+        const geometry=new T.BufferGeometry();
+        for(const [name,attribute] of Object.entries(src.attributes))geometry.setAttribute(name,attribute);
+        geometry.setIndex(movable);geometry.computeBoundingSphere();
+        const pivotGroup=new T.Group();pivotGroup.name=`原始CAD${spec.id}刹车手柄·真实铰接`;
+        pivotGroup.position.copy(hingeInHost);
+        host.add(pivotGroup);
+        const lever=new T.Mesh(geometry,mesh.material);
+        lever.name=`原始CAD${spec.id}银色刹车手柄·可活动`;
+        // Original vertices and transforms remain unchanged at zero squeeze:
+        // parent * T(hinge) * T(originalPosition-hinge) * R * S * vertex
+        // equals the previous parent * T(originalPosition) * R * S * vertex.
+        lever.position.copy(originalLocalPosition).sub(hingeInHost);
+        lever.quaternion.copy(originalLocalRotation);
+        lever.scale.copy(originalLocalScale);
+        lever.frustumCulled=false;
+        lever.userData.sourceMeshIndex=spec.id;
+        pivotGroup.add(lever);
+        // The marker is positioned at the real hinge in the same parent space.
+        const hinge=new T.Mesh(new T.SphereGeometry(.0032,12,8),makeMat(0xffb04c,.92));
+        hinge.position.copy(hingeInHost);
+        host.add(hinge);
+        result.push({...spec,pivotGroup,lever,hinge,host:host.name,hingeLocal:hingeInHost.toArray(),movingTriangles:movable.length/3,stationaryTriangles:staticTriangles.length/3,movingComponents,stationaryComponents});
+      }
+      window.__bikeOriginalBrakeLevers=result;
+      window.__brakeRigAudit=()=>result.map(p=>({id:p.id,host:p.host,hingeLocal:p.hingeLocal,angle:p.pivotGroup.rotation.y,movingTriangles:p.movingTriangles,stationaryTriangles:p.stationaryTriangles,visible:p.lever.visible}));
+      return result;
+    }
+    function setup(){
+      if(rigs)return true;
+      const dbg=window.__debug; const status=window.__bikeGetStatus?.();
+      if(!dbg?.world||!dbg?.moving?.rear||!dbg?.moving?.steering||!status?.ready)return false;
+      const {world,moving}=dbg;
+      const physics=new T.Group();physics.name='教学简单机械 · 动态轴和力臂';world.add(physics);
+      // Crank axle and a tracking radial segment: genuine crank angle controls its motion.
+      const crankGroup=new T.Group();crankGroup.name='曲柄轮轴动态示踪';moving.crank.add(crankGroup);
+      const crankAxis=thinRod(V(0,0,-.18),V(0,0,.10),.003,makeMat(0x41a28a,.92),crankGroup);
+      const crankRing=markerRing(crankGroup,V(0,0,-.145),.134,0xe97843,V(0,0,1),2.15);
+      const crankArm=thinRod(V(0,0,-.155),V(.205,0,-.155),.005,makeMat(0xe7ad3a),crankGroup);
+      const crankTip=makePulseDot(crankGroup,0xffb631,.010);crankTip.position.set(.205,0,-.155);
+      // Wheel rim marker and curved rotational path are attached to spinning wheel assembly.
+      const rearGroup=new T.Group();rearGroup.name='后轮旋转轨迹';moving.rear.add(rearGroup);
+      const wheelRing=markerRing(rearGroup,V(0,0,.044),.317,0x38b99e,V(0,0,1),1.38);
+      const wheelLine=thinRod(V(0,0,.049),V(0,.322,.049),.0048,makeMat(0xffcc32),rearGroup);
+      const wheelDot=makePulseDot(rearGroup,0xffcf35,.011);wheelDot.position.set(0,.322,.049);
+      // Fixed axial beam is parented to CAD world, NOT the rotating wheel.
+      const rearAxis=thinRod(V(-.391,-.057,-.17),V(-.391,-.057,.16),.0048,makeMat(0x40b19a),physics);
+      // Steering arc rotates around measured inclined head tube, while original fork rotates independently.
+      const headAxis=V(-.226,-.974,0).normalize();
+      const steerRing=markerRing(physics,V(.55,-.515,.0),.12,0xf08a47,headAxis,2.0);
+      const steerAxle=thinRod(V(.527,-.62,0),V(.595,-.32,0),.004,makeMat(0x36a98f),physics);
+      // Replace the previous floating orange "lever" with movement of the
+      // SILVER LEVER CAD triangles. Two hinged levers, fixed bases unchanged.
+      const cadBrakeLevers=buildOriginalBrakeLevers(moving,dbg.rootMeshes);
+      const brake = new T.Group();brake.name='真实手刹铰点提示·不替代原始手柄';moving.steering.add(brake);
+      const brakeRing=markerRing(brake,V(.657,-.610,-.211).sub(moving.steering.position),.040,0xf48b52,V(0,1,0),1.45);
+      // Chain travel indicated by moving markers near top chain run.
+      const chainDots=[];for(let i=0;i<7;i++){const dot=makePulseDot(physics,0x5b8ae4,.008);chainDots.push(dot);}
+      // Glow arrows at crank and rear wheel follow actual CAD motion groups; no separate fake motor rotation.
+      rigs={physics,crankGroup,rearGroup,crankRing,crankArm,crankTip,wheelRing,wheelLine,wheelDot,rearAxis,steerRing,steerAxle,brake,brakeRing,chainDots,cadBrakeLevers};
+      // Directly link the brake UI state to CAD hinge transforms. This does not
+      // depend on frame rate; a slider change repositions the genuine silver levers
+      // immediately, even if WebGL is temporarily busy rendering a complex frame.
+      window.addEventListener('bikeUI',()=>{
+        const newBrake=window.__bikeGetStatus?.()?.brake??0;
+        syncOriginalBrakeHandles(newBrake);
+      });
+      syncOriginalBrakeHandles(window.__bikeGetStatus?.()?.brake??0);
+      window.__machineLab={get mode(){return mode},applyBrake:syncOriginalBrakeHandles,get playing(){return isPlaying},get physicsVisible(){return effects},rigs,setMode,play:()=>{isPlaying=true;startTime=performance.now();lastControl=0;lastAutoPhase='';labPlay.textContent='暂停演示';},stop:()=>{isPlaying=false;lastControl=performance.now();labPlay.textContent='继续演示';}};
+      return true;
+    }
+    function syncOriginalBrakeHandles(value){
+      if(!rigs?.cadBrakeLevers)return;
+      const squeeze=Math.min(1,Math.max(0,Number(value||0)/100));
+      for(const part of rigs.cadBrakeLevers){
+        part.pivotGroup.rotation.y=-part.side*squeeze*.35;
+        part.pivotGroup.updateMatrixWorld(true);
+      }
+      rigs.brakeRing.root.rotation.y=squeeze*.26;
+    }
+    function focusMachine(selected){
+      if(selected==='brake'){
+        // Brake-handle close-up; the original brake view targets the caliper, not the hand lever.
+        const orbit=window.__debug?.orbit;
+        if(orbit){orbit.desiredTarget.set(.635,.615,.18);orbit.desiredPos.set(1.12,.90,.82);}
+      }else{
+        const target={steer:'steer',pedal:'pedal',wheel:'side',chain:'drive'}[selected];
+        if(target)window.__bikeSetView?.(target);
+      }
+    }
+    function setMode(next){mode=next;startTime=performance.now();buttons.forEach(b=>b.classList.toggle('on',b.dataset.demo===next));
+      isPlaying=true;labPlay.textContent='暂停演示';
+      if(window.__bikeSetParams)window.__bikeSetParams({brake:0,steer:0});
+      if(next!=='tour')focusMachine(next);
+    }
+    buttons.forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.demo)));
+    labPlay.addEventListener('click',()=>{
+      isPlaying=!isPlaying;labPlay.textContent=isPlaying?'暂停演示':'继续演示';
+      if(isPlaying)startTime=performance.now();
+      else window.__bikeSetParams?.({spin:false,brake:0,steer:0});
+    });
+    labEffect.addEventListener('click',()=>{effects=!effects;labEffect.textContent=effects?'隐藏运动标记':'显示运动标记';if(rigs){rigs.physics.visible=effects;rigs.rearGroup.visible=effects;rigs.crankGroup.visible=effects;rigs.brake.visible=effects;}});
+    let frozen=0, lastAutoPhase='';
+    const render=(now)=>{
+      try{
+        if(!setup()){requestAnimationFrame(render);return;}
+        const status=window.__bikeGetStatus?.();
+        const showDemo=effects && (window.__bikeCompactUI?.activeTab??'demo')==='demo';
+        if(status?.ready){
+          let t=(now-startTime)/1000;
+          let selected=mode;
+          if(mode==='tour'){
+            const seq=['pedal','steer','brake','wheel','chain'];
+            selected=seq[Math.floor(t/5.5)%seq.length];
+            t=t%5.5;
+          }
+          if(selected!==lastAutoPhase){lastAutoPhase=selected;lastControl=0;if(isPlaying)focusMachine(selected);}
+          if(isPlaying && now-lastControl>110){
+            const update={};
+            if(selected==='pedal'){update.spin=true;update.cadence=35;update.brake=0;update.steer=0;update.water=false;}
+            else if(selected==='steer'){update.spin=false;update.brake=0;update.steer=24*Math.sin(t*1.65);update.water=false;}
+            else if(selected==='brake'){update.spin=true;update.cadence=38;update.steer=0;update.brake=Math.round(50+48*Math.sin(t*1.65));update.water=false;}
+            else if(selected==='wheel'){update.spin=true;update.cadence=48;update.brake=0;update.steer=0;update.water=true;}
+            else if(selected==='chain'){update.spin=true;update.cadence=32;update.brake=0;update.steer=0;update.water=false;}
+            window.__bikeSetParams?.(update);
+            lastControl=now;
+          }
+          rigs.crankRing.root.rotation.z=.30*Math.sin(now*.0025);
+          rigs.wheelRing.root.rotation.z=.15*Math.sin(now*.003);
+          const turn=window.__bikeGetStatus?.()||status;
+          // Lever rotates around the CAD hinge's local Y axis, towards its grip.
+          // Opposite sides require opposite signs because they mirror across Z=0.
+          syncOriginalBrakeHandles(turn.brake);
+          rigs.cadBrakeLevers.forEach(part=>{part.hinge.visible=showDemo&&(selected==='brake');});
+          rigs.steerRing.root.rotation.z=-(turn.steer||0)*Math.PI/180;
+          const chainSpeed=turn.chain?.speed||0;
+          rigs.chainDots.forEach((dot,i)=>{
+            const progress= ((now*.00032*Math.max(.20,Math.abs(chainSpeed)))+i/7)%1;
+            dot.position.set(-.36+progress*.31,-.150+(progress-.5)*.013,-.10);
+            dot.scale.setScalar(.68+.40*Math.sin(progress*Math.PI));
+          });
+          rigs.brake.visible=showDemo&&(selected==='brake');
+          rigs.crankGroup.visible=showDemo&&(selected==='pedal'||selected==='chain');
+          rigs.rearGroup.visible=showDemo&&(selected==='wheel'||selected==='chain');
+          rigs.steerRing.root.visible=showDemo&&selected==='steer';
+          rigs.steerAxle.visible=showDemo&&selected==='steer';
+          rigs.rearAxis.visible=showDemo&&selected==='wheel';
+          rigs.chainDots.forEach(d=>d.visible=showDemo&&selected==='chain');
+          if(now-lastInfo>95){
+            title.textContent=names[selected];
+            live.textContent=descriptions[selected]||'';
+            const lever=(selected==='brake');svgWheel.style.display=lever?'none':'block';svgLever.style.display=lever?'block':'none';
+            const deg=selected==='steer'?(turn.steer||0):(selected==='wheel'?turn.rearWheelAngle||0:(turn.crankAngle||0))*180/Math.PI;
+            spinLine.setAttribute('transform',`rotate(${deg.toFixed(1)} 79 67)`);
+            leverLine.setAttribute('transform',`rotate(${(-.65*Math.max(0,turn.brake||0)/100*180/Math.PI).toFixed(1)})`);
+            const meta={brake:['施力点','固定支点','制动输出'],steer:['转动输入','倾斜转向轴','前叉同步偏转'],pedal:['脚踏施力','中轴转动','曲柄传递转矩'],wheel:['轮缘转动','后轴固定','轮毂轴承连接'],chain:['牙盘转动','链条传力','后飞轮转动']};
+            (meta[selected]||meta.pedal).forEach((v,i)=>words[i].textContent=v);
+            lastInfo=now;
+          }
+        }
+      }catch(err){if(!window.__machineLabError){window.__machineLabError=String(err);console.error('动态简单机械演示异常',err);}}
+      requestAnimationFrame(render);
+    };
+    requestAnimationFrame(render);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+
+</script>
+
+<style id="v343-compact-controls-css">
+/* V3.43 only rearranges the right-hand control UI; no CAD/kinematic code changed. */
+#reactControls.left{padding:12px 13px 15px!important;scrollbar-gutter:stable;}
+#reactControls .section{margin-bottom:9px;padding-bottom:10px;}
+#reactControls > div > .section{display:none!important;}
+#reactControls > div > p.hint{display:none!important;}
+#reactControls[data-compact-tab="adjust"] > div > .section:nth-of-type(2),
+#reactControls[data-compact-tab="adjust"] > div > .section:nth-of-type(3),
+#reactControls[data-compact-tab="camera"] > div > .section:nth-of-type(1),
+#reactControls[data-compact-tab="display"] > div > .section:nth-of-type(4),
+#reactControls[data-compact-tab="display"] > div > .section:nth-of-type(5){display:block!important;}
+#reactControls[data-compact-tab]:not([data-compact-tab="demo"]) > #machineLab{display:none!important;}
+#reactControls[data-compact-tab="demo"] > #machineLab{display:block!important;}
+#reactControls .section>h2{margin:6px 0 11px;font-size:14px;}
+#reactControls .section>h2 small{font-size:9px;letter-spacing:.25px;}
+#reactControls .control{margin:10px 0 15px;}
+#reactControls .control-label{margin-bottom:4px;font-size:12px;}
+#reactControls .control input{height:23px;margin:0;cursor:pointer;}
+#reactControls .toggle{margin:6px 0;padding:3px 0;font-size:12px;}
+#reactControls .toggle input{width:16px;height:16px;}
+#reactControls .section .hint{font-size:10px;line-height:1.55;margin:7px 0 5px;}
+#reactControls .button-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
+#reactControls .button-grid button{padding:10px 3px;font-size:11px;line-height:1.15;min-height:35px;}
+#reactControls .actions button{padding:11px 5px;font-size:12px;font-weight:750;}
+#reactControls .actions button:first-child{background:#337b67;color:#fff;border-color:#337b67;}
+#machineLab{margin:0!important;padding:12px 10px 10px!important;border-radius:13px!important;}
+#machineLab h2{margin:0 0 9px!important;font-size:14px!important;}
+#machineLab h2 small,.machineLabHelp{display:none!important;}
+#machineLab .machineLabModes{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+#machineLab .machineLabModes button{padding:9px 2px!important;font-size:11px!important;min-height:35px;border-radius:9px;}
+#machineLab .machineLabFooter{gap:6px;margin-top:9px;}
+#machineLab .machineLabFooter button{padding:9px 2px!important;}
+#machineLab .machineLabCurrent{padding:9px 3px 4px;}
+#machineLab .machineLabCurrent b{font-size:12px;}
+#machineLab .machineLabCurrent span{font-size:10px;line-height:1.5;}
+#machineLab .compactMachineDiagram{margin-top:6px;border-top:1px solid #e0ece3;padding-top:6px;}
+#machineLab .compactMachineDiagram summary{cursor:pointer;user-select:none;color:#3f7466;font-size:11px;font-weight:650;list-style-position:inside;padding:6px 3px;}
+#machineLab .compactMachineDiagram .machineLabDiagram{margin-top:6px;}
+#machineLab .compactMachineDiagram .machineLabCaution{margin-bottom:4px;}
+.compactNav{position:sticky;top:-12px;z-index:18;margin:-12px -13px 13px;padding:14px 13px 11px;background:#f9fcf8;border-bottom:1px solid #dce8df;box-shadow:0 4px 12px #274a3210;}
+.compactNavHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.compactNavHead strong{font-size:15px;color:#2b5043;letter-spacing:.2px;}
+.compactNavHead span{font-size:10px;color:#7c9789;}
+.compactTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#edf3ed;padding:4px;border-radius:11px;}
+.compactTabs button{padding:9px 1px;background:transparent;border:0;border-radius:8px;color:#61766c;font-size:12px;font-weight:650;white-space:nowrap;}
+.compactTabs button.active{background:white;color:#236c55;box-shadow:0 2px 8px #142d1f12;font-weight:800;}
+.compactNav .compactTip{font-size:10px;color:#839589;line-height:1.4;margin:9px 1px 0;min-height:14px;}
+@media(max-width:860px){#reactControls .button-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.compactNav{top:0;}}
+</style>
+
+<script id="v343-compact-controls-script">(()=>{'use strict';
+ const tabs=[['demo','演示'],['adjust','操作'],['camera','视角'],['display','显示']];
+ const tips={demo:'自动巡演与独立演示，切入后才会驱动机构',adjust:'手动参数独立保存，切入时恢复',camera:'只切换观察镜头，旧演示不会继续执行',display:'控制部件显隐，旧演示不会继续执行'};
+ const manual={cadence:48,gear:3,brake:0,steer:0,spin:false,showForkInside:false};
+ const display={water:true,showForces:true,frame:true,wheels:true,drive:true,chainMotion:true,brakeCutaway:true,explode:false};
+ let cameraView='iso';
+ let tabState='';let applying=false;
+ const saveManual=()=>{
+  if(tabState!=='adjust'||applying)return;
+  const s=window.__bikeGetStatus?.();if(!s?.ready)return;
+  const p=s.pageParams||{};
+  for(const key of ['cadence','gear','brake','steer'])if(Number.isFinite(p[key]))manual[key]=p[key];
+  manual.spin=!!p.spin;manual.showForkInside=!!p.showForkInside;
+ };
+ const saveDisplay=()=>{
+  if(tabState!=='display'||applying)return;
+  const p=window.__bikeGetStatus?.()?.pageParams||{};
+  for(const k of Object.keys(display))if(typeof p[k]==='boolean')display[k]=p[k];
+ };
+ const saveCamera=()=>{if(tabState==='camera'&&!applying){cameraView=window.__bikeGetStatus?.()?.view||cameraView;}};
+ function setup(){
+  const root=document.getElementById('reactControls'), lab=document.getElementById('machineLab');
+  const sections=root?.querySelectorAll(':scope > div > section.section');
+  if(!root||!lab||!sections||sections.length<5){requestAnimationFrame(setup);return;}
+  if(root.dataset.v344Ready)return;
+  root.dataset.v344Ready='1';
+  const nav=document.createElement('nav');nav.className='compactNav';nav.setAttribute('aria-label','操作分区');
+  nav.innerHTML='<div class="compactNavHead"><strong>教学操作</strong><span>独立状态</span></div><div class="compactTabs" role="tablist"></div><div class="compactTip" aria-live="polite"></div>';
+  root.insertBefore(nav,root.firstChild);
+  const btnwrap=nav.querySelector('.compactTabs');
+  tabs.forEach(([key,label])=>{
+   const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.tab=key;b.setAttribute('role','tab');
+   b.addEventListener('click',()=>switchTab(key));btnwrap.appendChild(b);
+  });
+  const diagram=lab.querySelector('.machineLabDiagram'), caution=lab.querySelector('.machineLabCaution');
+  if(diagram){const details=document.createElement('details');details.className='compactMachineDiagram';
+   const sum=document.createElement('summary');sum.textContent='展开原理图和教学说明';details.appendChild(sum);
+   details.appendChild(diagram);if(caution)details.appendChild(caution);lab.appendChild(details);
+  }
+  window.addEventListener('bikeUI',()=>{saveManual();saveDisplay();saveCamera();});
+  // Direct slider/change events are captured after React reconciles the new state.
+  root.addEventListener('change',()=>{if(tabState==='adjust')queueMicrotask(saveManual);});
+  function switchTab(tab){
+   if(!tips[tab])return;
+   if(tabState===tab)return;
+   saveManual();saveDisplay();saveCamera();
+   applying=true;
+   // Stop the previous demo BEFORE adjusting any new-page parameters.
+   window.__machineLab?.stop();
+   if(window.__bikeStopMotion)window.__bikeStopMotion({clearAngles:false});
+   else window.__bikeSetParams?.({spin:false});
+   tabState=tab;
+   root.dataset.compactTab=tab;
+   for(const b of btnwrap.querySelectorAll('button')){
+    const active=b.dataset.tab===tab;
+    b.classList.toggle('active',active);b.setAttribute('aria-selected',active?'true':'false');b.tabIndex=active?0:-1;
+   }
+   nav.querySelector('.compactTip').textContent=tips[tab];
+   if(tab==='demo'){
+     window.__bikeSetParams?.({spin:false,brake:0,steer:0});
+     window.__machineLab?.play?.();
+   }else if(tab==='adjust'){
+     // This is exactly what the manual controls should display and execute.
+     window.__bikeSetParams?.({...display,...manual});
+   }else{
+     // Camera/display pages own the display toggles; an old demo must not overwrite them.
+     window.__bikeSetParams?.({...display,spin:false,brake:0,steer:0});
+     if(tab==='camera')window.__bikeSetView?.(cameraView);
+   }
+   root.scrollTop=0;
+   applying=false;
+   window.dispatchEvent(new CustomEvent('bikeTabChange',{detail:{activeTab:tab}}));
+  }
+  // Preserve default Demo tab and its actively selected demonstration.
+  tabState='';switchTab('demo');
+  window.__bikeCompactUI={get activeTab(){return tabState},setTab:switchTab,tabs:tabs.map(([id])=>id),get manual(){return {...manual}},get display(){return {...display}},get cameraView(){return cameraView},get state(){return {sections:sections.length,lab:!!document.getElementById('machineLab'),playing:!!window.__machineLab?.playing,collapsedDiagram:!lab.querySelector('details')?.open}}};
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+})();</script>
+</body></html>

@@ -1,0 +1,55 @@
+name: Capture bicycle V3.46 real WebGL cover
+on:
+  push:
+    paths:
+      - 'models/bicycle-v346.html'
+      - 'models/bicycle-v346-assets/**'
+      - '.github/workflows/capture-bicycle-v346-cover.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser and dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/cover-deps" playwright@1.56.1 sharp@0.34.3
+          "$RUNNER_TEMP/cover-deps/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Start gallery server
+        run: python3 -m http.server 8064 --bind 127.0.0.1 >/tmp/bicycle-server.log 2>&1 &
+      - name: Capture actual canvas
+        env:
+          COVER_NODE_MODULES: ${{ runner.temp }}/cover-deps/node_modules
+        run: |
+          xvfb-run -a node <<'NODE'
+          const { chromium } = require(process.env.COVER_NODE_MODULES + '/playwright');
+          const sharp = require(process.env.COVER_NODE_MODULES + '/sharp');
+          (async () => {
+            const browser = await chromium.launch({ headless: false, args: ['--no-sandbox','--enable-webgl','--enable-unsafe-swiftshader','--use-gl=angle','--use-angle=swiftshader'] });
+            const page = await browser.newPage({viewport: {width: 1480,height: 850}, deviceScaleFactor: 1});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8064/models/bicycle-v346.html',{waitUntil:'domcontentloaded',timeout:120000});
+            await page.waitForFunction(()=>window.__bikeGetStatus?.().ready,{timeout:180000});
+            await page.waitForTimeout(5000);
+            const canvas=page.locator('#stage canvas');
+            await canvas.waitFor({state:'visible'});
+            const bytes=await canvas.screenshot({type:'png',timeout:90000});
+            await sharp(bytes).resize(960,540,{fit:'cover',position:'centre'}).jpeg({quality:85}).toFile('assets/covers/bicycle-v346-scene.jpg');
+            if(errors.length)throw Error(errors.join('\n'));
+            console.log('Captured real V3.46 WebGL cover');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
+      - name: Commit real screenshot
+        run: |
+          test -s assets/covers/bicycle-v346-scene.jpg
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/covers/bicycle-v346-scene.jpg
+          git diff --cached --quiet || (git commit -m "feat(gallery): capture real bicycle V3.46 cover" && git push)
