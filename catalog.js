@@ -48,7 +48,7 @@ window.MODEL_CATALOG = [
       "离线"
     ],
     "path": "models/mobile-crane-simple-machines.html?v=20261031-v20",
-    "cover": "assets/covers/mobile-crane-simple-machines.svg?v=20261031-v20",
+    "cover": "assets/covers/mobile-crane-simple-machines-scene.jpg?v=20261101-crane-cover",
     "symbol": "吊",
     "accent": "amber"
   },
@@ -185,7 +185,7 @@ window.MODEL_CATALOG = [
     "path": "models/water-boiling.html?v=20261029-v12",
     "symbol": "沸",
     "accent": "amber",
-    "cover": "assets/covers/water-boiling-scene.jpg?v=20261029-featured"
+    "cover": "assets/covers/water-boiling-scene.jpg?v=20261101-crane-cover"
   },
   {
     "id": "light-spectrum-color-vision",
@@ -212,7 +212,7 @@ window.MODEL_CATALOG = [
     "path": "models/light-spectrum-color-vision.html?v=20261027-v1",
     "symbol": "谱",
     "accent": "blue",
-    "cover": "assets/covers/light-spectrum-color-vision-scene.jpg?v=20261029-featured"
+    "cover": "assets/covers/light-spectrum-color-vision-scene.jpg?v=20261101-crane-cover"
   },
   {
     "id": "specific-heat-water-oil",
@@ -359,7 +359,7 @@ window.MODEL_CATALOG = [
       "浮运架设"
     ],
     "path": "models/qiantang-bridge-complete.html?v=20261027-integrated-v1",
-    "cover": "assets/covers/qiantang-bridge-complete-scene.jpg?v=20261029-featured",
+    "cover": "assets/covers/qiantang-bridge-complete-scene.jpg?v=20261101-crane-cover",
     "symbol": "桥",
     "accent": "blue"
   },
