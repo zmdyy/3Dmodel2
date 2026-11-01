@@ -22,7 +22,7 @@ window.MODEL_CATALOG = [
       "PBR",
       "CAD"
     ],
-    "path": "models/bicycle-v346.html?v=20261101",
+    "path": "models/bicycle-v346.html?v=20261101-controls-overview-v2",
     "cover": "assets/covers/bicycle-v346-scene.jpg?v=20261101",
     "symbol": "车",
     "accent": "green"
