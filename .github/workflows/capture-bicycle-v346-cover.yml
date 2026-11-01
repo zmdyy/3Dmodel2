@@ -36,7 +36,8 @@ jobs:
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
             await page.goto('http://127.0.0.1:8064/models/bicycle-v346.html',{waitUntil:'domcontentloaded',timeout:120000});
             await page.waitForFunction(()=>window.__bikeGetStatus?.().ready,{timeout:180000});
-            await page.waitForTimeout(5000);
+            await page.evaluate(() => { window.__bikeCompactUI?.setTab('camera'); window.__bikeSetView?.('iso'); const d=window.__debug; if(d?.orbit){ d.orbit.desiredPos.set(1.80,1.37,2.18); d.orbit.desiredTarget.set(.13,.12,0); } });
+            await page.waitForTimeout(4000);
             const canvas=page.locator('#stage canvas');
             await canvas.waitFor({state:'visible'});
             const bytes=await canvas.screenshot({type:'png',timeout:90000});
