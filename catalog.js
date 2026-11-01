@@ -48,7 +48,7 @@ window.MODEL_CATALOG = [
       "离线"
     ],
     "path": "models/mobile-crane-simple-machines.html?v=20261031-v20",
-    "cover": "assets/covers/mobile-crane-simple-machines-scene.jpg?v=20261101-crane-cover-real-v2",
+    "cover": "assets/covers/mobile-crane-simple-machines-scene.jpg?v=20261101-crane-cover-close-v3",
     "symbol": "吊",
     "accent": "amber"
   },
@@ -358,7 +358,7 @@ window.MODEL_CATALOG = [
       "落潮",
       "浮运架设"
     ],
-    "path": "models/qiantang-bridge-complete.html?v=20261101-layout-v2",
+    "path": "models/qiantang-bridge-complete.html?v=20261101-navigation-v3",
     "cover": "assets/covers/qiantang-bridge-complete-scene.jpg?v=20261101-crane-cover",
     "symbol": "桥",
     "accent": "blue"
@@ -405,6 +405,7 @@ window.MODEL_CATALOG = [
       "离线"
     ],
     "path": "models/buoyancy-measurement.html?v=20261031-v3-pointer-2x",
+    "cover": "assets/covers/buoyancy-measurement-scene.jpg?v=20261101-real-v1",
     "symbol": "浮",
     "accent": "blue"
   },
