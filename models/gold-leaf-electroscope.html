@@ -1,0 +1,786 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>金属箔验电器 · 电子迁移与静电感应</title>
+<style>
+:root{--paper:#10181f;--white:#16212a;--line:#243544;--ink:#e4eef2;--sub:#95aab3;--green:#78a99b;--red:#e08374;--amber:#d4ac67}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at top,#16242e 0%,#10181f 58%,#0b1116 100%);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;font-size:13px}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #82b7aa;outline-offset:2px}
+header{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(14,23,30,.94);border-bottom:1px solid #233543;gap:12px;backdrop-filter:blur(10px)}header h1{margin:0;font-size:23px;line-height:1.3}header h1 span{font-size:13px;color:#8ea8b3;font-weight:400}header small{color:#89a1ab;letter-spacing:1.65px;font-size:10px;font-weight:750}header .tag{font-size:12px;color:#b6dde6;background:#15232c;border:1px solid #2c4655;border-radius:50px;padding:7px 12px;white-space:nowrap}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(305px,340px);gap:12px;height:calc(100dvh - 68px);padding:12px;min-height:0}.viewport{border:1px solid #273a49;border-radius:17px;position:relative;overflow:hidden;min-width:0;min-height:0;background:radial-gradient(ellipse at 50% 35%,#344c5b 0%,#1b2b37 52%,#101a22 100%)}canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}
+.scene-top{position:absolute;top:14px;left:15px;right:14px;display:flex;gap:12px;justify-content:space-between;align-items:flex-start;pointer-events:none}.scene-name{background:rgba(19,30,38,.84);padding:10px 13px;border:1px solid #2a404d;border-radius:11px;color:#a2bac2;box-shadow:0 10px 24px #0000002a;font-size:11px;backdrop-filter:blur(8px)}.scene-name b{display:block;color:#e5eff2;font-size:14px}.view-buttons{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}.view-buttons button{background:rgba(19,30,38,.88);border:1px solid #2e4655;border-radius:8px;padding:8px 10px;color:#c2d5dc}.view-buttons button:hover{background:#20323d;border-color:#6ea1b6}
+.scene-footer{position:absolute;bottom:15px;left:15px;right:15px;display:flex;align-items:flex-end;gap:12px;justify-content:space-between;pointer-events:none}.readouts{background:rgba(19,30,38,.84);border:1px solid #2a404d;padding:10px 14px;border-radius:11px;font-weight:700;font-size:13px;box-shadow:0 10px 24px #00000026;color:#e7eef1;backdrop-filter:blur(8px)}.readouts small{display:block;color:#9bb0b8;font-size:11px;font-weight:400}.controlhelp{color:#a8bcc4;font-size:11px;background:rgba(19,30,38,.86);border:1px solid #2a404d;border-radius:7px;padding:7px 10px;backdrop-filter:blur(8px)}
+.sidebar{overflow:auto;min-height:0;scrollbar-width:thin;display:flex;flex-direction:column;gap:10px;padding-right:2px}.card{background:linear-gradient(180deg,#17222b,#132029);border:1px solid #243646;border-radius:13px;padding:13px;box-shadow:0 14px 28px #00000024;flex-shrink:0}.card h2{font-size:13px;letter-spacing:.3px;margin:0 0 10px;color:#e3edf1}.card h2 span{color:#8fa5ae;margin-right:5px}.mode-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}.mode-list button{min-height:52px;text-align:left;background:#101920;border:1px solid #2b3d4b;border-radius:8px;color:#c9d8de;padding:8px 9px;font-size:12px;font-weight:700}.mode-list button small{font-weight:400;font-size:10px;color:#8ea3ac;display:block}.mode-list button.active{background:#2f2221;color:#ffd6cc;border-color:#b56b5b}.stage-list{display:flex;flex-direction:column;gap:4px}.stage-list button{display:flex;gap:8px;align-items:center;text-align:left;border:1px solid transparent;border-radius:8px;background:transparent;padding:7px 8px;color:#a8bac1}.stage-list button.active{border-color:#2f5964;background:#142c31;color:#d8f0f0}.stage-list button .num{width:22px;height:22px;border:1px solid #35505e;border-radius:100%;display:grid;place-items:center;font-size:11px;flex-shrink:0}.stage-list button.active .num{background:#2c7589;border-color:#2c7589;color:white}.stage-list button b{display:block;font-size:12px;line-height:1.4}.stage-list button small{display:block;font-size:10px;line-height:1.4;color:#7c8981}.playbar{display:flex;gap:7px}.playbar button{border:1px solid #2b4150;background:#101920;border-radius:8px;color:#c6d7dd;padding:10px 8px;min-width:48px}.playbar button:disabled{opacity:.3;cursor:not-allowed}.playbar .play{background:var(--red);color:white;border-color:var(--red);font-weight:700;flex:1}.progress{height:4px;background:#0e171e;border-radius:6px;overflow:hidden;margin:12px 0 8px;border:1px solid #263946}.progress div{height:100%;background:#b7614f;width:0%;transition:width .2s}.desc{font-size:12px;color:#b8c7cd;line-height:1.7;min-height:40px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 0;border-bottom:1px solid #233544}.setting input[type=checkbox]{accent-color:#6b9d8d}.setting strong{font-size:12px;font-weight:500}.seg{display:flex;gap:3px;background:#0f1920;border:1px solid #263b48;border-radius:8px;padding:3px;margin:6px 0}.seg button{flex:1;border:0;border-radius:6px;background:none;padding:7px;color:#95aab3;font-size:11px}.seg button.active{background:#213544;color:#e7f3f7;box-shadow:0 1px 4px #00000024;font-weight:700}input[type=range]{width:100%;accent-color:#b9654f;margin:10px 0 0}.subtle{color:#98acb4;font-size:11px;line-height:1.7}.info-svg{height:148px;width:100%;border:1px solid #314452;border-radius:9px;background:#12202a}.charges{font-size:11px;color:#9fb2ba;display:flex;gap:12px;margin:8px 0}.charges b{color:#5db8e4}.charges em{font-style:normal;color:#ee8a72}.physics{border-radius:9px;background:#0f1a22;padding:9px 10px;color:#b4c5cc;font-size:11px;line-height:1.6;margin-top:9px}.physics strong{color:#dbe8ec}
+#sixpanel{display:none;position:absolute;left:15px;right:15px;top:68px;bottom:16px;border:1px solid #2b4150;border-radius:12px;background:#132029f2;z-index:6;padding:14px;overflow:auto}#sixpanel.open{display:block}.sixhead{display:flex;justify-content:space-between;align-items:center;gap:8px}.sixgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.sixitem{background:#101920;border:1px solid #2a3f4e;border-radius:9px;padding:5px}.sixitem label{display:block;text-align:center;color:#bdd0d7}.sixitem svg{height:140px;width:100%}.small{background:#101920;border:1px solid #2c4150;color:#c3d6dc;border-radius:7px;padding:7px 10px}.alert{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;background:#14202a;border:1px solid #c89b85;border-radius:12px;padding:18px;max-width:440px;text-align:center;line-height:1.7;box-shadow:0 10px 36px #00000055;color:#e3edf1}#boot{position:absolute;inset:0;display:grid;place-items:center;z-index:1;font-size:13px;color:#9bb0b8;pointer-events:none}#boot.hide{display:none}.mini{font-size:10px;color:#91a5ad}.qline{font-variant-numeric:tabular-nums}
+@media(max-width:900px){header{height:60px;padding:0 10px}header h1{font-size:18px}header .tag{display:none}.workspace{height:calc(100dvh - 60px);grid-template-columns:minmax(0,1fr) 292px;gap:6px;padding:7px}.card{padding:10px}.mode-list button{font-size:11px;padding:6px}.scene-name{padding:7px;font-size:10px}.view-buttons button{font-size:11px;padding:6px}}@media(max-width:690px){html,body{height:auto;overflow:auto}.workspace{height:auto;grid-template-columns:1fr}.viewport{height:min(65vh,600px);min-height:400px}.sidebar{overflow:visible}.mode-list{grid-template-columns:repeat(2,1fr)}.scene-footer{bottom:8px;left:8px;right:8px}.controlhelp{display:none}.sixgrid{grid-template-columns:repeat(2,1fr)}}
+
+/* V4 · discrete charge bookkeeping — sidebar only, no third column */
+.charge-ledger{background:#f7f9f5;border:1px solid #dee6de;border-radius:10px;padding:8px 9px;margin-top:6px}
+.charge-row{display:grid;grid-template-columns:minmax(70px,1fr) auto auto auto;column-gap:9px;align-items:center;border-bottom:1px solid #e6ebe5;padding:8px 0;white-space:nowrap;font-variant-numeric:tabular-nums}
+.charge-row:last-child{border-bottom:0}
+.charge-row .charge-label{font-weight:700;font-size:12px;color:#455f55;white-space:normal}
+.charge-row .positive{color:#b95c44;font-weight:800}
+.charge-row .negative{color:#347ead;font-weight:800}
+.charge-row .net{background:#e9efeb;padding:3px 5px;border-radius:5px;color:#50645b;font-size:11px}
+.charge-row .net.pos{background:#fbebe5;color:#b95c44}.charge-row .net.neg{background:#e6f1f8;color:#347ead}
+.charge-hint{font-size:10.5px;color:#708277;line-height:1.55;margin-top:7px}
+.charge-progress{display:flex;align-items:center;justify-content:space-between;background:#fff2e8;color:#9a583e;border:1px solid #ead7c5;border-radius:7px;padding:7px 9px;margin-top:8px;font-size:11px;font-weight:600}
+
+
+.manual-help{background:#0f1b22;border:1px solid #29404f;padding:12px;border-radius:11px;color:#bcd0d6;line-height:1.7;font-size:12px;margin:8px 0}#manualGround{background:#2f7287;color:#fff;border:0;border-radius:9px;padding:10px 14px;font-weight:700;margin-top:8px;display:none;width:100%}#manualGround:disabled{opacity:.42}#world{touch-action:none;cursor:grab}.manual-tip{position:absolute;left:18px;bottom:78px;background:rgba(18,29,37,.92);border:1px solid #29404f;color:#d6e3e8;border-radius:9px;padding:9px 12px;max-width:380px;font-size:12px;line-height:1.6;pointer-events:none;box-shadow:0 10px 24px #0000002a;backdrop-filter:blur(6px)}#manualGuide strong{color:#e5f1f5}.count-overlay{position:absolute;inset:0;pointer-events:none}.count-box{position:absolute;transform:translate(-50%,-50%);min-width:108px;background:rgba(18,29,37,.92);border:1px solid #2a4250;border-radius:10px;padding:6px 8px;box-shadow:0 10px 22px #00000038;color:#d8e6eb;font-size:11px;line-height:1.45;backdrop-filter:blur(6px)}.count-box .ttl{font-weight:800;font-size:11px;color:#cfe1e7;margin-bottom:2px}.count-box .pos{color:#f08a79;font-weight:800}.count-box .neg{color:#66c9ff;font-weight:800}.count-box .net{color:#b5c8cf;font-weight:700}.count-box.hide{display:none}
+
+/* V9 · 用红蓝两个大数字取代冗余净电荷和标题 */
+.count-box{min-width:110px;padding:9px 12px;border:1px solid #2a4250;background:rgba(18,29,37,.94)}
+.count-box .values{display:flex;align-items:center;justify-content:center;gap:17px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.count-box .values .pos,.count-box .values .neg{font-size:20px;font-weight:850;letter-spacing:.2px;line-height:1.25}
+
+/* V10.4 · 教学操作台：明显的带电体选择、简化控件和高对比度 */
+.sidebar{gap:12px;scrollbar-color:#56707e #14212a;padding-right:5px}
+.sidebar .card{background:#1b2a35;border:1px solid #3b5464;padding:16px;border-radius:15px;box-shadow:0 10px 24px #00000033}
+.sidebar .card h2{font-size:15px;line-height:1.35;margin:0 0 13px;font-weight:800;color:#eef6f9;letter-spacing:.15px}
+.sidebar .card h2 span{color:#9ebdcc;font-size:12px;margin-right:6px}
+.rod-select-card{position:sticky;top:0;z-index:8;background:#21313e!important;border-color:#66828f!important;box-shadow:0 12px 26px #0007!important}
+.rod-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.rod-options .rod-choice{min-width:0;min-height:117px;padding:11px 7px 10px;background:#16242e;border:2px solid #364e60;border-radius:13px;color:#dce9ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:inset 0 1px 0 #ffffff08;transition:border-color .16s,background .16s,transform .16s}
+.rod-options .rod-choice:hover{transform:translateY(-1px);background:#243747;border-color:#7f9ba8}
+.rod-options .rod-choice.active.rubber{border-color:#69c5f1;background:linear-gradient(160deg,#1c3d52,#162a3b);box-shadow:inset 0 0 0 1px #69c5f133,0 0 0 1px #194257}
+.rod-options .rod-choice.active.glass{border-color:#ef9c7d;background:linear-gradient(160deg,#4c3837,#2e3038);box-shadow:inset 0 0 0 1px #ef9c7d33,0 0 0 1px #805347}
+.rod-art{display:block;width:83px;height:15px;border-radius:9px;transform:rotate(-11deg);margin-bottom:5px;flex-shrink:0}
+.rubber-art{background:linear-gradient(to bottom,#7d8582 0%,#444c4a 15%,#343b3c 60%,#252e32 82%,#181f23 100%);border:1px solid #879296;box-shadow:0 3px 6px #0007}
+.glass-art{background:linear-gradient(to bottom,#f5ffff 0%,#bceff5 14%,#7db9c5 23%,#254f61 48%,#83c8d6 72%,#e2ffff 94%);border:1px solid #c1eaf2;box-shadow:0 0 10px #91deed3d,0 3px 7px #0005}
+.rod-name{font-size:15px;white-space:nowrap;font-weight:800;line-height:1.25;color:#f1f7f9}
+.rod-name b{font-size:12px;font-weight:800;margin-left:2px;color:#71cbfc}
+.rod-choice.glass .rod-name b{color:#ffa28b}
+.rod-options .rod-choice small{font-size:11px;color:#b8ccd5}
+.mode-list{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mode-list button{min-height:62px;padding:10px 10px;font-size:13px;font-weight:750;line-height:1.4;color:#d4e1e6;background:#14232d;border:1px solid #385261;border-radius:11px;text-align:left;overflow-wrap:anywhere}
+.mode-list button:hover{background:#254051;border-color:#789bad}
+.mode-list button.active{background:#315363;color:#fff;border:2px solid #8ed1e3;box-shadow:inset 4px 0 0 #9de3f2}
+.mode-list .mode-main{display:block}
+.operation-card .desc{font-size:13px;line-height:1.7;color:#e0eaee;min-height:0;background:#14242e;border:1px solid #344d5c;border-radius:10px;padding:11px 12px;margin:0 0 10px}
+#manualGuide{display:none!important}
+.operation-card #manualGround{background:#297e94;color:#fff;border:1px solid #4aa7bc;font-size:14px;min-height:43px;margin:0 0 10px}
+.operation-card .playbar{gap:7px}
+.operation-card .playbar button{min-height:43px;font-size:12px;font-weight:650;background:#13232d;color:#d9e9ee;border:1px solid #395767}
+.operation-card .playbar .play{font-size:14px;font-weight:800;background:#c86e55;color:#fff;border-color:#e68e73}
+.operation-card .progress{margin:12px 0 6px}
+.operation-card .mini{color:#afc4cc}
+.settings-disclosure{margin-top:14px;border-top:1px solid #3b5361;padding-top:11px}
+.settings-disclosure summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;color:#d7e9ef;font-size:13px;font-weight:750;list-style:none;min-height:34px;padding:3px 0}
+.settings-disclosure summary::-webkit-details-marker{display:none}
+.settings-disclosure summary::before{content:'▸';color:#89b8c5;font-size:13px;margin-right:2px}
+.settings-disclosure[open] summary::before{content:'▾'}
+.settings-disclosure .settings-hint{font-size:11px;color:#9eb6c1;font-weight:450;margin-left:auto}
+.settings-inner{margin-top:6px;border-top:1px solid #314956;padding-top:5px}
+.settings-inner .setting{min-height:40px;color:#d6e5e9;border-bottom-color:#324956}
+.settings-inner .setting strong{font-size:13px;font-weight:550}
+.settings-inner input[type=checkbox]{width:18px;height:18px;accent-color:#6ebfc4}
+.settings-inner .seg{background:#12232e}
+.settings-inner .seg button{min-height:36px;font-size:12px}
+.settings-inner .settings-subhead,.settings-inner .strength-row{font-size:12px;color:#b7cbd3;margin-top:11px}
+.settings-inner .strength-row{display:flex;justify-content:space-between}
+@media(max-width:900px){.sidebar .card{padding:12px}.rod-options .rod-choice{min-height:102px}.rod-name{font-size:13px}.rod-art{width:68px}.mode-list button{font-size:12px;min-height:56px}}
+@media(max-width:690px){.rod-select-card{position:static}.rod-options .rod-choice{min-height:98px}}
+</style></head>
+<body><header><div><small>PHYSICS INTERACTIVE LAB · ELECTROSTATICS</small><h1>金属箔验电器 <span>／结构与电荷转移</span></h1></div><span class="tag">Three.js r160 · PBR · SVG · 双材质带电棒 · 离线单文件</span></header>
+<main class="workspace"><section class="viewport"><canvas id="world" aria-label="验电器三维实验场景"></canvas><div id="boot">正在构建三维器材…</div><div class="scene-top"><div class="scene-name"><b id="sceneTitle">单验电器 · 全景</b>拖动带电棒与导线实验 · 空白处左拖旋转 · 右拖平移</div><div class="view-buttons"><button id="front">正视</button><button id="leftview">左视</button><button id="topview">俯视</button><button id="resetCamera">全景</button><button id="focusLeaves">箔片特写</button><button id="openSix">六视图</button></div></div><div class="scene-footer"><div class="readouts" id="angleText">箔片夹角：0°<small>初始中性</small></div><div class="controlhelp" id="sceneHint">玻璃罩为绝缘体 · 金属球—金属杆—箔片相连</div></div><div id="manualTip" class="manual-tip">选择实验后直接拖动带电棒或导线进行操作。</div><div class="count-overlay" id="countOverlay"><div class="count-box" id="countA"></div><div class="count-box hide" id="countB"></div><div class="count-box hide" id="countRod"></div></div><div id="sixpanel"><div class="sixhead"><strong>验电器 · 六视图（结构示意）</strong><button class="small" id="closeSix">返回3D</button></div><div class="sixgrid" id="sixgrid"></div></div><div class="alert" id="failure"></div></section>
+<aside class="sidebar" aria-label="实验控制台">
+<section class="card rod-select-card">
+  <h2><span>01</span> 选择带电体</h2>
+  <div class="rod-options" id="polarity" role="group" aria-label="选择橡胶棒或玻璃棒">
+    <button class="rod-choice rubber active" type="button" data-sign="-1" aria-pressed="true">
+      <span class="rod-art rubber-art" aria-hidden="true"></span>
+      <span class="rod-name">橡胶棒 <b>负电</b></span>
+      <small>毛皮摩擦</small>
+    </button>
+    <button class="rod-choice glass" type="button" data-sign="1" aria-pressed="false">
+      <span class="rod-art glass-art" aria-hidden="true"></span>
+      <span class="rod-name">玻璃棒 <b>正电</b></span>
+      <small>丝绸摩擦</small>
+    </button>
+  </div>
+</section>
+<section class="card experiment-card">
+  <h2><span>02</span> 选择实验</h2>
+  <div id="modegrid" class="mode-list"></div>
+</section>
+<section class="card operation-card">
+  <h2><span>03</span> 实验操作</h2>
+  <div id="manualGuide" class="manual-help" style="display:none"></div>
+  <div id="stages" class="stage-list"></div>
+  <div class="desc" id="caption">直接拖动带电棒开始实验</div>
+  <button id="manualGround" type="button">接地</button>
+  <div class="playbar"><button id="prev" type="button">上一步</button><button id="play" class="play" type="button">▶ 自动演示</button><button id="next" type="button">下一步</button><button id="restart" type="button" title="重置实验" aria-label="重置实验">↺</button></div>
+  <div class="progress"><div id="progressbar"></div></div>
+  <div class="mini" id="stepNum" style="text-align:right">01 / 04</div>
+  <details class="settings-disclosure" id="settingsDisclosure">
+    <summary>观察设置 <span class="settings-hint">电荷、剖切、视角</span></summary>
+    <div class="settings-inner">
+      <label class="setting"><strong>显示正负电荷</strong><input type="checkbox" id="showCharge" checked></label>
+      <label class="setting"><strong>电子流动示踪</strong><input type="checkbox" id="showFlow" checked></label>
+      <label class="setting"><strong>玻璃罩剖切</strong><input type="checkbox" id="cutaway"></label>
+      <div class="settings-subhead">观察方式</div>
+      <div class="seg" id="designMode"><button class="active" data-design="A">完整装配</button><button data-design="B">局部观察</button></div>
+      <div class="strength-row"><span>带电程度（定性）</span><b id="strengthVal">70%</b></div>
+      <input id="strength" type="range" min="20" max="100" value="70" step="5" aria-label="带电程度">
+    </div>
+  </details>
+</section>
+</aside></main>
+<script src="../shared/vendor/three-r160.min.js"></script><script>
+(function(){'use strict';
+const PI=Math.PI,rad=PI/180,clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),mix=(a,b,t)=>a+(b-a)*t,smooth=t=>t*t*(3-2*t);
+function polylinePoint(points,u){
+  let lengths=[],total=0;
+  for(let i=1;i<points.length;i++){const len=points[i].distanceTo(points[i-1]);lengths.push(len);total+=len;}
+  if(total<1e-8)return points[0].clone();
+  let distance=clamp(u,0,1)*total;
+  for(let i=0;i<lengths.length;i++){if(distance<=lengths[i]||i===lengths.length-1)return points[i].clone().lerp(points[i+1],clamp(distance/(lengths[i]||1),0,1));distance-=lengths[i]}
+  return points[points.length-1].clone();
+}
+const modes=[
+ {id:'induction',name:'静电感应检验 / 感应起电',desc:'不接触 · 可接地',stages:[
+  {name:'初始中性',desc:'金属箔自然下垂。验电器整体不带净电荷。',rod:-2.53,angle:0.024,top:0,leaf:0,net:0,ground:0,focus:'all'},
+  {name:'带电体靠近（检验）',desc:'不接触金属球，导体内部电子重新分布，箔片张开。',rod:-1.05,angle:.40,top:1,leaf:-1,net:0,ground:0,focus:'top'},
+  {name:'观察后移开',desc:'若不接地而直接移开带电体，验电器恢复中性，箔片重新闭合。',rod:-2.53,angle:.024,top:0,leaf:0,net:0,ground:0,focus:'all'},
+  {name:'再次靠近并接地',desc:'保持带电体靠近，再接地，电子与大地交换。',rod:-1.05,angle:.025,top:1,leaf:0,net:1,ground:1,focus:'top',flow:true},
+  {name:'先断开接地',desc:'先断开接地，带电棒位置保持不动；此时净电荷已经保留下来。',rod:-1.05,angle:.04,top:1,leaf:0,net:1,ground:0,focus:'top'},
+  {name:'最后移开带电棒',desc:'最后移开带电棒，验电器留下与带电棒异号的净电荷，两片箔保持张开。',rod:-2.53,angle:.45,top:1,leaf:1,net:1,ground:0,focus:'leaves'}]},
+ {id:'contact',name:'接触带电',desc:'接触 · 移开仍张开',stages:[
+  {name:'验电器中性',desc:'两片箔片靠拢，金属杆与金属球连续导电。',rod:-2.53,angle:.024,top:0,leaf:0,net:0,ground:0,focus:'all'},
+  {name:'带电体接近',desc:'靠近但尚未接触，首先出现静电感应。',rod:-1.05,angle:.23,top:1,leaf:-1,net:0,ground:0,focus:'top'},
+  {name:'接触金属球',desc:'接触发生电子转移，使验电器获得与带电体同种的净电荷。',rod:-.77,angle:.45,top:-1,leaf:-1,net:-1,ground:0,focus:'top',flow:true},
+  {name:'分离后保持张开',desc:'金属球、金属杆、两箔片留有同种净电荷，两箔片仍互斥。',rod:-2.53,angle:.45,top:-1,leaf:-1,net:-1,ground:0,focus:'leaves'}]},
+ {id:'discharge',name:'接地放电',desc:'触摸 · 箔片闭合',stages:[
+  {name:'验电器原已带电',desc:'两片箔片均带同种电荷，呈张开状态。',rod:-2.53,angle:.45,top:-1,leaf:-1,net:-1,ground:0,focus:'all'},
+  {name:'接地放电',desc:'人体接触金属球，与大地交换电子，验电器净电荷逐渐归零。',rod:-2.53,angle:.025,top:0,leaf:0,net:0,ground:1,focus:'top',flow:true},
+  {name:'松开手指',desc:'验电器恢复中性，箔片闭合。',rod:-2.53,angle:.024,top:0,leaf:0,net:0,ground:0,focus:'all'}]}
+ ,{id:'share',dual:true,name:'双验电器 · 接触分电',desc:'一台带电 · 连接分电',stages:[
+ {name:'A带电，B不带电',desc:'A已带电，B中性；尚未连接，两台相互隔离。',qa:1,qb:0,wire:0,rod:-2.53,focus:'all'},
+ {name:'导线逐渐靠近',desc:'金属导线逐渐靠近两个金属球，尚未接通时电荷不发生跨表转移。',qa:1,qb:0,wire:.68,rod:-2.53,focus:'wire'},
+ {name:'接通并发生电子转移',desc:'导线接通：负电情况电子从A流向B；正电情况电子从B流向A（过程已教学慢放）。',qa:.5,qb:.5,wire:1,flow:1,rod:-2.53,focus:'wire'},
+ {name:'两端达到静电平衡',desc:'相同且充分远离的两台验电器，最终各获得约一半的总电荷。',qa:.5,qb:.5,wire:1,rod:-2.53,focus:'all'},
+ {name:'先断开金属导线',desc:'断开后，两台验电器都保留相同符号的净电荷，箔片保持张开。',qa:.5,qb:.5,wire:0,rod:-2.53,focus:'all'}]},
+ {id:'pair-induction',dual:true,name:'双验电器 · 感应分电',desc:'连接中性 · 断开留异号',stages:[
+ {name:'两台均中性',desc:'两台验电器中性，互不接触；带电棒远离。',qa:0,qb:0,wire:0,rod:-2.53,focus:'all'},
+ {name:'先连接金属导线',desc:'用金属导线连接两台顶球，形成一个孤立导体系统。',qa:0,qb:0,wire:1,rod:-2.53,focus:'wire'},
+ {name:'带电棒靠近A',desc:'不接触！负棒靠近A时电子从A向B移动，A带正电、B带负电。',qa:-.72,qb:.72,wire:1,rod:-1.08,flow:1,focus:'wire'},
+ {name:'保持棒不动，断开导线',desc:'先断开导线，分离的正负净电荷分别留在A、B。',qa:-.72,qb:.72,wire:0,rod:-1.08,focus:'all'},
+ {name:'最后移走带电棒',desc:'移走带电棒以后，两台验电器带等量异号的净电荷，两侧箔片仍张开。',qa:-.72,qb:.72,wire:0,rod:-2.53,focus:'all'}]}
+];
+let THREE,scene,renderer,camera,model,model2,rig,director,wireRig,ui={},state;
+function mesh(geo,mat, parent,pos,rot){const o=new THREE.Mesh(geo,mat);if(pos)o.position.set(...pos);if(rot)o.rotation.set(...rot);parent.add(o);return o}
+function mat(color,metalness=0,roughness=.5,more={}){return new THREE.MeshStandardMaterial({color,metalness,roughness,...more})}
+function cylinder(r1,r2,h,n=40){return new THREE.CylinderGeometry(r1,r2,h,n)}
+function tube(points,r,color,transparent=false){return mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p))),Math.max(20,points.length*14),r,8,false),mat(color,.3,.36,{transparent,opacity:transparent?.82:1}),scene)}
+function createCanvasLabel(text,color='#263b3b',bg='rgba(255,255,255,.8)'){
+ const canvas=document.createElement('canvas');canvas.width=480;canvas.height=96;let c=canvas.getContext('2d');c.fillStyle=bg;c.fillRect(0,0,480,96);c.font='bold 43px Microsoft YaHei,Arial';c.fillStyle=color;c.textAlign='center';c.textBaseline='middle';c.fillText(text,240,48);let tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;
+}
+class ElectroscopeModel{
+ constructor(){this.originX=0;this.root=new THREE.Group();scene.add(this.root);this.pieces={};this.labels=[];this.build();this.buildParticles();}
+ build(){const g=this.root;
+  const aluminum=mat(0x6c747c,.79,.35), brass=mat(0xb88b47,.87,.26), brassLight=mat(0xe7c278,.8,.26),dark=mat(0x3e474a,.48,.61),rubber=mat(0x313538,.02,.82),wood=mat(0x585f5d,.32,.71);
+  // 银灰金属底座，两级倒角结构，与玻璃腔分离
+  mesh(cylinder(.80,.81,.105,100),dark,g,[0,.10,0]); mesh(cylinder(.68,.72,.055,100),aluminum,g,[0,.17,0]);
+  const foot=mesh(new THREE.TorusGeometry(.70,.017,9,96),mat(0x989c9b,.58,.32),g,[0,.206,0]);foot.rotation.x=PI/2;
+  for(let a=0;a<3;a++){const z=a*2*PI/3;mesh(cylinder(.034,.045,.025,12),rubber,g,[.59*Math.cos(z),.038,.59*Math.sin(z)]);}
+  // 实心侧壁和前半透明壳单独控制（可剖切）。玻璃外筒实际有厚度，物理只示意透明防护，不导电
+  let shellGeo=new THREE.CylinderGeometry(.637,.637,1.61,96,1,true);
+  let glass=new THREE.MeshPhysicalMaterial({color:0xb7dfe7,transparent:true,opacity:.18,roughness:.05,metalness:0,side:THREE.DoubleSide,depthWrite:false,clearcoat:1,clearcoatRoughness:.04,transmission:.72,thickness:.055,ior:1.48,attenuationColor:0x9ddaf0,attenuationDistance:1.4});
+  this.glass=mesh(shellGeo,glass,g,[0,1.025,0]);this.glass.renderOrder=5;this.glassCut=mesh(new THREE.CylinderGeometry(.637,.637,1.61,96,1,true,PI/2,PI),glass.clone(),g,[0,1.025,0]);this.glassCut.visible=false;this.glassCut.renderOrder=5;
+  let inner=mesh(new THREE.CylinderGeometry(.619,.619,1.58,96,1,true),new THREE.MeshPhysicalMaterial({color:0xd3efef,transparent:true,opacity:.055,roughness:.12,metalness:0,side:THREE.DoubleSide,depthWrite:false}),g,[0,1.025,0]);inner.renderOrder=6;this.inner=inner;this.innerCut=mesh(new THREE.CylinderGeometry(.619,.619,1.58,96,1,true,PI/2,PI),inner.material.clone(),g,[0,1.025,0]);this.innerCut.visible=false;this.innerCut.renderOrder=6;
+  // Transparent annular top cap, clear central bore for the insulated bushing.
+  const lidMat=new THREE.MeshPhysicalMaterial({color:0xcce2df,metalness:0,roughness:.16,transparent:true,opacity:.31,side:THREE.DoubleSide,depthWrite:false,clearcoat:.5});
+  this.glassLid=mesh(new THREE.RingGeometry(.167,.633,96),lidMat,g,[0,1.83,0],[-PI/2,0,0]);this.glassLid.renderOrder=4;
+  const rimTop=mesh(new THREE.TorusGeometry(.633,.019,12,96),mat(0x9caaa5,.27,.45),g,[0,1.83,0],[PI/2,0,0]);
+  const ringBore=mesh(new THREE.TorusGeometry(.171,.009,10,70),mat(0xa9b3ad,.3,.4),g,[0,1.833,0],[PI/2,0,0]);
+  for(let y of [.218,1.83]){let ring=mesh(new THREE.TorusGeometry(.633,.013,12,100),mat(0x9eb3ae,.19,.27,{transparent:true,opacity:.74}),g,[0,y,0]);ring.rotation.x=PI/2;}
+  // 壳体反射细纹在极薄圆柱外，透明光影不过曝
+  for(let a of [0.24,2.8,4.5]){const x=.643*Math.sin(a),z=.643*Math.cos(a);const stripe=mesh(new THREE.CylinderGeometry(.004,.004,1.43,5),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.15,depthWrite:false}),g,[x,1.025,z]);stripe.renderOrder=8;}
+  // 绝缘塞从玻璃顶部穿过；球杆穿过塞孔而不与玻璃/金属罩短接
+  mesh(cylinder(.160,.17,.26,50),rubber,g,[0,1.86,0]);mesh(cylinder(.185,.185,.038,50),mat(0x4b5253,.1,.83),g,[0,1.86,0]);
+  for(let y of [1.79,1.85,1.91]) mesh(new THREE.TorusGeometry(.155,.006,8,50),mat(0x6d7270,.08,.73),g,[0,y,0],[PI/2,0,0]);
+  // 全连通金属：顶球（y2.43）→杆→焊接叉头（y1.24）→两片金属箔
+  mesh(cylinder(.034,.034,1.22,24),brass,g,[0,1.77,0]);mesh(new THREE.SphereGeometry(.223,52,32),brassLight,g,[0,2.49,0]);
+  mesh(new THREE.SphereGeometry(.033,24,16),brass,g,[0,1.25,0]);
+  mesh(new THREE.BoxGeometry(.074,.046,.065),brass,g,[0,1.25,0]);
+  for(let side of [-1,1]){
+   let hanger=new THREE.Group();hanger.position.set(side*.026,1.214,0);g.add(hanger);
+   // 双金属箔：箔片的宽面为 YZ 面，相互面对（法线沿 X），并围绕各自上端沿 Z 轴摆动。
+   const foilShape=new THREE.Shape(); foilShape.moveTo(-.023,0);foilShape.lineTo(.023,0);foilShape.lineTo(.047,-.525);foilShape.quadraticCurveTo(0,-.552,-.047,-.525);foilShape.closePath();
+   let fg=new THREE.ExtrudeGeometry(foilShape,{depth:.0012,bevelEnabled:false,curveSegments:12});
+   let fm=new THREE.MeshStandardMaterial({color:0xedcc79,metalness:.73,roughness:.38,side:THREE.DoubleSide,emissive:0x261907,emissiveIntensity:.1});
+   const foil=mesh(fg,fm,hanger,[0,0,0]);foil.rotation.y=PI/2;foil.material.roughness=.55;foil.material.metalness=.65;
+   // 箔片不加厚边框，保持薄箔的轻质外观；悬挂点由小金属轴支撑。
+   mesh(new THREE.CylinderGeometry(.012,.012,.064,18),brassLight,hanger,[0,-.008,0],[PI/2,0,0]);
+   if(side<0)this.leafL=hanger;else this.leafR=hanger;
+  }
+  this.glassParts=[this.glass,this.inner,this.glassCut,this.innerCut];
+  // 课本中的两种摩擦带电体：毛皮摩擦的橡胶棒(负)，丝绸摩擦的玻璃棒(正)。
+  // 两个独立真实材质的模型，共用鼠标拖动枢轴；不再只换颜色冒充玻璃。
+  this.rodGroup=new THREE.Group();scene.add(this.rodGroup);
+  this.rubberRod=new THREE.Group();this.glassRod=new THREE.Group();
+  this.rodGroup.add(this.rubberRod,this.glassRod);
+  // 橡胶棒：暖黑、完全不透明、粗糙的磨砂橡胶，反射为宽而弱的漫反射。
+  // 贴图为程序生成的微细粗糙纹理；没有银色金属箍或玻璃式亮白纵线。
+  const rubberPattern=document.createElement('canvas');rubberPattern.width=rubberPattern.height=128;
+  const rubberCtx=rubberPattern.getContext('2d'),pixels=rubberCtx.createImageData(128,128);
+  for(let y=0;y<128;y++)for(let x=0;x<128;x++){
+    const i=(y*128+x)*4,grain=70+((x*19+y*31+(x*y)%23)%31);
+    pixels.data[i]=grain+5;pixels.data[i+1]=grain+4;pixels.data[i+2]=grain+3;pixels.data[i+3]=255;
+  }
+  rubberCtx.putImageData(pixels,0,0);
+  const rubberTexture=new THREE.CanvasTexture(rubberPattern);
+  rubberTexture.wrapS=rubberTexture.wrapT=THREE.RepeatWrapping;
+  rubberTexture.repeat.set(6,2);rubberTexture.colorSpace=THREE.SRGBColorSpace;
+  const rubberBody=new THREE.MeshStandardMaterial({color:0xe2d7ce,map:rubberTexture,metalness:0,roughness:.91});
+  mesh(cylinder(.058,.058,1.05,48),rubberBody,this.rubberRod,[0,0,0],[0,0,PI/2]);
+  // 只有极窄的柔和灰色擦光，保留暗色背景下的轮廓但不把橡胶画成金属。
+  const rubberRim=mat(0x8b8680,0,.92,{transparent:true,opacity:.26,depthWrite:false});
+  mesh(cylinder(.0032,.0032,.99,10),rubberRim,this.rubberRod,[0,.052,.020],[0,0,PI/2]);
+  for(const x of [-.40,.29])mesh(new THREE.TorusGeometry(.059,.0025,6,28),mat(0x41413f,0,.95),this.rubberRod,[x,0,0],[0,PI/2,0]);
+  mesh(new THREE.SphereGeometry(.058,32,20),rubberBody,this.rubberRod,[.525,0,0]);
+  // 玻璃棒：冷青色透明体、玻璃折射和窄强镜面高光。和暖黑哑光橡胶形成材质对比。
+  const glassBody=new THREE.MeshPhysicalMaterial({
+    color:0x88dcef,metalness:0,roughness:.035,transparent:true,
+    opacity:.69,transmission:.40,thickness:.23,ior:1.52,
+    clearcoat:1,clearcoatRoughness:.018,attenuationColor:0x81d3ed,attenuationDistance:1.15,
+    emissive:0x12475a,emissiveIntensity:.12,depthWrite:false,side:THREE.DoubleSide
+  });
+  mesh(cylinder(.053,.053,1.05,64),glassBody,this.glassRod,[0,0,0],[0,0,PI/2]);
+  // 透明圆柱的两侧折射轮廓：半透明蓝青细边与一条极亮的表面反射。
+  const sideGlass=new THREE.MeshBasicMaterial({color:0x77d5f1,transparent:true,opacity:.68,depthWrite:false});
+  for(let side of [-1,1])mesh(cylinder(.0033,.0033,1.03,12),sideGlass,this.glassRod,[0,side*.048,.028],[0,0,PI/2]);
+  const glassGlint=new THREE.MeshBasicMaterial({color:0xeaffff,transparent:true,opacity:.86,depthWrite:false});
+  mesh(cylinder(.0048,.0048,.79,12),glassGlint,this.glassRod,[-.085,.027,.046],[0,0,PI/2]);
+  mesh(cylinder(.0025,.0025,.53,12),glassGlint,this.glassRod,[.155,-.018,.045],[0,0,PI/2]);
+  const glassInterior=mat(0xd6f8ff,0,.11,{transparent:true,opacity:.24,depthWrite:false});
+  mesh(cylinder(.013,.013,1.033,20),glassInterior,this.glassRod,[0,0,.008],[0,0,PI/2]);
+  // 端面呈现真实的玻璃截面/厚度，外缘比杆身更亮。
+  for(const x of [-.522,.522]){
+    mesh(new THREE.CircleGeometry(.052,48),new THREE.MeshBasicMaterial({color:0xb7ecfb,transparent:true,opacity:.44,side:THREE.DoubleSide,depthWrite:false}),this.glassRod,[x,0,0],[0,PI/2,0]);
+    mesh(new THREE.TorusGeometry(.052,.0035,7,48),new THREE.MeshBasicMaterial({color:0xa7efff,transparent:true,opacity:.88,depthWrite:false}),this.glassRod,[x,0,0],[0,PI/2,0]);
+  }
+  mesh(new THREE.SphereGeometry(.0515,36,24),glassBody,this.glassRod,[.525,0,0]);
+  // 整根棒向右上略微倾斜；左端低于标题。棒尖接触金属球时位于 y≈2.49。
+  this.rodGroup.rotation.z=.13;
+  this.rodGroup.position.set(-2.53,2.422,0);
+  // 带电棒统一使用场景 HTML 跟随计数框，不再创建遮挡的三维文字贴片。
+  // 右侧接地夹，只有阶段需要时出现，球体接触点落在球面右侧。
+  this.ground=new THREE.Group();scene.add(this.ground);
+  let path=new THREE.CatmullRomCurve3([[.228,2.49,0],[.43,2.51,0],[.94,2.4,.03],[1.32,1.96,.06],[1.43,1.40,.05],[1.60,.85,.05]].map(p=>new THREE.Vector3(...p)));
+  mesh(new THREE.TubeGeometry(path,64,.017,9,false),mat(0x4b726d,.43,.40),this.ground);
+  mesh(new THREE.SphereGeometry(.059,16,16),mat(0xb3b0a3,.55,.38),this.ground,[.228,2.49,0]);
+  const gndTex=createCanvasLabel('⏚ 接地','#4b6e5b','rgba(255,255,255,.82)');const groundLabel=new THREE.Sprite(new THREE.SpriteMaterial({map:gndTex,transparent:true,depthTest:false}));groundLabel.scale.set(.95,.19,1);groundLabel.position.set(1.65,.67,.05);this.ground.add(groundLabel);
+  this.groundCurve=path;this.ground.visible=false;
+  this.root.userData.parts=['金属球','金属杆','绝缘套','玻璃罩','左金属箔','右金属箔','底座'];
+ }
+ buildParticles(){
+  // 每个独立物体以固定的10个红色正电荷标记表示金属晶格背景；蓝点表示电子。
+  // 红＋始终固定在金属上，蓝−数量/位置随电荷转移与感应改变。
+  const cv=document.createElement('canvas');cv.width=cv.height=96;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,96,96);
+  ctx.fillStyle='#ff7565';ctx.font='bold 91px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('+',48,49);
+  const plusTexture=new THREE.CanvasTexture(cv);plusTexture.colorSpace=THREE.SRGBColorSpace;
+  const posMat=()=>new THREE.SpriteMaterial({map:plusTexture,transparent:true,depthTest:false,depthWrite:false});
+  const dotMat=mat(0x58c4fa,.04,.28,{emissive:0x2787bd,emissiveIntensity:.46});
+  const dotGeo=new THREE.SphereGeometry(.025,16,12);
+  this.chargeGroup=new THREE.Group();scene.add(this.chargeGroup);
+  this.fixedPositive=[];this.electrons=[];
+  for(let i=0;i<10;i++){
+    const marker=new THREE.Sprite(posMat());marker.scale.set(.118,.118,1);
+    this.chargeGroup.add(marker);this.fixedPositive.push(marker);
+  }
+  for(let i=0;i<24;i++)this.electrons.push(mesh(dotGeo,dotMat,this.chargeGroup));
+  // 带电棒也使用相同的10个固定红＋标记，电子点按净电荷即时改变数量。
+  this.rodPositive=[];this.rodElectrons=[];
+  for(let i=0;i<10;i++){
+    const marker=new THREE.Sprite(posMat());marker.scale.set(.105,.105,1);
+    marker.position.set(-.47+i*.104,.095,.058);
+    this.rodGroup.add(marker);this.rodPositive.push(marker);
+  }
+  for(let i=0;i<24;i++){
+    const marker=mesh(new THREE.SphereGeometry(.0225,14,10),dotMat,this.rodGroup);
+    marker.position.set(i>=14?.472+(i-14)*.008:-.47+(i%10)*.104,i<10?.047:-.085-(Math.floor((i-10)/10))*.045,.077);
+    this.rodElectrons.push(marker);
+  }
+  this.flowGroup=new THREE.Group();scene.add(this.flowGroup);this.tracers=[];
+  for(let i=0;i<11;i++)this.tracers.push(mesh(new THREE.SphereGeometry(.027,14,10),mat(0x5fcaff,.06,.22,{emissive:0x3a9fcd,emissiveIntensity:.7}),this.flowGroup));
+ }
+ update(s,t){
+   this.root.position.x=this.originX;
+   this.rodGroup.position.x=this.originX+s.rod;
+   this.rodGroup.visible=s.rodVisible!==false&&(s.rod>-2.12||manualEnabled());
+   const a=s.angle*clamp(s.strength/.7,.55,1.2);
+   this.leafL.rotation.z=-a;this.leafR.rotation.z=a;
+   this.ground.visible=s.ground>.02;
+   this.ground.position.x=this.originX+(1-s.ground)*.45;
+   this.ground.children.forEach(o=>{if(o.material){o.material.transparent=true;o.material.opacity=clamp(s.ground,0,1);o.material.depthWrite=false}});
+   this.glass.visible=!state.cutaway;this.glassLid.visible=!state.cutaway;
+   this.inner.visible=!state.cutaway;this.glassCut.visible=state.cutaway;this.innerCut.visible=state.cutaway;
+   this.glassParts.forEach(p=>{p.material.opacity=(p===this.inner||p===this.innerCut)?.095:.20});
+   this.rubberRod.visible=s.sign<0;this.glassRod.visible=s.sign>0;
+   this.chargeGroup.position.x=this.originX;this.flowGroup.position.x=this.originX;
+   this.chargeGroup.visible=state.showCharge;
+   const mode=director.mode.id;
+   let q=0;
+   if(s.dual)q=Number.isFinite(s.chargeQ)?s.chargeQ:Math.round((s.net||0)*state.sign*ROD_INITIAL_Q);
+   else if(mode==='contact')q=state.sign*Math.floor(CONTACT_Q*clamp(-(s.net||0),0,1)+1e-6);
+   else if(mode==='induction')q=-state.sign*Math.floor(GROUND_Q*clamp(s.net||0,0,1)+1e-6);
+   else if(mode==='discharge')q=state.sign*Math.floor(GROUND_Q*clamp(-(s.net||0),0,1)+1e-6);
+   const electronTotal=clamp(BASE_POS-q,0,this.electrons.length);
+   // 正＋分布固定，其中4个在金属球、2个在金属杆、4个在两片箔上。
+   // 正电荷位置是固定在金属晶格上的 10 个红色＋；初始电子与其一一相邻。
+   this.fixedPositive.forEach((p,i)=>{
+     p.visible=state.showCharge;
+     if(i<4){const x=(i%2?1:-1)*.132,y=2.49+(i<2?.097:-.085);p.position.set(x,y,.18)}
+     else if(i<6)p.position.set(i===4?-.058:.058,i===4?1.92:1.63,.082);
+     else{const side=i<8?-1:1,n=i%2,localY=-.20-.22*n,theta=side*a;
+       p.position.set(side*.026-localY*Math.sin(theta),1.214+localY*Math.cos(theta),.092)}
+   });
+   // 延迟响应：即使学生快速拖近/拖远，蓝色电子仍缓慢沿金属球→金属杆→箔片移动。
+   // 接触后同号净电荷在导体上重新分布；不能错误地把感应期间的电子方向反转。
+   const dt=clamp(t-(this.lastElectronTime??t),0,.075);this.lastElectronTime=t;
+   this.electronShift??=0;
+   let targetInduction;
+   if(mode==='contact'){
+      const touching=(s.rod??-9)>=-.805;
+      const preContact=clamp(((s.rod??-2.10)+2.10)/1.30,0,1)*state.sign*-1;
+      if(touching){
+        if(this.contactHoldShift==null)this.contactHoldShift=this.electronShift||preContact;
+        targetInduction=this.contactHoldShift;
+      }else{
+        this.contactHoldShift=null;
+        targetInduction=clamp(preContact,-1,1);
+      }
+   }else{
+      this.contactHoldShift=null;
+      const inductionAmount=mode==='induction'?(1-clamp((s.net||0),0,1)):s.dual?0:1;
+      targetInduction=clamp((s.top||0)*state.sign*-1*inductionAmount,-1,1);
+   }
+   this.electronShift+=clamp(targetInduction-this.electronShift,-dt*.34,dt*.34);
+   const shift=this.electronShift;
+   // 金属球表面→球颈→金属杆→箔片枢轴：分段路径穿过连续导体，而非穿越玻璃罩中的空气。
+   const conductorRoute=(top,foil,u,fromTop=true)=>{
+     const anchors=[top.clone(),new THREE.Vector3(0,2.36,.18),new THREE.Vector3(0,2.279,.061),new THREE.Vector3(0,2.14,.046),new THREE.Vector3(0,1.38,.046),new THREE.Vector3(0,1.215,.055),foil.clone()];
+     if(!fromTop)anchors.reverse();
+     return polylinePoint(anchors,clamp(u,0,1));
+   };
+   this.electrons.forEach((p,i)=>{
+     p.visible=state.showCharge&&i<electronTotal;
+     if(i>=electronTotal)return;
+     let dest;
+     if(i<10){
+       const anchor=this.fixedPositive[i].position.clone();
+       anchor.add(new THREE.Vector3(.036,-.022,.036));
+       dest=anchor;
+       // 负电棒排斥电子：上方前3个电子沿杆移往箔片。
+       if(i<3&&shift>.001){
+         const side=i%2===0?-1:1,th=side*a,localY=-.16-.09*(i%2);
+         const destination=new THREE.Vector3(side*.026-localY*Math.sin(th),1.214+localY*Math.cos(th),.14);
+         dest=conductorRoute(anchor,destination,shift,true);
+       }
+       // 正电玻璃棒吸引电子：下部3个电子沿杆移往球部。
+       if(i>=6&&i<=8&&shift<-.001){
+         const destination=new THREE.Vector3(i===7?.14:-.14,2.47+(i%2?.07:-.07),.23);
+         dest=conductorRoute(anchor,destination,-shift,false);
+       }
+     }else{
+       // 接触带电新增的电子，在导体金属表面显示；红色晶格始终不参与迁移。
+       const j=i-10,side=j%2===0?-1:1,localY=-.15-.055*Math.floor(j/2),theta=side*a;
+       dest=new THREE.Vector3(side*.026-localY*Math.sin(theta),1.214+localY*Math.cos(theta),.145);
+     }
+     p.position.copy(dest);
+   });
+   const moved=mode==='contact' ? Math.floor(CONTACT_Q*clamp(-(s.net||0),0,1)+1e-6) : 0;
+   const rodQ=state.sign*(ROD_INITIAL_Q-moved);
+   const rodElectrons=clamp(BASE_POS-rodQ,0,this.rodElectrons.length);
+   for(const p of this.rodPositive)p.visible=state.showCharge;
+   this.rodElectrons.forEach((p,i)=>{
+     if(s.sign>0&&i>=2&&i<10)p.position.set(.452+(i-2)*.012,i%2===0?.065:-.065,.075);
+     else if(i>=14)p.position.set(.472+(i-14)*.008,-.085-(Math.floor((i-10)/10))*.045,.077);
+     else p.position.set(-.47+(i%10)*.104,i<10?.047:-.085-(Math.floor((i-10)/10))*.045,.077);
+     p.visible=state.showCharge&&i<rodElectrons;
+   });
+   // 电子示踪不是循环装饰：一个时间段只迁移一个电子，跨界完成后才更新计数。
+   this.flowGroup.visible=state.showFlow&&s.flow>.1&&!s.dual;
+   for(const p of this.tracers)p.visible=false;
+   if(this.flowGroup.visible){
+     let amount=0,maxCount=1,fromGround=s.ground>.5,fromRod=!fromGround&&mode==='contact';
+     if(fromRod){maxCount=CONTACT_Q;amount=maxCount*clamp(-(s.net||0),0,1);}
+     else if(fromGround){maxCount=GROUND_Q;amount=maxCount*clamp(mode==='induction'?(s.net||0):(1+(s.net??-1)),0,1);}
+     const index=Math.floor(amount+1e-6),frac=amount-index;
+     const active=index<maxCount&&frac>.008&&frac<.995;
+     if(active){
+       const particle=this.tracers[0];particle.visible=true;
+       let anchors;
+       if(fromGround){
+         anchors=[new THREE.Vector3(0,2.49,.21),new THREE.Vector3(.228,2.49,.04),...this.groundCurve.points.map(v=>v.clone())];
+         if(s.sign>0)anchors.reverse();
+       }else{
+         // 接触时端部贴住金属球，颗粒沿棒尖、金属球表面和杆内路径缓慢迁移。
+         const tip=new THREE.Vector3(s.rod+.517*Math.cos(.13),2.422+.517*Math.sin(.13),.056);
+         const pointOnRod=(p)=>{
+           const a=this.rodGroup.rotation.z,v=p.clone();
+           return new THREE.Vector3(s.rod+v.x*Math.cos(a)-v.y*Math.sin(a),2.422+v.x*Math.sin(a)+v.y*Math.cos(a),v.z);
+         };
+         const stem=[new THREE.Vector3(-.218,2.49,.065),new THREE.Vector3(-.13,2.49,.185),new THREE.Vector3(0,2.36,.18),new THREE.Vector3(0,2.279,.06),new THREE.Vector3(0,1.38,.05),new THREE.Vector3(0,1.23,.06)];
+         if(s.sign<0){
+           const last=Math.max(0,rodElectrons-1),donor=pointOnRod(this.rodElectrons[last].position);
+           const j=Math.max(0,electronTotal-10),side=j%2===0?-1:1,localY=-.15-.055*Math.floor(j/2),theta=side*a;
+           const receiver=new THREE.Vector3(side*.026-localY*Math.sin(theta),1.214+localY*Math.cos(theta),.145);
+           anchors=[donor,tip,...stem,receiver];
+         }else{
+           const last=Math.max(0,electronTotal-1),donor=this.electrons[last].position.clone();
+           const receiver=pointOnRod(this.rodElectrons[Math.min(rodElectrons,this.rodElectrons.length-1)].position);
+           anchors=[donor,...stem.slice().reverse(),tip,receiver];
+         }
+       }
+       particle.position.copy(polylinePoint(anchors,frac));
+       // 运动中的电子从来源端暂时移入轨道，避免源与流动粒子被重复画出来。
+       if(fromRod){
+         if(s.sign<0){const last=rodElectrons-1;if(this.rodElectrons[last])this.rodElectrons[last].visible=false;}
+         else{const last=electronTotal-1;if(this.electrons[last])this.electrons[last].visible=false;}
+       }else if(fromGround&&s.sign<0){
+         const last=electronTotal-1;if(this.electrons[last])this.electrons[last].visible=false;
+       }
+     }
+   }
+
+ }
+ check(){let leafEndY=1.214-.55*Math.cos(.58),glassMin=.22;return [{label:'金属箔与玻璃底座留有空隙',pass:leafEndY>glassMin+.03},{label:'两片箔片在最大开角时未穿过筒壁',pass:.55*Math.sin(.58)+.094<.619},{label:'接触阶段棒端与球面左缘吻合',pass:Math.abs((-.77+.525+.051)-(-.223))<.045},{label:'金属杆中心穿过绝缘套',pass:true},{label:'四种实验的计算几何边界（不代替视觉验收）',pass:modes.filter(mode=>!mode.dual).every(mode=>mode.stages.every((stage,i)=>{const prev=mode.stages[Math.max(0,i-1)];for(let k=0;k<=40;k++){let t=k/40,a=mix(prev.angle,stage.angle,t)*1.20,rod=mix(prev.rod,stage.rod,t),radius=.058+.55*Math.sin(a)+.036,height=1.214-.55*Math.cos(a);if(radius>.619||height<.235||rod>-.75||rod< -2.55)return false}return true}))}];}
+}
+function colorMaterial(m,t){const target=t==='pos'?0xe19063:0x3285bd;if(m.color.getHex()!==target)m.color.setHex(target)}
+function drawSix(){let order=['正视','后视','左视','右视','俯视','仰视'];const foil=`<g stroke="#c5a158" stroke-width="6" fill="none" stroke-linecap="round"><path d="M90 84l-25 48"/><path d="M90 84l25 48"/></g>`;order.forEach(name=>{
+ let top=name==='俯视',bottom=name==='仰视',side=name==='左视'||name==='右视';let draw=top?`<ellipse cx="90" cy="81" rx="57" ry="57" fill="#dbe8e5" stroke="#95a6a3" stroke-width="4"/><circle cx="90" cy="81" r="19" fill="#cfaa67" stroke="#a78956"/>`:bottom?`<ellipse cx="90" cy="81" rx="61" ry="61" fill="#596568" stroke="#344347" stroke-width="3"/><ellipse cx="90" cy="81" rx="48" ry="48" fill="none" stroke="#909996" stroke-width="2"/>`:`<rect x="45" y="45" width="90" height="106" rx="13" fill="#dcecea" fill-opacity=".3" stroke="#abc7c3" stroke-width="3"/><rect x="34" y="147" width="112" height="17" rx="6" fill="#626c69"/><circle cx="90" cy="20" r="14" fill="#dfc180" stroke="#ad884a"/><path d="M90 33v52" stroke="#b38c52" stroke-width="6"/><rect x="79" y="43" width="22" height="13" rx="2" fill="#43494b"/>${side?'<path d="M90 85v48" stroke="#c8a365" stroke-width="7"/>':foil}`;
+ let el=document.createElement('div');el.className='sixitem';el.innerHTML=`<label>${name}</label><svg viewBox="0 0 180 170" xmlns="http://www.w3.org/2000/svg">${draw}</svg>`;ui.sixgrid.appendChild(el);
+ });}
+class CameraRig{
+ constructor(){this.pose={target:new THREE.Vector3(0,1.38,0),yaw:.64,pitch:.12,dist:5.15};this.goal=null;this.bind();this.apply()}
+ bind(){
+  // 3Dmodel2 标准：左拖旋转，右拖/Shift左拖屏幕平移，滚轮缩放；双指平移并捏合缩放。
+  // 可拖动的实验器材在捕获阶段拦截普通左拖事件，不改变视图；右拖与Shift左拖仍交给相机。
+  const el=renderer.domElement,pointers=new Map();el.style.touchAction='none';
+  const getMetrics=()=>{const a=[...pointers.values()],n=a.length;
+   return n?{x:a.reduce((v,p)=>v+p.x,0)/n,y:a.reduce((v,p)=>v+p.y,0)/n,d:n>1?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0}:null};
+  const pan=(dx,dy)=>{const p=this.pose,k=2*p.dist*Math.tan(camera.fov*Math.PI/360)/Math.max(1,el.clientHeight),
+   right=new THREE.Vector3(Math.cos(p.yaw),0,-Math.sin(p.yaw)),
+   up=new THREE.Vector3(-Math.sin(p.pitch)*Math.sin(p.yaw),Math.cos(p.pitch),-Math.sin(p.pitch)*Math.cos(p.yaw));
+   p.target.addScaledVector(right,-dx*k).addScaledVector(up,dy*k);
+  };
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+  el.addEventListener('pointerdown',e=>{if(e.button!==0&&e.button!==2)return;
+   this.goal=null;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,pan:e.button===2||e.shiftKey});
+   try{el.setPointerCapture(e.pointerId)}catch(_){};
+  });
+  el.addEventListener('pointermove',e=>{const prev=pointers.get(e.pointerId);if(!prev)return;
+   const before=getMetrics();pointers.set(e.pointerId,{...prev,x:e.clientX,y:e.clientY});const after=getMetrics();
+   const p=this.pose;this.goal=null;
+   if(pointers.size>=2){if(before.d>2&&after.d>2)p.dist=clamp(p.dist*before.d/after.d,1.65,30);
+     pan(after.x-before.x,after.y-before.y);
+   }else{const dx=e.clientX-prev.x,dy=e.clientY-prev.y;
+     if(prev.pan||e.shiftKey)pan(dx,dy);
+     else{p.yaw-=dx*.006;p.pitch=clamp(p.pitch+dy*.006,-1.28,1.39)}
+   }
+   this.apply();
+  });
+  for(const name of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(name,e=>pointers.delete(e.pointerId));
+  el.addEventListener('wheel',e=>{e.preventDefault();this.goal=null;this.pose.dist=clamp(this.pose.dist*Math.exp(e.deltaY*.001),1.65,30);this.apply()},{passive:false});
+ }
+ set(target,yaw,pitch,dist){this.from={target:this.pose.target.clone(),yaw:this.pose.yaw,pitch:this.pose.pitch,dist:this.pose.dist};this.goal={target:new THREE.Vector3(...target),yaw,pitch,dist};this.elapsed=0}
+ step(dt){if(!this.goal)return;this.elapsed+=dt;let u=smooth(clamp(this.elapsed/.72,0,1)),a=this.from,b=this.goal;this.pose.yaw=a.yaw+Math.atan2(Math.sin(b.yaw-a.yaw),Math.cos(b.yaw-a.yaw))*u;this.pose.pitch=mix(a.pitch,b.pitch,u);this.pose.dist=Math.exp(mix(Math.log(a.dist),Math.log(b.dist),u));this.pose.target.copy(a.target).lerp(b.target,u);this.apply();if(u>=1)this.goal=null}
+ apply(){let p=this.pose,x=p.target.x+p.dist*Math.cos(p.pitch)*Math.sin(p.yaw),y=p.target.y+p.dist*Math.sin(p.pitch),z=p.target.z+p.dist*Math.cos(p.pitch)*Math.cos(p.yaw);camera.position.set(x,y,z);camera.lookAt(p.target)}
+ focus(k='all'){let dual=director?.mode?.dual; if(dual){if(k==='wire')this.set([-.15,2.35,0],.19,.15,7.9);else if(k==='leaves')this.set([0,.93,0],.15,.11,7.7);else{const aspect=(ui.world?.clientWidth||1100)/Math.max(1,ui.world?.clientHeight||760);const d=Math.max(11.3,4.36/(Math.tan(35*Math.PI/360)*aspect));this.set([-.25,1.43,0],.015,.085,d)}}else{if(k==='top')this.set([0,2.15,0],.45,.20,3.3);else if(k==='leaves')this.set([0,.95,0],.83,.14,2.9);else if(manualEnabled())this.set([-.33,1.38,0],.62,.10,5.7);else this.set([0,1.38,0],.64,.10,5.1)}}
+}
+class StageDirector{
+ constructor(){this.mode=modes[0];this.index=0;this.current=this.toState(this.mode.stages[0]);this.transition=null;this.playing=false;this.hold=0}
+ toState(s){return {...s,dual:!!this.mode.dual,sign:state.sign,strength:Number(ui.strength.value)/100,flow:s.flow?1:0,wire:s.wire||0}}
+ setMode(mode){this.mode=mode;this.index=0;this.current=this.toState(mode.stages[0]);this.transition=null;this.hold=0;this.playing=false;resetInteractiveState();if(mode.id==='discharge')this.playing=true;this.draw();updateSceneTitle();rig?.focus('all')}
+ select(i,animate=true){i=clamp(i,0,this.mode.stages.length-1);const from={...this.current};this.index=i;const to=this.toState(this.mode.stages[i]);this.transition=animate?{from,to,time:0,duration:1.8}:null;if(!animate)this.current=to;this.hold=0;this.draw();if(state.design==='B')rig?.focus(this.mode.stages[i].focus||'all')}
+ tick(dt){if(this.transition){const tr=this.transition;tr.time+=dt;let u=smooth(clamp(tr.time/tr.duration,0,1));let result={...tr.to};for(let k of ['angle','rod','top','leaf','ground','qa','qb','net','flow','wire','strength'])if(Number.isFinite(tr.from[k])||Number.isFinite(tr.to[k])) result[k]=mix(tr.from[k]||0,tr.to[k]||0,u);if(this.mode.id==='share'&&this.index===2){const wireU=smooth(clamp(u/.41,0,1)),chargeU=smooth(clamp((u-.44)/.56,0,1));result.wire=mix(tr.from.wire||0,tr.to.wire||0,wireU);result.qa=mix(tr.from.qa||0,tr.to.qa||0,chargeU);result.qb=mix(tr.from.qb||0,tr.to.qb||0,chargeU);result.flow=chargeU}
+ if(this.mode.id==='contact'&&this.index===2){const contactU=smooth(clamp(u/.35,0,1)),chargeU=smooth(clamp((u-.37)/.63,0,1));result.rod=mix(tr.from.rod,tr.to.rod,contactU);result.net=mix(tr.from.net||0,tr.to.net||0,chargeU);result.angle=mix(tr.from.angle||0,tr.to.angle||0,chargeU);result.flow=chargeU}
+ if(this.mode.id==='pair-induction'&&this.index===2){const approach=smooth(clamp(u/.46,0,1)),chargeU=smooth(clamp((u-.49)/.51,0,1));result.rod=mix(tr.from.rod,tr.to.rod,approach);result.qa=mix(tr.from.qa||0,tr.to.qa||0,chargeU);result.qb=mix(tr.from.qb||0,tr.to.qb||0,chargeU);result.flow=chargeU}
+ result.sign=state.sign;this.current=result;if(u>=1){this.transition=null;this.current=this.toState(this.mode.stages[this.index])}}else{this.current.strength=Number(ui.strength.value)/100;this.current.sign=state.sign;if(this.playing){this.hold+=dt;if(this.hold>2.5){if(this.index<this.mode.stages.length-1)this.select(this.index+1);else{this.playing=false;this.hold=0;this.draw()}}}}}
+ draw(){ui.stages.innerHTML='';this.mode.stages.forEach((s,i)=>{const btn=document.createElement('button');btn.className=i===this.index?'active':'';btn.innerHTML=`<span class="num">${i+1}</span><span><b>${s.name}</b><small>${s.desc}</small></span>`;btn.onclick=()=>{state.interaction.overrideStages=true;this.select(i)};ui.stages.appendChild(btn)});ui.caption.textContent=this.mode.stages[this.index].desc;ui.stepNum.textContent=`${String(this.index+1).padStart(2,'0')} / ${String(this.mode.stages.length).padStart(2,'0')}`;ui.progressbar.style.width=`${(this.index+1)*100/this.mode.stages.length}%`;ui.prev.disabled=this.index===0;ui.next.disabled=this.index===this.mode.stages.length-1;ui.play.textContent=this.playing?'❚❚ 暂停':(manualEnabled()?'▶ 自动演示（可选）':'▶ 自动演示');const m=manualEnabled();ui.stages.style.display=m?'none':'';ui.prev.style.display=m?'none':'';ui.next.style.display=m?'none':'';ui.stepNum.style.display=m?'none':'';ui.manualGuide.style.display=m?'block':'none';ui.manualGround.style.display=m&&this.mode.id==='induction'?'block':'none';document.querySelectorAll('#modegrid button').forEach(x=>x.classList.toggle('active',x.dataset.mode===this.mode.id))}
+}
+
+function modeUsesDraggedRod(id){return ['induction','contact','pair-induction'].includes(id)}
+function manualEnabled(){return !!(state?.interaction&&!state.interaction.overrideStages&&director&&!director.playing&&director.mode.id!=='discharge')}
+function resetInteractiveState(){
+ if(!state)return;
+ state.interaction={rodX:-2.10,dragging:null,contactProgress:0,wire:0,shareProgress:0,pairFraction:0,grounded:false,groundProgress:0,lastResolved:null,overrideStages:false,lastFlow:false};
+}
+function projectedPoint(x,y,z=0){const p=new THREE.Vector3(x,y,z).project(camera),w=ui.world.clientWidth,h=ui.world.clientHeight;return {x:(p.x+1)*w/2,y:(1-p.y)*h/2};}
+function lineHit(px,py,x1,y1,x2,y2){const dx=x2-x1,dy=y2-y1,l2=dx*dx+dy*dy||1,t=clamp(((px-x1)*dx+(py-y1)*dy)/l2,0,1);return Math.hypot(px-x1-dx*t,py-y1-dy*t)}
+function manualHint(s){const mode=director.mode.id,inter=state.interaction;
+ if(mode==='induction'){if(inter.grounded)return '正在接地：保持带电棒靠近，等待电子交换完成，然后点击「断开接地」。';if(inter.groundProgress>.02)return '先断开接地，再移开带电棒。验电器将留下与带电棒异号的净电荷。';if(inter.rodX>-1.92)return '当前可先做静电感应检验：不接触、直接移开会恢复中性；若想继续感应起电，请点击「接地」。';return '拖动带电棒靠近金属球：可做静电感应检验；需要感应起电时，再点击「接地」。';}
+ if(mode==='contact')return inter.contactProgress>.995?'电子转移已平衡。移开带电棒，箔片保持张开。':'把带电棒拖到金属球上，保持接触观察电子逐步转移。';
+ if(mode==='share')return inter.wire>.96?(inter.shareProgress>=.999?'两台已平衡，向上拖开连接导线即可保留电荷。':'导线接通，电子正在从带电的 A 与 B 之间重新分布。'):'拖住上方金属连接线向下接通 A、B，观察电荷分配，再上拖断开。';
+ if(mode==='pair-induction')return inter.wire<.96?(Math.abs(inter.pairFraction)>.02?'导线已断开；现在移开带电棒，观察 A、B 留下异号电荷。':'先向下拖动连接线接通 A、B。'):'导线已接通；将带电棒拖近 A，等待电子重新分布，然后向上拖开导线。';
+ return '自动播放接地放电过程。';
+}
+function updateManualUI(s){
+ if(!ui.manualTip)return;
+ const active=manualEnabled();ui.manualGuide.style.display=active?'block':'none';ui.manualTip.style.display=active?'block':'none';ui.manualGround.style.display=active&&director.mode.id==='induction'?'block':'none';
+ if(!active)return;
+ const tip=manualHint(s);ui.manualGuide.textContent=tip;ui.manualTip.textContent=tip;
+ ui.caption.textContent=tip;ui.progressbar.style.width=(director.mode.id==='contact'?Math.round(state.interaction.contactProgress*100):director.mode.id==='share'?Math.round(state.interaction.shareProgress*100):director.mode.id==='pair-induction'?Math.round(Math.abs(state.interaction.pairFraction)/.72*100):director.mode.id==='induction'?Math.round(Math.max(clamp((s.rod+2.1)/1.05,0,1)*55,state.interaction.groundProgress*100)):Math.round(clamp((s.rod+2.1)/1.05,0,1)*100))+'%';
+ if(director.mode.id==='induction'){ui.manualGround.textContent=state.interaction.grounded?'断开接地':'接地';ui.manualGround.disabled=!state.interaction.grounded&&state.interaction.rodX<-1.9;}
+}
+function resolvedState(base,dt){
+ if(!state.interaction)resetInteractiveState();const it=state.interaction,id=director.mode.id;
+ if(!manualEnabled()||director.transition){let s={...base};
+   // The stage definitions describe the target states; particles move only during the transitions.
+   if(!director.transition || !(id==='contact'||id==='induction'||id==='discharge'||id==='share'||id==='pair-induction'))s.flow=0;
+   if(director.transition&&id==='contact'&&director.index!==2)s.flow=0;
+   if(director.transition&&id==='share'&&director.index!==2)s.flow=0;
+   if(director.transition&&id==='pair-induction'&&director.index!==2)s.flow=0;
+   if(director.transition&&id==='induction'&&director.index!==3)s.flow=0;
+   if(director.transition&&id==='discharge'&&director.index!==1)s.flow=0;
+   it.lastResolved=s;return s;
+ }
+ let s={...base,flow:0,sign:state.sign,strength:Number(ui.strength.value)/100};
+ if(modeUsesDraggedRod(id))s.rod=it.rodX;
+ if(id==='induction'){
+  let p=clamp((it.rodX+2.10)/1.05,0,1),want=it.grounded?p:it.groundProgress;
+  if(it.grounded){const delta=clamp(want-it.groundProgress,-dt*.28,dt*.28);it.groundProgress=clamp(it.groundProgress+delta,0,1);if(Math.abs(delta)>1e-5)s.flow=1;}
+  const q=it.groundProgress;
+  s.ground=it.grounded?1:0;s.net=q;s.top=mix(p,q,1-p);
+  s.leaf=mix(-p*(1-q),q,1-p);
+  s.angle=clamp(.024+.40*p*(1-q)+.43*q*(1-p),.024,.48);
+ }else if(id==='contact'){
+  const contact=it.rodX>=-.805;
+  if(contact&&it.contactProgress<1){it.contactProgress=Math.min(1,it.contactProgress+dt/2.8);s.flow=1;}
+  const p=clamp((it.rodX+2.10)/1.30,0,1),q=it.contactProgress;
+  s.net=-q;s.top=mix(p,-q,q);s.leaf=mix(-p,-q,q);
+  s.angle=mix(.024,.23,p)*(1-q)+mix(.024,.45,q)*q;
+  s.ground=0;
+ }else if(id==='share'){
+  if(it.wire>=.999&&it.shareProgress<1){const delta=Math.min(1-it.shareProgress,dt/3.3);it.shareProgress+=delta;if(delta>1e-5)s.flow=1;}
+  s.wire=it.wire;s.qa=1-.5*it.shareProgress;s.qb=.5*it.shareProgress;s.rod=-2.53;
+ }else if(id==='pair-induction'){
+  const p=clamp((it.rodX+2.10)/1.05,0,1),target=it.wire>=.999?.72*p:it.pairFraction;
+  if(it.wire>=.999){const delta=clamp(target-it.pairFraction,-dt*.29,dt*.29);it.pairFraction+=delta;if(Math.abs(delta)>1e-5)s.flow=1;}
+  s.rod=it.rodX;s.wire=it.wire;s.qa=-it.pairFraction;s.qb=it.pairFraction;
+ }
+ it.lastResolved=s;return s;
+}
+function setupRodDragging(){
+ const el=renderer.domElement;let drag=null;
+ const coords=e=>({x:e.clientX-el.getBoundingClientRect().left,y:e.clientY-el.getBoundingClientRect().top});
+ function candidate(e){if(!manualEnabled())return null;const pt=coords(e),mode=director.mode.id,inter=state.interaction;
+   if(modeUsesDraggedRod(mode)&&model.rodGroup.visible){
+     let x=model.originX+inter.rodX, y=2.49;
+     let p1=projectedPoint(x-.50,y),p2=projectedPoint(x+.52,y);
+     if(lineHit(pt.x,pt.y,p1.x,p1.y,p2.x,p2.y)<34)return 'rod';
+   }
+   if(['share','pair-induction'].includes(mode)){
+     for(let i=0;i<=8;i++){
+       let pt3=wireRig.curve.getPoint(i/8);const v=projectedPoint(pt3.x,pt3.y+(1-inter.wire)*.39,pt3.z);
+       if(Math.hypot(pt.x-v.x,pt.y-v.y)<30)return 'wire';
+     }
+   }
+   return null;
+ }
+ el.addEventListener('pointerdown',e=>{if(e.button!==0)return;const which=candidate(e);if(!which)return;
+   const b=el.getBoundingClientRect(),it=state.interaction;
+   const anchor=which==='rod'?projectedPoint(model.originX+it.rodX,2.49):projectedPoint(0,2.8+(1-it.wire)*.39);
+   const beside=which==='rod'?projectedPoint(model.originX+it.rodX+1,2.49):projectedPoint(0,2.8+(1-it.wire)*.39-.39);
+   const vx=beside.x-anchor.x,vy=beside.y-anchor.y,span=vx*vx+vy*vy;
+   drag={which,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,fromRod:it.rodX,fromWire:it.wire,vx,vy,span};it.dragging=which;
+   el.setPointerCapture(e.pointerId);el.style.cursor='grabbing';e.preventDefault();e.stopImmediatePropagation();
+ },{capture:true});
+ el.addEventListener('pointermove',e=>{if(!drag){el.style.cursor=candidate(e)?'pointer':'grab';return;}
+   if(e.pointerId!==drag.pointerId)return;
+   const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
+   const along=drag.span>160?(dx*drag.vx+dy*drag.vy)/drag.span:(drag.which==='rod'?dx/150:dy/200);
+   if(drag.which==='rod'){
+    const max=director.mode.id==='contact'?-.77:-1.05;
+    state.interaction.rodX=clamp(drag.fromRod+along,-2.10,max);
+   }else{
+    state.interaction.wire=clamp(drag.fromWire+along,0,1);
+   }
+   e.preventDefault();e.stopImmediatePropagation();
+ },{capture:true});
+ function finish(e){if(!drag||e.pointerId!==drag.pointerId)return;
+   if(drag.which==='wire'){const w=state.interaction.wire;state.interaction.wire=w>=.82?1:w<=.22?0:w;}
+   state.interaction.dragging=null;drag=null;el.style.cursor='grab';e.preventDefault();e.stopImmediatePropagation();
+ }
+ for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,finish,{capture:true});
+}
+function physicalScope(s,which){let dual=s.dual; if(!dual)return {...s,rodVisible:true};let q=which===0?(s.qa||0):(s.qb||0);const a=.024+.45*Math.sqrt(Math.abs(q));return {angle:a,rod:s.rod??-2.53,top:-q,leaf:-q,ground:0,net:q,flow:0,sign:state.sign,strength:s.strength,dual:true,rodVisible:which===0&&director.mode.id==='pair-induction'}}
+function buildWire(){const group=new THREE.Group();scene.add(group);const brass=mat(0xc2a46d,.78,.38),ins=mat(0x37434a,.09,.78);const points=[[-1.46,2.49,.02],[-1.30,2.76,.02],[-.83,2.83,.02],[0,2.76,.02],[.83,2.83,.02],[1.30,2.76,.02],[1.46,2.49,.02]].map(p=>new THREE.Vector3(...p));const curve=new THREE.CatmullRomCurve3(points);const sheath=mesh(new THREE.TubeGeometry(curve,94,.024,10,false),ins,group);for(const x of [-1.46,1.46]){mesh(new THREE.SphereGeometry(.057,16,12),brass,group,[x,2.49,.02]);mesh(new THREE.TorusGeometry(.045,.008,7,18),brass,group,[x,2.5,.02],[0,PI/2,0])}let electrons=new THREE.Group();scene.add(electrons);let sphere=new THREE.SphereGeometry(.039,18,14),matElectron=mat(0x67d3ff,.08,.18,{emissive:0x2aa8ff,emissiveIntensity:1.15});const dots=[];for(let i=0;i<16;i++)dots.push(mesh(sphere,matElectron,electrons));return {group,curve,dots,electrons}}
+function updateWire(s,t){
+ const show=!!s.dual,w=clamp(s.wire||0,0,1);
+ wireRig.group.visible=show;wireRig.group.position.y=(1-w)*.39;
+ const total=director.mode.id==='share'?ROD_INITIAL_Q:GROUND_Q;
+ const amount=director.mode.id==='share'?ROD_INITIAL_Q*clamp(s.qb||0,0,.5):GROUND_Q*clamp(-(s.qa||0)/.72,0,1);
+ const index=Math.floor(amount+1e-6),frac=amount-index;
+ const isMoving=show&&state.showFlow&&s.flow>.05&&w>.998&&index<total&&frac>.008&&frac<.995;
+ wireRig.electrons.visible=isMoving;
+ for(const p of wireRig.dots)p.visible=false;
+ if(isMoving){
+   const bead=wireRig.dots[0];bead.visible=true;
+   bead.position.copy(wireRig.curve.getPoint(state.sign<0?frac:1-frac));bead.position.z+=.06;
+   // 已连接的A/B之间是同一导体系统；只允许电子沿导线迁移。
+   const src=state.sign<0?model:model2;
+   const last=src.electrons.findLastIndex(p=>p.visible);
+   if(last>=0)src.electrons[last].visible=false;
+ }
+}
+function updateSceneTitle(){let dual=!!director?.mode?.dual;ui.sceneTitle.textContent=dual?'双验电器 · A / B':'单验电器 · 全景';const drag=modeUsesDraggedRod(director?.mode?.id||'');ui.sceneHint.textContent=dual?'导线连接的是两台金属球 · 电子示踪为放大教学表达':(drag?'拖动橡胶棒或玻璃棒 · 电子缓慢移动':'金属球—金属杆—两片箔连续导电 · 玻璃罩绝缘')}
+function chargeSymbol(q){if(Math.abs(q)<.12)return '中性';return q>0?'＋ 正电':'− 负电'}
+// 计数均为教学离散单位。每个物体有 +10 固定背景，仅电子数随着转移改变。
+// 返回净电荷 q=正单位-电子单位。双机守恒按同一个已取整的转移数结算，避免动画中舍入误差。
+const BASE_POS=10,ROD_INITIAL_Q=8,CONTACT_Q=4,GROUND_Q=5;
+let lastChargeKey='';
+function countCharges(s){
+ const sign=state.sign,mode=director.mode.id;
+ const item=(id,name,q)=>({id,name,positive:BASE_POS,negative:BASE_POS-q,net:q});
+ let bodies=[],electronMoves=0,direction='电子流动：无跨物体转移';
+ if(mode==='share'){
+   let transferred=Math.floor(ROD_INITIAL_Q*clamp(1-(s.qa??1),0,1)+1e-6);
+   let qa=sign*(ROD_INITIAL_Q-transferred),qb=sign*transferred;
+   bodies=[item('A','验电器 A',qa),item('B','验电器 B',qb)];electronMoves=transferred;
+   if(s.wire>=.999&&Math.abs(s.flow||0)>.02) direction=sign<0?'电子：A → B':'电子：B → A';
+ }else if(mode==='pair-induction'){
+   let shift=Math.floor(GROUND_Q*clamp(-(s.qa||0)/.72,0,1)+1e-6);
+   let qa=-sign*shift,qb=-qa;
+   bodies=[item('rod','带电棒',sign*ROD_INITIAL_Q),item('A','验电器 A',qa),item('B','验电器 B',qb)];electronMoves=shift;
+   if(s.wire>.99 && s.rod>-2.2 && shift>0) direction=sign<0?'电子：A → B（感应）':'电子：B → A（感应）';
+ }else if(mode==='contact'){
+   let shift=Math.floor(CONTACT_Q*clamp(-(s.net||0),0,1)+1e-6), qE=sign*shift;
+   bodies=[item('rod','带电棒',sign*ROD_INITIAL_Q-qE),item('A','验电器',qE)];electronMoves=shift;
+   if(s.flow>.05)direction=sign<0?'电子：带电棒 → 验电器':'电子：验电器 → 带电棒';
+ }else if(mode==='induction'){
+   let shift=Math.floor(GROUND_Q*clamp(s.net||0,0,1)+1e-6),qE=-sign*shift;
+   if(shift>0||s.ground>.03){bodies=[item('rod','带电棒',sign*ROD_INITIAL_Q),item('A','验电器',qE),item('earth','大地（交换量）',-qE)];electronMoves=shift;if(s.ground>.03&&s.flow>.05)direction=sign<0?'电子：验电器 → 大地':'电子：大地 → 验电器';}
+   else{bodies=[item('rod','带电棒',sign*ROD_INITIAL_Q),item('A','验电器',0)];electronMoves=0;direction='电子流动：无跨物体转移';}
+ }else if(mode==='discharge'){
+   let remaining=Math.floor(GROUND_Q*clamp(-(s.net||0),0,1)+1e-6),qE=sign*remaining;
+   bodies=[item('A','验电器',qE),item('earth','大地（交换量）',sign*(GROUND_Q-remaining))];electronMoves=GROUND_Q-remaining;
+   if(s.ground>.03&&s.flow>.05)direction=sign<0?'电子：验电器 → 大地':'电子：大地 → 验电器';
+ }else{
+   bodies=[item('rod','带电棒',sign*ROD_INITIAL_Q),item('A','验电器',0)];
+ }
+ let total=bodies.reduce((sum,b)=>sum+b.net,0);
+ const expected=(mode==='share'||mode==='discharge')?sign*(mode==='share'?ROD_INITIAL_Q:GROUND_Q):mode==='pair-induction'?sign*ROD_INITIAL_Q:sign*ROD_INITIAL_Q;
+ return {mode,bodies,total,expected,conserved:total===expected,electronMoves,direction};
+}
+function renderCountBox(el,title,body){
+ if(!el)return;
+ if(!body){el.classList.add('hide');return;}
+ el.classList.remove('hide');
+ el.innerHTML=`<div class="values"><span class="pos">+${body.positive}</span><span class="neg">−${body.negative}</span></div>`;
+}
+function updateCountOverlay(s){
+ // 计数卡仅采用这一套 HTML 标签：先投影器材位置，再在屏幕空间解碰撞。
+ // 三维中不再画带电棒的文字贴片；这能避免随镜头变化而重叠。
+ const c=window.__electroscopeCharge||countCharges(s),bodies={};
+ c.bodies.forEach(b=>bodies[b.id]=b);
+ const dual=!!s.dual;
+ const width=ui.world.clientWidth,height=ui.world.clientHeight;
+ const margin=12, topSafe=83,bottomSafe=82;
+ const placed=[];
+ const intersect=(a,b)=>!(a.right+8<=b.left||a.left>=b.right+8||a.bottom+8<=b.top||a.top>=b.bottom+8);
+ const fit=(v,size,lo,hi)=>clamp(v,lo+size*.5,hi-size*.5);
+ function place(el,title,body,anchor,candidates){
+   renderCountBox(el,title,body);
+   if(!body)return;
+   // 正在旋转、缩放时可能出现器材投影到视口外；禁止标签贴到屏幕边缘误导观察。
+   if(!Number.isFinite(anchor.x)||!Number.isFinite(anchor.y)||anchor.x< -130||anchor.x>width+130||anchor.y< -140||anchor.y>height+140){el.classList.add('hide');return;}
+   const bw=Math.max(el.offsetWidth,108),bh=Math.max(el.offsetHeight,62);
+   const minX=margin,maxX=width-margin,minY=topSafe,maxY=height-bottomSafe;
+   if(maxX-minX<bw||maxY-minY<bh){el.classList.add('hide');return;}
+   let chosen=null,least=Infinity;
+   for(const [dx,dy] of candidates){
+     const x=fit(anchor.x+dx,bw,minX,maxX),y=fit(anchor.y+dy,bh,minY,maxY);
+     const box={left:x-bw/2,right:x+bw/2,top:y-bh/2,bottom:y+bh/2};
+     let collisions=0;for(const r of placed)if(intersect(box,r))collisions++;
+     const displacement=Math.hypot(x-(anchor.x+dx),y-(anchor.y+dy));
+     const score=collisions*10000+displacement*.8+Math.hypot(dx,dy)*.035;
+     if(score<least){least=score;chosen={x,y,box,collisions};}
+     if(collisions===0&&displacement<4)break;
+   }
+   if(!chosen||chosen.collisions){
+     // 更密集的镜头继续按安全区搜索网格，不让两块文本强行叠在一起。
+     for(let y=topSafe+bh/2;y<=height-bottomSafe-bh/2;y+=Math.max(13,bh*.65)){
+       for(let x=margin+bw/2;x<=width-margin-bw/2;x+=Math.max(18,bw*.7)){
+         const box={left:x-bw/2,right:x+bw/2,top:y-bh/2,bottom:y+bh/2};
+         if(placed.every(r=>!intersect(box,r))){
+           const score=Math.hypot(x-anchor.x,y-anchor.y)+250;
+           if(score<least||chosen.collisions){chosen={x,y,box,collisions:0};least=score;}
+         }
+       }
+     }
+   }
+   if(!chosen||chosen.collisions){el.classList.add('hide');return;}
+   el.style.left=chosen.x+'px';el.style.top=chosen.y+'px';placed.push(chosen.box);
+ }
+ // 左右验电器分列两侧，计数优先放到器材边缘的空白区域。
+ const xa=dual?-1.7:0;
+ const a=projectedPoint(xa,1.82,.10),b=projectedPoint(1.7,1.82,.10);
+ const rod=projectedPoint(model.rodGroup.position.x-.10,2.36,.06);
+ // A/B 让位于金属箔与连接线，始终使用视图内悬浮框而非覆盖在箔面上。
+ place(ui.countA,dual?'A 验电器':'验电器',bodies.A,a,
+       dual?[[-104,72],[-115,0],[0,122],[94,80],[0,-122]]:[[145,30],[148,100],[-140,90],[0,135],[0,-135]]);
+ if(dual){place(ui.countB,'B 验电器',bodies.B,b,
+       [[120,72],[130,0],[0,122],[-105,86],[0,-122]]);}else ui.countB.classList.add('hide');
+ // 带电棒跟随标签在棒体下方，优先避开 A/B 及顶部镜头控制条。
+ if(bodies.rod&&model.rodGroup.visible){
+   place(ui.countRod,'带电棒',bodies.rod,rod,
+         [[0,87],[-82,104],[90,106],[0,-80],[-115,-70],[123,-70],[0,147]]);
+ }else ui.countRod.classList.add('hide');
+}
+function updateChargeLedger(s){
+ const c=countCharges(s),key=JSON.stringify(c);
+ window.__electroscopeCharge=c;
+ if(key===lastChargeKey)return;c.conserved||console.warn('电荷数量未守恒',c);lastChargeKey=key;
+ if(ui.chargeLedger)ui.chargeLedger.innerHTML=c.bodies.map(b=>`<div class="charge-row" data-body="${b.id}"><span class="charge-label">${b.name}</span><span class="positive">+${b.positive}</span><span class="negative">−${b.negative}</span><span class="net ${b.net>0?'pos':b.net<0?'neg':''}">净 ${b.net>0?'+':''}${b.net}</span></div>`).join('');
+ if(ui.electronDirection)ui.electronDirection.textContent=c.direction;if(ui.transferCount)ui.transferCount.textContent=`累计变化 ${c.electronMoves} 个`;
+}
+function diagram(s){if(!ui.structureSvg){if(ui.status)ui.status.textContent=director.mode.stages[director.index].desc;return;}const dual=s.dual,scale=s.strength/.7;if(dual){const qA=(s.qa||0)*state.sign,qB=(s.qb||0)*state.sign,angA=(.024+.45*Math.sqrt(Math.abs(s.qa||0)))*clamp(scale,.55,1.2),angB=(.024+.45*Math.sqrt(Math.abs(s.qb||0)))*clamp(scale,.55,1.2);
+ let unit=(x,ang,q,label)=>`<g><rect x="${x-29}" y="35" width="58" height="80" rx="8" fill="#e1eeea" fill-opacity=".45" stroke="#9ab5b1"/><rect x="${x-32}" y="113" width="64" height="7" rx="3" fill="#637270"/><path d="M${x} 27v40" stroke="#b98a4a" stroke-width="4"/><circle cx="${x}" cy="25" r="9" fill="#d1af72"/><path d="M${x} 69l${(-30*Math.sin(ang)).toFixed(1)} ${ (30*Math.cos(ang)).toFixed(1)}M${x} 69l${(30*Math.sin(ang)).toFixed(1)} ${(30*Math.cos(ang)).toFixed(1)}" stroke="#d3a34d" stroke-width="5" stroke-linecap="round"/><text x="${x}" y="15" text-anchor="middle" font-size="10" fill="#516a60">${label}</text><text x="${x}" y="139" font-size="11" text-anchor="middle" fill="${q<0?'#317eae':q>0?'#ba6550':'#86968d'}">${chargeSymbol(q)}</text></g>`;
+ const connection=s.wire>.05?`<path d="M90 25 Q160 6 230 25" fill="none" stroke="#c9a873" stroke-width="${3.5*s.wire}" stroke-dasharray="${s.wire<.96?'4 3':'none'}"/>`:'';
+ ui.structureSvg.innerHTML=`<rect width="320" height="156" fill="#f8faf7"/>${unit(90,angA,qA,'A')}${unit(230,angB,qB,'B')}${connection}<text x="160" y="154" text-anchor="middle" font-size="10" fill="#8a968d">两台验电器 · 连接与电荷示意</text>`;
+ if(ui.angleText)ui.angleText.innerHTML=`A 箔片：${Math.round(2*angA/rad)}°　B 箔片：${Math.round(2*angB/rad)}°<small>A：${chargeSymbol(qA)} ／ B：${chargeSymbol(qB)}</small>`;
+ if(ui.conservation)ui.conservation.innerHTML=`<strong>系统总电荷守恒</strong><div>以单台初始带电量为单位，Q<sub>A</sub> = ${(qA*scale).toFixed(2)}，Q<sub>B</sub> = ${(qB*scale).toFixed(2)}，合计 ${( (qA+qB)*scale).toFixed(2)}。${director.mode.id==='pair-induction'?'无接触、无接地，两台总电荷始终为零。':'两台为相同验电器、理想化忽略相互影响，最终近似均分。'}</div>`;
+ }else{let a=(s.angle||.024)*clamp(scale,.55,1.2),symbol=s.sign*-1,label=director.mode.stages[director.index].name;const top=(s.top||0)*symbol,leaf=(s.leaf||0)*symbol;let signs=(q,x,y)=>Math.abs(q)<.14?'':`<text x="${x}" y="${y}" fill="${q<0?'#307bab':'#c46c53'}" font-size="17" font-weight="800">${q<0?'−':'＋'}</text>`;
+ ui.structureSvg.innerHTML=`<rect width="320" height="156" fill="#f8faf7"/><rect x="115" y="38" width="90" height="97" rx="8" fill="#e3efec" fill-opacity=".50" stroke="#9ab5b1"/><rect x="107" y="132" width="106" height="10" rx="3" fill="#596b6b"/><path d="M160 25v64" stroke="#b38a4c" stroke-width="6"/><circle cx="160" cy="23" r="14" fill="#dcbd7a"/><path d="M160 90l${(-45*Math.sin(a)).toFixed(1)} ${(45*Math.cos(a)).toFixed(1)}M160 90l${(45*Math.sin(a)).toFixed(1)} ${(45*Math.cos(a)).toFixed(1)}" stroke="#cd9e4b" stroke-width="7" stroke-linecap="round"/>${state.showCharge?signs(top,153,10)+signs(leaf,160-55*Math.sin(a),124)+signs(leaf,160+55*Math.sin(a),124):''}<text x="160" y="152" font-size="10" fill="#7b8c80" text-anchor="middle">${label}</text>`;
+ if(ui.angleText)ui.angleText.innerHTML=`箔片夹角：${Math.round(2*a/rad)}°<small>${label} · ${chargeSymbol(-(s.net||0)*state.sign)}</small>`;
+ if(ui.conservation)ui.conservation.innerHTML=`<strong>物理边界</strong><div>箔片开角是定性模拟，不用于直接计算电荷量。正号表示金属中相对缺少电子，不表示正电粒子流动。</div>`;
+ }
+ if(ui.status)ui.status.textContent=director.mode.stages[director.index].desc;
+}
+function resizeWorld(){let rect=ui.world.getBoundingClientRect();if(rect.width<1||rect.height<1)return;renderer.setSize(rect.width,rect.height,false);camera.aspect=rect.width/rect.height;camera.updateProjectionMatrix()}
+function initWorld(){THREE=window.THREE;
+ renderer=new THREE.WebGLRenderer({canvas:ui.world,antialias:true,alpha:true,powerPreference:'high-performance',preserveDrawingBuffer:true});renderer.domElement.addEventListener('webglcontextlost',ev=>{ev.preventDefault();ui.failure.style.display='block';ui.failure.textContent='WebGL 上下文丢失，请刷新页面重建三维场景';});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(35,1,.07,100);
+ scene.add(new THREE.HemisphereLight(0xffffff,0xa7b8ad,2.0));let key=new THREE.DirectionalLight(0xfff8e9,2.5);key.position.set(-4,7,7);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-7;key.shadow.camera.right=7;key.shadow.camera.top=7;key.shadow.camera.bottom=-7;scene.add(key);const fill=new THREE.DirectionalLight(0xdfeef2,1.0);fill.position.set(4,5,-5);scene.add(fill);
+ scene.background=new THREE.Color(0x162630);const floor=mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshBasicMaterial({color:0x162630,toneMapped:false}),scene,[0,.016,0],[-PI/2,0,0]);floor.receiveShadow=true;
+ let c=document.createElement('canvas');c.width=c.height=128;let cx=c.getContext('2d'),grad=cx.createRadialGradient(64,64,9,64,64,64);grad.addColorStop(0,'rgba(36,42,42,.21)');grad.addColorStop(1,'rgba(36,42,42,0)');cx.fillStyle=grad;cx.fillRect(0,0,128,128);let texture=new THREE.CanvasTexture(c);for(const x of [0,-1.7,1.7]){let shadow=mesh(new THREE.PlaneGeometry(2.2,2.2),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false}),scene,[x,.020,0],[-PI/2,0,0]);shadow.visible=x===0}
+ model=new ElectroscopeModel();model2=new ElectroscopeModel();model2.originX=1.7;wireRig=buildWire();rig=new CameraRig();director=new StageDirector();resetInteractiveState();setupRodDragging();addNameTags();wireRig.group.visible=false;wireRig.electrons.visible=false;
+ let checks=model.check();checks.push({label:'箔片的宽面沿 YZ 平面相对，闭合时不重叠',pass:model.leafL.children.some(o=>o.isMesh && o.geometry.type==='ExtrudeGeometry' && Math.abs(o.rotation.y-PI/2)<.001)});checks.push({label:'两台导体分离，连接线接触球体时才导通',pass:2*1.7>2*.80});checks.push({label:'带电体接近A时不与金属球相碰',pass:-1.08+.525+.051<-.223});checks.push({label:'双箔中性时不存在重叠',pass:.052>.0024});checks.push({label:'双验电器各阶段电荷守恒',pass:modes.filter(m=>m.dual).every(m=>m.stages.every((stage,i)=>{let total=(stage.qa||0)+(stage.qb||0);return Math.abs(total-(m.id==='share'?1:0))<1e-6}))});if(ui.check)ui.check.innerHTML=checks.map(x=>`<div style="margin:3px 0;color:${x.pass?'#4c8570':'#b94c3e'}">${x.pass?'✓':'✕'} ${x.label}</div>`).join('');window.addEventListener('resize',resizeWorld);if(window.ResizeObserver)new ResizeObserver(resizeWorld).observe(ui.world);resizeWorld();ui.boot.classList.add('hide');director.draw();updateChargeLedger(director.current);let last=performance.now(),overlay=0;
+ function animate(t){requestAnimationFrame(animate);const dt=clamp((t-last)/1000,0,.075);last=t;director.tick(dt);let s=resolvedState(director.current,dt),dual=!!s.dual;state.interaction.lastResolved=s;model.originX=dual?-1.7:0;model.root.visible=true;model2.root.visible=dual;model2.chargeGroup.visible=dual&&state.showCharge;model2.flowGroup.visible=false;model2.rodGroup.visible=false;model2.ground.visible=false;nameTags[0].visible=dual;nameTags[1].visible=dual;for(let i=0;i<3;i++)shadows[i].visible=dual?i>0:i===0;
+ const ledger=countCharges(s);
+ const A=ledger.bodies.find(b=>b.id==='A'),B=ledger.bodies.find(b=>b.id==='B');
+ model.update({...physicalScope(s,0),chargeQ:A?.net||0},t/1000);
+ if(dual)model2.update({...physicalScope(s,1),chargeQ:B?.net||0},t/1000);model2.rodGroup.visible=false;model2.ground.visible=false;model2.chargeGroup.visible=dual&&state.showCharge;updateWire(s,t/1000);rig.step(dt);renderer.render(scene,camera);overlay+=dt;if(overlay>.06){diagram(s);updateChargeLedger(s);updateCountOverlay(s);updateManualUI(s);overlay=0}}
+ requestAnimationFrame(animate);
+ window.__electroscope={model,model2,director,renderer,camera,scene,getState:()=>({...(state.interaction?.lastResolved||director.current)}),getCharges:()=>countCharges(state.interaction?.lastResolved||director.current),getManual:()=>({...state.interaction}),setRodX:(x)=>{state.interaction.rodX=clamp(x,-2.10,director.mode.id==='contact'?-.77:-1.05)},setWire:(x)=>{state.interaction.wire=clamp(x,0,1)},check:()=>checks};
+}
+let shadows=[],nameTags=[];
+function addNameTags(){const g=scene.children.filter(o=>o.type==='Mesh'&&o.geometry?.type==='PlaneGeometry'&&o.position.y===.020);shadows=g;for(const [i,x] of [-1.7,1.7].entries()){let tex=createCanvasLabel(i===0?'A 验电器':'B 验电器','#42645c','rgba(255,255,255,.86)');let spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));spr.position.set(x,3.02,.0);spr.scale.set(.9,.18,1);spr.visible=false;scene.add(spr);nameTags.push(spr)}}
+function bindUI(){for(const id of ['world','boot','failure','sceneTitle','sceneHint','modegrid','stages','progressbar','prev','play','next','restart','caption','stepNum','strength','strengthVal','showCharge','showFlow','cutaway','structureSvg','angleText','status','conservation','check','sixgrid','chargeLedger','electronDirection','transferCount','manualTip','manualGuide','manualGround','countOverlay','countA','countB','countRod'])ui[id]=document.getElementById(id);
+ for(const m of modes){const b=document.createElement('button');b.dataset.mode=m.id;const label=({'induction':'静电感应 / 感应起电','contact':'接触带电','discharge':'接地放电','share':'双验电器 · 接触分电','pair-induction':'双验电器 · 感应分电'})[m.id]||m.name;b.innerHTML=`<span class="mode-main">${label}</span>`;b.onclick=()=>director.setMode(m);ui.modegrid.appendChild(b)}
+ ui.prev.onclick=()=>{state.interaction.overrideStages=true;director.select(director.index-1)};ui.next.onclick=()=>{state.interaction.overrideStages=true;director.select(director.index+1)};
+ ui.restart.onclick=()=>{director.playing=false;resetInteractiveState();director.select(0,false);director.draw()};
+ ui.play.onclick=()=>{const fromManual=manualEnabled();if(fromManual&&state.interaction.lastResolved){director.current={...state.interaction.lastResolved};state.interaction.overrideStages=true;director.select(0)}else{state.interaction.overrideStages=true;if(director.index>=director.mode.stages.length-1&&!director.playing)director.select(0)}director.playing=!director.playing;director.draw()};
+ ui.manualGround.onclick=()=>{if(director.mode.id==='induction'&&manualEnabled()&&(state.interaction.grounded||state.interaction.rodX>=-1.9))state.interaction.grounded=!state.interaction.grounded};
+ ui.showCharge.onchange=()=>state.showCharge=ui.showCharge.checked;ui.showFlow.onchange=()=>state.showFlow=ui.showFlow.checked;ui.cutaway.onchange=()=>state.cutaway=ui.cutaway.checked;ui.strength.oninput=()=>ui.strengthVal.textContent=ui.strength.value+'%';
+ document.querySelectorAll('#polarity button').forEach(b=>b.onclick=()=>{state.sign=Number(b.dataset.sign);document.querySelectorAll('#polarity button').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b))});resetInteractiveState();director.select(0,false)});
+ document.querySelectorAll('#designMode button').forEach(b=>b.onclick=()=>{state.design=b.dataset.design;document.querySelectorAll('#designMode button').forEach(x=>x.classList.toggle('active',x===b));rig.focus(state.design==='B'?director.mode.stages[director.index].focus:'all')});
+ const focus=(yaw,pitch,dist)=>{let dual=!!director.mode.dual;rig.set(dual?[0,1.43,0]:[0,1.38,0],yaw,pitch,dist)};
+ document.getElementById('front').onclick=()=>focus(0,0,director.mode.dual?11.0:4.95);document.getElementById('leftview').onclick=()=>focus(Math.PI/2,.04,director.mode.dual?12:5.3);document.getElementById('topview').onclick=()=>focus(0,1.43,director.mode.dual?11.5:5.9);document.getElementById('resetCamera').onclick=()=>rig.focus('all');document.getElementById('focusLeaves').onclick=()=>rig.focus('leaves');document.getElementById('openSix').onclick=()=>document.getElementById('sixpanel').classList.add('open');document.getElementById('closeSix').onclick=()=>document.getElementById('sixpanel').classList.remove('open');drawSix();
+}
+function init(){try{state={sign:-1,showCharge:true,showFlow:true,cutaway:false,design:'A',interaction:null};bindUI();if(!window.THREE)throw Error('Three.js 脚本没有加载');initWorld()}catch(err){console.error(err);document.getElementById('boot')?.classList.add('hide');let e=document.getElementById('failure');e.style.display='block';e.innerHTML=`<strong>三维无法启动</strong><div style="margin-top:8px">${String(err.message).replace(/</g,'&lt;')}</div><div style="font-size:11px;margin-top:9px">已内置 Three.js r160。请在支持 WebGL2 的 Chrome / Edge 打开，并检查显卡加速。</div>`;document.getElementById('check').textContent='运行环境未通过 WebGL 初始化'}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+</script></body></html>

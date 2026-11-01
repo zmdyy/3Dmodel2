@@ -49,3 +49,7 @@
 ## 干湿球温度计封面（2026-10-30）
 
 `assets/covers/wet-dry-bulb-psychrometer-scene.jpg` 为 `models/wet-dry-bulb-psychrometer.html` V11 的实际 Chromium/WebGL 画布截图，960×540 JPEG。隐藏舞台说明、视角工具栏及状态浮层后，仅调整默认镜头缩放；保留双温度计、湿纱布、水杯、原有材质与光影。截图时 Chromium headless 在当前环境报错 `BindToCurrentSequence failed`，转为 Xvfb 虚拟屏幕下的 Chromium 非无头模式与 Mesa 软件 WebGL 后成功。重现：`scripts/capture-wet-dry-bulb-cover.cjs`，使用 `xvfb-run` 执行。
+
+## 金属箔验电器封面（2026-11-01）
+
+`assets/covers/gold-leaf-electroscope-scene.jpg` 为当前金属箔验电器真实 Chromium/WebGL2 三维画面截图，960×540 JPEG（未采用生成图或重画器材）。状态：橡胶棒靠近金属球，箔片因静电感应张开；红色正电荷固定、蓝色电子重新分布。截取时仅隐藏按钮、说明和计数浮层以突出真实场景，保持模型几何、Three.js r160 材质和场景照明。案例：`models/gold-leaf-electroscope.html`；单文件：`models/gold-leaf-electroscope-offline.html`。

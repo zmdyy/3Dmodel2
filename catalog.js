@@ -1,5 +1,30 @@
 window.MODEL_CATALOG = [
   {
+    "id": "gold-leaf-electroscope",
+    "title": "金属箔验电器 · 静电感应与电荷转移",
+    "subtitle": "橡胶棒/玻璃棒 · 正负电荷 · 单双验电器 · 接地与分电",
+    "category": "电学实验",
+    "summary": "真实Three.js r160三维金属箔验电器：拖动橡胶棒或玻璃棒，观察感应、接触起电及接地过程；双验电器连接与断开导线，演示电子缓慢迁移。红色正电荷固定、蓝色电子运动，数量为教学离散示意。统一视角支持左拖旋转、右拖平移、Shift+左拖平移、滚轮/双指缩放。",
+    "tags": [
+      "验电器",
+      "静电感应",
+      "接触带电",
+      "感应起电",
+      "接地",
+      "橡胶棒",
+      "玻璃棒",
+      "电子迁移",
+      "电荷守恒",
+      "Three.js",
+      "PBR",
+      "离线"
+    ],
+    "path": "models/gold-leaf-electroscope.html?v=20261101-v104-gallery",
+    "cover": "assets/covers/gold-leaf-electroscope-scene.jpg?v=20261101-real",
+    "symbol": "电",
+    "accent": "blue"
+  },
+  {
     "id": "bicycle-cad-simple-machines",
     "title": "自行车 · 链传动、碟刹与简单机械",
     "subtitle": "真实 CAD · 踩踏传动 · 转向轮轴 · 刹车杠杆 · 后轮甩水",
