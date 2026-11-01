@@ -58,7 +58,7 @@ QcoeWZRR1M7YBi0ZTz3eqMWUsl9EQBcnCZGNGmZOsbeUT3m8wSEegzF/iIDQDWz8xJsKzv0944nFhXNO
   const start=()=>{
     const stage=document.getElementById('stage');
     const controls=document.getElementById('reactControls');
-    if(!stage||!controls||!window.THREE){requestAnimationFrame(start);return;}
+    if(!stage||!controls||!window.THREE||controls.querySelectorAll(':scope > div > section.section').length<5){requestAnimationFrame(start);return;}
     document.querySelectorAll('.machine-overlay').forEach(el=>el.remove());
     const T=window.THREE;
     const panel=document.createElement('section');
@@ -67,15 +67,15 @@ QcoeWZRR1M7YBi0ZTz3eqMWUsl9EQBcnCZGNGmZOsbeUT3m8wSEegzF/iIDQDWz8xJsKzv0944nFhXNO
       <h2>简单机械 · 动态实验 <small>01 / MACHINE LAB</small></h2>
       <div class="machineLabHelp">直接让车上的机构工作；左侧显示同步旋转轴、力臂、转动方向。</div>
       <div class="machineLabModes">
-        <button data-demo="tour" class="on">自动巡演</button>
+        <button data-demo="tour">自动巡演</button>
         <button data-demo="brake">刹车杠杆</button>
         <button data-demo="steer">转向轴</button>
         <button data-demo="pedal">脚踏曲柄</button>
         <button data-demo="wheel">后轮轮轴</button>
         <button data-demo="chain">链传动</button>
       </div>
-      <div class="machineLabFooter"><button id="machineLabPlay" type="button">暂停演示</button><button id="machineLabEffects" type="button">隐藏运动标记</button></div>
-      <div class="machineLabCurrent"><b id="machineLabName">脚踏曲柄</b><span id="machineLabLive">正在建立机械演示</span></div>
+      <div class="machineLabFooter"><button id="machineLabPlay" type="button">开始演示</button><button id="machineLabEffects" type="button">隐藏运动标记</button></div>
+      <div class="machineLabCurrent"><b id="machineLabName">整车全景</b><span id="machineLabLive">请选择需要观察的机构</span></div>
       <div class="machineLabDiagram" aria-label="简单机械实时示意图">
         <svg viewBox="0 0 300 136" xmlns="http://www.w3.org/2000/svg">
           <defs><marker id="machArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#ce6f40"/></marker></defs>
@@ -88,7 +88,7 @@ QcoeWZRR1M7YBi0ZTz3eqMWUsl9EQBcnCZGNGmZOsbeUT3m8wSEegzF/iIDQDWz8xJsKzv0944nFhXNO
       </div>
       <p class="machineLabCaution">橙色线条为转轴提示；银色刹车手柄直接使用原始 CAD 网格绕支点运动，手握处固定。</p>`;
     controls.prepend(panel);
-    let mode='tour', isPlaying=true, effects=true, startTime=performance.now(), lastControl=0, lastInfo=0;
+    let mode='tour', isPlaying=false, effects=true, startTime=performance.now(), lastControl=0, lastInfo=0;
     const names={tour:'自动巡演',brake:'刹车手柄 · 杠杆',steer:'车把与前叉 · 转向轴',pedal:'脚踏与曲柄 · 轮轴',wheel:'后轮轮毂 · 轮轴',chain:'牙盘—链条—飞轮'};
     const descriptions={
       brake:'银色CAD手柄绕铰点靠近握把 · 左右同步',steer:'前叉绕倾斜转向轴左右摆动',
@@ -347,8 +347,10 @@ QcoeWZRR1M7YBi0ZTz3eqMWUsl9EQBcnCZGNGmZOsbeUT3m8wSEegzF/iIDQDWz8xJsKzv0944nFhXNO
 <style id="v343-compact-controls-css">
 /* V3.43 only rearranges the right-hand control UI; no CAD/kinematic code changed. */
 #reactControls.left{padding:12px 13px 15px!important;scrollbar-gutter:stable;}
+#reactControls{display:block!important;visibility:visible!important;opacity:1!important;}
+#reactControls:empty::before{content:'正在加载操作栏…';display:block;padding:18px 10px;color:#6f8579;font-size:12px;}
 #reactControls .section{margin-bottom:9px;padding-bottom:10px;}
-#reactControls > div > .section{display:none!important;}
+#reactControls[data-compact-tab] > div > .section{display:none!important;}
 #reactControls > div > p.hint{display:none!important;}
 #reactControls[data-compact-tab="adjust"] > div > .section:nth-of-type(2),
 #reactControls[data-compact-tab="adjust"] > div > .section:nth-of-type(3),
@@ -467,8 +469,10 @@ QcoeWZRR1M7YBi0ZTz3eqMWUsl9EQBcnCZGNGmZOsbeUT3m8wSEegzF/iIDQDWz8xJsKzv0944nFhXNO
    applying=false;
    window.dispatchEvent(new CustomEvent('bikeTabChange',{detail:{activeTab:tab}}));
   }
-  // Preserve default Demo tab and its actively selected demonstration.
-  tabState='';switchTab('demo');
+  // Default to manual controls and the complete bicycle overview. Demos only start after the user chooses them.
+  tabState='';switchTab('adjust');
+  window.__bikeSetView?.('iso');
+  requestAnimationFrame(()=>window.__bikeSetView?.('iso'));
   window.__bikeCompactUI={get activeTab(){return tabState},setTab:switchTab,tabs:tabs.map(([id])=>id),get manual(){return {...manual}},get display(){return {...display}},get cameraView(){return cameraView},get state(){return {sections:sections.length,lab:!!document.getElementById('machineLab'),playing:!!window.__machineLab?.playing,collapsedDiagram:!lab.querySelector('details')?.open}}};
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
