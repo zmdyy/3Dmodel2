@@ -1393,8 +1393,8 @@ window.MODEL_CATALOG = [
       "流动阻力",
       "控制变量"
     ],
-    "path": "models/gravity-infusion.html?v=20261018-v3",
-    "cover": "assets/covers/gravity-infusion-scene.jpg?v=20261018-v3",
+    "path": "models/gravity-infusion.html?v=20261102-material-v4",
+    "cover": "assets/covers/gravity-infusion-scene.jpg?v=20261102-material-v4",
     "symbol": "滴",
     "accent": "blue"
   },
