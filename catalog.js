@@ -1374,8 +1374,8 @@ window.MODEL_CATALOG = [
       "气体压缩",
       "装配剖视"
     ],
-    "path": "models/flask-submarine.html?v=20261018-nav1",
-    "cover": "assets/covers/flask-submarine-scene.jpg?v=20261018-v4",
+    "path": "models/flask-submarine.html?v=20261102-glass-section-v5",
+    "cover": "assets/covers/flask-submarine-scene.jpg?v=20261102-glass-section-v5",
     "symbol": "潜",
     "accent": "blue"
   },
