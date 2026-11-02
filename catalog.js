@@ -1,5 +1,27 @@
 window.MODEL_CATALOG = [
 {
+  "id": "sea-land-breeze",
+  "title": "海陆风 · 一天的呼吸",
+  "subtitle": "昼夜温差 · 近地面风 · 高空回流",
+  "category": "热学实验",
+  "summary": "旋转海岸剖面，沿24小时时间轴观察海陆温差、空气上升下沉与完整环流。支持温度色层、近地面相对气压、日月升落和暂停。温度、地形与日月轨迹均为教学简化示意。",
+  "tags": [
+    "海陆风",
+    "海风",
+    "陆风",
+    "比热容",
+    "温差",
+    "热力环流",
+    "高空回流",
+    "Three.js",
+    "离线"
+  ],
+  "path": "models/sea-land-breeze.html?v=20261102",
+  "cover": "assets/covers/sea-land-breeze-scene.jpg?v=20261102-real",
+  "symbol": "风",
+  "accent": "blue"
+},
+{
   "id": "life-levers",
   "title": "生活中的杠杆 · 七种实物观察",
   "subtitle": "开瓶器、食品镊、拉杆箱、独轮车、羊角锤、剪刀与指甲钳",

@@ -57,3 +57,8 @@
 ## 生活中的杠杆（2026-11-01）
 
 `assets/covers/life-levers-scene.jpg` 为 `models/life-levers.html` 默认开瓶器场景的真实 Chromium/WebGL 截图，960×540 JPEG。仅隐藏界面并按画布比例重新取景；保留原模型、材质、灯光、瓶盖及支点。重现：`CHROMIUM_PATH=/path/to/chromium node scripts/capture-life-levers-cover.cjs`。
+
+
+## 海陆风（2026-11-02）
+
+`assets/covers/sea-land-breeze-scene.jpg` 为海陆风案例14:00海风状态的实际 Chromium/WebGL 画布截图，960×540 JPEG。保留当前海岸地形、建筑植被、温度色层、环流箭头及太阳，仅隐藏界面并适配画布比例；未使用生成图或另画场景。可通过 `scripts/capture-sea-land-breeze-cover.cjs` 重现。
