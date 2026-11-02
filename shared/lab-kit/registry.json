@@ -592,13 +592,13 @@
       "sources": [
         {
           "path": "models/buoyancy-density-lab.html",
-          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "commit": "2e5210d854c1fdd1dbf189cfa81456683e8d94eb",
           "repository": "zmdyy/3Dmodel2",
           "locator": "套杯模式",
-          "sha256": "4823e599294f85fb2faa16291513624ab5710d37581314dd99b5249f14aceefd"
+          "sha256": "48d98fe506ea3d453dd0b5de6f533eb1d9e46b39a11beacd9f6da7d31beb863a"
         }
       ],
-      "notes": "尚未独立提取。读取源案例并核验后再使用，不可编造现成API。"
+      "notes": "尚未独立提取。B22 已核验套杯内外玻璃反射、两层液体与剖切；读取源案例并核验后再使用，不可编造现成API。"
     },
     {
       "id": "thermal-apparatus-reference",
