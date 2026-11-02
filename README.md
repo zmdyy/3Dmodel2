@@ -4,7 +4,7 @@
 
 面向初中物理课堂与自主探究的 3D 教学作品集：通过 **Three.js / WebGL、SVG、Canvas** 等技术，把实验器材的结构、实验现象的变化过程与物理量之间的关系呈现在浏览器中。部分案例使用 React、PBR 材质及 Blender / glTF 模型；不同案例的实现方式并不完全相同。
 
-**当前案例：65 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-10-30）
+**当前案例：71 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-11-02）
 
 [查看作品集入口](./index.html) · [浏览完整案例目录](#完整案例目录) · [快速开始](#快速开始) · [新增案例](#新增案例与维护)
 
@@ -63,7 +63,9 @@
 | 光与视觉 | 1 | 生活中的物理 | 1 |
 
 <details>
-<summary><strong>热学实验（6）</strong></summary>
+<summary><strong>热学实验（7）</strong></summary>
+
+- [不同燃料的热值 · 双灯探究实验](./models/fuel-calorific-value.html) — 酒精与煤油等质量消耗、温度描点与自主发现沸腾问题；完整离线单文件
 
 - [海陆风 · 一天的呼吸](./models/sea-land-breeze.html) — 昼夜温差、空气示踪、高空回流与日月升落（[离线单文件](./models/sea-land-breeze-offline.html)）
 

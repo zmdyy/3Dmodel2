@@ -1,5 +1,30 @@
 window.MODEL_CATALOG = [
 {
+  "id": "fuel-calorific-value",
+  "title": "不同燃料的热值 · 双灯探究实验",
+  "subtitle": "酒精与煤油 · 等质量燃料 · 水温变化",
+  "category": "热学实验",
+  "summary": "用两套灯式装置加热相同质量、相同初温的水，比较消耗相同质量酒精与煤油后的温升。支持燃料用量、水量、初温、温度计SVG刻度及圆形放大、温度—时间描点与上一轮曲线对照；保留水沸腾、汽化的真实探究问题，不提前提示或限制。",
+  "tags": [
+    "热值",
+    "酒精",
+    "煤油",
+    "燃料",
+    "控制变量法",
+    "转换法",
+    "沸腾",
+    "温度计",
+    "温度—时间图像",
+    "Three.js",
+    "PBR",
+    "离线"
+  ],
+  "path": "models/fuel-calorific-value.html?v=20261102-contrast",
+  "cover": "assets/covers/fuel-calorific-value-scene.jpg?v=20261102-real",
+  "symbol": "燃",
+  "accent": "amber"
+},
+{
   "id": "sea-land-breeze",
   "title": "海陆风 · 一天的呼吸",
   "subtitle": "昼夜温差 · 近地面风 · 高空回流",

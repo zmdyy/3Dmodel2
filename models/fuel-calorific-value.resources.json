@@ -1,0 +1,13 @@
+{
+  "case": "fuel-calorific-value",
+  "engine": "three-r160",
+  "resources": [{"id":"camera-navigation","version":"1.0.0"}],
+  "sources": ["models/specific-heat-water-oil.html", "models/water-boiling.html", "models/melting-freezing-lab.html"],
+  "physical_units": {"mass":"g", "time":"s", "energy":"J", "temperature":"C", "angle":"rad"},
+  "geometry": "Normalized source-case display units; not a direct metre-calibrated public apparatus API.",
+  "connections": ["support ring -> wire gauze -> beaker bottom", "burner outer flame -> gauze underside", "stand upper clamp -> immersed thermometer"],
+  "state": "One thermal state drives fuel use, water temperature/mass, SVG scales/magnifiers and the graph.",
+  "detail_pattern": "Two independent circular SVG lenses with projected source anchors.",
+  "offline": "All runtime, navigation, finish and font sources embedded in canonical HTML.",
+  "validation": "assets/fuel-calorific-value-evidence/validation.json"
+}

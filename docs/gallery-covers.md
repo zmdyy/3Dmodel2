@@ -62,3 +62,7 @@
 ## 海陆风（2026-11-02）
 
 `assets/covers/sea-land-breeze-scene.jpg` 为海陆风案例14:00海风状态的实际 Chromium/WebGL 画布截图，960×540 JPEG。保留当前海岸地形、建筑植被、温度色层、环流箭头及太阳，仅隐藏界面并适配画布比例；未使用生成图或另画场景。可通过 `scripts/capture-sea-land-breeze-cover.cjs` 重现。
+
+## 不同燃料的热值（2026-11-02）
+
+`assets/covers/fuel-calorific-value-scene.jpg`是双灯案例实际运行200 s时的Chromium WebGL/SVG截图，960×540 JPEG。仅隐藏界面并调整实际画布与镜头，保留源装置、燃料示踪色、火焰和原材质；没有使用生成图或另画装置。重现：`CHROMIUM_PATH=/path/to/chromium node scripts/capture-fuel-calorific-value-cover.cjs`。

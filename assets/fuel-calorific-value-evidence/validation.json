@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-02",
+  "results": [
+    "offline file:// zero HTTP(S) requests",
+    "default warm-up 45.0 / 58.3 C",
+    "two-cup boiling 100 C plateau",
+    "shared navigation rotate/pan/zoom/reset",
+    "magnifier hide/show",
+    "shared matte finish v2",
+    "gallery search/real cover/iframe open-close"
+  ],
+  "finish": {
+    "version": "2.0",
+    "applied": 14
+  },
+  "errors": [],
+  "externalRequests": [],
+  "baselineChecks": {
+    "reuseBrowser": "passed",
+    "instrumentPatterns": "passed",
+    "registryAndUnit": "pre-existing source hash mismatch: models/thermometers-thermal-expansion.html"
+  }
+}
