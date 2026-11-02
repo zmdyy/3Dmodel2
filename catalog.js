@@ -431,8 +431,8 @@ window.MODEL_CATALOG = [
       "放大法",
       "细管"
     ],
-    "path": "models/capillary-three-experiments.html?v=20261026-v12",
-    "cover": "assets/covers/capillary-three-experiments-scene.jpg?v=20261026-v12",
+    "path": "models/capillary-three-experiments.html?v=20261102-glass-v13",
+    "cover": "assets/covers/capillary-three-experiments-scene.jpg?v=20261102-glass-v13",
     "symbol": "管",
     "accent": "blue"
   },
