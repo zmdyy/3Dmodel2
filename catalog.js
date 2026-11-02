@@ -521,8 +521,8 @@ window.MODEL_CATALOG = [
       "套杯",
       "受力分析"
     ],
-    "path": "models/buoyancy-density-lab.html?v=20261025-b21",
-    "cover": "assets/covers/buoyancy-density-lab-scene.jpg?v=20261025-b21",
+    "path": "models/buoyancy-density-lab.html?v=20261102-glass-b22",
+    "cover": "assets/covers/buoyancy-density-lab-scene.jpg?v=20261102-glass-b22",
     "symbol": "浮",
     "accent": "green"
   },

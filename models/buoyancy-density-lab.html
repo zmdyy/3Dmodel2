@@ -5152,17 +5152,32 @@ function setup(){
  const key=new THREE.DirectionalLight('#fff4e9',3.0);key.position.set(16,32,21);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-40;key.shadow.camera.right=40;key.shadow.camera.top=40;key.shadow.camera.bottom=-40;scene.add(key);
  const fill=new THREE.DirectionalLight('#c4def3',1.2);fill.position.set(-18,19,-14);scene.add(fill);
  const ambient=new THREE.AmbientLight('#f5f3f0',0.32);scene.add(ambient);
+ // Local reflection rig is assigned only to optical glass, keeping other materials unchanged.
+ const glassStudio=new THREE.Scene();glassStudio.add(new THREE.Mesh(new THREE.BoxGeometry(180,180,180),new THREE.MeshBasicMaterial({color:0x7f9095,side:THREE.BackSide})));
+ for(const panel of [{p:[-35,26,40],size:[9,72],power:5.0,color:0xf2f8ff},{p:[38,30,21],size:[6,64],power:3.8,color:0xfff5e4},{p:[0,65,-28],size:[48,12],power:2.1,color:0xffffff}]){const lightbox=new THREE.Mesh(new THREE.PlaneGeometry(...panel.size),new THREE.MeshBasicMaterial({color:new THREE.Color(panel.color).multiplyScalar(panel.power),side:THREE.DoubleSide}));lightbox.position.set(...panel.p);lightbox.lookAt(0,10,0);glassStudio.add(lightbox);}
+ const glassPMREM=new THREE.PMREMGenerator(renderer),glassEnvironment=glassPMREM.fromScene(glassStudio,.02);
+ const glassEnv=glassEnvironment.texture;glassPMREM.dispose();glassStudio.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});
+ function nestedGlass(opacity=.17){
+  // Transparent reflection shell: retains the inner cup and both dyed liquids.
+  const m=new THREE.MeshPhysicalMaterial({color:0xf0fafc,roughness:.055,metalness:0,transparent:true,opacity,transmission:0,ior:1.5,depthWrite:false,side:THREE.FrontSide,envMap:glassEnv,envMapIntensity:1.15,clearcoat:.3,clearcoatRoughness:.08});
+  m.userData.noMaterialFinish=true;m.userData.disposable=true;
+  m.onBeforeCompile=shader=>{shader.fragmentShader=shader.fragmentShader.replace('#include <dithering_fragment>',`#include <dithering_fragment>
+   float edge=pow(1.0-abs(dot(normalize(normal),normalize(vViewPosition))),2.0);
+   gl_FragColor.a*=mix(.20,1.8,edge);`);};m.customProgramCacheKey=()=> 'buoyancy-nested-glass-b22';return m;
+ }
  const mats={
   metal:new THREE.MeshStandardMaterial({color:'#7a8a97',metalness:.78,roughness:.33}),
   dark:new THREE.MeshStandardMaterial({color:'#304454',metalness:.56,roughness:.33}),
   trim:new THREE.MeshStandardMaterial({color:'#b9ccd3',metalness:.8,roughness:.2}),
   white:new THREE.MeshStandardMaterial({color:'#eef1f2',metalness:.1,roughness:.45}),
   brass:new THREE.MeshStandardMaterial({color:'#b18c5d',metalness:.8,roughness:.28}),
-  glass:new THREE.MeshPhysicalMaterial({color:'#e7f9ff',roughness:.06,metalness:0,transparent:true,opacity:.09,transmission:0,clearcoat:.75,clearcoatRoughness:.045,depthWrite:false,side:THREE.FrontSide}),
+  glass:new THREE.MeshPhysicalMaterial({color:0xf2fbff,roughness:.05,metalness:0,transparent:true,opacity:1,transmission:.94,ior:1.5,thickness:.17,attenuationColor:new THREE.Color(0xc8e7eb),attenuationDistance:8,envMap:glassEnv,envMapIntensity:1.05,clearcoat:.12,clearcoatRoughness:.08,depthWrite:false,side:THREE.FrontSide}),
   glaze:new THREE.MeshPhysicalMaterial({color:'#c8edf6',roughness:.08,metalness:0,transparent:true,opacity:.34,transmission:.55,thickness:.35,ior:1.34,depthWrite:false,side:THREE.DoubleSide}),
   rope:new THREE.MeshStandardMaterial({color:'#ae875b',roughness:.86}),
   cut:new THREE.MeshStandardMaterial({color:'#79acc1',metalness:.1,roughness:.45,side:THREE.DoubleSide})
  };
+ mats.glass.userData.noMaterialFinish=true;
+ mats.glassRim=mats.glass.clone();mats.glassRim.roughness=.075;mats.glassRim.thickness=.22;mats.glassRim.transmission=.58;mats.glassRim.opacity=.92;mats.glassRim.color.set(0xc5e4eb);
  const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,80),new THREE.MeshStandardMaterial({color:'#e8e0d5',roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.y=-.5;floor.receiveShadow=true;scene.add(floor);
  let apparatus=new THREE.Group(),permanent=new THREE.Group();
  scene.add(apparatus,permanent);
@@ -5599,11 +5614,17 @@ function setup(){
    };
    function bounds(t){const z=r*Math.cos(t);if(r*Math.sin(t)>r*.8&&Math.abs(z)<hr){const dy=Math.sqrt(hr*hr-z*z);return [yc-dy,yc+dy];}return [yc,yc];}
    for(let i=0;i<angles.length-1;i++){const a=angles[i],b=angles[i+1],[loA,hiA]=bounds(a),[loB,hiB]=bounds(b);quad(a,b,0,loA,0,loB);quad(a,b,hiA,height,hiB,height);}
-   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.computeVertexNormals();tankGlass=mesh(geo,mats.glass);tankGlass.material=tankGlass.material.clone();tankGlass.material.side=THREE.DoubleSide;tankGlass.material.opacity=.16;
+   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.computeVertexNormals();tankGlass=mesh(geo,mats.glass);tankGlass.material=tankGlass.material.clone();tankGlass.material.side=THREE.DoubleSide;tankGlass.material.opacity=1;
   }else tankGlass=cyl(r,r,height,mats.glass,0,baseY+height/2,0,apparatus,96,start,len,true);
-  tankGlass.castShadow=false;tankGlass.userData.cutStart=start;tankGlass.userData.cutLength=len;
+  tankGlass.castShadow=false;tankGlass.name='glass-main-wall';
+  // A surface-reflection pass keeps glass highlights above the translucent water.
+  const reflectionWall=mesh(tankGlass.geometry.clone(),nestedGlass(.20));reflectionWall.position.copy(tankGlass.position);reflectionWall.rotation.copy(tankGlass.rotation);reflectionWall.scale.copy(tankGlass.scale);reflectionWall.material.side=tankGlass.material.side;reflectionWall.renderOrder=10;reflectionWall.castShadow=false;reflectionWall.receiveShadow=false;reflectionWall.name='glass-surface-reflections';
+  // An actual inner wall and rounded lip make the 1.7 mm display thickness legible.
+  if(mode!=='overflow'){const innerMat=nestedGlass(.045);innerMat.side=THREE.BackSide;
+   const inner=cyl(r-.17,r-.17,height-.12,innerMat,0,baseY+.12+(height-.12)/2,0,apparatus,96,start,len,true);inner.name='glass-inner-wall';inner.renderOrder=8;inner.castShadow=false;}
+  tankGlass.userData.cutStart=start;tankGlass.userData.cutLength=len;
   const bottom=mesh(new THREE.CircleGeometry(r,96,start-Math.PI/2,len),mats.glass);bottom.rotation.x=-Math.PI/2;bottom.position.y=baseY;
-  sectorRing(r,baseY+height,mats.trim,.065);sectorRing(r,baseY,mats.trim,.055);
+  sectorRing(r-.08,baseY+height,mats.glassRim,.08);sectorRing(r-.06,baseY+.035,mats.glassRim,.06);
   tankWater=cyl(R,R,1,wm,0,0,0,apparatus,96,start,len,true);tankWater.castShadow=false;tankWater.renderOrder=2;
   surface=mesh(new THREE.CircleGeometry(R,96,start-Math.PI/2,len),waterSurfaceMaterial(wm));surface.rotation.x=-Math.PI/2;surface.renderOrder=3;surface.castShadow=false;
   surface.userData.cutStart=start;surface.userData.cutLength=len;surface.userData.radius=R;
@@ -5631,14 +5652,14 @@ function setup(){
   const jetCurve=new THREE.CatmullRomCurve3([B,B.clone().add(new THREE.Vector3(.15,-.8,0)),new THREE.Vector3(B.x+.18,baseY+6.9,0),new THREE.Vector3(B.x+.12,baseY+.3,0)]);
   overflowJet=mesh(new THREE.TubeGeometry(jetCurve,36,.07,8,false),new THREE.MeshBasicMaterial({color:'#249dbb',transparent:true,opacity:.78}));overflowJet.visible=false;overflowLumen.visible=false;
   cupCollect=new THREE.Group();apparatus.add(cupCollect);cupCollect.position.x=B.x;
-  cyl(2.55,2.5,6.8,mats.glass,0,baseY+3.4,0,cupCollect,64,0,Math.PI*2,true);cyl(2.55,2.55,.12,mats.glass,0,baseY+.06,0,cupCollect);torus(2.55,.06,mats.trim,0,baseY+6.8,0,cupCollect);
+  const collectingWall=cyl(2.55,2.5,6.8,mats.glass,0,baseY+3.4,0,cupCollect,64,0,Math.PI*2,true);const collectingReflection=mesh(collectingWall.geometry.clone(),nestedGlass(.18),cupCollect);collectingReflection.position.copy(collectingWall.position);collectingReflection.renderOrder=10;collectingReflection.castShadow=false;collectingReflection.receiveShadow=false;cyl(2.55,2.55,.12,mats.glass,0,baseY+.06,0,cupCollect);torus(2.50,.055,mats.glassRim,0,baseY+6.8,0,cupCollect);
   collectWater=cyl(2.4,2.4,1,liquidMaterial(),0,baseY,0,cupCollect,64);waterCollected=Math.max(0,Number(P.overflowVol)||0);
  }
 
  let nestedGlassEdges=[];
  function glassOutline(r,h,parent){
-  const edge=new THREE.MeshBasicMaterial({color:'#4d7281',transparent:true,opacity:.88,depthWrite:false,toneMapped:false});
-  const shine=new THREE.MeshBasicMaterial({color:'#effbff',transparent:true,opacity:.70,depthWrite:false,toneMapped:false});
+  const edge=new THREE.MeshBasicMaterial({color:'#4d7281',transparent:true,opacity:.48,depthWrite:false,toneMapped:false});
+  const shine=new THREE.MeshBasicMaterial({color:'#effbff',transparent:true,opacity:.52,depthWrite:false,toneMapped:false});
   // Camera-facing tangent contours define the cylindrical walls without tinting the liquid.
   const sides=new THREE.Group();parent.add(sides);nestedGlassEdges.push(sides);
   for(const x of [-r,r])cyl(.05,.05,h-.08,edge,x,h/2,0,sides,8);
@@ -5649,13 +5670,13 @@ function setup(){
  }
  function makeNested(){
   const outR=NESTED.outerD/2, inR=nestedInnerD()/2;const gap=outR-inR;
-  const outerMat=new THREE.MeshBasicMaterial({color:'#b8d7e2',transparent:true,opacity:.13,depthWrite:false,side:THREE.FrontSide,toneMapped:false});
+  const outerMat=nestedGlass(.20);
   // Subtle glass fill plus rim, bottom and silhouette contours keep both cups readable.
   nestedOuterGlass=cyl(outR,outR,NESTED.cupH,outerMat,0,NESTED.cupH/2,0,apparatus,72,cut?Math.PI/4:0,cut?Math.PI*1.5:2*Math.PI,true);
   cyl(outR,outR,.18,outerMat,0,.1,0,apparatus,64);
   glassOutline(outR,NESTED.cupH,apparatus);
   nestedInnerGlass=new THREE.Group();apparatus.add(nestedInnerGlass);
-  const wallMat=new THREE.MeshBasicMaterial({color:'#c4e0e9',transparent:true,opacity:.12,depthWrite:false,side:THREE.FrontSide,toneMapped:false});
+  const wallMat=nestedGlass(.17);
   cyl(inR,inR,NESTED.innerH,wallMat,0,NESTED.innerH/2,0,nestedInnerGlass,64,cut?Math.PI/4:0,cut?Math.PI*1.5:2*Math.PI,true);
   cyl(inR,inR,.20,wallMat,0,.10,0,nestedInnerGlass,64);
   glassOutline(inR,NESTED.innerH,nestedInnerGlass);
@@ -5686,7 +5707,7 @@ function setup(){
    lastTransition=_state.modeTransitionVersion||0;
   }
   apparatus.visible=true;
-  if(mode==='nestedCup'){makeNested();if(cut)apparatus.traverse(o=>{if(o.material&&!Array.isArray(o.material)){o.material=o.material.clone();o.material.clippingPlanes=cutPlanes;o.material.clipIntersection=true;o.material.userData.disposable=true;o.material.needsUpdate=true;}});} else {
+  if(mode==='nestedCup'){makeNested();if(cut)apparatus.traverse(o=>{if(o.material&&!Array.isArray(o.material)){const source=o.material;o.material=source.clone();o.material.onBeforeCompile=source.onBeforeCompile;o.material.customProgramCacheKey=source.customProgramCacheKey;o.material.clippingPlanes=cutPlanes;o.material.clipIntersection=true;o.material.userData.disposable=true;o.material.needsUpdate=true;}});} else {
    makeTank(getVisCm(),mode);
    const obj=placedObj(); if(obj&&modeState.isPlaced) objectRoot=buildObject(obj);
   }
@@ -5865,7 +5886,7 @@ function setup(){
  }
  requestAnimationFrame(loop);
  resize();
- window.__buoyancyB13={scene,camera,pose,bodyPosition:()=>objectRoot?.position.toArray(),getState:()=>({equipment:{mode:modeState.current,builtMode:lastMode,column:standColumn.visible,scale:scaleRoot.visible,arm:standSlidable.visible,apparatus:apparatus.visible,rope:!!suspension?.parent,collector:!!cupCollect?.parent,jet:!!overflowJet?.visible,face:faceSvg.style.display!=='none'},cut,target:target.toArray(),camera:camera.position.toArray(),waterAngle:surface?.geometry.parameters?.thetaStart,sideAngle:tankWater?.geometry.parameters?.thetaStart,radius:surface?.userData.radius,spout:outTube?.userData,jet:!!overflowJet?.visible,collectorX:cupCollect?.position.x}),projectScale:()=>{const p=new THREE.Vector3(0,3.8,.8).applyMatrix4(scaleRoot.matrixWorld).project(camera);const r=el.getBoundingClientRect();return {x:r.x+(p.x+1)*r.width/2,y:r.y+(1-p.y)*r.height/2};},projectWater:()=>{const p=new THREE.Vector3(-4,baseY+wetH,0).project(camera);const r=el.getBoundingClientRect();return {x:r.x+(p.x+1)*r.width/2,y:r.y+(1-p.y)*r.height/2};}};
+ window.__buoyancyB13={scene,camera,renderer,pose,glassMaterials:{main:mats.glass,rim:mats.glassRim},glassObjects:()=>({tank:tankGlass,collector:cupCollect,outer:nestedOuterGlass,inner:nestedInnerGlass}),bodyPosition:()=>objectRoot?.position.toArray(),getState:()=>({equipment:{mode:modeState.current,builtMode:lastMode,column:standColumn.visible,scale:scaleRoot.visible,arm:standSlidable.visible,apparatus:apparatus.visible,rope:!!suspension?.parent,collector:!!cupCollect?.parent,jet:!!overflowJet?.visible,face:faceSvg.style.display!=='none'},cut,target:target.toArray(),camera:camera.position.toArray(),waterAngle:surface?.geometry.parameters?.thetaStart,sideAngle:tankWater?.geometry.parameters?.thetaStart,radius:surface?.userData.radius,spout:outTube?.userData,jet:!!overflowJet?.visible,collectorX:cupCollect?.position.x}),projectScale:()=>{const p=new THREE.Vector3(0,3.8,.8).applyMatrix4(scaleRoot.matrixWorld).project(camera);const r=el.getBoundingClientRect();return {x:r.x+(p.x+1)*r.width/2,y:r.y+(1-p.y)*r.height/2};},projectWater:()=>{const p=new THREE.Vector3(-4,baseY+wetH,0).project(camera);const r=el.getBoundingClientRect();return {x:r.x+(p.x+1)*r.width/2,y:r.y+(1-p.y)*r.height/2};}};
  return {renderer,scene,camera,pose,resize,extractCommand,updateExtractVisibility,invalidateMode};
 }
 })();
