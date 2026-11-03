@@ -1,0 +1,26 @@
+{
+  "version": "V17",
+  "tracers": 320,
+  "renderer": "Chromium WebGL2 / SwiftShader",
+  "results": [
+    "default whole cutaway; 320 fixed tracers; single-part entry removed",
+    "moving tracers stay inside gas region; pause freezes tracers",
+    "valve arrows match opening; manual relief lowers pressure while gas stays warm",
+    "left rotate; right and Shift-left screen pan; wheel zoom",
+    "all five modes render with zero GL errors; backup jet/arrows follow plug opening",
+    "16px sidebar; 390px narrow layout",
+    "gallery search, actual cover, iframe entry and return"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "limitations": [
+    "Teaching particle and colour representation, not CFD or manufacturer temperature/pressure calibration.",
+    "Repository registry/source validation and lab-kit tests fail on pre-existing thermometer source hash mismatch."
+  ],
+  "repositoryChecks": {
+    "reuse-context --validate": "blocked: existing thermometer source hash differs from registry",
+    "lab-kit.cjs": "blocked by same existing registry mismatch",
+    "reuse-browser.cjs": "passed: real WebGL/offline/shared components",
+    "instrument-patterns.cjs": "passed"
+  }
+}

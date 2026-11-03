@@ -66,3 +66,7 @@
 ## 不同燃料的热值（2026-11-02）
 
 `assets/covers/fuel-calorific-value-scene.jpg`是双灯案例实际运行200 s时的Chromium WebGL/SVG截图，960×540 JPEG。仅隐藏界面并调整实际画布与镜头，保留源装置、燃料示踪色、火焰和原材质；没有使用生成图或另画装置。重现：`CHROMIUM_PATH=/path/to/chromium node scripts/capture-fuel-calorific-value-cover.cjs`。
+
+## 高压锅（2026-11-03）
+
+`assets/covers/pressure-cooker-scene.jpg` 为整机剖切、限压排气与320个气体示踪点的真实 Chromium/WebGL2 画布截图，960×540 JPEG。仅隐藏界面和调整取景；详见 [案例说明](pressure-cooker.md)，可由 `scripts/capture-pressure-cooker-cover.cjs` 重现。

@@ -1,5 +1,29 @@
 window.MODEL_CATALOG = [
 {
+  "id": "pressure-cooker",
+  "title": "高压锅 · 气压与安全机构",
+  "subtitle": "升压与排气 · 机械锁止 · 备用泄压",
+  "category": "热学实验",
+  "summary": "旋转整机剖面，观察锅内气体冷暖示踪、气压受力与排气路径。研究重锤限压、按压杠杆排气、压力销机械锁止和安全塞备用泄压，支持局部剖切与运动演示。粒子、温度颜色与动画速度为教学示意。",
+  "tags": [
+    "高压锅",
+    "气压",
+    "水蒸气",
+    "温度",
+    "沸点",
+    "压强",
+    "机械锁止",
+    "限压阀",
+    "排气",
+    "Three.js",
+    "离线"
+  ],
+  "path": "models/pressure-cooker.html?v=20261103-v17",
+  "cover": "assets/covers/pressure-cooker-scene.jpg?v=20261103-v17",
+  "symbol": "压",
+  "accent": "amber"
+},
+{
   "id": "fuel-calorific-value",
   "title": "不同燃料的热值 · 双灯探究实验",
   "subtitle": "酒精与煤油 · 等质量燃料 · 水温变化",
