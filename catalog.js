@@ -609,9 +609,9 @@ window.MODEL_CATALOG = [
   {
     "id": "three-pin-plug",
     "title": "三脚插头 · 地线先通后断",
-    "subtitle": "插拔接触顺序与外壳漏电接地保护对照",
+    "subtitle": "三脚插头、金属机箱与保护接地的完整通路",
     "category": "电学元件",
-    "summary": "连续控制插拔深度，观察较长接地插脚先接通、后断开；支持外壳隐藏与半透明、接触特写、慢速演示和仅地线接通定位，插脚与夹片同步高亮。新增外壳漏电三维模拟，对比地线正常、地线断开及人体接触时的电压、电流和路径。",
+    "summary": "连续控制插拔深度，观察较长接地插脚先接通、后断开；支持外壳隐藏与半透明、接触特写、慢速演示和仅地线接通定位，插脚与夹片同步高亮。原插头通过三芯电缆连接剖开机箱；火线与零线经真实接线孔和绝缘护线圈入箱，地线沿外侧连接独立接地螺钉。支持接地、断地与人体接触对照，显示外壳电压及人体电流。",
     "tags": [
       "三脚插头",
       "三孔插座",
@@ -620,8 +620,8 @@ window.MODEL_CATALOG = [
       "地线",
       "用电安全"
     ],
-    "path": "models/three-pin-plug.html?v=20261103-1",
-    "cover": "assets/covers/three-pin-plug-scene.jpg?v=20261023-1",
+    "path": "models/three-pin-plug.html?v=20261103-4",
+    "cover": "assets/covers/three-pin-plug-scene.jpg?v=20261103-4",
     "symbol": "插",
     "accent": "green"
   },

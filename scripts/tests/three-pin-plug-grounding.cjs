@@ -1,4 +1,5 @@
 /* file:// WebGL and electrical-state acceptance; HTTP(S) blocked. */
+require('./three-pin-plug-entry.cjs');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),{pathToFileURL}=require('node:url');
 const dep=process.env.LAB_KIT_NODE_MODULES||process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES;
 const {chromium}=require(dep?path.join(dep,'playwright'):'playwright');
