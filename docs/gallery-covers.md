@@ -70,3 +70,7 @@
 ## 高压锅（2026-11-03）
 
 `assets/covers/pressure-cooker-scene.jpg` 为整机剖切、限压排气与320个气体示踪点的真实 Chromium/WebGL2 画布截图，960×540 JPEG。仅隐藏界面和调整取景；详见 [案例说明](pressure-cooker.md)，可由 `scripts/capture-pressure-cooker-cover.cjs` 重现。
+
+## 盆景自动补水装置（2026-11-03）
+
+`assets/covers/automatic-plant-watering-scene.jpg` 为当前案例补水、前侧剖切状态的真实 Chromium/WebGL 画面，960×540 JPEG。保留连续树干、玻璃水体、橙色曲线出水箭头与球形气泡；仅隐藏操作界面并调整取景。重现：`CHROMIUM_PATH=/path/to/chromium node scripts/capture-automatic-plant-watering-cover.cjs`。详见[案例与验收说明](automatic-plant-watering.md)。

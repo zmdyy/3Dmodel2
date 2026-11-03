@@ -1,5 +1,27 @@
 window.MODEL_CATALOG = [
 {
+  "id": "automatic-plant-watering",
+  "title": "盆景自动补水装置",
+  "subtitle": "倒置储水瓶 · 水位自调节 · 大气压",
+  "category": "力学实验",
+  "summary": "旋转观察倒置储水瓶、水槽与盆景；水位下降后空气进入瓶口，瓶内水流出并恢复水封。支持前侧剖切、瓶口放大、橙色弧形水流箭头、立体气泡与大气压显示，完整单文件离线运行。气泡、箭头和吸水速度为教学增强示意。",
+  "tags": [
+    "大气压",
+    "自动补水",
+    "水封",
+    "水位",
+    "储水瓶",
+    "气泡",
+    "盆景",
+    "Three.js",
+    "离线"
+  ],
+  "path": "models/automatic-plant-watering.html?v=20261103-gallery-v1",
+  "cover": "assets/covers/automatic-plant-watering-scene.jpg?v=20261103-real-v1",
+  "symbol": "水",
+  "accent": "green"
+},
+{
   "id": "pressure-cooker",
   "title": "高压锅 · 气压与安全机构",
   "subtitle": "升压与排气 · 机械锁止 · 备用泄压",
