@@ -1,5 +1,29 @@
 window.MODEL_CATALOG = [
 {
+  "id": "electronic-scale-single-point",
+  "title": "电子秤 · 单点式称重传感器",
+  "subtitle": "横梁形变 · 应变片 · 电桥与称重",
+  "category": "综合应用",
+  "summary": "从完整装置观察称重托盘、双孔弹性梁、四片应变片与电路板。导线默认可见，按上下供电、左右检测的四节点布局接成电桥；分步联动横梁形变、金属栅丝伸缩、两支路分压和质量显示，支持加载卸载、去皮及局部观察。形变和暴露布线为教学放大示意，单文件离线运行。",
+  "tags": [
+    "电子秤",
+    "称重",
+    "重力",
+    "应变片",
+    "欧姆定律",
+    "串联分压",
+    "电桥",
+    "传感器",
+    "去皮",
+    "Three.js",
+    "离线"
+  ],
+  "path": "models/electronic-scale-single-point.html?v=20261104-v6",
+  "cover": "assets/covers/electronic-scale-single-point-scene.jpg?v=20261104-v6",
+  "symbol": "秤",
+  "accent": "green"
+},
+{
   "id": "three-gorges-ship-lock",
   "title": "三峡船闸 · 三室连通器",
   "subtitle": "两室水位联动 · 地下输水 · 自动导演",

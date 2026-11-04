@@ -78,3 +78,7 @@
 ## 三峡船闸 · 三室连通器（2026-11-04）
 
 `assets/covers/three-gorges-ship-lock-scene.jpg` 为当前 V13 的真实 Chromium/SwiftShader WebGL 截图，960×540 JPEG，展示中室向右室输水。仅隐藏面板、调整主相机，保留原模型、材质、灯光及水位标签。复现：`node scripts/capture-ship-lock-cover.cjs`；详见[案例说明](three-gorges-ship-lock.md)。
+
+## 单点式电子秤封面（2026-11-04）
+
+`assets/covers/electronic-scale-single-point-scene.jpg` 为完整电子秤加载 500 g 时的实际 Chromium/WebGL 画布截图，960×540 JPEG。保留默认四节点接线、四芯线束、材料与光照；仅隐藏 UI 并扩展画布，无生成图替代。重现脚本：`scripts/capture-electronic-scale-cover.cjs`，通过 `CHROMIUM_PATH` 指定浏览器。案例说明见 [电子秤](electronic-scale-single-point.md)。
