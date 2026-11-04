@@ -480,7 +480,7 @@ function disposeGroup(g){
  const geos=new Set(),mats=new Set();
  g.traverse(function(o){
   if(o.geometry)geos.add(o.geometry);
-  if(o.material){const arr=Array.isArray(o.material)?o.material:[o.material];arr.forEach(function(m){mats.add(m);['map','normalMap','roughnessMap','bumpMap','metalnessMap','alphaMap'].forEach(function(k){});});}
+  if(o.material){const arr=Array.isArray(o.material)?o.material:[o.material];arr.forEach(function(m){mats.add(m);});}
  });
  geos.forEach(x=>x.dispose());mats.forEach(x=>x.dispose());
  if(g.parent)g.parent.remove(g);
@@ -494,7 +494,7 @@ function addTree(parent,x,z,scale){
  return g;
 }
 function addCar(parent,x,z,color,rotation){
- const g=new THREE.Group();g.position.set(x,.18,z);g.rotation.y=rotation||0;parent.add(g);
+ const g=new THREE.Group();g.position.set(x,.12,z);g.rotation.y=rotation||0;parent.add(g);
  const body=mat(color,.42,.12),glass=mat(0x415665,.28,.12),rubber=mat(0x252a2d,.95);
  addBox(g,1.82,.56,4.1,0,.55,0,body,true);
  addBox(g,1.56,.54,2.0,0,1.05,-.12,glass,true);
@@ -641,6 +641,7 @@ function createUrbanAssembly(typeId,offsetX){
    addPierBox(1.9,.35,2.0,-8.0,.175,z,materials.concreteDark);
    addPierBox(8.2,1.05,1.85,-4.0,6.65,z);
    addPierBox(1.4,7.25,1.55,8.0,3.625,z,materials.concreteDark);
+   addPierBox(3.4,1.0,1.85,6.9,6.7,z,materials.concreteDark);
    addFootprint(bufferGroup,-8.0,z,1.6,1.7,footprints);
    addFootprint(bufferGroup,8.0,z,1.4,1.55,footprints);
   }else if(typeId==='plate'){
