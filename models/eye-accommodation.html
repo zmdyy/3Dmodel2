@@ -92,13 +92,37 @@ input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;
 @media(max-width:680px){.angle-card h2{font-size:18px}.angle-card{padding:8px}.angle-controls label,.angle-controls button{font-size:14px}.angle-controls input[type=number]{width:58px;font-size:15px}}
 @media(max-height:650px){#angleView,.embedded #angleView{grid-template-rows:minmax(100px,.60fr) minmax(145px,1fr)}.angle-card h2{font-size:19px}.angle-card{padding:8px;gap:4px}}
 
+/* The same retinal patch and scale are used in both annotated panels. */
+.retina-observation{display:block;width:100%;height:100%;min-height:0;overflow:visible}
+.retina-observation text{font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+.retina-observation .annotation{font-size:25px;font-weight:700;paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round}
+.retina-observation .annotation-note{font-size:21px;font-weight:500}
+.retina-observation .annotation-line{fill:none;stroke-width:2.5;stroke-linejoin:round}
 </style>
 </head>
 <body>
 <div id="stage"><canvas id="scene"></canvas><nav class="view-tabs" aria-label="教学视图"><button id="eyeViewBtn" class="active">3D 调焦</button><button id="angleViewBtn">视角</button></nav>
-<div class="angle-controls"><label class="distance-control">当前距离 <input id="angleDistance" type="range" min="25" max="600" step="5" value="600" aria-label="当前观察距离"><output id="angleDistanceText" for="angleDistance">600 cm</output></label><label class="height-control">物体高度 <input id="angleHeight" type="number" min="2" max="14" step="1" value="10" inputmode="numeric"> cm</label><div class="btns"><button id="gridBtn" class="active">显示采样格</button></div></div><section id="angleView" hidden><div class="angle-diagrams"><svg preserveAspectRatio="xMinYMid meet" id="nearAngleDiagram" class="angle-diagram" role="img" aria-label="近处25厘米物体的视角"></svg><svg preserveAspectRatio="xMinYMid meet" id="farAngleDiagram" class="angle-diagram" role="img" aria-label="当前距离物体的视角"></svg></div>
-<div class="angle-cards"><article class="angle-card"><h2>近处 · 25 cm</h2><div class="angle-images"><canvas id="nearRetina" class="retina-grid" width="384" height="384" aria-label="近处物体的视网膜像及采样格"></canvas></div></article>
-<article class="angle-card"><h2 id="farTitle">当前距离 · 600 cm</h2><div class="angle-images"><canvas id="farRetina" class="retina-grid" width="384" height="384" aria-label="当前距离物体的视网膜像及采样格"></canvas></div></article></div>
+<div class="angle-controls"><label class="distance-control">当前距离 <input id="angleDistance" type="range" min="25" max="600" step="5" value="600" aria-label="当前观察距离"><output id="angleDistanceText" for="angleDistance">600 cm</output></label><label class="height-control">物体高度 <input id="angleHeight" type="number" min="2" max="14" step="1" value="10" inputmode="numeric"> cm</label><div class="btns"><button id="gridBtn" class="active" aria-pressed="true">采样网格：开</button></div></div><section id="angleView" hidden><div class="angle-diagrams"><svg preserveAspectRatio="xMinYMid meet" id="nearAngleDiagram" class="angle-diagram" role="img" aria-label="近处25厘米物体的视角"></svg><svg preserveAspectRatio="xMinYMid meet" id="farAngleDiagram" class="angle-diagram" role="img" aria-label="当前距离物体的视角"></svg></div>
+<div class="angle-cards"><article class="angle-card"><h2>近处 · 25 cm</h2><div class="angle-images"><canvas id="nearRetina" width="512" height="512" hidden></canvas><svg id="nearRetinaAnnotated" class="retina-observation" viewBox="-8 0 778 552" role="img" aria-labelledby="nearRetinaTitle nearRetinaDesc">
+<title id="nearRetinaTitle">视网膜观察区与此时形成的像</title><desc id="nearRetinaDesc">大框表示视网膜观察区的展开示意，内部倒立的 E 表示此时在视网膜上形成的像。采样网格为放大示意。</desc>
+<defs><marker id="nearAnnotationArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
+<image data-retina-image x="0" y="20" width="512" height="512"/>
+<rect x="0" y="20" width="512" height="512" rx="9" fill="none" stroke="#51469a" stroke-width="3"/>
+<path data-image-leader class="annotation-line" stroke="#236d88" marker-end="url(#nearAnnotationArrow)"/>
+<text class="annotation" x="548" y="115" fill="#236d88"><tspan x="548">此时在视网膜上</tspan><tspan x="548" dy="36">形成的像</tspan></text>
+<path class="annotation-line" d="M 540 345 L 528 345 L 514 391" stroke="#51469a" marker-end="url(#nearAnnotationArrow)"/>
+<text class="annotation" x="548" y="315" fill="#51469a"><tspan x="548">视网膜观察区</tspan><tspan class="annotation-note" x="548" dy="34">（展开示意）</tspan></text>
+</svg></div></article>
+<article class="angle-card"><h2 id="farTitle">当前距离 · 600 cm</h2><div class="angle-images"><canvas id="farRetina" width="512" height="512" hidden></canvas><svg id="farRetinaAnnotated" class="retina-observation" viewBox="-8 0 778 552" role="img" aria-labelledby="farRetinaTitle farRetinaDesc">
+<title id="farRetinaTitle">视网膜观察区与此时形成的像</title><desc id="farRetinaDesc">大框表示视网膜观察区的展开示意，内部倒立的 E 表示此时在视网膜上形成的像。采样网格为放大示意。</desc>
+<defs><marker id="farAnnotationArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
+<image data-retina-image x="0" y="20" width="512" height="512"/>
+<rect x="0" y="20" width="512" height="512" rx="9" fill="none" stroke="#51469a" stroke-width="3"/>
+<path data-image-leader class="annotation-line" stroke="#236d88" marker-end="url(#farAnnotationArrow)"/>
+<text class="annotation" x="548" y="115" fill="#236d88"><tspan x="548">此时在视网膜上</tspan><tspan x="548" dy="36">形成的像</tspan></text>
+<path class="annotation-line" d="M 540 345 L 528 345 L 514 391" stroke="#51469a" marker-end="url(#farAnnotationArrow)"/>
+<text class="annotation" x="548" y="315" fill="#51469a"><tspan x="548">视网膜观察区</tspan><tspan class="annotation-note" x="548" dy="34">（展开示意）</tspan></text>
+</svg></div></article></div>
 </section></div>
 
 <section class="head">
@@ -133,7 +157,7 @@ input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;
   <div class="grp eye-only">
     <div class="lbl">外加透镜矫正 <b id="correctionText">未加透镜</b></div>
     <div class="seg"><button id="noCorrectionBtn" class="active">移除透镜</button><button id="concaveBtn">凹透镜</button><button id="convexBtn">凸透镜</button></div>
-    <div id="correctionControls" hidden><div class="lbl" style="margin-top:12px">透镜屈光度 <b id="powerText">0.00 D</b></div><input id="correctionRange" type="range" min="0" max="10" step="0.05" value="0"><div class="btns" style="margin-top:10px"><button id="matchCorrectionBtn">调至清晰</button><button id="compareCorrectionBtn">矫正前 / 后</button></div></div>
+    <div id="correctionControls" hidden><div class="lbl" style="margin-top:12px">透镜屈光度 <b id="powerText">0.00 D</b></div><input id="correctionRange" type="range" min="0" max="10" step="0.01" value="0"><div class="btns" style="margin-top:10px"><button id="matchCorrectionBtn">调至清晰</button><button id="compareCorrectionBtn">矫正前 / 后</button></div></div>
     <p id="correctionNote" class="note">先选择前方或后方成像，再选透镜；也可手动调节，观察欠矫正、正确矫正与过矫正。</p>
   </div>
   <div class="grp eye-only">
@@ -148,7 +172,7 @@ input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;
 
   <div class="grp eye-only">
     <div class="lbl">成像结果</div>
-    <div id="focusStatus" class="status">焦点落在视网膜上，成像清晰。</div><canvas id="focusDiagram" width="600" height="270" aria-label="理论清晰像平面与固定视网膜像面的对照"></canvas><p class="note">主图中的唯一绿色箭头表示理论清晰像；橙色线固定为视网膜像面。视网膜后方的虚线是光路延长，真实视网膜上接收的是散开的光斑。</p>
+    <div id="focusStatus" class="status">焦点落在视网膜上，成像清晰。</div><canvas id="focusDiagram" width="600" height="270" aria-label="理论清晰像平面与固定视网膜像面的对照"></canvas><p class="note">主图中的唯一绿色箭头表示理论清晰像；蓝紫色括号固定标出视网膜接收区。视网膜后方的虚线是光路延长，真实视网膜上接收的是散开的光斑。</p>
   </div>
 
   <div class="grp eye-only">
@@ -173,7 +197,7 @@ input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;
 <div class="note">模型用于初中“眼睛的调节”教学，突出结构与因果关系；3D 距离与像的大小作显示压缩。光路采用角膜＋晶状体的等效透镜，视网膜像面取距等效透镜 17 mm；外加透镜距等效透镜 15 mm，使用两透镜近轴模型。前后位置差自适应放大（非等比例），透镜厚度与物距也作显示压缩；视角视图中物体与眼球的绘图尺寸也分别放大。</div>
 <div class="sources">参考：<a href="https://www.nei.nih.gov/learn-about-eye-health/healthy-vision/how-eyes-work" target="_blank" rel="noopener">NEI：眼睛如何工作</a> · <a href="https://www.ncbi.nlm.nih.gov/books/NBK11509/" target="_blank" rel="noopener">Webvision：视力与分辨率</a></div></aside>
 
-<div class="tip">拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移 · 绿色：理论像 · 橙色：视网膜</div>
+<div class="tip">拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移 · 绿色箭头：理论清晰像 · 蓝紫色括号：视网膜接收区</div>
 
 <script src="../shared/vendor/three-r144.min.js"></script>
 <script src="../shared/material-finish.js?v=2.0-20261008"></script>
@@ -358,18 +382,25 @@ const spectacleG=new THREE.Group();root.add(spectacleG);spectacleG.position.x=sp
 const spectacleMaterial=new THREE.MeshPhysicalMaterial({color:0x86cde6,transparent:true,opacity:.48,roughness:.08,metalness:0,clearcoat:.9,side:THREE.DoubleSide,depthWrite:false});
 const spectacleMesh=put(spectacleG,new THREE.BufferGeometry(),spectacleMaterial);
 const spectacleLabel=label('矫正透镜','#246d8d',.25,[spectacleX,1.48,.3]);
-const retinaPlaneLine=put(insideG,new THREE.BoxGeometry(.065,3.4/3,.028),new THREE.MeshBasicMaterial({color:0xe47732,depthTest:false,depthWrite:false,toneMapped:false,transparent:true}),[retinaX,-.05,.12]);retinaPlaneLine.renderOrder=42;
+// A fixed bracket marks the receiving plane; the green arrow remains the image.
+const retinaPlaneLine=new THREE.Group();insideG.add(retinaPlaneLine);retinaPlaneLine.position.set(retinaX,-.05,.12);
+const retinaMarkerInk=new THREE.MeshBasicMaterial({color:0x51469a,depthTest:false,depthWrite:false,toneMapped:false});
+const retinaMarkerHalo=new THREE.MeshBasicMaterial({color:0xf8f7ff,depthTest:false,depthWrite:false,toneMapped:false});
+for(const [w,h,x,y] of [[.036,3.4/3,0,0],[.20,.036,-.08,3.4/6],[.20,.036,-.08,-3.4/6]]){
+ const halo=put(retinaPlaneLine,new THREE.BoxGeometry(w+.035,h+.035,.018),retinaMarkerHalo,[x,y,-.005]);halo.renderOrder=41;
+ const ink=put(retinaPlaneLine,new THREE.BoxGeometry(w,h,.022),retinaMarkerInk,[x,y,.012]);ink.renderOrder=42;
+}
 // Keep the retinal anatomy intact; shrink the highlighted receiving region
 // to one third of its previous lateral diameter on the same curved surface.
-const receivingTexture=canvasTexture(1024,(x,n)=>{x.fillStyle='#ffd797';x.fillRect(0,0,n,n);for(let j=0;j<65;j++)for(let i=0;i<65;i++){const px=i*16+(j%2)*8,py=j*16;x.strokeStyle='rgba(160,81,30,.20)';x.lineWidth=1.6;x.beginPath();x.ellipse(px,py,5.3,6.2,0,0,Math.PI*2);x.stroke();x.fillStyle='rgba(255,249,209,.60)';x.beginPath();x.arc(px-1,py-1,2.2,0,Math.PI*2);x.fill();}});
-const receivingMaterial=new THREE.MeshPhysicalMaterial({map:receivingTexture,color:0xffffff,roughness:.52,emissive:0x815018,emissiveIntensity:.23,side:THREE.DoubleSide});applyClip(receivingMaterial,true);
+const receivingTexture=canvasTexture(1024,(x,n)=>{x.fillStyle='#dcd8f4';x.fillRect(0,0,n,n);for(let j=0;j<65;j++)for(let i=0;i<65;i++){const px=i*16+(j%2)*8,py=j*16;x.strokeStyle='rgba(81,70,154,.26)';x.lineWidth=1.6;x.beginPath();x.ellipse(px,py,5.3,6.2,0,0,Math.PI*2);x.stroke();x.fillStyle='rgba(251,250,255,.65)';x.beginPath();x.arc(px-1,py-1,2.2,0,Math.PI*2);x.fill();}});
+const receivingMaterial=new THREE.MeshPhysicalMaterial({map:receivingTexture,color:0xffffff,roughness:.52,emissive:0x51469a,emissiveIntensity:.16,side:THREE.DoubleSide});applyClip(receivingMaterial,true);
 const receivingRadius=EYE_R*.900-.014,receivingDiameterRatio=1/3,receivingPatchRadius=Math.sqrt(receivingRadius**2-1.30**2)*receivingDiameterRatio,receivingFrontX=Math.sqrt(receivingRadius**2-receivingPatchRadius**2);
 const receivingG=new THREE.Group();insideG.add(receivingG);const receivingMesh=eyeCup(receivingRadius,receivingFrontX,receivingMaterial,receivingG);
-const receivingBorderMaterial=new THREE.MeshBasicMaterial({color:0xc77928,side:THREE.DoubleSide});applyClip(receivingBorderMaterial,true);
+const receivingBorderMaterial=new THREE.MeshBasicMaterial({color:0x51469a,side:THREE.DoubleSide});applyClip(receivingBorderMaterial,true);
 put(receivingG,new THREE.TorusGeometry(receivingPatchRadius,.024,8,80),receivingBorderMaterial,[receivingFrontX,0,0],[0,Math.PI/2,0]);
 retinaMark.visible=false;
-const receivingLabel=label('视网膜接收区','#aa6323',.24,[2.00,-1.28,.3]);
-const receivingLeader=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(2.00,-1.10,.3),new THREE.Vector3(2.12,-.80,.2),new THREE.Vector3(receivingFrontX,-receivingPatchRadius*.85,.2)]),new THREE.LineBasicMaterial({color:0xa76b2b,transparent:true,depthTest:false,toneMapped:false}));root.add(receivingLeader);receivingLeader.renderOrder=60;
+const receivingLabel=label('视网膜接收区','#51469a',.24,[2.00,-1.28,.3]);
+const receivingLeader=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(2.00,-1.10,.3),new THREE.Vector3(2.12,-.80,.2),new THREE.Vector3(receivingFrontX,-receivingPatchRadius*.85,.2)]),new THREE.LineBasicMaterial({color:0x51469a,transparent:true,depthTest:false,toneMapped:false}));root.add(receivingLeader);receivingLeader.renderOrder=60;
 
 const gapLine=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x537086,depthTest:false,transparent:true,toneMapped:false}));root.add(gapLine);gapLine.renderOrder=65;
 const gapLabel=label('间距示意放大','#456378',.20,[retinaX,1.30,.16]);
@@ -394,8 +425,8 @@ function drawFocusDiagram(o){const w=diagram.width,h=diagram.height;dc.clearRect
  dc.strokeStyle='#b4c1d1';dc.lineWidth=1;dc.beginPath();dc.moveTo(20,135);dc.lineTo(580,135);dc.stroke();
  for(const yy of [-.25,0,.25]){const r=traceDisplayRay(o,objX,1.67,yy);dc.strokeStyle='#d50072';dc.lineWidth=3;dc.setLineDash([]);dc.beginPath();r.points.forEach((p,i)=>i?dc.lineTo(mapX(p.x),mapY(p.y)):dc.moveTo(mapX(p.x),mapY(p.y)));dc.stroke();if(o.focusX>retinaX){dc.setLineDash([5,5]);dc.beginPath();dc.moveTo(rx,mapY(r.retinaY));dc.lineTo(fx,mapY(r.targetY));dc.stroke();}dc.setLineDash([]);}
  dc.fillStyle='#90d7eb';dc.beginPath();dc.ellipse(lx,135,9,37,0,0,Math.PI*2);dc.fill();if(state.correction!=='none'&&state.correctionEnabled){dc.fillStyle='#aadbea';dc.strokeStyle='#2883a5';dc.lineWidth=2;dc.beginPath();if(state.correction==='convex'){dc.ellipse(gx,135,10,47,0,0,Math.PI*2);}else{dc.moveTo(gx-10,88);dc.quadraticCurveTo(gx,135,gx-10,182);dc.lineTo(gx+10,182);dc.quadraticCurveTo(gx,135,gx+10,88);dc.closePath();}dc.fill();dc.stroke();}
- dc.strokeStyle='#df7a37';dc.lineWidth=5;dc.beginPath();dc.moveTo(rx,65);dc.lineTo(rx,206);dc.stroke();dc.strokeStyle='#008264';dc.lineWidth=4;const iy=mapY(o.traceTopY);dc.beginPath();dc.moveTo(fx,135);dc.lineTo(fx,iy);dc.lineTo(fx-7,iy-9);dc.moveTo(fx,iy);dc.lineTo(fx+7,iy-9);dc.stroke();
- dc.font='21px "Noto Sans CJK SC","Microsoft YaHei",sans-serif';dc.fillStyle='#54768c';dc.fillText('眼睛等效透镜',Math.max(15,lx-65),45);dc.fillStyle='#b5652e';dc.fillText('视网膜',rx-40,45);if(state.correction!=='none'&&state.correctionEnabled){dc.fillStyle='#246d8d';dc.fillText(state.correction==='concave'?'凹透镜':'凸透镜',gx-35,78);}dc.fillStyle='#267858';dc.fillText('实际像距 '+o.vMM.toFixed(2)+' mm',24,245);dc.fillStyle='#86684c';dc.fillText('间距示意放大 · 视网膜 17 mm',298,245);}
+ dc.strokeStyle='#51469a';dc.lineWidth=4;dc.beginPath();dc.moveTo(rx-10,65);dc.lineTo(rx,65);dc.lineTo(rx,206);dc.lineTo(rx-10,206);dc.stroke();dc.strokeStyle='#008264';dc.lineWidth=4;const iy=mapY(o.traceTopY);dc.beginPath();dc.moveTo(fx,135);dc.lineTo(fx,iy);dc.lineTo(fx-7,iy-9);dc.moveTo(fx,iy);dc.lineTo(fx+7,iy-9);dc.stroke();
+ dc.font='21px "Noto Sans CJK SC","Microsoft YaHei",sans-serif';dc.fillStyle='#54768c';dc.fillText('眼睛等效透镜',Math.max(15,lx-65),45);dc.fillStyle='#51469a';dc.fillText('视网膜',rx-40,45);if(state.correction!=='none'&&state.correctionEnabled){dc.fillStyle='#246d8d';dc.fillText(state.correction==='concave'?'凹透镜':'凸透镜',gx-35,78);}dc.fillStyle='#267858';dc.fillText('实际像距 '+o.vMM.toFixed(2)+' mm',24,245);dc.fillStyle='#86684c';dc.fillText('间距示意放大 · 视网膜 17 mm',298,245);}
 function applyEye(){
  dirty=true;const o=opticalState(),have=o.have,D=demandForDistance(state.distanceCm);
  distanceText.textContent=state.distanceCm+' cm · '+(state.distanceCm<=40?'近处':state.distanceCm>=550?'远处':'中距离');diopterText.textContent=D.toFixed(2)+' D';modeText.textContent=state.vision!=='normal'?'固定眼睛屈光状态':state.auto?'自动调焦':'固定晶状体';
@@ -460,7 +491,7 @@ const RETINAL_PATCH_MM=10,SAMPLE_COUNT=64;
 function angleData(cm){const heightMM=17*state.heightCm/cm;return {distance:cm,angleDeg:2*Math.atan(state.heightCm/(2*cm))*180/Math.PI,heightMM,widthMM:.6*heightMM,rows:heightMM/RETINAL_PATCH_MM*SAMPLE_COUNT,columns:.6*heightMM/RETINAL_PATCH_MM*SAMPLE_COUNT};}
 function drawE(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w*.22,h);for(const t of [0,.39,.78])ctx.fillRect(x,y+h*t,w,h*.22);}
 function drawRetina(canvasId,data){
- const out=document.getElementById(canvasId),size=512,pitch=size/SAMPLE_COUNT,dpr=Math.max(1,Math.min(devicePixelRatio||1,2)),actual=Math.max(512,Math.ceil(out.getBoundingClientRect().width*dpr));out.width=out.height=actual;const ctx=out.getContext('2d');ctx.setTransform(actual/size,0,0,actual/size,0,0);const ideal=document.createElement('canvas');ideal.width=ideal.height=size;const ic=ideal.getContext('2d');
+ const out=document.getElementById(canvasId),annotated=document.getElementById(canvasId+'Annotated'),size=512,pitch=size/SAMPLE_COUNT,dpr=Math.max(1,Math.min(devicePixelRatio||1,2)),actual=Math.max(512,Math.ceil(annotated.getBoundingClientRect().width*512/778*dpr));out.width=out.height=actual;const ctx=out.getContext('2d');ctx.setTransform(actual/size,0,0,actual/size,0,0);const ideal=document.createElement('canvas');ideal.width=ideal.height=size;const ic=ideal.getContext('2d');
  ic.fillStyle='#ffffff';ic.fillRect(0,0,size,size);const hp=data.heightMM/RETINAL_PATCH_MM*size,wp=.6*hp;
  ic.save();ic.translate(size/2,size/2);ic.rotate(Math.PI);drawE(ic,-wp/2,-hp/2,wp,hp,'#236d88');ic.restore();
  // Integrate the fraction of each square covered by the ideal image. One square
@@ -468,8 +499,12 @@ function drawRetina(canvasId,data){
  const pixels=ic.getImageData(0,0,size,size).data,sampled=document.createElement('canvas');sampled.width=sampled.height=SAMPLE_COUNT;const sc=sampled.getContext('2d'),sd=sc.createImageData(SAMPLE_COUNT,SAMPLE_COUNT);
  for(let y=0;y<SAMPLE_COUNT;y++)for(let x=0;x<SAMPLE_COUNT;x++){const sum=[0,0,0];for(let yy=y*pitch;yy<(y+1)*pitch;yy++)for(let xx=x*pitch;xx<(x+1)*pitch;xx++){const k=(yy*size+xx)*4;for(let c=0;c<3;c++)sum[c]+=pixels[k+c];}const p=(y*SAMPLE_COUNT+x)*4;for(let c=0;c<3;c++)sd.data[p+c]=Math.round(sum[c]/(pitch*pitch));sd.data[p+3]=255;}sc.putImageData(sd,0,0);
  ctx.clearRect(0,0,size,size);ctx.imageSmoothingEnabled=false;ctx.drawImage(sampled,0,0,size,size);
- if(state.grid){ctx.strokeStyle='rgba(167,115,63,.20)';ctx.lineWidth=.65;ctx.beginPath();for(let k=0;k<=SAMPLE_COUNT;k++){const a=k*pitch;ctx.moveTo(a,0);ctx.lineTo(a,size);ctx.moveTo(0,a);ctx.lineTo(size,a);}ctx.stroke();}
+ if(state.grid){ctx.strokeStyle='rgba(81,70,154,.48)';ctx.lineWidth=.85;ctx.beginPath();for(let k=0;k<=SAMPLE_COUNT;k++){const a=k*pitch;ctx.moveTo(a,0);ctx.lineTo(a,size);ctx.moveTo(0,a);ctx.lineTo(size,a);}ctx.stroke();}
  ctx.strokeStyle='#3b829d';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.strokeRect(size/2-wp/2-2,size/2-hp/2-2,wp+4,hp+4);ctx.setLineDash([]);
+ annotated.querySelector('[data-retina-image]').setAttribute('href',out.toDataURL('image/png'));
+ // The annotation follows the top stroke as the E changes size.
+ const imageX=size/2+wp/2,imageY=20+size/2-hp/2+hp*.11;
+ annotated.querySelector('[data-image-leader]').setAttribute('d',`M 538 167 L 526 167 L ${imageX+2} ${imageY}`);
 
 }
 
@@ -489,12 +524,12 @@ function drawAngularGeometry(near,far){const W=800,H=235,ex=125,y=115,objectH=11
 function drawAngleView(){const near=angleData(25),far=angleData(state.distanceCm);drawAngularGeometry(near,far);drawRetina('nearRetina',near);drawRetina('farRetina',far);document.getElementById('angleDistance').value=state.distanceCm;document.getElementById('angleDistanceText').textContent=state.distanceCm+' cm';document.getElementById('angleDistance').style.setProperty('--distance-progress',((state.distanceCm-25)/575*100)+'%');document.getElementById('angleHeight').value=state.heightCm;document.querySelectorAll('[data-angle-distance]').forEach(b=>b.classList.toggle('active',+b.dataset.angleDistance===state.distanceCm));
  document.getElementById('farTitle').textContent='当前距离 · '+state.distanceCm+' cm';
 }
-function setView(name){leaveInspection();state.view=name;document.body.classList.toggle('angle-page',name==='angle');document.getElementById('angleView').hidden=name!=='angle';canvas.style.visibility=name==='eye'?'visible':'hidden';document.getElementById('eyeViewBtn').classList.toggle('active',name==='eye');document.getElementById('angleViewBtn').classList.toggle('active',name==='angle');document.getElementById('controlPanel').classList.toggle('angle-mode',name==='angle');document.getElementById('viewIntro').textContent=name==='eye'?'点击“像在前方 / 后方”直接观察，再加入透镜将像移回视网膜。正常调节与固定晶状体仍可操作。':'同样正确调焦时，用同一比例尺比较近、远物体的像与可辨细节。';document.querySelector('.tip').textContent=name==='eye'?'拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移 · 绿色：理论像 · 橙色：视网膜':'两种距离均正确调焦 · 改变观察距离和物体高度 · 小格为放大的采样示意';dirty=true;resize();if(name==='angle')drawAngleView();}
+function setView(name){leaveInspection();state.view=name;document.body.classList.toggle('angle-page',name==='angle');document.getElementById('angleView').hidden=name!=='angle';canvas.style.visibility=name==='eye'?'visible':'hidden';document.getElementById('eyeViewBtn').classList.toggle('active',name==='eye');document.getElementById('angleViewBtn').classList.toggle('active',name==='angle');document.getElementById('controlPanel').classList.toggle('angle-mode',name==='angle');document.getElementById('viewIntro').textContent=name==='eye'?'点击“像在前方 / 后方”直接观察，再加入透镜将像移回视网膜。正常调节与固定晶状体仍可操作。':'同样正确调焦时，用同一比例尺比较近、远物体的像与可辨细节。';document.querySelector('.tip').textContent=name==='eye'?'拖拽旋转 · 滚轮缩放 · Shift + 拖拽平移 · 绿色箭头：理论清晰像 · 蓝紫色括号：视网膜接收区':'两种距离均正确调焦 · 改变观察距离和物体高度 · 小格为放大的采样示意';dirty=true;resize();if(name==='angle')drawAngleView();}
 document.getElementById('eyeViewBtn').onclick=()=>setView('eye');document.getElementById('angleViewBtn').onclick=()=>setView('angle');
 function setAngleDistance(v){const value=Number(v);if(!Number.isFinite(value))return;state.distanceCm=clamp(value,25,600);distanceRange.value=state.distanceCm;updatePresetState();applyEye();}
 document.getElementById('angleDistance').oninput=function(){setAngleDistance(this.value);};document.querySelectorAll('[data-angle-distance]').forEach(b=>b.onclick=()=>setAngleDistance(b.dataset.angleDistance));
 document.getElementById('angleHeight').onchange=function(){const v=Number(this.value);if(!Number.isFinite(v))return;state.heightCm=clamp(v,2,14);drawAngleView();};
-document.getElementById('gridBtn').onclick=function(){state.grid=!state.grid;this.classList.toggle('active',state.grid);drawAngleView();};
+document.getElementById('gridBtn').onclick=function(){state.grid=!state.grid;this.classList.toggle('active',state.grid);this.setAttribute('aria-pressed',String(state.grid));this.textContent=state.grid?'采样网格：开':'采样网格：关';drawAngleView();};
 const controlPanel=document.getElementById('controlPanel'),openPanel=document.getElementById('openPanel');
 function hideMobilePanel(hidden){controlPanel.classList.toggle('mobile-hidden',hidden);openPanel.hidden=!hidden;}
 document.getElementById('closePanel').onclick=()=>hideMobilePanel(true);openPanel.onclick=()=>hideMobilePanel(false);hideMobilePanel(innerWidth<=820);let mobileLayout=innerWidth<=820;addEventListener('resize',()=>{const next=innerWidth<=820;if(next!==mobileLayout){mobileLayout=next;hideMobilePanel(next);}});
