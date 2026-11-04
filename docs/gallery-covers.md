@@ -74,3 +74,7 @@
 ## 盆景自动补水装置（2026-11-03）
 
 `assets/covers/automatic-plant-watering-scene.jpg` 为当前案例补水、前侧剖切状态的真实 Chromium/WebGL 画面，960×540 JPEG。保留连续树干、玻璃水体、橙色曲线出水箭头与球形气泡；仅隐藏操作界面并调整取景。重现：`CHROMIUM_PATH=/path/to/chromium node scripts/capture-automatic-plant-watering-cover.cjs`。详见[案例与验收说明](automatic-plant-watering.md)。
+
+## 三峡船闸 · 三室连通器（2026-11-04）
+
+`assets/covers/three-gorges-ship-lock-scene.jpg` 为当前 V13 的真实 Chromium/SwiftShader WebGL 截图，960×540 JPEG，展示中室向右室输水。仅隐藏面板、调整主相机，保留原模型、材质、灯光及水位标签。复现：`node scripts/capture-ship-lock-cover.cjs`；详见[案例说明](three-gorges-ship-lock.md)。

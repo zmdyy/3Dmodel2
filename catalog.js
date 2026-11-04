@@ -1,5 +1,26 @@
 window.MODEL_CATALOG = [
 {
+  "id": "three-gorges-ship-lock",
+  "title": "三峡船闸 · 三室连通器",
+  "subtitle": "两室水位联动 · 地下输水 · 自动导演",
+  "category": "力学实验",
+  "summary": "三个完整闸室展示有限水体连通：高侧水位下降、低侧水位上升直至齐平。包含地下廊道示踪、反弧阀启闭、人字门与液压机构、船舶上下行及连续近景演示；中室通透闸底保留边框分区。单文件离线运行，工程尺寸和调度过程为教学简化。",
+  "tags": [
+    "连通器",
+    "船闸",
+    "水位",
+    "三峡",
+    "输水廊道",
+    "反弧阀",
+    "Three.js",
+    "离线"
+  ],
+  "path": "models/three-gorges-ship-lock.html?v=20261104-v13",
+  "cover": "assets/covers/three-gorges-ship-lock-scene.jpg?v=20261104-v13",
+  "symbol": "闸",
+  "accent": "blue"
+},
+{
   "id": "automatic-plant-watering",
   "title": "盆景自动补水装置",
   "subtitle": "倒置储水瓶 · 水位自调节 · 大气压",
