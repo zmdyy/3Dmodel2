@@ -386,7 +386,7 @@ const TYPES = {
     desc:'墩柱靠近一侧布置，顶部悬臂盖梁向桥面内侧伸出；本场景右侧灰色柱表示既有桥支承，模拟受限条件下的拼宽工况。',
     pros:'可把新建墩柱移出较窄的伴行道路或关键通行带；释放中间空间。',
     cons:'悬臂与墩柱形成偏心受力；施工精度、模板支架、浇筑和与既有结构衔接要求较高。',
-    context:'广深高速D8高架桥扩建侧采用倒L形墩、门式墩、板墩等形式，工程报道明确提到桥下伴行路狭窄且邻近商铺、住宅。'},
+    context:'广深高速D8高架桥扩建侧采用倒L形墩、门式墩、板墩等形式。模型占地只统计新建倒L墩；右侧灰色柱为既有桥支承，不计入新增占地。'},
   plate:{name:'板式墩 / 薄壁墩',short:'板式墩',family:'薄壁式桥墩',height:7.3,area:4.86,intervals:[[-.45,.45]],clear:8.55,
     desc:'墩身呈薄壁板状。本模型将板体沿桥梁纵向布置，展示它对侧向穿行和横向视线的影响；具体工程方向需以图纸为准。',
     pros:'截面可按受力方向布置；构造轮廓简洁；在特定桥宽与基础条件下可形成较直接的传力路径。',
@@ -756,6 +756,7 @@ function buildScene(){
  renderInfo();
 }
 function applyViewPreset(mode,reset){
+ if(activeType==='hollow'&&mode!=='overall')mode='overall';
  viewMode=mode;
  const presets={
   overall:{target:[0,3.2,0],dist:28,yaw:.72,pitch:.34},
@@ -803,6 +804,9 @@ function updateMetricsUI(m){
 }
 function renderInfo(){
  const info=document.getElementById('info');
+ const areaLabel=document.querySelector('.metric:first-child span');
+ areaLabel.textContent=compareMode?'单排墩底占地 A/B':(activeType==='l'?'新建墩底占地':'单排墩底占地');
+ document.querySelector('.use-row').hidden=!compareMode&&activeType==='hollow';
  if(compareMode){
   const da=TYPES[typeA],db=TYPES[typeB],ma=assemblyA.metrics,mb=assemblyB.metrics;
   document.getElementById('infoTitle').textContent='A / B 同场景比较';
