@@ -139,10 +139,10 @@ window.MODEL_CATALOG = [
 },
 {
   "id": "life-levers",
-  "title": "生活中的杠杆 · 七种实物观察",
-  "subtitle": "开瓶器、食品镊、拉杆箱、独轮车、羊角锤、剪刀与指甲钳",
+  "title": "生活中的杠杆 · 九种实物观察",
+  "subtitle": "开瓶器、食品镊、拉杆箱、独轮车、羊角锤、剪刀、指甲钳、钓鱼竿与双翼红酒开瓶器",
   "category": "力学实验",
-  "summary": "从七种生活物品观察支点、转轴、动力与阻力作用处，支持慢动作、进度拖动、蓝色操作点及实物照片对照。锤头滚动支点、瓶盖形变、弹性夹臂与复合杠杆为定性教学演示，不用于真实力值计算。",
+  "summary": "从九种生活物品观察支点、转轴、动力与阻力作用处，支持慢动作、进度拖动、蓝色操作点及实物照片对照。新增双手抬竿与双翼开瓶器旋入、拔塞过程。锤头滚动、瓶盖形变和机械联动均为定性教学演示，不用于真实力值计算。",
   "tags": [
     "杠杆",
     "省力杠杆",
@@ -157,7 +157,7 @@ window.MODEL_CATALOG = [
     "Three.js",
     "PBR"
   ],
-  "path": "models/life-levers.html?v=20261101-gallery",
+  "path": "models/life-levers.html?v=20261108-nine",
   "cover": "assets/covers/life-levers-scene.jpg?v=20261101-real",
   "symbol": "杆",
   "accent": "green"
