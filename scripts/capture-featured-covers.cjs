@@ -44,7 +44,9 @@ async function main() {
         await page.locator('#btnCut').click();
       }
     }
-    await page.addStyleTag({ content: '#stageToolbar,#panel,#labels,#leaders,.hint {display:none!important} :root {--scene-width:100%!important;--scene-height:100%!important;--toolbar-height:0px!important}' });
+    await page.addStyleTag({ content: '#stageToolbar,#panel,#labels,#leaders,.hint {display:none!important} #stage,#vignette {inset:0!important;width:100%!important;height:100%!important}' });
+    await page.waitForFunction(() => __WA.camera.aspect === 960 / 540);
+    assert.deepEqual(await page.locator('#stage').boundingBox(), { x: 0, y: 0, width: 960, height: 540 });
     await page.evaluate(() => {
       window.dispatchEvent(new Event('resize'));
       __WA.select('windlass', true);
