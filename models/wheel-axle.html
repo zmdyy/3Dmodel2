@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>生活中的轮轴 · 四种实物观察</title>
+<style>
+  :root{
+    --ink:#18212a; --ink2:#5a6672; --ink3:#8b97a3;
+    --line:rgba(24,33,42,.10);
+    --card:rgba(255,255,255,.84);
+    --wheel:#0d8b93;
+    --axle:#e07a3f;
+    --shadow:0 26px 60px -26px rgba(16,28,40,.45), 0 2px 8px rgba(16,28,40,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    color:var(--ink); overflow:hidden; user-select:none;
+    background:radial-gradient(125% 105% at 20% 2%, #fcfeff 0%, #eef2f7 36%, #dbe2ea 72%, #cbd4de 100%);
+  }
+  #stage{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #vignette{position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(70% 60% at 45% 45%, rgba(0,0,0,0) 50%, rgba(16,28,40,.15) 100%)}
+
+  .head{position:fixed;left:34px;top:28px;pointer-events:none;z-index:5}
+  .kicker{font-size:12px;letter-spacing:.22em;color:var(--wheel);font-weight:700;text-transform:uppercase}
+  .head h1{margin:8px 0 0;font-size:27px;line-height:1.24;font-weight:800;letter-spacing:.01em}
+  .head h1 span{color:var(--wheel)}
+  .head p{margin:9px 0 0;font-size:13.5px;color:var(--ink2);max-width:34ch;line-height:1.6}
+
+  /* 标注：引线 + 气泡 */
+  #leaders{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:visible}
+  #labels{position:fixed;inset:0;pointer-events:none;z-index:5}
+  .lab{position:absolute;transform:translate(-50%,-50%);display:none;align-items:center;gap:6px;
+    padding:4px 10px 4px 8px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;
+    background:rgba(255,255,255,.96);box-shadow:0 8px 20px -10px rgba(16,28,40,.65), 0 1px 2px rgba(16,28,40,.08);
+    border:1px solid rgba(255,255,255,.95);color:var(--ink)}
+  .lab.on{display:flex}
+  .lab i{width:8px;height:8px;border-radius:50%;display:block;flex:0 0 auto}
+  .lab.w i{background:var(--wheel);box-shadow:0 0 0 3px rgba(13,139,147,.16)}
+  .lab.a i{background:var(--axle);box-shadow:0 0 0 3px rgba(224,122,63,.16)}
+
+  .hint{position:fixed;left:34px;bottom:26px;z-index:6;display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--ink2)}
+  .hint kbd{font-family:inherit;font-size:11px;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.8);
+    border:1px solid var(--line);box-shadow:0 1px 0 rgba(255,255,255,.9) inset}
+  .hint .sep{width:1px;height:14px;background:var(--line)}
+  :is(.hint,.quick) button{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.82);
+    border:1px solid var(--line);border-radius:9px;padding:6px 12px;cursor:pointer;transition:.16s}
+  :is(.hint,.quick) button:hover{color:var(--wheel);border-color:rgba(13,139,147,.45);background:#fff}
+  :is(.hint,.quick) button.on{color:#fff;background:var(--wheel);border-color:transparent}
+
+  #panel{
+    position:fixed;right:22px;top:22px;width:372px;max-height:calc(100vh - 44px);
+    overflow-y:auto;overscroll-behavior:contain;padding:18px 20px 16px;border-radius:22px;z-index:10;
+    background:var(--card);backdrop-filter:blur(20px) saturate(1.25);-webkit-backdrop-filter:blur(20px) saturate(1.25);
+    border:1px solid rgba(255,255,255,.92);box-shadow:var(--shadow);
+  }
+  #panel::-webkit-scrollbar{width:9px}
+  #panel::-webkit-scrollbar-thumb{background:rgba(24,33,42,.14);border-radius:99px;border:3px solid transparent;background-clip:content-box}
+
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+  .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#12a0a8,#0a6f77);
+    position:relative;box-shadow:0 6px 14px -6px rgba(13,139,147,.8)}
+  .brand .logo::after{content:"";position:absolute;inset:8px;border-radius:50%;border:2px solid rgba(255,255,255,.92)}
+  .brand b{display:block;font-size:15px;letter-spacing:.02em}
+  .brand small{display:block;font-size:11px;color:var(--ink3);margin-top:1px;letter-spacing:.04em}
+
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;background:rgba(24,33,42,.05);padding:5px;border-radius:14px}
+  .tab{border:0;background:transparent;border-radius:10px;padding:8px 4px 7px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;
+    transition:background .18s,color .18s,box-shadow .18s}
+  .tab svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:#fff;color:var(--wheel);box-shadow:0 4px 12px -6px rgba(16,28,40,.4)}
+
+  .sec{padding:12px 0;border-bottom:1px solid var(--line)}
+  .sec:last-of-type{border-bottom:0;padding-bottom:2px}
+  h2{margin:2px 0 7px;font-size:17px;font-weight:800;letter-spacing:.01em}
+  .desc{margin:0;font-size:12.8px;line-height:1.66;color:var(--ink2)}
+  .desc b{color:var(--ink);font-weight:700}
+
+  .ratioRow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ratioBox{background:rgba(24,33,42,.045);border-radius:12px;padding:8px 11px}
+  .ratioBox .k{display:block;font-size:11px;color:var(--ink3);letter-spacing:.06em}
+  .ratioBox b{display:block;font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .ratioBox.w b{color:var(--wheel)}
+  .ratioBox.a b{color:var(--axle)}
+  .bigRatio{display:flex;align-items:baseline;gap:8px;margin-top:9px;padding:9px 12px;border-radius:13px;
+    background:linear-gradient(96deg,rgba(13,139,147,.11),rgba(224,122,63,.11));}
+  .bigRatio span{font-size:29px;font-weight:800;line-height:1;color:var(--wheel);font-variant-numeric:tabular-nums}
+  .bigRatio em{font-style:normal;font-size:12px;color:var(--ink2);font-weight:600;letter-spacing:.04em}
+  .bigRatio .x{font-size:17px;font-weight:800;color:var(--ink3)}
+
+  .ctl{margin-bottom:12px}
+  .ctlHead{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:6px}
+  .ctlHead b{font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:rgba(24,33,42,.11);outline:none;margin:0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:#fff;border:3px solid var(--wheel);box-shadow:0 3px 9px -2px rgba(13,139,147,.7);cursor:grab}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--wheel);cursor:grab}
+
+  .btns{display:flex;gap:8px;margin-top:14px}
+  .btn{flex:1;border:1px solid var(--line);background:rgba(255,255,255,.7);color:var(--ink);border-radius:11px;
+    padding:9px 8px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.16s}
+  .btn:hover{background:#fff;border-color:rgba(24,33,42,.2)}
+  .btn.primary{background:var(--wheel);border-color:transparent;color:#fff;box-shadow:0 8px 18px -10px rgba(13,139,147,.95)}
+  .btn.primary.on{background:#194b53}
+  .btn.hidden{display:none}
+
+  .calc{font-size:12.5px;color:var(--ink2)}
+  .calcRow{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0}
+  .calcRow b{color:var(--ink);font-variant-numeric:tabular-nums;font-size:13px}
+  .statusLine{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);font-weight:700}
+  .statusLine .pulse{width:8px;height:8px;border-radius:50%;background:var(--axle);box-shadow:0 0 0 0 rgba(224,122,63,.6);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,122,63,.5)}70%{box-shadow:0 0 0 9px rgba(224,122,63,0)}100%{box-shadow:0 0 0 0 rgba(224,122,63,0)}}
+  .note{margin:10px 0 0;font-size:11.5px;line-height:1.64;color:var(--ink3)}
+  .note b{color:var(--ink2)}
+  .seg{display:flex;gap:4px;background:rgba(24,33,42,.055);padding:3px;border-radius:11px;margin:4px 0 10px}
+  .seg button{flex:1;border:0;background:transparent;color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;
+    padding:7px 6px;border-radius:8px;cursor:pointer;transition:.16s}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px -4px rgba(24,33,42,.55)}
+  .fatal{position:fixed;inset:0;display:grid;place-items:center;font-size:15px;color:var(--ink2);text-align:center;padding:40px}
+
+  @media (max-width:900px){
+    .head{left:18px;top:16px}
+    .head h1{font-size:20px}
+    .head p{display:none}
+    #panel{left:12px;right:12px;top:auto;bottom:12px;width:auto;max-height:54vh;border-radius:18px}
+    .hint{display:none}
+    .lab{font-size:11px}
+    #leaders{display:none}
+  }
+
+  :root{--panel-width:372px;--scene-width:calc(100% - var(--panel-width) - 40px);--scene-height:100%}
+  #stage,#labels,#leaders,#vignette{inset:0 auto auto 0;width:var(--scene-width);height:var(--scene-height)}
+  #panel{width:var(--panel-width);background:#fbfdfd}
+  .quick{display:flex;gap:7px;margin:9px 0 0}.quick button{flex:1;white-space:nowrap}
+  #btnCut.on{background:#7d5325;color:white;border-color:#7d5325}
+  .hint{max-width:calc(var(--scene-width) - 50px);flex-wrap:wrap}
+  @media(max-width:900px){
+    :root{--scene-width:100%;--scene-height:54dvh}
+    #panel{width:auto;max-height:calc(46dvh - 14px);bottom:8px;border-radius:16px}
+    #leaders{display:block}
+  }
+  @media(max-width:390px){.lab{font-size:10px;padding:3px 6px}.head .kicker{display:none}}
+  #wheelSvg{display:block;width:min(100%,290px);margin:auto;height:auto}
+  #wheelDiagram h2{margin-bottom:0}
+  #wheelDiagram[hidden],#faucetGuide[hidden],.quick button[hidden]{display:none}
+  .wheel-legend{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;font-size:12px;font-weight:700;color:#b54e18}
+  .wheel-legend span+span{color:#1766a7}
+  #faucetGuide{padding-inline:8px;background:#ebf6fc;border-radius:7px}
+
+
+  :root{--toolbar-height:105px;--panel-width:330px}
+  #stage,#labels,#leaders,#vignette{top:var(--toolbar-height);height:max(80px,calc(var(--scene-height) - var(--toolbar-height)))}
+  #stageToolbar{position:fixed;top:0;left:0;width:var(--scene-width);padding:9px 12px;z-index:8}
+  #stageToolbar .tabs{grid-template-columns:repeat(4,minmax(0,1fr));max-width:550px}
+  #stageToolbar .tab{flex-direction:row;justify-content:center;white-space:nowrap}
+  #stageToolbar .tab svg{width:15px;height:15px}
+  .stageActions{display:flex;gap:5px 9px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .stageActions .quick,.stageActions .btns,.stageActions .seg{margin:0;gap:5px}
+  .stageActions .btns{flex-wrap:wrap}
+  .stageActions button{padding:5px 9px;white-space:nowrap}
+  #threadSeg[hidden]{display:none}
+  #panel .brand{margin-bottom:4px}
+  #panel .sec{padding-block:9px}
+  #sliders .ctl:last-of-type{margin-bottom:3px}
+  .diagram-ratio{font-weight:700;color:#455963;margin-top:6px}
+  @media(max-width:900px){
+    #stageToolbar{padding:6px 8px}
+    #stageToolbar .tabs{gap:4px}
+    #stageToolbar .tab{font-size:11px}
+    #stageToolbar .tab svg{display:none}
+    .stageActions button{font-size:11px;padding:4px 7px}
+    #panel{display:flex;flex-direction:column}
+    #panel .brand{order:-2}
+    #sliders{order:-1}
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="vignette"></div>
+
+
+
+<svg id="leaders"></svg>
+<div id="labels"></div>
+
+<div class="hint">
+  <span>蓝点转动器材</span><span class="sep"></span><span>左拖旋转视角</span><span class="sep"></span>
+  <span>滚轮缩放</span><span class="sep"></span>
+  <span>右键平移</span><span class="sep"></span>
+  <span><kbd>←</kbd> <kbd>→</kbd> 微调</span>
+</div>
+
+<div id="stageToolbar"><nav class="tabs" id="tabs">
+    <button class="tab active" data-st="screwdriver" type="button">
+      <svg viewBox="0 0 24 24"><path d="M4 20l3 0 9-9-3-3-9 9z"/><path d="M14 5l2-2 5 5-2 2z"/></svg>
+      <span>螺丝刀</span>
+    </button>
+    <button class="tab" data-st="wrench" type="button">
+      <svg viewBox="0 0 24 24"><path d="M15 4a4 4 0 0 0-5.2 5.2L4 15l5 5 5.8-5.8A4 4 0 0 0 20 9l-3 3-2-2z"/></svg>
+      <span>扳手</span>
+    </button>
+    <button class="tab" data-st="faucet" type="button">
+      <svg viewBox="0 0 24 24"><path d="M4 9h5v3H6v3H4z"/><path d="M9 10.5h6.5a3 3 0 0 1 3 3V15"/><path d="M18 15v3"/><path d="M6 6h8"/></svg>
+      <span>水龙头</span>
+    </button>
+    <button class="tab" data-st="windlass" type="button">
+      <svg viewBox="0 0 24 24"><path d="M3 18h18M5 18V6m14 12V6M5 8h14m-7 0v5m-2 0h4l-.5 4h-3z"/></svg>
+      <span>水井辘轳</span>
+    </button>
+  </nav><div class="stageActions"><div class="quick"><button id="btnLabels" class="on" type="button">标注</button><button id="btnThread" type="button">螺纹特写</button><button id="btnOverview" type="button">全景</button><button id="btnView" type="button">复位视角</button></div><div class="btns">
+      <button id="btnAuto" class="btn primary" type="button">自动演示</button>
+      <button id="btnReset" class="btn" type="button">复位</button>
+      <button id="btnCut" class="btn" type="button" aria-pressed="false">纵向剖切</button>
+    </div><div class="seg" id="threadSeg" hidden>
+      <button type="button" data-tv="real" class="on">真螺纹</button>
+      <button type="button" data-tv="incline">展开成斜面</button>
+    </div></div></div>
+<aside id="panel">
+  <div class="brand">
+    <div class="logo"></div>
+    <div><b>轮轴原理</b><small>3D 交互课件 · 四个案例</small></div>
+  </div>
+
+  
+  
+
+  <section class="sec">
+    <h2 id="stTitle">螺丝刀拧螺丝</h2>
+    <p class="desc" id="stDesc"></p>
+  </section>
+
+  <section class="sec" id="wheelDiagram">
+    <h2>俯视原理图</h2>
+    <svg id="wheelSvg" viewBox="0 0 280 182" role="img" aria-label="沿螺丝刀轴线看，橙圈为手柄，蓝圈为刀杆，动力和阻力方向相反">
+      <defs>
+        <marker id="wheelForceTip" markerWidth="7" markerHeight="7" refX="5.8" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#c75317"/></marker>
+        <marker id="axleForceTip" markerWidth="7" markerHeight="7" refX="5.8" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#1766a7"/></marker>
+      </defs>
+      <circle cx="135" cy="85" r="63" fill="#fff4e8" stroke="#da6428" stroke-width="2"/>
+      <path id="rotationSector" fill="#ed8f36" fill-opacity=".23"/>
+      <circle id="axleCircle" cx="135" cy="85" r="12.6" fill="#d9edfb" stroke="#2272ab" stroke-width="2"/>
+      <line id="radiusBase" x1="135" y1="85" x2="198" y2="85" stroke="#a67f61" stroke-dasharray="3 4"/>
+      <line id="radiusTrace" x1="135" y1="85" stroke="#6a6e70" stroke-dasharray="4 3"/>
+      <line id="forceOuter" stroke="#c75317" stroke-width="2.7" marker-end="url(#wheelForceTip)"/>
+      <line id="ropeTangent" stroke="#1766a7" stroke-dasharray="2 3" visibility="hidden"/>
+      <line id="forceInner" stroke="#1766a7" stroke-width="2.7" marker-end="url(#axleForceTip)"/>
+      <circle id="radiusOuter" r="3.6" fill="#c75317"/>
+      <circle id="radiusInner" r="3.4" fill="#1766a7"/>
+      <circle id="axisCenter" cx="135" cy="85" r="3" fill="#213a43"/>
+      <text x="123" y="103" fill="#233b45" font-size="12">O</text>
+      <text x="163" y="77" fill="#b54e18" font-size="13">R</text>
+      <text id="radiusSmallText" x="140" y="77" fill="#1766a7" font-size="11">r</text>
+      <text x="135" y="171" text-anchor="middle" font-size="12" fill="#4d5c65" id="diagramAngle">顺时针 0°</text>
+    </svg>
+    <div class="wheel-legend"><span id="diagramF">动力 F = 20 N</span><span id="diagramf">等效阻力 f = 100 N</span></div>
+    <p class="note diagram-ratio" id="diagramRatio"></p><p class="note" id="diagramExplain"></p>
+  </section>
+
+  <section class="sec" id="faucetGuide" hidden><h2>水路怎么接通</h2><p class="desc">从进水管往上找阀座。阀垫抬起后，蓝色示踪点经过缝隙和阀腔，沿出水管到达出水嘴。水流快慢是定性示意。</p></section>
+  
+
+  <section class="sec" id="sliders">
+    <div class="ctl">
+      <div class="ctlHead"><label for="force">手施加的力 F</label><b id="vF">20 N</b></div>
+      <input id="force" type="range" min="5" max="100" step="1" value="20">
+    </div>
+    <div class="ctl">
+      <div class="ctlHead"><label for="turn">转动</label><b id="vTurn">0.0 圈</b></div>
+      <input id="turn" type="range" min="0" max="1000" step="1" value="0">
+    </div>
+    
+  </section>
+
+  
+
+  <section class="sec" id="threadSec" style="display:none">
+    <h2 style="font-size:15px">螺纹 = 绕在圆柱上的斜面</h2>
+    
+    <p class="desc" id="threadDesc" style="margin:8px 0 0;font-size:12.2px">看螺母内侧那一圈螺旋牙：转动时，牙面一边顶住载荷，一边沿螺旋线摩擦滑移。阻力就来自这条真实存在的螺旋面。</p>
+    <div class="calcRow" style="margin-top:6px"><span>螺距 p（单线，转 1 圈的位移）</span><b id="tP">2.5 mm</b></div>
+    <div class="calcRow"><span>斜面底边 2πr</span><b id="tC">18.2 mm</b></div>
+    <div class="calcRow"><span>螺旋角 α = arctan(p/2πr)</span><b id="tA">7.8°</b></div>
+    <div class="calcRow"><span>斜面等效推力（载荷 100 N，无摩擦）</span><b id="tFi">13.7 N</b></div>
+    <div class="calcRow"><span>有摩擦 μ=0.15 时需要</span><b id="tFf">29.2 N</b></div>
+    <p class="note" style="margin-top:8px" id="threadNote">牙面法向力 N 与摩擦力 f 合成后，沿切向就表现为你手上感到的那股“发涩”的阻力。箭头长短为示意。</p>
+  </section>
+
+  <section class="sec">
+    <div class="statusLine"><span class="pulse"></span><span id="stStatus">静止，等待转动</span></div>
+  </section>
+
+  <p class="note"><b>省力不省距离。</b>轮转一圈，手走过的路程是轴上点的 R/r 倍；忽略摩擦时，两边做功相同。</p>
+</aside>
+
+<script src="../shared/vendor/three-r160.min.js"></script>
+<script src="../shared/lab-kit/navigation.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var clamp = function (v, a, b) { return v < a ? a : v > b ? b : v; };
+  var smoothstep = function (a, b, x) { var t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ==================== 渲染器 ==================== */
+  var canvas = $('stage'), renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+  } catch (e) {
+    document.body.innerHTML = '<div class="fatal">当前浏览器无法启用 WebGL。<br>请用 Chrome / Edge 打开本文件。</div>';
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.localClippingEnabled = true;
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(38, 1, 0.02, 60);
+
+  /* ==================== 影棚环境（PMREM，离线生成） ==================== */
+  (function buildEnvironment() {
+    var envScene = new THREE.Scene();
+    var room = new THREE.Mesh(
+      new THREE.BoxGeometry(20, 12, 20),
+      new THREE.MeshBasicMaterial({ color: 0x4e565f, side: THREE.BackSide })
+    );
+    envScene.add(room);
+
+    function panel(w, h, color, x, y, z, rx, ry) {
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: color }));
+      m.position.set(x, y, z);
+      m.rotation.set(rx || 0, ry || 0, 0);
+      envScene.add(m);
+    }
+    panel(14, 14, 0xffffff, 0, 5.85, 0, Math.PI / 2, 0);      // 顶部主光
+    panel(20, 20, 0x14171a, 0, -5.85, 0, -Math.PI / 2, 0);    // 地面
+    panel(9, 7, 0xffffff, -9.8, 1.2, 0.5, 0, Math.PI / 2);    // 左侧柔光箱
+    panel(7, 5, 0xcfe0f0, 9.8, 0.5, -0.5, 0, -Math.PI / 2);   // 右侧补光
+    panel(12, 1.6, 0xffffff, 0, 3.4, 9.8, 0, Math.PI);        // 正面灯条
+
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    var rt = pmrem.fromScene(envScene, 0.035);
+    scene.environment = rt.texture;
+    pmrem.dispose();
+    envScene.traverse(function (o) {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) o.material.dispose();
+    });
+  })();
+
+  /* ==================== 灯光 ==================== */
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8d99a5, 0.18));
+
+  var key = new THREE.DirectionalLight(0xfff4e6, 1.35);
+  key.position.set(-2.2, 4.2, 2.6);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.left = -1.7; key.shadow.camera.right = 1.7;
+  key.shadow.camera.top = 1.1; key.shadow.camera.bottom = -1.1;
+  key.shadow.camera.near = 0.5; key.shadow.camera.far = 9;
+  key.shadow.bias = -0.0004;
+  key.shadow.normalBias = 0.0025;
+  scene.add(key);
+
+  var fill = new THREE.DirectionalLight(0xd6e6ff, 0.40);
+  fill.position.set(3.2, 2.4, 1.8);
+  scene.add(fill);
+
+  var rim = new THREE.DirectionalLight(0xffffff, 0.38);
+  rim.position.set(0.4, 2.6, -3.4);
+  scene.add(rim);
+
+  /* ==================== 程序纹理 ==================== */
+  function canvasTex(w, h, draw) {
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    var t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return t;
+  }
+
+  function woodTex(base, dark, rings) {
+    return canvasTex(512, 512, function (g) {
+      g.fillStyle = base; g.fillRect(0, 0, 512, 512);
+      for (var i = 0; i < 130; i++) {
+        var y0 = Math.random() * 512;
+        g.strokeStyle = 'rgba(' + dark + ',' + (0.02 + Math.random() * 0.11).toFixed(3) + ')';
+        g.lineWidth = 0.5 + Math.random() * 3.6;
+        g.beginPath();
+        for (var x = 0; x <= 512; x += 10) {
+          var yy = y0 + Math.sin(x * 0.010 + i * 1.7) * 8 + Math.sin(x * 0.043 + i) * 2.4;
+          if (x === 0) g.moveTo(x, yy); else g.lineTo(x, yy);
+        }
+        g.stroke();
+      }
+      // 木孔
+      for (var k = 0; k < 1400; k++) {
+        var px = Math.random() * 512, py = Math.random() * 512;
+        g.fillStyle = 'rgba(' + dark + ',' + (0.05 + Math.random() * 0.12).toFixed(3) + ')';
+        g.fillRect(px, py, 2.2 + Math.random() * 4, 0.8);
+      }
+      if (rings) {
+        for (var r = 0; r < 5; r++) {
+          g.strokeStyle = 'rgba(' + dark + ',0.10)';
+          g.lineWidth = 2;
+          g.beginPath();
+          g.ellipse(380, 120, 60 + r * 34, 44 + r * 26, 0.4, 0, Math.PI * 2);
+          g.stroke();
+        }
+      }
+    });
+  }
+
+  function brushTex(strength) {
+    return canvasTex(512, 512, function (g) {
+      g.fillStyle = '#808080'; g.fillRect(0, 0, 512, 512);
+      for (var i = 0; i < 2600; i++) {
+        var y = Math.random() * 512;
+        var v = Math.random();
+        g.strokeStyle = v > 0.5 ? 'rgba(255,255,255,' + (Math.random() * strength).toFixed(3) + ')'
+                                : 'rgba(0,0,0,' + (Math.random() * strength).toFixed(3) + ')';
+        g.lineWidth = Math.random() * 1.6 + 0.3;
+        g.beginPath(); g.moveTo(0, y); g.lineTo(512, y + (Math.random() - 0.5) * 2.5); g.stroke();
+      }
+    });
+  }
+
+  var texBench = woodTex('#a67c4b', '64,40,16', true); texBench.repeat.set(2.4, 1.1);
+  var texWalnut = woodTex('#6b4629', '36,20,8', false); texWalnut.repeat.set(1.6, 1.6);
+  var texWalnutEnd = woodTex('#5b3a20', '30,16,6', true); texWalnutEnd.repeat.set(1.3, 1.3);
+  var texBrush = brushTex(0.09); texBrush.repeat.set(5, 5);
+  var texBrushFine = brushTex(0.09); texBrushFine.repeat.set(1, 8);
+
+  /* ==================== 材质 ==================== */
+  var matChrome = new THREE.MeshStandardMaterial({
+    color: 0xe4e9ee, metalness: 1, roughness: 0.09, envMapIntensity: 1.55, roughnessMap: texBrushFine
+  });
+  var matSatin = new THREE.MeshStandardMaterial({
+    color: 0xc9d1d8, metalness: 1, roughness: 0.30, envMapIntensity: 1.25, roughnessMap: texBrush
+  });
+  var matZinc = new THREE.MeshStandardMaterial({
+    color: 0xa8b0b8, metalness: 0.9, roughness: 0.42, envMapIntensity: 1.0, roughnessMap: texBrush
+  });
+  var matDarkSteel = new THREE.MeshStandardMaterial({
+    color: 0x454c54, metalness: 0.92, roughness: 0.42, envMapIntensity: 0.9, roughnessMap: texBrush
+  });
+  var matPlate = new THREE.MeshStandardMaterial({
+    color: 0x3d454e, metalness: 0.85, roughness: 0.5, envMapIntensity: 0.8, roughnessMap: texBrush
+  });
+  var matPlastic = new THREE.MeshPhysicalMaterial({
+    color: 0x8a1a10, metalness: 0.0, roughness: 0.42, clearcoat: 0.35, clearcoatRoughness: 0.3, envMapIntensity: 0.30
+  });
+  var matPlasticDark = new THREE.MeshPhysicalMaterial({
+    color: 0x2a2e33, metalness: 0.0, roughness: 0.45, clearcoat: 0.4, clearcoatRoughness: 0.35, envMapIntensity: 0.35
+  });
+  var matMarker = new THREE.MeshStandardMaterial({ color: 0xf0e3c8, metalness: 0.1, roughness: 0.45 });
+  var matSlot = new THREE.MeshStandardMaterial({ color: 0x1d2126, metalness: 0.5, roughness: 0.65 });
+  var matBench = new THREE.MeshStandardMaterial({ map: texBench, metalness: 0.02, roughness: 0.72, envMapIntensity: 0.7 });
+  var matWalnut = new THREE.MeshStandardMaterial({ map: texWalnut, metalness: 0.02, roughness: 0.62, envMapIntensity: 0.55 });
+  var matWalnutTop = new THREE.MeshStandardMaterial({ map: texWalnutEnd, metalness: 0.02, roughness: 0.68, envMapIntensity: 0.5 });
+  var matRubber = new THREE.MeshStandardMaterial({ color: 0x22262b, metalness: 0.05, roughness: 0.88 });
+  var matWater = new THREE.MeshPhysicalMaterial({
+    color: 0x63b8e0, metalness: 0.0, roughness: 0.08, transparent: true, opacity: 0.40,
+    side: THREE.DoubleSide, depthWrite: false, envMapIntensity: 1.0, clearcoat: 0.35, clearcoatRoughness: 0.1
+  });
+  var matPorcelain = new THREE.MeshPhysicalMaterial({
+    color: 0xf6f7f8, metalness: 0.0, roughness: 0.14, clearcoat: 0.7, clearcoatRoughness: 0.08, envMapIntensity: 1.0
+  });
+  /* ==================== 工具函数 ==================== */
+  var FAUCET_Z = 0.02;
+  function mesh(geo, mat) {
+    var m = new THREE.Mesh(geo, mat);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+  function helixCurve(radius, y0, y1, turns) {
+    var pts = [], N = Math.max(24, Math.ceil(turns * 30));
+    for (var i = 0; i <= N; i++) {
+      var u = i / N, a = u * turns * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * radius, y0 + (y1 - y0) * u, Math.sin(a) * radius));
+    }
+    return new THREE.CatmullRomCurve3(pts);
+  }
+  function roundedRectShape(w, d, r) {
+    var s = new THREE.Shape();
+    s.moveTo(-w / 2 + r, -d / 2);
+    s.lineTo(w / 2 - r, -d / 2);
+    s.quadraticCurveTo(w / 2, -d / 2, w / 2, -d / 2 + r);
+    s.lineTo(w / 2, d / 2 - r);
+    s.quadraticCurveTo(w / 2, d / 2, w / 2 - r, d / 2);
+    s.lineTo(-w / 2 + r, d / 2);
+    s.quadraticCurveTo(-w / 2, d / 2, -w / 2, d / 2 - r);
+    s.lineTo(-w / 2, -d / 2 + r);
+    s.quadraticCurveTo(-w / 2, -d / 2, -w / 2 + r, -d / 2);
+    return s;
+  }
+  // 带纵向棱的旋转体（手柄防滑槽）
+  function flutedLathe(profile, radialSegments, flutes, depth) {
+    var positions = [], uvs = [], indices = [];
+    var rows = profile.length;
+    for (var j = 0; j < rows; j++) {
+      var r0 = profile[j][0], y = profile[j][1];
+      for (var i = 0; i <= radialSegments; i++) {
+        var a = i / radialSegments * Math.PI * 2;
+        var wave = 0.5 + 0.5 * Math.cos(a * flutes);
+        var r = r0 * (1 - depth * wave * wave);
+        positions.push(Math.cos(a) * r, y, Math.sin(a) * r);
+        uvs.push(i / radialSegments, j / (rows - 1));
+      }
+    }
+    for (var jj = 0; jj < rows - 1; jj++) {
+      for (var ii = 0; ii < radialSegments; ii++) {
+        var a0 = jj * (radialSegments + 1) + ii;
+        var b0 = a0 + radialSegments + 1;
+        var c0 = b0 + 1;
+        var d0 = a0 + 1;
+        indices.push(a0, b0, d0, b0, c0, d0);
+      }
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setIndex(indices);
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geo.computeVertexNormals();
+    return geo;
+  }
+  // 接触阴影
+  function contactShadow(size) {
+    var c = document.createElement('canvas'); c.width = c.height = 128;
+    var g = c.getContext('2d');
+    var grad = g.createRadialGradient(64, 64, 4, 64, 64, 62);
+    grad.addColorStop(0, 'rgba(12,18,26,.55)');
+    grad.addColorStop(0.45, 'rgba(12,18,26,.26)');
+    grad.addColorStop(1, 'rgba(12,18,26,0)');
+    g.fillStyle = grad; g.fillRect(0, 0, 128, 128);
+    var t = new THREE.CanvasTexture(c);
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(size, size),
+      new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.85 }));
+    m.rotation.x = -Math.PI / 2;
+    m.position.y = 0.0012;
+    m.renderOrder = -1;
+    return m;
+  }
+
+  /* ==================== 工作台 ==================== */
+  var stageGroup = new THREE.Group();
+  scene.add(stageGroup);
+
+  var bench = mesh(new THREE.BoxGeometry(3.86, 0.08, 0.86), matBench);
+  bench.position.set(.34,-.04,0);
+  bench.castShadow = false;
+  stageGroup.add(bench);
+
+  var legMat = new THREE.MeshStandardMaterial({ map: texBench, color: 0xb59a78, metalness: 0.02, roughness: 0.8, envMapIntensity: 0.5 });
+  [-1.40,.35,2.08].forEach(function (lx) {
+    var leg = mesh(new THREE.BoxGeometry(0.055, 0.62, 0.68), legMat);
+    leg.position.set(lx, -0.39, 0);
+    stageGroup.add(leg);
+  });
+
+  // Meters. For this right-handed, single-start profile, y/P + angle/2π is invariant
+  // under a coupled rotation about +Y and translation of P per revolution.
+  var TAU = Math.PI * 2;
+  var THREAD = {
+    screwdriver: { R: .00345, root: .00250, P: .002, turns: 4 },
+    wrench: { R: .00500, root: .00405, P: .002, turns: 4 },
+    faucet: { R: .00500, root: .00405, P: .002, turns: 4 }
+  };
+  var threadCutMat = new THREE.MeshStandardMaterial({
+    color: 0xf0bd72, metalness: .14, roughness: .68, side: THREE.DoubleSide
+  });
+
+  var shaftCutMat = new THREE.MeshStandardMaterial({
+    color: 0xa3cfd9, metalness: .15, roughness: .64, side: THREE.DoubleSide
+  });
+
+  function toothRadius(spec, y, angle) {
+    var phase = (y - (spec.origin || 0)) / spec.P + angle / TAU;
+    var distance = Math.abs(phase - Math.round(phase));
+    // Truncated triangular profile with a flat crest and root.
+    return spec.root + (spec.R - spec.root) * clamp((.43 - distance) / .32, 0, 1);
+  }
+
+  function hexRadius(radius, angle) {
+    var side = TAU / 6, center = Math.round((angle - side / 2) / side) * side + side / 2;
+    return radius * Math.cos(side / 2) / Math.cos(angle - center);
+  }
+
+  function threadSolid(spec, low, high, outer, mat, offset, cutStart) {
+    var group = new THREE.Group();
+    var female = Boolean(outer), clearance = spec.P * .08;
+    function surface(half) {
+      var angular = half ? 36 : 72, axial = Math.ceil((high - low) / spec.P * 24);
+      var samples = [], positions = [], indices = [], surfaces = [];
+      function vertex(row, col, inner) {
+        var y = low + (high - low) * row / axial;
+        var a = (half ? cutStart : 0) + col / angular * (half ? Math.PI : TAU);
+        samples.push({ y: y, a: a, inner: inner });
+        positions.push(0, y, 0);
+      }
+      function face(rows, cols, add, reverse, materialIndex) {
+        var base = samples.length, start = indices.length;
+        for (var j = 0; j <= rows; j++) for (var i = 0; i <= cols; i++) add(j, i);
+        for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) {
+          var a = base + j * (cols + 1) + i, b = a + cols + 1;
+          if (reverse) indices.push(a, a + 1, b, a + 1, b + 1, b);
+          else indices.push(a, b, a + 1, a + 1, b, b + 1);
+        }
+        surfaces.push([start, indices.length - start, materialIndex]);
+      }
+      face(axial, angular, function (j, i) { vertex(j, i, false); }, false, 0);
+      if (female) face(axial, angular, function (j, i) { vertex(j, i, true); }, true, 0);
+      [0, axial].forEach(function (row) {
+        face(1, angular, function (side, i) { vertex(row, i, !side); }, row === axial, 0);
+      });
+      if (half) [0, angular].forEach(function (col) {
+        face(axial, 1, function (j, side) { vertex(j, col, !side); }, col === 0, 1);
+      });
+      var geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      surfaces.forEach(function (s) { geo.addGroup(s[0], s[1], s[2]); });
+      var model = mesh(geo, [mat, female ? threadCutMat : shaftCutMat]);
+      model.name = (female ? 'internal-thread' : 'external-thread') + (half ? '-section' : '-solid');
+      function update(spin) {
+        var p = geo.attributes.position;
+        for (var i = 0; i < samples.length; i++) {
+          var s = samples[i], a = s.a, y = s.y, radius;
+          var partAngle = a + spin;
+          if (female) radius = s.inner ? toothRadius(spec, y + offset, partAngle) + clearance : outer(partAngle, y);
+          else radius = s.inner ? 0 : toothRadius(spec, y + offset, partAngle);
+          p.setXYZ(i, Math.cos(a) * radius, y, Math.sin(a) * radius);
+        }
+        p.needsUpdate = true;
+        geo.computeVertexNormals();
+        geo.computeBoundingSphere();
+      }
+      update(0);
+      return { mesh: model, update: update };
+    }
+    var solid = surface(false), cut = surface(true), angle = 0, lastCutAngle = 0;
+    group.add(solid.mesh, cut.mesh);
+    cut.mesh.visible = false;
+    function syncCut() {
+      if (!cut.mesh.visible || angle === lastCutAngle) return;
+      cut.mesh.rotation.y = -angle;
+      cut.update(angle);
+      lastCutAngle = angle;
+    }
+    return {
+      group: group,
+      setSpin: function (v) { angle = v; syncCut(); },
+      setCut: function (on) { solid.mesh.visible = !on; cut.mesh.visible = on; syncCut(); }
+    };
+  }
+
+  function halfLathe(profile, mat, angle) {
+    var group = new THREE.Group();
+    group.add(mesh(new THREE.LatheGeometry(profile, 48, angle, Math.PI), mat));
+    var shape = new THREE.Shape(profile.map(function (p) { return p.clone(); }));
+    var side = new THREE.ShapeGeometry(shape);
+    for (var a of [angle, angle + Math.PI]) {
+      var end = mesh(side, threadCutMat);
+      end.rotation.y = Math.PI / 2 - a;
+      group.add(end);
+    }
+    return group;
+  }
+
+  /* ==================== 站点 A：螺丝刀 ==================== */
+  function buildScrewdriver() {
+    var g = new THREE.Group();
+
+    // The pilot hole is actual void geometry in both the intact block and the cut.
+    var blockOutline = new THREE.Shape();
+    blockOutline.moveTo(-.056,-.056); blockOutline.lineTo(.056,-.056);
+    blockOutline.lineTo(.056,.056); blockOutline.lineTo(-.056,.056); blockOutline.closePath();
+    var bore = new THREE.Path(); bore.absarc(0,0,.00262,0,TAU,true); blockOutline.holes.push(bore);
+    var halfOutline = new THREE.Shape();
+    halfOutline.moveTo(-.056,0); halfOutline.lineTo(-.00262,0);
+    halfOutline.absarc(0,0,.00262,Math.PI,0,true);
+    halfOutline.lineTo(.056,0); halfOutline.lineTo(.056,.056); halfOutline.lineTo(-.056,.056); halfOutline.closePath();
+    function woodSolid(outline) {
+      var geo = new THREE.ExtrudeGeometry(outline,{depth:.05,bevelEnabled:false,curveSegments:24});
+      geo.rotateX(-Math.PI/2);
+      return mesh(geo,[matWalnutTop,matWalnut]);
+    }
+    var block = woodSolid(blockOutline), blockCut = woodSolid(halfOutline);
+    blockCut.visible=false; g.add(block,blockCut);
+
+    // 螺钉（局部原点 = 钉头下表面）
+    var screw = new THREE.Group();
+    var head = mesh(new THREE.CylinderGeometry(0.0070, 0.0070, 0.0018, 48), matZinc);
+    head.position.y = 0.0009; screw.add(head);
+    var headChamfer = mesh(new THREE.CylinderGeometry(0.0063, 0.0070, 0.0008, 48), matZinc);
+    headChamfer.position.y = 0.0022; screw.add(headChamfer);
+    var slotGeo = new THREE.BoxGeometry(0.0100, 0.0009, 0.0018);
+    var s1 = mesh(slotGeo, matSlot); s1.position.y = 0.0020;
+    screw.add(s1);
+    var screwSpec = THREAD.screwdriver;
+    var screwThread = threadSolid(screwSpec,-.032,0,null,matZinc,0,Math.PI);
+    screw.add(screwThread.group);
+    var tip = mesh(new THREE.ConeGeometry(.0025,.009,32),matZinc);
+    tip.rotation.x=Math.PI;tip.position.y=-.0365;screw.add(tip);
+    var tipProfile=[[0,-.041],[.0025,-.032],[0,-.032],[0,-.041]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+    var tipCut=halfLathe(tipProfile,matZinc,Math.PI/2);tipCut.visible=false;screw.add(tipCut);
+    g.add(screw);
+
+    // 螺丝刀（局部原点 = 刀头下端点）
+    var driver = new THREE.Group();
+    var shaft = mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.040, 32), matChrome);
+    shaft.position.y = .031; driver.add(shaft);
+    var neck = mesh(new THREE.CylinderGeometry(0.0034, 0.003, 0.008, 32), matChrome);
+    neck.position.y = .051; driver.add(neck);
+
+    // 刀头：带磨削斜面的扁头
+    var bladeShape = new THREE.Shape();
+    bladeShape.moveTo(-0.0038, 0);
+    bladeShape.lineTo(0.0038, 0);
+    bladeShape.lineTo(0.0030, 0.0115);
+    bladeShape.lineTo(-0.0030, 0.0115);
+    var bladeGeo = new THREE.ExtrudeGeometry(bladeShape, { depth: 0.0018, bevelEnabled: true, bevelThickness: 0.0002, bevelSize: 0.0002, bevelSegments: 1 });
+    bladeGeo.translate(0, 0, -0.0009);
+    var blade = mesh(bladeGeo, matChrome);
+    driver.add(blade);
+
+    var handleStart=.055, gripY=.116;
+    var handleProfile=[
+      [0,handleStart],[.0085,handleStart],[.0106,.060],[.0100,.070],
+      [.0085,.081],[.0098,.091],[.0128,.101],[.0148,.110],[.015,.116],
+      [.0147,.126],[.0133,.136],[.0108,.145],[.0084,.149],[0,.151]
+    ];
+    var blue=new THREE.MeshStandardMaterial({color:0x194bb8,roughness:.49,metalness:.06});
+    var yellow=new THREE.MeshStandardMaterial({color:0xf2bc16,roughness:.48,metalness:.02});
+    var handle=mesh(new THREE.LatheGeometry(handleProfile.map(function(p){return new THREE.Vector2(p[0],p[1]);}),80),blue);
+    handle.name='blue-contoured-handle';driver.add(handle);
+    var ferrule=mesh(new THREE.CylinderGeometry(.0074,.0066,.0055,40),yellow);
+    ferrule.position.y=.0535;driver.add(ferrule);
+    var endCap=mesh(new THREE.CylinderGeometry(.008,.009,.0026,40),yellow);
+    endCap.position.y=.149;driver.add(endCap);
+    function gripRadius(y) {
+      for(var k=1;k<handleProfile.length;k++)if(y<=handleProfile[k][1]){
+        var a=handleProfile[k-1],b=handleProfile[k];
+        return a[0]+(b[0]-a[0])*(y-a[1])/(b[1]-a[1]);
+      }
+      return 0;
+    }
+    function pad(center, y0, y1) {
+      var points=[],indices=[],rows=26,cols=12;
+      for(var j=0;j<=rows;j++){
+        var t=j/rows,y=y0+(y1-y0)*t,half=.36*Math.max(.012,Math.min(1,Math.sqrt(Math.sin(Math.PI*t))*1.40));
+        var radius=gripRadius(y)+.00055;
+        for(var i=0;i<=cols;i++){
+          var a=center+half*(2*i/cols-1);
+          points.push(radius*Math.cos(a),y,radius*Math.sin(a));
+          if(j<rows&&i<cols){
+            var k=j*(cols+1)+i,n=k+cols+1;indices.push(k,n,k+1,k+1,n,n+1);
+          }
+        }
+      }
+      var geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
+      geo.setIndex(indices);geo.computeVertexNormals();
+      var piece=mesh(geo,yellow);piece.castShadow=false;driver.add(piece);
+    }
+    [Math.PI/2,Math.PI*1.5].forEach(function(a){pad(a,.084,.109);pad(a,.118,.142);});
+
+    function turnRing(radius,y,color,sign) {
+      var ringMat=new THREE.MeshBasicMaterial({color:color});
+      var ring=mesh(new THREE.TorusGeometry(radius,.00048,8,80),ringMat);
+      ring.name=sign>0?"wheel-turn-ring":"axle-turn-ring";ring.rotation.x=-Math.PI/2;ring.position.y=y;ring.castShadow=false;driver.add(ring);
+      var dot=mesh(new THREE.SphereGeometry(.00145,12,8),ringMat,radius,y,0);
+      dot.castShadow=false;driver.add(dot);
+      var arrow=new THREE.ArrowHelper(new THREE.Vector3(0,0,sign),new THREE.Vector3(radius,y,0),
+        radius>.01?.012:.008,color,.003,.0023);
+      driver.add(arrow);
+    }
+    turnRing(.01565,gripY,0xee6825,1);
+    turnRing(.00355,.026,0x1676bb,-1);
+
+    g.add(driver);
+
+    var wheelAnchor = new THREE.Object3D(); wheelAnchor.position.set(.01565,.116,0); driver.add(wheelAnchor);
+    var axleAnchor = new THREE.Object3D(); axleAnchor.position.set(.00355,.026,0); driver.add(axleAnchor);
+
+    var update = function (t) {
+      var angle = -t * 5 * TAU;
+      var depth = -angle / TAU * screwSpec.P;
+      screwThread.setSpin(angle);tipCut.rotation.y=-angle;
+      var headY = 0.050 + (0.010 - depth);
+      screw.rotation.y = angle;
+      screw.position.y = headY;
+      driver.rotation.y = angle;
+      driver.position.y = headY + 0.0016;
+    };
+
+    return {
+      id: 'screwdriver', group: g, update: update,
+      grab: [driver, screw],
+      anchors: { wheel: wheelAnchor, axle: axleAnchor },
+      wheelText: '轮 · 手柄 R=15mm', axleText: '轴 · 刀杆 r=3mm',
+      labelOffset: { wheel: [-150, -26], axle: [150, 34] },
+      setCut: function(on) { block.visible=!on; blockCut.visible=on; screwThread.setCut(on); tip.visible=!on;tipCut.visible=on; }
+    };
+  }
+
+  /* ==================== 站点 B：扳手 ==================== */
+  function buildWrench() {
+    var g = new THREE.Group();
+
+    // 带倒角与沉孔的钢板
+    var plateShape = roundedRectShape(0.19, 0.10, 0.012);
+    var boltHole = new THREE.Path();
+    boltHole.absarc(0, 0, 0.0056, 0, Math.PI * 2, true);
+    plateShape.holes.push(boltHole);
+    var plateGeo = new THREE.ExtrudeGeometry(plateShape, {
+      depth: 0.008, bevelEnabled: true, bevelThickness: 0.0016, bevelSize: 0.0016, bevelSegments: 2, curveSegments: 12
+    });
+    plateGeo.rotateX(-Math.PI / 2);
+    plateGeo.translate(0, 0.012, 0);
+    var plate = mesh(plateGeo, matPlate);
+    g.add(plate);
+
+    // 螺栓
+    var headBolt = mesh(new THREE.CylinderGeometry(0.0092, 0.0092, 0.007, 6), matDarkSteel);
+    headBolt.position.y = 0.0035; g.add(headBolt);
+    var boltSpec = THREAD.wrench;
+    var boltThread = threadSolid(boltSpec,.007,.046,null,matZinc,0,Math.PI);
+    g.add(boltThread.group);
+
+    // 平垫 + 弹簧垫圈
+    var washer = mesh(new THREE.CylinderGeometry(0.0112, 0.0112, 0.0016, 40), matChrome);
+    washer.position.y = 0.0134; g.add(washer);
+    var spring = mesh(new THREE.TorusGeometry(0.0092, 0.0011, 11, 44), matChrome);
+    spring.rotation.x = Math.PI / 2;
+    spring.position.y = 0.0158; g.add(spring);
+
+    // 螺母（暗锌色，与扳手区分）
+    var nutBaseY = .0275;
+    var nut = new THREE.Group(); nut.position.y = nutBaseY; g.add(nut);
+    var nutThread = threadSolid(boltSpec,-.0066,.0066,function(a,y) {
+      return hexRadius(.0098-.0008*clamp((Math.abs(y)-.0052)/.0014,0,1),a);
+    },matDarkSteel,nutBaseY,Math.PI);
+    nut.add(nutThread.group);
+
+    // One forged combination wrench, with its box end centered on the nut.
+    var wrench = new THREE.Group();
+    wrench.position.y = nutBaseY;
+    var shape = new THREE.Shape();
+    shape.moveTo(-.018,0);
+    shape.bezierCurveTo(-.018,-.013,-.011,-.018,.003,-.017);
+    shape.bezierCurveTo(.020,-.016,.021,-.008,.040,-.0075);
+    shape.lineTo(.164,-.0075);
+    shape.bezierCurveTo(.179,-.0075,.186,-.020,.200,-.021);
+    shape.bezierCurveTo(.209,-.022,.216,-.016,.220,-.010);
+    shape.lineTo(.202,-.012);
+    shape.quadraticCurveTo(.192,-.011,.192,0);
+    shape.quadraticCurveTo(.192,.011,.202,.012);
+    shape.lineTo(.220,.010);
+    shape.bezierCurveTo(.216,.016,.209,.022,.200,.021);
+    shape.bezierCurveTo(.186,.020,.179,.0075,.164,.0075);
+    shape.lineTo(.040,.0075);
+    shape.bezierCurveTo(.021,.008,.020,.016,.003,.017);
+    shape.bezierCurveTo(-.011,.018,-.018,.013,-.018,0);shape.closePath();
+    var ringBore=new THREE.Path();
+    for(var k=0;k<120;k++){
+      var a=-k/120*TAU;
+      var r=Math.max(hexRadius(.0107,a),hexRadius(.0107,a+Math.PI/6));
+      if(k===0)ringBore.moveTo(r*Math.cos(a),r*Math.sin(a));
+      else ringBore.lineTo(r*Math.cos(a),r*Math.sin(a));
+    }
+    ringBore.closePath();shape.holes.push(ringBore);
+    var geo=new THREE.ExtrudeGeometry(shape,{depth:.0052,bevelEnabled:true,bevelThickness:.00065,bevelSize:.00052,bevelSegments:2,curveSegments:20});
+    geo.rotateX(-Math.PI/2);geo.translate(0,-.0026,0);
+    var forged=mesh(geo,matSatin);forged.name='combination-wrench';wrench.add(forged);
+    g.add(wrench);
+
+    var wheelAnchor = new THREE.Object3D(); wheelAnchor.position.set(.180,.005,0); wrench.add(wheelAnchor);
+    var axleAnchor = new THREE.Object3D(); axleAnchor.position.set(0.0075, 0.006, 0); nut.add(axleAnchor);
+
+    var update = function (t) {
+      var angle = -t * 2 * TAU;
+      var squeeze = -angle / TAU * boltSpec.P;
+      nutThread.setSpin(angle);
+      nut.rotation.y = angle;
+      nut.position.y = nutBaseY - squeeze;
+      wrench.rotation.y = angle;
+      wrench.position.y = nutBaseY - squeeze;
+      spring.scale.y = 1 - 0.45 * t;
+      spring.position.y = 0.0158 - squeeze * 0.5;
+    };
+
+    return {
+      id: 'wrench', group: g, update: update,
+      grab: [wrench, nut],
+      anchors: { wheel: wheelAnchor, axle: axleAnchor },
+      wheelText: '轮 · 扳手力臂 R=180mm', axleText: '轴 · 螺母处 r≈10mm',
+      labelOffset: { wheel: [-170, 10], axle: [70, -78] },
+      setCut: function(on) { boltThread.setCut(on); nutThread.setCut(on); wrench.visible=!on; }
+    };
+  }
+
+  /* ==================== 站点 C：水龙头 ==================== */
+  function buildFaucet() {
+    var g = new THREE.Group();
+    var COUNTER_TOP = 0.06;
+
+    var deckZ=-.040, basinZ=-.103, deckBottom=.039;
+    var basinWaterY=.041, rimRadius=.067, openingRadius=.0588;
+    var deckMat=new THREE.MeshStandardMaterial({
+      color:0xded9cb,roughness:.64,metalness:.04,envMapIntensity:.63
+    });
+    var skirtMat=new THREE.MeshStandardMaterial({
+      color:0xa6a49d,roughness:.74,metalness:.08,envMapIntensity:.60
+    });
+    var counter=new THREE.Group();counter.name='faucet-sink-counter';g.add(counter);
+    var shape=roundedRectShape(.262,.322,.018);
+    var hole=new THREE.Path();
+    hole.absarc(0,deckZ-basinZ,openingRadius,0,TAU,true);
+    shape.holes.push(hole);
+    var deckBevel=.0017;
+    var counterGeo=new THREE.ExtrudeGeometry(shape,{
+      depth:COUNTER_TOP-deckBottom-2*deckBevel,bevelEnabled:true,
+      bevelThickness:deckBevel,bevelSize:.0014,bevelSegments:2,curveSegments:40
+    });
+    counterGeo.rotateX(-Math.PI/2);
+    counterGeo.translate(0,deckBottom+deckBevel,deckZ);
+    var slab=mesh(counterGeo,deckMat);slab.name='faucet-counter-deck';counter.add(slab);
+
+    function support(w,h,d,x,z){
+      var item=mesh(new THREE.BoxGeometry(w,h,d),skirtMat);
+      item.position.set(x,h/2,z);counter.add(item);
+    }
+    support(.011,deckBottom,.292,-.118,deckZ);
+    support(.011,deckBottom,.292,.118,deckZ);
+    support(.228,deckBottom,.011,0,deckZ+.14);
+    support(.228,deckBottom,.011,0,deckZ-.143);
+
+    // The continuous porcelain profile includes a wall, an underside and a rolled rim.
+    var bowlPts=[
+      [0,.006],[.019,.006],[.032,.012],[.043,.022],[.051,.034],[.056,.047],
+      [.0575,.057],[.061,.060],[rimRadius,.060],[rimRadius,.062],
+      [.064,.064],[.059,.064],[.054,.061],[.052,.053],[.049,.045],
+      [.047,.041],[.042,.034],[.034,.025],[.024,.017],[.015,.012],[0,.012]
+    ].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+    var bowl=mesh(new THREE.LatheGeometry(bowlPts,96),matPorcelain);
+    bowl.position.z=basinZ;bowl.name='faucet-porcelain-basin';g.add(bowl);
+
+    var drainShape=[[.0065,.012],[.011,.012],[.013,.013],[.012,.0142],
+      [.0065,.0142],[.0065,.012]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+    var drain=mesh(new THREE.LatheGeometry(drainShape,48),matSatin);
+    drain.position.z=basinZ;g.add(drain);
+    var drainWell=mesh(new THREE.CircleGeometry(.0065,28),matDarkSteel);
+    drainWell.rotation.x=-Math.PI/2;drainWell.position.set(0,.0121,basinZ);g.add(drainWell);
+
+    var waterSurface=new THREE.Mesh(new THREE.CircleGeometry(.0465,72),matWater.clone());
+    waterSurface.rotation.x=-Math.PI/2;
+    waterSurface.position.set(0,basinWaterY,basinZ);
+    waterSurface.name='faucet-basin-water';
+    g.add(waterSurface);
+
+    // The longitudinal view cuts through the inlet axis and the spout centerline.
+    // Geometry is built around the same open passage used by the flow tracers.
+    var seatY=.089, outletY=.125, outletRadius=.0084, innerWall=.0185;
+    var cutAngle=-Math.PI/2, latheCutStart=0;
+    var shellMetal=new THREE.MeshStandardMaterial({
+      color:0xe3ebee,metalness:.70,roughness:.24,side:THREE.DoubleSide,envMapIntensity:1.20
+    });
+    var seatMetal=new THREE.MeshStandardMaterial({color:0xab804b,metalness:.68,roughness:.4,side:THREE.DoubleSide});
+    var waterBlue=new THREE.MeshBasicMaterial({color:0x358dcc,side:THREE.DoubleSide,transparent:true,opacity:.65,depthWrite:false});
+
+    function ringWall(radiusIn,radiusOut,y0,y1,mat,parent) {
+      var profile=[[radiusIn,y0],[radiusOut,y0],[radiusOut,y1],[radiusIn,y1],[radiusIn,y0]]
+        .map(function(p){return new THREE.Vector2(p[0],p[1]);});
+      var whole=mesh(new THREE.LatheGeometry(profile,64),mat);
+      var section=halfLathe(profile,mat,latheCutStart);
+      section.visible=false;parent.add(whole,section);
+      return {whole:whole,section:section,show:function(on){whole.visible=!on;section.visible=on;}};
+    }
+
+    var mounting=ringWall(.016,.037,.059,.066,matSatin,g);
+    mounting.whole.name='faucet-deck-flange';
+    var inlet=ringWall(.008,.013,.019,seatY-.005,shellMetal,g);
+    inlet.whole.name='faucet-inlet-shell';
+    var seat=ringWall(.008,innerWall,seatY-.005,seatY,seatMetal,g);
+    seat.whole.name='faucet-valve-seat';
+
+    function chamberWall(cut,low,high) {
+      var pos=[],idx=[],groups=[],axial=120,angular=cut?56:112;
+      function outerRadius(y) {
+        return .0235+.012*clamp((.083-y)/.020,0,1)+.002*clamp((y-.184)/.016,0,1);
+      }
+      function v(y,a,r){var i=pos.length/3;pos.push(r*Math.cos(a),y,r*Math.sin(a));return i;}
+      function quad(a,b,c,d){idx.push(a,b,c,a,c,d);}
+      function area(mat,fn){var start=idx.length;fn();groups.push([start,idx.length-start,mat]);}
+      function angle(i){return cut?cutAngle+i/ angular*Math.PI:i/angular*TAU;}
+      function row(j){return low+(high-low)*j/axial;}
+      area(0,function(){
+        for(var inner of [false,true])for(var j=0;j<axial;j++)for(var i=0;i<angular;i++){
+          var a=angle(i),b=angle(i+1),y=row(j),yy=row(j+1);
+          var mid=(a+b)/2,ym=(y+yy)/2;
+          var r=inner?innerWall:outerRadius(y),rr=inner?innerWall:outerRadius(yy);
+          var x=(r+rr)*.5*Math.cos(mid);
+          if(Math.sin(mid)<0&&Math.hypot(x,ym-outletY)<outletRadius+.0007)continue;
+          quad(v(y,a,r),v(yy,a,rr),v(yy,b,rr),v(y,b,r));
+        }
+        for(var y of [low,high])for(var i=0;i<angular;i++){
+          var a=angle(i),b=angle(i+1),r=outerRadius(y);
+          quad(v(y,a,innerWall),v(y,b,innerWall),v(y,b,r),v(y,a,r));
+        }
+      });
+      if(cut)area(1,function(){
+        for(var a of [cutAngle,cutAngle+Math.PI])for(var j=0;j<axial;j++){
+          var y=row(j),yy=row(j+1);
+          if(Math.sin(a)<0&&Math.abs((y+yy)/2-outletY)<outletRadius+.0007)continue;
+          quad(v(y,a,innerWall),v(yy,a,innerWall),v(yy,a,outerRadius(yy)),v(y,a,outerRadius(y)));
+        }
+      });
+      var geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(idx);
+      groups.forEach(function(p){geo.addGroup(p[0],p[1],p[2]);});geo.computeVertexNormals();
+      return mesh(geo,[shellMetal,threadCutMat]);
+    }
+    var body=chamberWall(false,COUNTER_TOP,.205);
+    var bodyCut=chamberWall(true,COUNTER_TOP,.153), upperHousing=chamberWall(false,.153,.205);
+    bodyCut.visible=upperHousing.visible=false;g.add(body,bodyCut,upperHousing);
+    bodyCut.name='faucet-chamber-section';
+
+    var spoutCurve=new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0,outletY,-.016),new THREE.Vector3(0,outletY,-.031),
+      new THREE.Vector3(0,.157,-.051),new THREE.Vector3(0,.177,-.072),
+      new THREE.Vector3(0,.166,-.089),new THREE.Vector3(0,.144,-.091)
+    ]);
+    var spoutExit=spoutCurve.getPoint(1);
+    function pipeWall(cut){
+      var pos=[],idx=[],groups=[],steps=64,radial=cut?22:44;
+      var centers=[],frames=[];
+      for(var i=0;i<=steps;i++){
+        centers.push(spoutCurve.getPointAt(i/steps));
+        var t=spoutCurve.getTangentAt(i/steps);
+        frames.push(new THREE.Vector3(0,-t.z,t.y));
+      }
+      function v(j,i,r){
+        var a=(cut?cutAngle:0)+i/radial*(cut?Math.PI:TAU);
+        var c=centers[j],n=frames[j],id=pos.length/3;
+        pos.push(c.x+r*Math.cos(a),c.y+n.y*r*Math.sin(a),c.z+n.z*r*Math.sin(a));
+        return id;
+      }
+      function quad(a,b,c,d){idx.push(a,b,c,a,c,d);}
+      function surface(mat,fn){var start=idx.length;fn();groups.push([start,idx.length-start,mat]);}
+      var outer=.0112;
+      surface(0,function(){
+        for(var r of [outer,outletRadius]){
+          for(var j=0;j<steps;j++)for(var i=0;i<radial;i++)quad(v(j,i,r),v(j+1,i,r),v(j+1,i+1,r),v(j,i+1,r));
+        }
+        for(var j of [0,steps])for(var i=0;i<radial;i++)quad(v(j,i,outer),v(j,i+1,outer),v(j,i+1,outletRadius),v(j,i,outletRadius));
+      });
+      if(cut)surface(1,function(){
+        for(var i of [0,radial])for(var j=0;j<steps;j++)quad(v(j,i,outer),v(j+1,i,outer),v(j+1,i,outletRadius),v(j,i,outletRadius));
+      });
+      var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(idx);
+      groups.forEach(function(s){geo.addGroup(s[0],s[1],s[2]);});geo.computeVertexNormals();
+      return mesh(geo,[shellMetal,threadCutMat]);
+    }
+    var spout=pipeWall(false),spoutCut=pipeWall(true);
+    spout.name='faucet-hollow-spout';spoutCut.name='faucet-spout-section';spoutCut.visible=false;g.add(spout,spoutCut);
+    var outletFitting=new THREE.Group();
+    outletFitting.position.copy(spoutExit);
+    outletFitting.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),spoutCurve.getTangent(1));
+    g.add(outletFitting);
+    var aerator=ringWall(outletRadius,.0118,-.0058,0,matSatin,outletFitting);
+    aerator.whole.name='faucet-outlet-ring';
+
+    var packing=ringWall(.005,.015,.202,.217,shellMetal,g);
+    var stem=new THREE.Group(),stemSpec=THREAD.faucet;
+    var stemThread=threadSolid(stemSpec,.066,.114,null,matSatin,0,cutAngle);
+    stem.add(stemThread.group);
+    var rodBottom=mesh(new THREE.CylinderGeometry(.0041,.0041,.066,32),matZinc);
+    rodBottom.position.y=.033;stem.add(rodBottom);
+    var rodTop=mesh(new THREE.CylinderGeometry(.0041,.0041,.040,32),matZinc);
+    rodTop.position.y=.134;stem.add(rodTop);
+    var fixedY=.166;
+    var bonnetThread=threadSolid(stemSpec,0,.023,function(){return innerWall-.0005;},seatMetal,fixedY-seatY,cutAngle);
+    bonnetThread.group.position.y=fixedY;g.add(bonnetThread.group);
+    var washerDisc=mesh(new THREE.CylinderGeometry(.012,.012,.0046,48),matRubber);
+    washerDisc.name='faucet-moving-washer';washerDisc.position.y=.0023;stem.add(washerDisc);
+    stem.position.y=seatY;g.add(stem);
+
+    var routeGroup=new THREE.Group();routeGroup.visible=false;g.add(routeGroup);
+    var intakeWater=mesh(new THREE.CylinderGeometry(.0077,.0077,seatY-.019,40,1,false,0,Math.PI),waterBlue);
+    intakeWater.position.y=(seatY+.019)/2;intakeWater.name='faucet-upstream-water';routeGroup.add(intakeWater);
+    var streamPath=mesh(new THREE.TubeGeometry(spoutCurve,64,.0057,12,false),waterBlue);
+    streamPath.name='faucet-downstream-water';routeGroup.add(streamPath);
+    var tracerGeo=new THREE.SphereGeometry(1,10,7);
+    var tracerMat=new THREE.MeshBasicMaterial({color:0x11b3f1});
+    var tracers=[];
+    for(var i=0;i<18;i++){
+      var tracer=new THREE.Mesh(tracerGeo,tracerMat);tracer.name='faucet-tracer';routeGroup.add(tracer);tracers.push(tracer);
+    }
+    var route=[],routeLength=0,phase=0,cut=false,opening=0;
+    function rebuildRoute(lift){
+      route=[
+        new THREE.Vector3(0,.023,0),new THREE.Vector3(0,seatY+lift*.5,0),
+        new THREE.Vector3(0,seatY+lift*.5,-.0145),
+        new THREE.Vector3(0,seatY+.012,-.0154)
+      ];
+      for(var j=0;j<=64;j++)route.push(spoutCurve.getPointAt(j/64));
+      routeLength=0;
+      for(var i=1;i<route.length;i++)routeLength+=route[i-1].distanceTo(route[i]);
+    }
+    function animateWater(dt) {
+      if(!cut||opening<=0)return;
+      phase=(phase+dt*(.058+opening*9))%routeLength;
+      for(var j=0;j<tracers.length;j++){
+        var d=(phase+j/tracers.length*routeLength)%routeLength,k=1;
+        while(k<route.length-1&&d>route[k-1].distanceTo(route[k])){d-=route[k-1].distanceTo(route[k]);k++;}
+        var a=route[k-1],b=route[k],t=Math.min(1,d/Math.max(1e-9,a.distanceTo(b)));
+        tracers[j].position.copy(a).lerp(b,t);
+        var narrow=k<=3&&tracers[j].position.y>=seatY-.0004&&tracers[j].position.y<seatY+opening+.001;
+        tracers[j].scale.setScalar(narrow?Math.min(.00115,opening*.28):.0012);
+      }
+    }
+
+    // 手轮
+    var wheel = new THREE.Group();
+    var wheelY=seatY+.159;wheel.position.set(0,wheelY,0);
+    var hub = mesh(new THREE.CylinderGeometry(0.0112, 0.0112, 0.018, 32), matChrome);
+    wheel.add(hub);
+    var rim = mesh(new THREE.TorusGeometry(0.040, 0.0070, 16, 56), matChrome);
+    rim.rotation.x = Math.PI / 2;
+    wheel.add(rim);
+    for (var i = 0; i < 4; i++) {
+      var spoke = mesh(new THREE.BoxGeometry(0.0295, 0.0062, 0.0068), i === 0 ? matPlastic : matChrome);
+      var a = i / 4 * Math.PI * 2;
+      spoke.position.set(Math.cos(a) * 0.0250, 0, Math.sin(a) * 0.0250);
+      spoke.rotation.y = -a;
+      wheel.add(spoke);
+    }
+    var capScrew = mesh(new THREE.CylinderGeometry(0.0060, 0.0060, 0.0038, 6), matChrome);
+    capScrew.position.y = 0.0108; wheel.add(capScrew);
+    g.add(wheel);
+
+    // 水流
+    var stream = new THREE.Mesh(new THREE.CylinderGeometry(0.0026, 0.0038, 1, 24, 1, true), matWater.clone());
+    stream.material.opacity = 0.34;
+    stream.position.set(0,0,spoutExit.z);
+    stream.renderOrder = 4;
+    g.add(stream);
+
+    var splash = new THREE.Mesh(new THREE.RingGeometry(0.006, 0.012, 32),
+      new THREE.MeshBasicMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.5, side: THREE.DoubleSide, depthWrite: false }));
+    splash.rotation.x = -Math.PI / 2;
+    splash.position.set(0,basinWaterY+.0005,spoutExit.z);
+    g.add(splash);
+
+    var wheelAnchor = new THREE.Object3D(); wheelAnchor.position.set(0.045, 0.0, 0); wheel.add(wheelAnchor);
+    var axleAnchor = new THREE.Object3D(); axleAnchor.position.set(0.006, 0.030, 0); stem.add(axleAnchor);
+
+    var flowAnchors={
+      inlet:new THREE.Object3D(),seat:new THREE.Object3D(),outlet:new THREE.Object3D()
+    };
+    flowAnchors.inlet.position.set(0,.037,0);
+    flowAnchors.seat.position.set(0,seatY,0);
+    flowAnchors.outlet.position.copy(spoutExit);
+    g.add(flowAnchors.inlet,flowAnchors.seat,flowAnchors.outlet);
+    function setCut(on) {
+      cut=on;body.visible=!on;bodyCut.visible=upperHousing.visible=on;spout.visible=!on;spoutCut.visible=on;
+      counter.visible=!on;routeGroup.visible=on;seat.show(on);inlet.show(on);mounting.show(on);aerator.show(on);
+      if(on)animateWater(0);
+    }
+
+    var update = function (t) {
+      var angle=t*2*TAU,lift=angle/TAU*stemSpec.P;
+      wheel.rotation.y=stem.rotation.y=angle;
+      stem.position.y=seatY+lift;wheel.position.y=wheelY+lift;
+      stemThread.setSpin(angle);
+      opening=lift;
+      streamPath.visible=lift>0;
+      for(var tracer of tracers)tracer.visible=lift>0;
+      if(lift>0){rebuildRoute(lift);animateWater(0);}
+      var flow=Math.sqrt(t),bottom=basinWaterY;
+      var len=spoutExit.y-bottom;
+      stream.scale.set(.16+.84*flow,len,.16+.84*flow);
+      stream.position.y=(spoutExit.y+bottom)/2;
+      stream.visible=lift>0;
+      splash.visible=lift>0;splash.scale.setScalar(.5+.7*flow);
+      waterSurface.material.opacity=.35+.28*flow;
+    };
+
+    return {
+      id: 'faucet', group: g, update: update,
+      grab: [wheel, body, spout],
+      anchors: { wheel: wheelAnchor, axle: axleAnchor },
+      wheelText: '轮 · 手轮 R=40mm', axleText: '轴 · 阀杆 r=5mm',
+      labelOffset: { wheel: [150, -40], axle: [-150, 40] },
+      setCut: setCut, animate:animateWater, flowAnchors:flowAnchors,
+      waterPath:function(){return route;}
+    };
+  }
+
+  function buildWindlass() {
+    var g=new THREE.Group();
+    var axisY=.545, crankRadius=.150, ropeRadius=.00155, windingRadius=.050, pitch=.0056;
+    var drumRadius=windingRadius-ropeRadius, wellInner=.152, wellOuter=.211;
+    var lightWood=woodTex('#d1ac78','112,78,45',false);
+    var lightEnd=woodTex('#c4a175','109,72,41',true);
+    lightWood.repeat.set(1.3,1);lightEnd.repeat.set(1,1);
+    var timber=new THREE.MeshStandardMaterial({color:0xfff9ee,map:lightWood,roughness:.81});
+    var endGrain=new THREE.MeshStandardMaterial({color:0xfff6e7,map:lightEnd,roughness:.84});
+    var bucketWood=new THREE.MeshStandardMaterial({color:0xf6dfba,map:lightWood,roughness:.82,side:THREE.DoubleSide});
+    var ropeMat=new THREE.MeshStandardMaterial({color:0xb88e5f,roughness:.96});
+    var water=new THREE.MeshStandardMaterial({color:0x237da3,roughness:.29,metalness:.12});
+    var stoneMats=[0x888985,0xaaa299,0x737d80,0x97968f,0xa39c8c,0x7f8684].map(function(c){
+      return new THREE.MeshStandardMaterial({color:c,roughness:.94,side:THREE.DoubleSide});
+    });
+
+    function place(geo,mat,x,y,z) {
+      var part=mesh(geo,mat);part.position.set(x,y,z);return part;
+    }
+    function stone(ri,ro,start,end,bottom,top,mat){
+      var profile=[
+        [ri+.003,bottom],[ro-.005,bottom],[ro,bottom+.006],[ro,top-.006],[ro-.006,top],
+        [ri+.004,top],[ri,top-.004],[ri,bottom+.005],[ri+.003,bottom]
+      ].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+      var piece=mesh(new THREE.LatheGeometry(profile,9,start,end-start),mat);
+      var face=new THREE.ShapeGeometry(new THREE.Shape(profile));
+      for(var a of [start,end]){
+        var cap=mesh(face,mat);cap.rotation.y=a-Math.PI/2;
+        piece.add(cap);
+      }
+      g.add(piece);
+    }
+    // Leave a front window in the stonework so the bucket remains in view below the rim.
+    var opening=.61;
+    for(var row=0;row<4;row++){
+      var limit=row===0?0:opening,count=row===3?11:13;
+      for(var k=0;k<count;k++){
+        var a=limit+(TAU-2*limit)*k/count+.009,b=limit+(TAU-2*limit)*(k+1)/count-.009;
+        var ro=wellOuter+(row===3?.012:0)+Math.sin(k*2.91+row)*.004;
+        stone(wellInner,ro,a,b,.004+row*.058,.058+row*.058,stoneMats[(2*k+row)%stoneMats.length]);
+      }
+    }
+    var wellWater=mesh(new THREE.CircleGeometry(wellInner-.002,80),water);
+    wellWater.rotation.x=-Math.PI/2;wellWater.position.y=.128;wellWater.name='windlass-well-water';
+    g.add(wellWater);
+    var ripples=new THREE.Group();g.add(ripples);
+    var rippleMat=new THREE.MeshBasicMaterial({color:0x88cde5,transparent:true,opacity:.52,side:THREE.DoubleSide});
+    for(var r of [.086,.112,.135]){
+      var line=mesh(new THREE.RingGeometry(r,r+.0015,64),rippleMat);
+      line.rotation.x=-Math.PI/2;line.position.y=.1286;ripples.add(line);
+    }
+    var bearingShape=roundedRectShape(.058,.045,.0035),bearingBore=new THREE.Path();
+    bearingBore.absarc(0,0,.0118,0,TAU,true);bearingShape.holes.push(bearingBore);
+    var bearingGeo=new THREE.ExtrudeGeometry(bearingShape,{depth:.057,bevelEnabled:false,curveSegments:22});
+    bearingGeo.translate(0,0,-.0285);bearingGeo.rotateY(Math.PI/2);
+    for(var side of [-1,1]){
+      var post=place(new THREE.BoxGeometry(.039,.525,.047),timber,side*.244,.2625,0);
+      post.name='windlass-upright';g.add(post);
+      var bearing=place(bearingGeo,endGrain,side*.244,axisY,0);
+      g.add(bearing);
+      var collar=place(new THREE.TorusGeometry(.012,.0025,8,32),matDarkSteel,side*.273,axisY,0);
+      collar.rotation.y=Math.PI/2;g.add(collar);
+      g.add(place(new THREE.BoxGeometry(.075,.021,.085),timber,side*.244,.011,0));
+    }
+    var drum=new THREE.Group();drum.name='windlass-roller-and-crank';drum.position.y=axisY;g.add(drum);
+    function alongX(radius,length,mat,x,y,z){
+      var part=mesh(new THREE.CylinderGeometry(radius,radius,length,56),mat,x,y,z);
+      part.position.set(x,y,z);part.rotation.z=Math.PI/2;return part;
+    }
+    drum.add(alongX(.011,.615,matDarkSteel,0,0,0));
+    drum.add(alongX(drumRadius,.372,[timber,endGrain,endGrain],0,0,0));
+    for(var x of [-.182,.182])drum.add(alongX(drumRadius+.005,.012,endGrain,x,0,0));
+    var crank=mesh(new THREE.BoxGeometry(.015,.162,.018),matDarkSteel);
+    crank.position.set(.305,crankRadius/2,0);drum.add(crank);
+    drum.add(alongX(.013,.068,timber,.342,crankRadius,0));
+    var wheelAnchor=new THREE.Object3D();wheelAnchor.position.set(.359,crankRadius,0);drum.add(wheelAnchor);
+    var axleAnchor=new THREE.Object3D();axleAnchor.position.set(.060,windingRadius,0);drum.add(axleAnchor);
+    for(var def of [[.305,crankRadius,0xed7128],[.149,windingRadius,0x1478b6]]){
+      var ring=mesh(new THREE.TorusGeometry(def[1],.0015,8,96),new THREE.MeshBasicMaterial({color:def[2]}));
+      ring.rotation.y=Math.PI/2;ring.position.x=def[0];ring.castShadow=false;drum.add(ring);
+      var dot=mesh(new THREE.SphereGeometry(.0043,12,8),ring.material);
+      dot.position.set(def[0],def[1],0);drum.add(dot);
+    }
+
+    var bucket=new THREE.Group();bucket.name='windlass-bucket';g.add(bucket);
+    var bucketProfile=[[0,0],[.034,0],[.038,.007],[.048,.059],[.048,.065],[.044,.065],
+      [.043,.059],[.030,.006],[0,.006],[0,0]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+    bucket.add(mesh(new THREE.LatheGeometry(bucketProfile,56),bucketWood));
+    for(var band of [[.040,.014],[.047,.053]]){
+      var hoop=mesh(new THREE.TorusGeometry(band[0],.0022,8,52),matDarkSteel);
+      hoop.rotation.x=Math.PI/2;hoop.position.y=band[1];bucket.add(hoop);
+    }
+    var bucketFill=mesh(new THREE.CircleGeometry(.042,44),water);
+    bucketFill.rotation.x=-Math.PI/2;bucketFill.position.y=.050;bucket.add(bucketFill);
+    var bail=mesh(new THREE.TorusGeometry(.045,.0027,8,40,Math.PI),matDarkSteel);
+    bail.position.y=.061;bucket.add(bail);
+    var ropeWrap=mesh(new THREE.BufferGeometry(),ropeMat);ropeWrap.name='windlass-wound-rope';g.add(ropeWrap);
+    var ropeDrop=mesh(new THREE.CylinderGeometry(ropeRadius,ropeRadius,1,10),ropeMat);
+    ropeDrop.name='windlass-free-rope';g.add(ropeDrop);
+    var liftStart=.089, bailTop=.106, previous=-1;
+    function update(t){
+      if(t===previous)return;
+      previous=t;
+      var theta=TAU*t, wraps=2.2+t, count=Math.ceil(wraps*42),points=[],startX=-.021;
+      drum.rotation.x=-theta;
+      for(var i=0;i<=count;i++){
+        var u=i/count,a=(1-u)*wraps*TAU;
+        points.push(new THREE.Vector3(startX+pitch*wraps*u,axisY+windingRadius*Math.sin(a),windingRadius*Math.cos(a)));
+      }
+      var curve=new THREE.CatmullRomCurve3(points);
+      ropeWrap.geometry.dispose();
+      ropeWrap.geometry=new THREE.TubeGeometry(curve,count,ropeRadius,7,false);
+      var exit=points[points.length-1];
+      bucket.position.set(exit.x,liftStart+windingRadius*theta,exit.z);
+      var hookY=bucket.position.y+bailTop;
+      ropeDrop.position.set(exit.x,(axisY+hookY)/2,exit.z);
+      ropeDrop.scale.y=axisY-hookY;
+      ripples.visible=bucket.position.y<.137;
+    }
+
+    return {id:'windlass',group:g,update:update,setCut:function(){},
+      anchors:{wheel:wheelAnchor,axle:axleAnchor},
+      wheelText:'轮 · 摇柄半径 R=150mm',axleText:'轴 · 卷绳半径 r=50mm',
+      labelOffset:{wheel:[100,-38],axle:[-112,-32]}};
+  }
+
+  var SA = buildScrewdriver(); SA.group.position.set(-0.74, 0, 0.03); stageGroup.add(SA.group);
+  var SB = buildWrench(); SB.group.position.set(0, 0, 0.02); stageGroup.add(SB.group);
+  var SC = buildFaucet(); SC.group.position.set(0.74, 0, FAUCET_Z); SC.group.rotation.y = Math.PI; stageGroup.add(SC.group);
+
+  var shadowA = contactShadow(0.30); shadowA.position.set(-0.74, 0.0015, 0.03); stageGroup.add(shadowA);
+  var shadowB = contactShadow(0.32); shadowB.position.set(0, 0.0015, 0.02); stageGroup.add(shadowB);
+  var shadowC = contactShadow(0.36); shadowC.position.set(0.74, 0.0015, 0.02); stageGroup.add(shadowC);
+
+  var SD=buildWindlass();SD.group.position.set(1.57,0,0);stageGroup.add(SD.group);
+  var shadowD=contactShadow(.58);shadowD.position.set(1.57,.0015,0);stageGroup.add(shadowD);
+  var STATION_OBJS=[SA.group,SB.group,SC.group,SD.group,shadowA,shadowB,shadowC,shadowD];
+
+  var STATIONS = { screwdriver: SA, wrench: SB, faucet: SC, windlass: SD };
+  var handleMat=new THREE.MeshStandardMaterial({color:0x1599bc,roughness:.37,emissive:0x075365,emissiveIntensity:.32});
+  Object.keys(STATIONS).forEach(function(id) {
+    var st=STATIONS[id];
+    st.dragHandle=mesh(new THREE.SphereGeometry(id==='screwdriver'?.0048:id==='windlass'?.011:.0068,16,12),handleMat);
+    if(id==='windlass')st.dragHandle.position.y=.012;
+    st.anchors.wheel.add(st.dragHandle);
+  });
+  var META = {
+    screwdriver: { R: 15, r: 3, F: 20, turns: 5, title: '螺丝刀拧螺丝',
+      desc: '手柄是<b>轮</b>（R=15 mm），刀杆是<b>轴</b>（r=3 mm）。轮和轴同转角，外圈走得更远；忽略摩擦时，轴处的等效切向力是手施力的 5 倍。' },
+    wrench: { R: 180, r: 10, F: 60, turns: 2, title: '扳手拧螺母',
+      desc: '一端开口、一端梅花。本例用梅花端套住螺母，手的力臂 R=180 mm，螺母等效半径 r≈10 mm。理想切向力约放大 18 倍。' },
+    faucet: { R: 40, r: 5, F: 10, turns: 2, title: '水龙头拧阀芯',
+      desc: '手轮带动阀杆升降。「水路剖切」可以看到水从阀座流到出水嘴。' },
+    windlass: {R:150,r:50,F:30,turns:1,title:'水井辘轳提水',
+      desc:'转动摇柄，卷筒收绳，水桶上升。井壁前部作观察剖开。图中按单层卷绕近似，力值为忽略摩擦时的等效绳拉力。'}
+  };
+
+  Object.keys(STATIONS).forEach(function (k) {
+    var m = META[k];
+    STATIONS[k].R = m.R; STATIONS[k].r = m.r; STATIONS[k].F = m.F; STATIONS[k].turns = m.turns;
+    STATIONS[k].t = 0;
+  });
+
+  /* ==================== 螺纹展开：绕在圆柱上的斜面 ==================== */
+  var MU = 0.15;
+
+  var threadDemo = (function () {
+    var g = new THREE.Group();
+    g.visible = false;
+    g.scale.setScalar(3.0);
+    stageGroup.add(g);
+
+    // 深色展示底板：把展开图从木纹台面上“托”出来
+    var plinthMat = new THREE.MeshStandardMaterial({
+      color: 0x05070a, metalness: 0.05, roughness: 0.88, envMapIntensity: 0.14
+    });
+    var plinth = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), plinthMat);
+    plinth.castShadow = true; plinth.receiveShadow = true;
+    g.add(plinth);
+
+    var N = 260;
+    var posArr = new Float32Array((N + 1) * 2 * 3);
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    var idx = [];
+    for (var i = 0; i < N; i++) {
+      var a0 = i * 2, b0 = a0 + 1, c0 = a0 + 2, d0 = a0 + 3;
+      idx.push(a0, c0, b0, b0, c0, d0);
+    }
+    geo.setIndex(idx);
+    var ribbonMat = new THREE.MeshStandardMaterial({
+      color: 0x9a6a0a, metalness: 0.85, roughness: 0.24, side: THREE.DoubleSide, envMapIntensity: 0.8
+    });
+    var ribbon = new THREE.Mesh(geo, ribbonMat);
+    ribbon.castShadow = false;
+    g.add(ribbon);
+
+    // 展开后垫在螺纹下方的薄斜面
+    var wedgeMat = new THREE.MeshStandardMaterial({
+      color: 0xeef2f6, metalness: 0.04, roughness: 0.72, transparent: true, opacity: 0, envMapIntensity: 0.45
+    });
+    var wedge = new THREE.Mesh(new THREE.BufferGeometry(), wedgeMat);
+    wedge.receiveShadow = true;
+    g.add(wedge);
+
+    var edgeMat = new THREE.LineBasicMaterial({ color: 0x0f6b78, transparent: true, opacity: 0 });
+    var edge = new THREE.LineLoop(new THREE.BufferGeometry(), edgeMat);
+    g.add(edge);
+
+    var arcMat = new THREE.LineBasicMaterial({ color: 0x0f6b78, transparent: true, opacity: 0 });
+    var arc = new THREE.Line(new THREE.BufferGeometry(), arcMat);
+    g.add(arc);
+
+    // 折叠状态下的轴（螺纹就绕在它上面）
+    var cylMat = new THREE.MeshStandardMaterial({
+      color: 0x333c45, metalness: 0.9, roughness: 0.32, transparent: true, opacity: 1
+    });
+    var cyl = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 44), cylMat);
+    cyl.castShadow = true;
+    g.add(cyl);
+
+    var block = mesh(new THREE.BoxGeometry(0.0095, 0.0060, 0.0075),
+      new THREE.MeshStandardMaterial({ color: 0x1f252c, metalness: 0.5, roughness: 0.44, envMapIntensity: 0.35 }));
+    g.add(block);
+
+    var angleAnchor = new THREE.Object3D();
+    g.add(angleAnchor);
+
+    function makeArrow(color) {
+      var mat = new THREE.MeshStandardMaterial({
+        color: color, metalness: 0.0, roughness: 0.45, emissive: color, emissiveIntensity: 0.45, envMapIntensity: 0.4
+      });
+      var grp = new THREE.Group();
+      var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.0013, 0.0013, 1, 10), mat);
+      shaft.position.y = 0.5;
+      var head = new THREE.Mesh(new THREE.ConeGeometry(0.0033, 0.0082, 14), mat);
+      grp.add(shaft); grp.add(head);
+      var tip = new THREE.Object3D();
+      grp.add(tip);
+      grp.userData = { shaft: shaft, head: head, tip: tip };
+      g.add(grp);
+      return grp;
+    }
+    var arrowLoad = makeArrow(0xbf1a04);      // 轴向载荷
+    var arrowNormal = makeArrow(0x014a52);    // 正压力
+    var arrowPushIdeal = makeArrow(0x2f6b12); // 无摩擦所需推力
+    var arrowPushReal = makeArrow(0x0a3b0c);  // 有摩擦所需推力
+
+    var UP = new THREE.Vector3(0, 1, 0);
+    function setArrow(grp, origin, dir, len, minLen) {
+      len = Math.max(len, minLen || 0.001);
+      var hs = clamp(len / 0.030, 0.44, 1.15);
+      var headLen = 0.0078 * hs;
+      var shaftLen = Math.max(0.002, len - headLen);
+      var s = grp.userData.shaft, h = grp.userData.head;
+      s.scale.y = shaftLen;
+      s.position.y = shaftLen / 2;
+      h.scale.setScalar(hs);
+      h.position.y = shaftLen + headLen / 2;
+      grp.position.copy(origin);
+      grp.quaternion.setFromUnitVectors(UP, dir.clone().normalize());
+      grp.visible = len > 0.004;
+      grp.userData.tip.position.y = len;
+    }
+
+    var state = { R: 0.0029, P: 0.0025, turns: 4, L: 0, H: 0, alpha: 0, u: 0, s: 0 };
+
+    function layout() {
+      var R = state.R, P = state.P, turns = state.turns, u = state.u;
+      var L = turns * Math.PI * 2 * R;
+      var H = turns * P;
+      state.L = L; state.H = H;
+      var alpha = Math.atan2(H, L);
+      state.alpha = alpha;
+
+      var sinA = Math.sin(alpha), cosA = Math.cos(alpha);
+      var W = 0.0038;                       // 螺纹牙高
+      var zFlat = 0.0020;                   // 展开后贴在斜面之上
+      var planeOn = smoothstep(0.48, 0.96, u);
+
+      // 带宽方向：绕轴时沿轴向(Y)，展开后垂直于斜面
+      var wdx = 0, wdy = 1;
+      var tdx = -sinA, tdy = cosA;
+      var wl = Math.sqrt(Math.pow(wdx + (tdx - wdx) * u, 2) + Math.pow(wdy + (tdy - wdy) * u, 2));
+      var wnx = (wdx + (tdx - wdx) * u) / wl;
+      var wny = (wdy + (tdy - wdy) * u) / wl;
+
+      for (var i = 0; i <= N; i++) {
+        var s = i / N;
+        var th = s * turns * Math.PI * 2;
+        var fx = Math.cos(th) * R, fy = s * H, fz = Math.sin(th) * R; // 螺旋
+        var rx = s * L, ry = s * H, rz = zFlat;                       // 展开
+        var x = fx + (rx - fx) * u;
+        var y = fy + (ry - fy) * u;
+        var z = fz + (rz - fz) * u;
+        var o = i * 6;
+        posArr[o] = x; posArr[o + 1] = y; posArr[o + 2] = z;
+        posArr[o + 3] = x + wnx * W; posArr[o + 4] = y + wny * W; posArr[o + 5] = z;
+      }
+      geo.attributes.position.needsUpdate = true;
+      geo.computeVertexNormals();
+      geo.computeBoundingSphere();
+
+      wedgeMat.opacity = 0.92 * planeOn;
+      wedge.visible = planeOn > 0.02;
+      edgeMat.opacity = 0.95 * planeOn;
+      edge.visible = planeOn > 0.02;
+      arcMat.opacity = 0.95 * planeOn;
+      arc.visible = planeOn > 0.02;
+      angleAnchor.position.set(Math.cos(alpha * 0.5) * 0.011, Math.sin(alpha * 0.5) * 0.011, 0.0032);
+
+      // 轴：展开过程中淡出
+      var cylVis = 1 - smoothstep(0.05, 0.55, u);
+      cyl.visible = cylVis > 0.03;
+      cyl.scale.set(R * 0.94, H, R * 0.94);
+      cyl.position.set(0, H / 2, 0);
+      cylMat.opacity = 0.95 * cylVis;
+
+      // 斜面滑块与力箭头
+      var cx = state.s * L, cy = state.s * H;
+      var nor = new THREE.Vector3(-sinA, cosA, 0);
+      var up = new THREE.Vector3(cosA, sinA, 0);
+      var half = 0.0030;
+      block.position.set(cx + nor.x * half, cy + nor.y * half, 0.009);
+      block.rotation.z = alpha;
+      block.visible = planeOn > 0.25;
+
+      var F = 100;
+      var Fi = F * P / (2 * Math.PI * R);
+      var Ff = F * Math.tan(alpha + Math.atan(MU));
+      state.Fi = Fi; state.Ff = Ff;
+
+      var loadLen = 0.0145;
+      var o = block.position.clone();
+      setArrow(arrowLoad, o.clone().add(new THREE.Vector3(0, -0.0028, 0)), new THREE.Vector3(0, -1, 0), loadLen);
+      setArrow(arrowNormal, o.clone().addScaledVector(nor, 0.0005), nor, 0.0115);
+      setArrow(arrowPushIdeal, o.clone().addScaledVector(nor, 0.0068).addScaledVector(up, 0.0048), up, 0.0060, 0.0060);
+      setArrow(arrowPushReal, o.clone().addScaledVector(nor, -0.0040).addScaledVector(up, 0.0048), up, 0.0085, 0.0060);
+      [arrowLoad, arrowNormal, arrowPushIdeal, arrowPushReal].forEach(function (a) {
+        a.visible = a.visible && planeOn > 0.25;
+      });
+    }
+
+    return {
+      group: g, state: state, layout: layout,
+      setParams: function (R, P, turns) {
+        state.R = R; state.P = P; state.turns = turns;
+        state.u = 0; state.s = 0;
+        var L = turns * Math.PI * 2 * R, H = turns * P;
+        var sh = new THREE.Shape();
+        sh.moveTo(0, 0); sh.lineTo(L, 0); sh.lineTo(L, H); sh.lineTo(0, 0);
+        var wg = new THREE.ExtrudeGeometry(sh, { depth: 0.0026, bevelEnabled: false });
+        wg.translate(0, 0, -0.0012);
+        wedge.geometry.dispose();
+        wedge.geometry = wg;
+        edge.geometry.dispose();
+        edge.geometry = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0.0016),
+          new THREE.Vector3(L, 0, 0.0016),
+          new THREE.Vector3(L, H, 0.0016)
+        ]);
+        var alpha0 = Math.atan2(H, L);
+        var arcPts = [];
+        for (var ai = 0; ai <= 18; ai++) {
+          var aAng = alpha0 * ai / 18;
+          arcPts.push(new THREE.Vector3(Math.cos(aAng) * 0.012, Math.sin(aAng) * 0.012, 0.0018));
+        }
+        arc.geometry.dispose();
+        arc.geometry = new THREE.BufferGeometry().setFromPoints(arcPts);
+        plinth.scale.set(L + 0.014, 0.0045, 0.010);
+        plinth.position.set(L / 2, -0.00225, 0);
+        layout();
+      },
+      setUnroll: function (u) { state.u = u; layout(); },
+      setSlide: function (s) { state.s = s; layout(); },
+      anchors: { load: arrowLoad, normal: arrowNormal, fric: arrowPushIdeal, push: arrowPushReal },
+      angleAnchor: angleAnchor
+    };
+  })();
+
+  /* ==================== 真螺纹：牙面受力 ==================== */
+  var threadReal = (function () {
+    var g = new THREE.Group();
+    g.visible = false;
+    g.scale.setScalar(5.0);
+    stageGroup.add(g);
+
+    var baseMat = new THREE.MeshStandardMaterial({
+      color: 0x05070a, metalness: 0.04, roughness: 0.95, envMapIntensity: 0.08
+    });
+    var base = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.06, 1, 56), baseMat);
+    base.castShadow = true; base.receiveShadow = true;
+    g.add(base);
+
+    var screwBody = new THREE.Group();
+    g.add(screwBody);
+    var nutG = new THREE.Group();
+    g.add(nutG);
+
+    var shankMat = new THREE.MeshStandardMaterial({
+      color: 0x3a4450, metalness: 0.9, roughness: 0.32, envMapIntensity: 0.9
+    });
+    var brassMat = new THREE.MeshStandardMaterial({
+      color:0x9baeb6,metalness:.75,roughness:.33,envMapIntensity:.95
+    });
+    var nutMat = new THREE.MeshStandardMaterial({
+      color:0x9a6e42,metalness:.63,roughness:.40,envMapIntensity:.9
+    });
+    var malePart, femalePart, sectionOn = true;
+
+    function makeArrow(color) {
+      var mat = new THREE.MeshStandardMaterial({
+        color: color, metalness: 0.0, roughness: 0.45, emissive: color, emissiveIntensity: 0.5, envMapIntensity: 0.4
+      });
+      var grp = new THREE.Group();
+      var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.00032, 0.00032, 1, 12), mat);
+      shaft.position.y = 0.5;
+      var head = new THREE.Mesh(new THREE.ConeGeometry(0.00086, 0.0026, 16), mat);
+      grp.add(shaft); grp.add(head);
+      var tip = new THREE.Object3D();
+      grp.add(tip);
+      grp.userData = { shaft: shaft, head: head, tip: tip, mat: mat };
+      g.add(grp);
+      return grp;
+    }
+    var arrows = {
+      load: makeArrow(0xbf1a04),
+      normal: makeArrow(0x014a52),
+      fric: makeArrow(0x8f0b06),
+      push: makeArrow(0x0a3b0c)
+    };
+
+    var UP = new THREE.Vector3(0, 1, 0);
+    function setArrow(grp, origin, dir, len) {
+      var hs = clamp(len / 0.008, 0.55, 1.25);
+      var headLen = 0.0024 * hs;
+      var shaftLen = Math.max(0.0015, len - headLen);
+      var s = grp.userData.shaft, h = grp.userData.head;
+      s.scale.y = shaftLen;
+      s.position.y = shaftLen / 2;
+      h.scale.setScalar(hs);
+      h.position.y = shaftLen + headLen / 2;
+      grp.position.copy(origin);
+      grp.quaternion.setFromUnitVectors(UP, dir.clone().normalize());
+      grp.visible = len > 0.002;
+      grp.userData.tip.position.y = len;
+    }
+
+    var state = { R: 0, P: 0, stationTurns: 0, nutH: 0, nutStart: 0, nutEnd: 0, t: 0 };
+
+    function updateArrows() {
+      var R = state.R, P = state.P;
+      if (!R) return;
+      var h = P / (2 * Math.PI);
+      var nutY = nutG.position.y;
+      var o = new THREE.Vector3(0, nutY - state.nutH * 0.45, R * 1.9);
+      var nDir = new THREE.Vector3(h, R, 0).normalize();
+      var fDir = new THREE.Vector3(-R, h, 0).normalize();
+      var lift = R * 0.42;
+      setArrow(arrows.load, o.clone().add(new THREE.Vector3(0, R * 0.1, 0.0008)), new THREE.Vector3(0, -1, 0), R * 2.6);
+      setArrow(arrows.normal, o.clone().add(new THREE.Vector3(0, 0.0003, 0.0018)), nDir, R * 2.3);
+      setArrow(arrows.fric, o.clone().add(new THREE.Vector3(0, lift, 0.0028)), fDir, R * 1.7);
+      setArrow(arrows.push, o.clone().add(new THREE.Vector3(0, -lift * 0.85, 0.0038)), new THREE.Vector3(1, 0, 0), R * 2.1);
+    }
+
+    function setProgress(t) {
+      state.t = clamp(t, 0, 1);
+      nutG.position.y = state.nutStart + (state.nutEnd - state.nutStart) * state.t;
+      nutG.rotation.y = -state.t * state.stationTurns * TAU;
+      femalePart.setSpin(nutG.rotation.y);
+      updateArrows();
+    }
+
+    function build(spec, stationTurns) {
+      var R=spec.R,P=spec.P;
+      state.R=R;state.P=P;state.stationTurns=stationTurns;
+      [screwBody,nutG].forEach(function(group) {
+        group.traverse(function(o) { if(o.geometry)o.geometry.dispose(); });
+        group.clear();
+      });
+      var headH=R*1.15, threadLow=.005+headH, threadHigh=threadLow+(stationTurns+7)*P;
+      var head=mesh(new THREE.CylinderGeometry(R*1.85,R*1.85,headH,6),shankMat);
+      head.position.y=.005+headH/2;screwBody.add(head);
+      malePart=threadSolid(spec,threadLow,threadHigh,null,brassMat,0,Math.PI);
+      screwBody.add(malePart.group);
+      var nutH=Math.max(4*P,R*1.7);
+      state.nutH=nutH;state.nutStart=threadHigh-nutH*.62;
+      state.nutEnd=state.nutStart-stationTurns*P;
+      femalePart=threadSolid(spec,-nutH/2,nutH/2,function(a,y) {
+        return hexRadius(R*(1.90-.12*clamp((Math.abs(y)/nutH-.42)/.08,0,1)),a);
+      },nutMat,state.nutStart,Math.PI);
+      nutG.add(femalePart.group);
+      malePart.setCut(sectionOn);femalePart.setCut(sectionOn);
+      base.scale.set(R*3,.005,R*3);
+      base.position.y=.0025;
+      setProgress(state.t);
+    }
+    function setCut(on) {
+      sectionOn=on;
+      if(malePart){malePart.setCut(on);femalePart.setCut(on);}
+    }
+
+    return {
+      group: g, build: build, setCut: setCut, setProgress: setProgress, state: state, anchors: arrows,
+      bounds: function () {
+        g.updateMatrixWorld(true);
+        var b = new THREE.Box3().setFromObject(base);
+        b.union(new THREE.Box3().setFromObject(screwBody));
+        b.union(new THREE.Box3().setFromObject(nutG));
+        return b;
+      }
+    };
+  })();
+
+  /* ==================== 相机 ==================== */
+  var navigation=LabKit.createNavigation({
+    element:canvas, pose:{target:[0,.15,0],dist:1.2,yaw:.3,pitch:.3},
+    fov:camera.fov,minDistance:.022,maxDistance:7,
+    apply:function(pose,eye){camera.position.set.apply(camera.position,eye);camera.lookAt.apply(camera,pose.target);}
+  });
+  var DIRS={screwdriver:[.48,.25],wrench:[.38,.55],faucet:[.34,.22],windlass:[.60,.24],overview:[.02,.35]};
+  var sectionViews={
+    screwdriver:{target:[-.74,.047,.03],size:[.117,.105,.117]},
+    wrench:{target:[0,.025,.02],size:[.052,.057,.050]},
+    faucet:{target:[.74,.130,FAUCET_Z+.045],size:[.087,.246,.123]}
+  };
+  function visibleBounds(object) {
+    var bounds=new THREE.Box3(),piece=new THREE.Box3();
+    object.updateWorldMatrix(true,true);
+    object.traverseVisible(function(node){
+      if(!node.geometry)return;
+      if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
+      piece.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld);
+      bounds.union(piece);
+    });
+    return bounds;
+  }
+  function boundsOf(object) {
+    var box=visibleBounds(object);
+    return {target:box.getCenter(new THREE.Vector3()).toArray(),size:box.getSize(new THREE.Vector3()).toArray()};
+  }
+  function flyTo(name,instant) {
+    var box,dir=DIRS[name]||[.16,.24];
+    if(name==='real') {
+      var bounds=threadReal.bounds();
+      box={target:bounds.getCenter(new THREE.Vector3()).toArray(),size:bounds.getSize(new THREE.Vector3()).toArray()};
+    } else if(name==='thread') box=boundsOf(threadDemo.group);
+    else if(name==='section') {box=sectionViews[activeId];dir=activeId==='faucet'?[1.42,.09]:[.10,.14];}
+    else if(name==='overview') {
+      var all=visibleBounds(bench);
+      [SA,SB,SC,SD].forEach(function(st){all.union(visibleBounds(st.group));});
+      box={target:all.getCenter(new THREE.Vector3()).toArray(),size:all.getSize(new THREE.Vector3()).toArray()};
+    } else if(STATIONS[name]) box=boundsOf(STATIONS[name].group);
+    else return;
+    var pose=LabKit.fitPose({target:box.target,size:box.size.map(function(v){return Math.max(.001,v);}),
+      yaw:dir[0],pitch:dir[1],fov:camera.fov,aspect:camera.aspect,fill:name==='section'?.79:.80});
+    if(instant)navigation.setPose(pose);else navigation.follow(pose);
+  }
+
+  /* ==================== 状态与界面 ==================== */
+  var activeId = 'screwdriver';
+  var autoOn = false, autoDir = 1, autoHold = 0, cutOn = false, threadCutOn = true, labelsOn = true;
+  var threadMode = false, threadStart = 0, threadView = 'real';
+
+  var el = {
+    title: $('stTitle'), desc: $('stDesc'), vF: $('vF'), vTurn: $('vTurn'),
+    stStatus: $('stStatus'), force: $('force'), turn: $('turn'),
+    btnAuto: $('btnAuto'), btnReset: $('btnReset'), btnCut: $('btnCut')
+  };
+
+  function setText(node, txt) { if (node.textContent !== txt) node.textContent = txt; }
+  function active() { return STATIONS[activeId]; }
+
+  function setTurn(v, fromSlider) {
+    if(!Number.isFinite(v))return;
+    var st = active();
+    st.t = clamp(v, 0, 1);
+    if (!fromSlider) el.turn.value = Math.round(st.t * 1000);
+    st.update(st.t);
+    if (threadMode) {
+      if (threadView === 'incline') threadDemo.setSlide(st.t);
+      else threadReal.setProgress(st.t);
+    }
+    updateReadouts();
+  }
+
+  function updateWheelDiagram(st,m,forceAtAxis) {
+    var horizontal=activeId==='windlass',dir=activeId==='faucet'?-1:1;
+    var cx=135,cy=85,R=63,r=R*m.r/m.R,start=horizontal?-Math.PI/2:0;
+    var angle=st.t*m.turns*TAU,sweep=angle%TAU,theta=start+dir*sweep;
+    var c=Math.cos(theta),d=Math.sin(theta);
+    function attrs(id,values) {
+      var element=$(id);
+      for(var key in values)element.setAttribute(key,values[key]);
+    }
+    var x=cx+R*c,y=cy+R*d,u=cx+r*c,v=cy+r*d;
+    var bx=cx+R*Math.cos(start),by=cy+R*Math.sin(start);
+    attrs('axleCircle',{r:r});
+    attrs('axisCenter',{r:Math.min(2.7,r*.39)});
+    attrs('rotationSector',{d:sweep<1e-9?'':'M '+cx+' '+cy+' L '+bx+' '+by+
+      ' A '+R+' '+R+' 0 '+(sweep>Math.PI?1:0)+' '+(dir===1?1:0)+' '+x+' '+y+' Z'});
+    attrs('radiusBase',{x2:bx,y2:by});
+    attrs('radiusTrace',{x2:x,y2:y});
+    attrs('radiusOuter',{cx:x,cy:y});attrs('radiusInner',{cx:u,cy:v,r:Math.min(3.4,r*.45)});
+    attrs('forceOuter',{x1:x,y1:y,x2:x-28*dir*d,y2:y+28*dir*c});
+    if(horizontal){
+      attrs('forceInner',{x1:cx-r,y1:cy,x2:cx-r,y2:cy+24});
+      attrs('ropeTangent',{x1:cx-r,y1:cy,x2:cx-r,y2:cy+46,visibility:'visible'});
+    } else {
+      attrs('forceInner',{x1:u,y1:v,x2:u+24*dir*d,y2:v-24*dir*c});
+      attrs('ropeTangent',{visibility:'hidden'});
+    }
+    setText($('diagramAngle'),(dir===1?'顺时针 ':'逆时针 ')+Math.round(angle*180/Math.PI)+'°');
+    setText($('diagramF'),'动力 F = '+st.F+' N');
+    setText($('diagramf'),(horizontal?'理想绳拉力 ':'等效阻力 ')+'≈ '+Math.round(forceAtAxis)+' N');
+    setText($('diagramRatio'),'R = '+m.R+' mm　r = '+m.r+' mm　R∶r = '+(m.R/m.r).toFixed(1)+'∶1');
+    setText($('diagramExplain'),horizontal?'沿摇柄端看横轴。蓝色虚线是绳索，绳在卷筒切点向下拉。':'从上向下沿竖轴观察。两圈按 R∶r 绘制，箭头示意切向方向。');
+  }
+
+  function updateReadouts() {
+    var st = active(), m = META[activeId];
+    var Rm = m.R / 1000, rm = m.r / 1000;
+    var F = st.F;
+    var M = F * Rm;
+    var F2 = M / rm;
+    updateWheelDiagram(st,m,F2);
+
+    setText(el.vF, F + ' N');
+    setText(el.vTurn, (st.t * m.turns).toFixed(1) + ' 圈');
+
+    if (activeId === 'screwdriver') {
+      setText(el.stStatus, st.t < 0.005 ? '静止，等待转动' : (st.t > 0.995 ? '螺钉已拧紧到位' : '已拧入 ' + (st.t * 10).toFixed(1) + ' mm / 10 mm'));
+    } else if (activeId === 'wrench') {
+      setText(el.stStatus, st.t < 0.005 ? '静止，等待转动' : '螺母下行 ' + (st.t * m.turns * THREAD.wrench.P * 1000).toFixed(1) + ' mm');
+    } else if(activeId==='windlass') {
+      setText(el.stStatus, '收绳并提升 '+(st.t*TAU*m.r/10).toFixed(1)+' cm');
+    } else {
+      setText(el.stStatus,st.t===0?'关闭 · 阀垫压住阀座，进水侧被封住':'开启 · 阀垫抬起 '+(st.t*4).toFixed(2)+' mm，水穿过缝隙后流向出水嘴');
+    }
+  }
+
+  function updateTabs() {
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('active', tabs[i].getAttribute('data-st') === activeId);
+  }
+
+  function selectStation(id, instant) {
+    if (!STATIONS[id]) return;
+    active().setCut(false);cutOn=false;
+    if(id!=='screwdriver'&&threadMode)setThreadMode(false);
+    activeId = id;
+    var m = META[id];
+    setText(el.title, m.title);
+    el.desc.innerHTML = m.desc;
+    el.force.value = STATIONS[id].F;
+    el.turn.value = Math.round(STATIONS[id].t * 1000);
+    refreshCutButton();
+    updateTabs();
+    setTurn(STATIONS[id].t, true);
+    flyTo(id, instant);
+    autoOn = false; el.btnAuto.classList.remove('on'); el.btnAuto.textContent = '自动演示';
+    if (threadMode) setThreadMode(true);
+  }
+
+  function refreshThreadPanel() {
+    var th = THREAD[activeId];
+    var R = th.R, P = th.P;
+    var L = 2 * Math.PI * R;
+    var alpha = Math.atan2(P, L);
+    var Fi = 100 * P / L;
+    var Ff = 100 * Math.tan(alpha + Math.atan(MU));
+    setText($('tP'), (P * 1000).toFixed(1) + ' mm');
+    setText($('tC'), (L * 1000).toFixed(1) + ' mm');
+    setText($('tA'), (alpha * 180 / Math.PI).toFixed(1) + '°');
+    setText($('tFi'), Fi.toFixed(1) + ' N');
+    setText($('tFf'), Ff.toFixed(1) + ' N');
+  }
+
+  function refreshThreadCopy() {
+    var real = threadView === 'real';
+    $('threadDesc').innerHTML = real
+      ? '蓝灰色是外牙剖面，暖橙色是内牙剖面。拖动转动滑条，看螺母每转一圈沿轴前进一个螺距。'
+      : '把螺纹沿圆柱展开，就是一条坡度很小的斜面。转动时，螺母必须沿这条斜面爬升，所以螺纹既放大轴向力，也产生摩擦阻力。';
+    $('threadNote').innerHTML = real
+      ? '剖切经过中心轴。模型保留牙顶、牙侧和牙底，牙高和间隙用于教学示意；下列力值来自展开斜面的近似模型。'
+      : '多出来的部分，就是螺纹“咬住”你、让你觉得发涩的摩擦阻力。箭头长短为示意。';
+    var segs = document.querySelectorAll('#threadSeg button');
+    for (var i = 0; i < segs.length; i++) {
+      segs[i].classList.toggle('on', segs[i].getAttribute('data-tv') === threadView);
+    }
+    var fdot = demoLabels.fric && demoLabels.fric.querySelector('i');
+    if (fdot) fdot.style.background = real ? '#c0392b' : '#7cb342';
+  }
+
+  function setThreadView(v, instant) {
+    if (v !== 'real' && v !== 'incline') return;
+    threadView = v;
+    refreshThreadCopy();
+    refreshCutButton();
+    if (!threadMode) return;
+    var isReal = v === 'real';
+    var th = THREAD[activeId];
+    threadDemo.group.visible = !isReal;
+    threadReal.group.visible = isReal;
+    if (isReal) {
+      threadStart = 0;
+      threadReal.group.position.set(0, 0.0015, 0.26);
+      threadReal.build(th, META[activeId].turns);
+      threadReal.setCut(threadCutOn);
+      threadReal.setProgress(active().t);
+      refreshThreadPanel();
+      flyTo('real', instant);
+    } else {
+      threadDemo.group.position.set(0, 0.0145, 0.26);
+      threadDemo.setParams(th.R, th.P, th.turns);
+      threadDemo.setSlide(active().t);
+      refreshThreadPanel();
+      if (instant) {
+        threadDemo.setUnroll(1);
+        threadStart = 0;
+        flyTo('thread', true);
+      } else {
+        threadStart = performance.now();
+        flyTo('thread');
+      }
+    }
+  }
+
+  function setThreadMode(on, instant) {
+    if(on&&activeId!=='screwdriver')return;
+    threadMode = on;refreshCutButton();
+    $('btnThread').classList.toggle('on', on);
+    $('threadSec').style.display = on ? '' : 'none';
+    STATION_OBJS.forEach(function (o) { o.visible = !on; });
+    if (on) {
+      setThreadView(threadView, instant);
+
+    } else {
+      threadDemo.group.visible = false;
+      threadReal.group.visible = false;
+      flyTo(activeId);
+    }
+  }
+
+  /* ==================== 标注（气泡 + 引线） ==================== */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var leaders = $('leaders');
+  var leaderLines = [], leaderDots = [];
+  for (var li = 0; li < 2; li++) {
+    var ln = document.createElementNS(SVGNS, 'line');
+    ln.setAttribute('stroke', li === 0 ? '#0d8b93' : '#e07a3f');
+    ln.setAttribute('stroke-width', '1.4');
+    ln.setAttribute('stroke-dasharray', '3 4');
+    ln.setAttribute('opacity', '0');
+    leaders.appendChild(ln);
+    var dt = document.createElementNS(SVGNS, 'circle');
+    dt.setAttribute('r', '3.2');
+    dt.setAttribute('fill', li === 0 ? '#0d8b93' : '#e07a3f');
+    dt.setAttribute('opacity', '0');
+    leaders.appendChild(dt);
+    leaderLines.push(ln); leaderDots.push(dt);
+  }
+
+  var labelPool = [];
+  ['w', 'a'].forEach(function (kind) {
+    var d = document.createElement('div');
+    d.className = 'lab ' + kind;
+    d.innerHTML = '<i></i><span></span>';
+    $('labels').appendChild(d);
+    labelPool.push(d);
+  });
+
+  var demoLabels = {};
+  [['load', '#e07a3f', '载荷 100 N'], ['normal', '#0d8b93', '正压力 N'], ['fric', '#7cb342', '推力·无摩擦'], ['push', '#2e7d32', '推力·有摩擦'], ['angle', '#0f6b78', '螺旋角 α']].forEach(function (d) {
+    var node = document.createElement('div');
+    node.className = 'lab';
+    node.innerHTML = '<i style="background:' + d[1] + '"></i><span>' + d[2] + '</span>';
+    $('labels').appendChild(node);
+    var lead = document.createElementNS(SVGNS, 'line');
+    lead.setAttribute('stroke', d[1]);
+    lead.setAttribute('stroke-width', '1.3');
+    lead.setAttribute('stroke-dasharray', '3 4');
+    lead.setAttribute('opacity', '0');
+    leaders.appendChild(lead);
+    node._leader = lead;
+    demoLabels[d[0]] = node;
+  });
+
+  function hideDemoLabels() {
+    Object.keys(demoLabels).forEach(function (k) {
+      demoLabels[k].classList.remove('on');
+      if (demoLabels[k]._leader) demoLabels[k]._leader.setAttribute('opacity', '0');
+    });
+  }
+
+  var tmpV = new THREE.Vector3();
+  function projectTo(node, anchor, dx, dy, text) {
+    anchor.getWorldPosition(tmpV);
+    var d = tmpV.distanceTo(camera.position);
+    tmpV.project(camera);
+    if (tmpV.z >= 1 || d > 2.6) {
+      node.classList.remove('on');
+      if (node._leader) node._leader.setAttribute('opacity', '0');
+      return;
+    }
+    var ax = (tmpV.x * 0.5 + 0.5) * canvas.clientWidth;
+    var ay = (-tmpV.y * 0.5 + 0.5) * canvas.clientHeight;
+    var lx = clamp(ax + dx, 65, canvas.clientWidth - 65);
+    var ly = clamp(ay + dy, 72, canvas.clientHeight - 38);
+    node.style.left = lx + 'px';
+    node.style.top = ly + 'px';
+    node.classList.add('on');
+    if (node._leader) {
+      var ang = Math.atan2(ay - ly, ax - lx);
+      node._leader.setAttribute('x1', ax);
+      node._leader.setAttribute('y1', ay);
+      node._leader.setAttribute('x2', lx + Math.cos(ang) * 52);
+      node._leader.setAttribute('y2', ly + Math.sin(ang) * 14);
+      node._leader.setAttribute('opacity', '0.8');
+    }
+    if (text) {
+      var span = node.querySelector('span');
+      if (span.textContent !== text) span.textContent = text;
+    }
+    return { x: ax, y: ay };
+  }
+
+  function updateLabels() {
+    var st = active();
+    var waterSection=activeId==='faucet'&&cutOn;
+    var stationOn=labelsOn&&!threadMode&&!waterSection;
+
+    var pairs = [
+      { node: labelPool[0], anchor: st.anchors.wheel, text: st.wheelText, dx: st.labelOffset.wheel[0], dy: st.labelOffset.wheel[1], i: 0 },
+      { node: labelPool[1], anchor: st.anchors.axle, text: st.axleText, dx: st.labelOffset.axle[0], dy: st.labelOffset.axle[1], i: 1 }
+    ];
+    for (var i = 0; i < pairs.length; i++) {
+      var p = pairs[i];
+      if (!stationOn) {
+        p.node.classList.remove('on');
+        leaderLines[p.i].setAttribute('opacity', '0');
+        leaderDots[p.i].setAttribute('opacity', '0');
+        continue;
+      }
+      p.anchor.getWorldPosition(tmpV);
+      var near = tmpV.distanceTo(camera.position) < 2.6;
+      var px = tmpV.clone().project(camera);
+      if (px.z >= 1 || !near) {
+        p.node.classList.remove('on');
+        leaderLines[p.i].setAttribute('opacity', '0');
+        leaderDots[p.i].setAttribute('opacity', '0');
+        continue;
+      }
+      var ax = (px.x * 0.5 + 0.5) * canvas.clientWidth;
+      var ay = (-px.y * 0.5 + 0.5) * canvas.clientHeight;
+      var lx = clamp(ax + p.dx, 110, canvas.clientWidth - 110);
+      var ly = clamp(ay + p.dy, 72, canvas.clientHeight - 38);
+      p.node.classList.add('on');
+      p.node.style.left = lx + 'px';
+      p.node.style.top = ly + 'px';
+      var span = p.node.querySelector('span');
+      if (span.textContent !== p.text) span.innerHTML = p.text;
+      var ln = leaderLines[p.i], dot = leaderDots[p.i];
+      ln.setAttribute('x1', ax); ln.setAttribute('y1', ay);
+      ln.setAttribute('x2', lx - (p.dx > 0 ? 62 : -62)); ln.setAttribute('y2', ly);
+      ln.setAttribute('opacity', '0.85');
+      dot.setAttribute('cx', ax); dot.setAttribute('cy', ay);
+      dot.setAttribute('opacity', '0.95');
+    }
+
+    if (!threadMode) {
+      hideDemoLabels();
+      if(waterSection&&labelsOn){
+        projectTo(demoLabels.load,st.flowAnchors.inlet,93,10,'进水口');
+        projectTo(demoLabels.normal,st.flowAnchors.seat,113,-13,st.t===0?'阀垫封住阀座':'阀座缝隙');
+        projectTo(demoLabels.push,st.flowAnchors.outlet,-98,19,'出水嘴');
+      }
+      return;
+    }
+    if (threadView === 'real') {
+      hideDemoLabels();
+      var rdefs = [
+        ['load', threadReal.anchors.load.userData.tip, -72, 12, '载荷 F = 100 N'],
+        ['normal', threadReal.anchors.normal.userData.tip, 30, -36, '正压力 N'],
+        ['fric', threadReal.anchors.fric.userData.tip, -92, -20, '摩擦 f = μN'],
+        ['push', threadReal.anchors.push.userData.tip, 94, 10, '切向力 T']
+      ];
+      for (var k3 = 0; k3 < rdefs.length; k3++) {
+        var r3 = rdefs[k3];
+        projectTo(demoLabels[r3[0]], r3[1], r3[2], r3[3], r3[4]);
+      }
+      return;
+    }
+    if (threadDemo.state.u < 0.5) {
+      hideDemoLabels();
+      return;
+    }
+    var defs = [
+      ['load', threadDemo.anchors.load.userData.tip, -70, 6],
+      ['normal', threadDemo.anchors.normal.userData.tip, -92, -34],
+      ['fric', threadDemo.anchors.fric.userData.tip, 24, 54],
+      ['push', threadDemo.anchors.push.userData.tip, 94, 6],
+      ['angle', threadDemo.angleAnchor, -64, 30]
+    ];
+    for (var k2 = 0; k2 < defs.length; k2++) {
+      var d2 = defs[k2];
+      var txt = d2[0] === 'angle' ? '螺旋角 α = ' + (threadDemo.state.alpha * 180 / Math.PI).toFixed(1) + '°' : null;
+      projectTo(demoLabels[d2[0]], d2[1], d2[2], d2[3], txt);
+    }
+  }
+
+  /* ==================== 交互 ==================== */
+  var raycaster = new THREE.Raycaster();
+  var pointerNDC = new THREE.Vector2();
+  var dragState = null;
+
+  function pickStation(ev) {
+    var rect = canvas.getBoundingClientRect();
+    pointerNDC.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    pointerNDC.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointerNDC, camera);
+    var handle=active().dragHandle;
+    for(var o=handle;o;o=o.parent)if(!o.visible)return false;
+    return raycaster.intersectObject(handle).length > 0;
+  }
+
+  canvas.addEventListener('pointerdown', function (ev) {
+    if (ev.button !== 0 || ev.shiftKey || !ev.isPrimary) return;
+    if (pickStation(ev)) {
+      dragState = { x: ev.clientX, id: ev.pointerId };
+      navigation.stop();
+      ev.stopImmediatePropagation();
+      canvas.setPointerCapture(ev.pointerId);
+      canvas.style.cursor = 'grabbing';
+      autoOn = false; el.btnAuto.classList.remove('on'); el.btnAuto.textContent = '自动演示';
+      ev.preventDefault();
+    }
+  }, true);
+
+  window.addEventListener('pointermove', function (ev) {
+    if (!dragState || ev.pointerId !== dragState.id) return;
+    var dx = ev.clientX - dragState.x;
+    dragState.x = ev.clientX;
+    setTurn(active().t + dx * 0.00026);
+    ev.preventDefault();
+  });
+
+  function endDrag(ev) {
+    if (!dragState) return;
+    if (dragState.id === ev.pointerId) {
+      dragState = null;
+      canvas.style.cursor = '';
+    }
+  }
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+
+  window.addEventListener('keydown', function (ev) {
+    if (ev.target && /^(INPUT|BUTTON|SELECT|TEXTAREA)$/.test(ev.target.tagName)) return;
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+    setTurn(active().t + (ev.key === 'ArrowRight' ? 0.02 : -0.02));
+    ev.preventDefault();
+  });
+
+  /* ==================== 控件 ==================== */
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () { selectStation(tab.getAttribute('data-st'),true); });
+  });
+
+  el.force.addEventListener('input', function () {
+    active().F = parseInt(el.force.value, 10);
+    updateReadouts();
+  });
+
+  el.turn.addEventListener('input', function () {
+    autoOn=false;el.btnAuto.classList.remove('on');el.btnAuto.textContent='自动演示';
+    setTurn(parseInt(el.turn.value, 10) / 1000, true);
+  });
+
+  el.btnAuto.addEventListener('click', function () {
+    autoOn = !autoOn;
+    el.btnAuto.classList.toggle('on', autoOn);
+    el.btnAuto.textContent = autoOn ? '暂停演示' : '自动演示';
+    autoHold = 0;
+  });
+
+  el.btnReset.addEventListener('click', function () {
+    autoOn = false; el.btnAuto.classList.remove('on'); el.btnAuto.textContent = '自动演示';
+    setTurn(0);
+  });
+
+  function refreshCutButton() {
+    var on=threadMode?threadCutOn:cutOn;
+    var showCut=threadMode?threadView==='real':activeId==='faucet';
+    el.btnCut.classList.toggle('hidden',!showCut);
+    $('btnThread').hidden=activeId!=='screwdriver';
+    $('faucetGuide').hidden=activeId!=='faucet'||!cutOn;
+    $('threadSeg').hidden=!threadMode;
+    el.btnCut.classList.toggle('on',on);
+    el.btnCut.textContent=on?'恢复外观':activeId==='faucet'?'水路剖切':'纵向剖切';
+    el.btnCut.setAttribute('aria-pressed',String(on));
+  }
+
+  el.btnCut.addEventListener('click',function(){
+    if(threadMode?threadView!=='real':activeId!=='faucet')return;
+    if(threadMode){
+      threadCutOn=!threadCutOn;threadReal.setCut(threadCutOn);
+    }else{
+      cutOn=!cutOn;active().setCut(cutOn);flyTo(cutOn?'section':activeId);
+    }
+    refreshCutButton();
+  });
+
+  $('btnOverview').addEventListener('click', function () {
+    if (threadMode) setThreadMode(false);
+    flyTo('overview');
+  });
+
+  $('btnView').addEventListener('click',function(){
+    flyTo(threadMode?(threadView==='real'?'real':'thread'):(cutOn?'section':activeId));
+  });
+  $('btnThread').addEventListener('click', function () { setThreadMode(!threadMode); });
+
+  var segBtns = document.querySelectorAll('#threadSeg button');
+  for (var sbi = 0; sbi < segBtns.length; sbi++) {
+    segBtns[sbi].addEventListener('click', function () {
+      setThreadView(this.getAttribute('data-tv'), false);
+    });
+  }
+
+  $('btnLabels').addEventListener('click', function () {
+    labelsOn = !labelsOn;
+    this.classList.toggle('on', labelsOn);
+    if (!labelsOn) {
+      labelPool[0].classList.remove('on');
+      labelPool[1].classList.remove('on');
+      leaderLines[0].setAttribute('opacity', '0'); leaderLines[1].setAttribute('opacity', '0');
+      leaderDots[0].setAttribute('opacity', '0'); leaderDots[1].setAttribute('opacity', '0');
+    }
+  });
+
+  /* ==================== 渲染循环 ==================== */
+  function resize() {
+    var w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    leaders.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    leaders.setAttribute('width', w);
+    leaders.setAttribute('height', h);
+  }
+  function fitToolbar() {
+    var top=$('stageToolbar').offsetHeight;
+    if(top>0)canvas.parentElement.style.setProperty('--toolbar-height',(top+3)+'px');
+  }
+  new ResizeObserver(resize).observe(canvas);
+  new ResizeObserver(fitToolbar).observe($('stageToolbar'));
+  fitToolbar();resize();
+
+  var clock = new THREE.Clock();
+
+  function tick() {
+    requestAnimationFrame(tick);
+    var dt = Math.min(clock.getDelta(), 0.05);
+
+    if (autoOn && !dragState) {
+      if (autoHold > 0) { autoHold -= dt; }
+      else {
+        var st = active();
+        var nt = st.t + autoDir * dt * 0.16;
+        if (nt >= 1) { nt = 1; autoDir = -1; autoHold = 0.8; }
+        if (nt <= 0) { nt = 0; autoDir = 1; autoHold = 0.8; }
+        setTurn(nt);
+      }
+    }
+
+    if (threadMode && threadStart) {
+      var uu = clamp((performance.now() - threadStart) / 850, 0, 1);
+      var ee = uu < 0.5 ? 2 * uu * uu : 1 - Math.pow(-2 * uu + 2, 2) / 2;
+      threadDemo.setUnroll(ee);
+      if (uu >= 1) threadStart = 0;
+    }
+
+    if(activeId==='faucet'&&cutOn)active().animate(dt);
+    navigation.update(dt);
+    renderer.render(scene, camera);
+    updateLabels();
+  }
+
+  /* ==================== 启动 ==================== */
+  STATIONS.screwdriver.update(0);
+  STATIONS.wrench.update(0);
+  STATIONS.faucet.update(0);
+  STATIONS.windlass.update(0);
+  selectStation('screwdriver', true);
+  flyTo('screwdriver', true);
+  updateReadouts();
+
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('view')) flyTo(qs.get('view'), true);
+  if (qs.get('st') && STATIONS[qs.get('st')]) selectStation(qs.get('st'), true);
+  if (qs.get('t')) setTurn(parseFloat(qs.get('t')));
+  if (qs.get('tv')) threadView = qs.get('tv') === 'incline' ? 'incline' : 'real';
+  if (qs.get('thread') === '1') setThreadMode(true, true);
+  if (qs.get('cut') === '1' && !threadMode && activeId==='faucet') {cutOn=true;active().setCut(true);refreshCutButton();flyTo('section',true);}
+
+  tick();
+
+  window.__WA = {
+    camera: camera, controls: navigation, scene: scene, renderer: renderer,
+    stations: STATIONS, meta: META, select: selectStation, turn: setTurn, fly: flyTo,
+    threadMode: function () { return threadMode; }, threadView: function () { return threadView; },
+    threadReal: threadReal, threadDemo: threadDemo, threadSpec: THREAD, toothRadius: toothRadius
+  };
+})();
+</script>
+</body></html>
