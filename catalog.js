@@ -163,6 +163,27 @@ window.MODEL_CATALOG = [
   "accent": "green"
 },
   {
+    "id": "wheel-axle",
+    "title": "生活中的轮轴 · 四种实物观察",
+    "subtitle": "螺丝刀、扳手、水龙头与水井辘轳",
+    "category": "力学实验",
+    "summary": "沿转轴看轮和轴的半径与切向力，拖动滑块或蓝点观察运动。螺丝刀可看真实螺旋牙剖面，水龙头可剖切观察阀垫开闭和水路，水井辘轳可看卷筒收绳和水桶上升。",
+    "tags": [
+      "轮轴",
+      "省力",
+      "力臂",
+      "螺纹",
+      "水路剖切",
+      "水井辘轳",
+      "Three.js",
+      "离线"
+    ],
+    "path": "models/wheel-axle.html?v=20261108",
+    "cover": "assets/covers/wheel-axle-scene.jpg?v=20261108-real",
+    "symbol": "轴",
+    "accent": "green"
+  },
+  {
     "id": "gold-leaf-electroscope",
     "title": "金属箔验电器 · 静电感应与电荷转移",
     "subtitle": "橡胶棒/玻璃棒 · 正负电荷 · 单双验电器 · 接地与分电",
