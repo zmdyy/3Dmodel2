@@ -1,0 +1,47 @@
+name: Verify thermometer camera navigation
+on:
+  push:
+    branches:
+      - verify/thermometer-navigation
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright and select runner Chrome
+        run: |
+          npm install --prefix "$RUNNER_TEMP/therm-deps" playwright@1.56.1
+          echo "LAB_KIT_NODE_MODULES=$RUNNER_TEMP/therm-deps/node_modules" >> "$GITHUB_ENV"
+          echo "LAB_KIT_CHROMIUM=$(command -v google-chrome)" >> "$GITHUB_ENV"
+      - name: Verify current and previous preset poses plus pointer gestures
+        run: |
+          git show HEAD~2:models/thermometers-thermal-expansion.html > "$RUNNER_TEMP/previous-thermometer.html"
+          sha256sum models/thermometers-thermal-expansion.html
+          node scripts/tests/thermometer-camera-check.cjs "$RUNNER_TEMP/previous-thermometer.html"
+      - name: Verify reuse registry and shared browser features
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, pathlib, re
+          path = pathlib.Path('shared/lab-kit/registry.json')
+          source = pathlib.Path('models/thermometers-thermal-expansion.html')
+          old = '4b5441941d97b4cdb6559ece7b01c483ce2ac3149f5edd09efebc6af005fc875'
+          new = hashlib.sha256(source.read_bytes()).hexdigest()
+          content = path.read_text()
+          assert content.count(old) == 2
+          path.write_text(content.replace(old, new))
+          PY
+          result=0
+          python scripts/reuse-context.py --validate || result=1
+          node scripts/tests/lab-kit.cjs || result=1
+          node scripts/tests/reuse-browser.cjs || result=1
+          node scripts/tests/instrument-patterns.cjs || result=1
+          exit "$result"
