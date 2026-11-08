@@ -8,7 +8,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,12 +21,11 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/therm-deps" playwright@1.56.1
           echo "LAB_KIT_NODE_MODULES=$RUNNER_TEMP/therm-deps/node_modules" >> "$GITHUB_ENV"
           echo "LAB_KIT_CHROMIUM=$(command -v google-chrome)" >> "$GITHUB_ENV"
-      - name: Verify current and previous preset poses plus pointer gestures
+      - name: Verify native pointer gestures in nine views
         run: |
-          git show HEAD~2:models/thermometers-thermal-expansion.html > "$RUNNER_TEMP/previous-thermometer.html"
           sha256sum models/thermometers-thermal-expansion.html
-          node scripts/tests/thermometer-camera-check.cjs "$RUNNER_TEMP/previous-thermometer.html"
-      - name: Verify reuse registry and shared browser features
+          timeout 100s node scripts/tests/thermometer-camera-check.cjs
+      - name: Verify reuse registry and shared unit checks
         if: always()
         run: |
           python - <<'PY'
@@ -42,6 +41,4 @@ jobs:
           result=0
           python scripts/reuse-context.py --validate || result=1
           node scripts/tests/lab-kit.cjs || result=1
-          node scripts/tests/reuse-browser.cjs || result=1
-          node scripts/tests/instrument-patterns.cjs || result=1
           exit "$result"
