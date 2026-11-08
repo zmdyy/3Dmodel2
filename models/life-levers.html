@@ -16,7 +16,7 @@ const entries=[
 {id:'scissors',title:'剪刀',kind:'两根杠杆共用一根转轴',pivot:'中间螺钉的轴线',effort:'两个手柄环',load:'刀刃与被剪物的接触处',task:'合拢手柄，观察两片刀刃绕同一根转轴相向转动。旋转视角，看两片刀刃在厚度方向错开。',tag:'共用同一根转轴',tip:'每个手柄和对应刀刃连成一体；两片剪体分开转动。',scope:'外形对照 Clover NCS 240 全金属裁布剪的整体与侧面照片，细长刀刃、大小指孔及螺钉连接分别建模。选用普通直刃剪刀，保留两片剪体、双手柄环和贯穿螺钉。刀刃分置不同厚度层，避免互相穿模。本例只观察开合，不依据外形一概判定所有剪刀的省力或费力。'},
 {id:'nail',title:'指甲钳',kind:'复合杠杆 · 压柄转动与刀身弹性变形',pivot:'压柄与销轴上端的连接处',effort:'压柄远端的手指按压处',load:'压柄凸起与上刀身的接触处',task:'缓慢按下压柄，先看压柄绕销轴转动，再看上刀身弯曲、两侧刀口靠近。不要把压柄的转轴当成整个指甲钳唯一的支点。',tag:'分两层看运动',tip:'上方压柄转动；下方刀身发生弹性弯曲并回弹。',scope:'外形对照 Tweezerman 翻压式指甲钳的闭合、展开及刀口特写，薄钢片、弧形刀口、销轴与压柄分别建模；采用普通翻压式指甲钳，包含压柄、销轴、上刀身、下刀身与刀口。压柄接触点沿上刀身少量移动，刀身弯曲用悬臂曲线表示。与真实刀口有关的微小错位作放大可辨的简化，非精密制造图。'}
 ,{"id":"fishing","title":"钓鱼竿","kind":"费力杠杆 · 双手抬竿","pivot":"靠近竿尾的后手支承处（等效支点）","effort":"前手握住竿柄并向上抬的位置","load":"竿梢导环处，鱼线向下拉竿","task":"拖动蓝点或进度条抬竿。切到正视，比较前手和竿梢的移动距离。","tag":"动力作用处在支点与竿梢之间","tip":"前手抬起一小段，竿梢和鱼向上移动得更远。","scope":"双手抬竿、鱼线绷直的教学工况。后手握点视为等效支点，竿体保留定性弹性弯曲，竿梢阻力为鱼线拉力的等效表示。导环随竿移动，鱼线经过导环连接鱼。未模拟抛投、收线、水下受力或真实竿体应力。"},
-{"id":"wingcork","title":"双翼红酒开瓶器","kind":"螺旋与省力杠杆 · 旋入后压翼拔塞","pivot":"两翼各自的铰轴，图中标出右侧作为观察代表","effort":"旋入时转动顶柄；拔塞时下压两翼末端","load":"拔塞时翼根齿与中轴齿条的接触处","task":"慢速播放，先看旋入时双翼抬起，再看压翼拔塞。也可先向上拖蓝点至双翼抬起，松手后向下拖动。切到正视或支点近看观察传动。","tag":"先旋入，再压下双翼","tip":"瓶口支承套保持在瓶口，两翼绕铰轴转动，翼根带动中轴和软木塞上升。","scope":"外观参照用户提供的双翼式开瓶器。保留香槟色金属、黑色手柄、防滑底圈、双铰轴、环形顶柄、螺旋钻与中轴齿条。齿形、尺寸、瓶塞插入阻力均为教学简化；中轴位移与双翼转角同源，不计算实际拔塞力。"}
+{"id":"wingcork","title":"双翼红酒开瓶器","kind":"螺旋与省力杠杆 · 旋入后压翼拔塞","pivot":"两翼各自的铰轴，图中标出右侧作为观察代表","effort":"旋入时转动顶柄；拔塞时下压两翼末端","load":"拔塞时翼根齿与中轴齿条的接触处","task":"先向下拖顶柄上的蓝点。螺旋尖端碰到瓶塞后，顶柄顺时针转动并继续下行。双翼抬起后松手，再向下拖翼端蓝点拔塞。也可慢速播放观察。","tag":"先旋入，再压下双翼","tip":"旋入时瓶塞留在瓶口，螺旋每转一圈下行一个螺距，齿条带动双翼抬起。压翼时，中轴和瓶塞一起上升。","scope":"外观参照用户提供的双翼式开瓶器。保留香槟色金属、黑色手柄、防滑底圈、双铰轴、环形顶柄、螺旋钻与中轴齿条。齿形、尺寸、瓶塞插入阻力均为教学简化；中轴位移与双翼转角同源，不计算实际拔塞力。"}
 ];
 let renderer,scene,camera,nav,active,floor,photoIndex=0,caches=new Map(),labelPositions={},drag=null;
 const mats={};function material(name,color,rough=.5,metal=.0){return mats[name]=new T.MeshStandardMaterial({color,roughness:rough,metalness:metal});}
@@ -226,34 +226,70 @@ function buildWingCorkscrew(){
   for(let i=0;i<14;i++)box(a,.898+i*.049,0,.113,.021,.161,.018,rubber);
  }
  const spindle=new T.Group(),handle=new T.Group();g.add(spindle);spindle.add(handle);
+ spindle.name='wing-corkscrew-spindle';handle.name='wing-corkscrew-top-handle';
  cylinder(spindle,0,.74,0,.088,1.51,bright,'y');
  const pitch=2*PI*rp/teeth;
  for(let i=0;i<18;i++)cylinder(spindle,0,ay-.61+i*pitch,0,.13,.026,bright,'y');
  const top=rrShape(.79,.43,.10),hole=new T.Path(rrShape(.56,.235,.064).getPoints(20).reverse());top.holes.push(hole);
  const knob=extrudeShape(handle,top,.075,bright,.015);knob.position.y=1.66;
  cylinder(handle,0,1.44,0,.092,.20,champagne,'y');
- const helix=[];
- for(let i=0;i<=128;i++){const u=i/128,a=u*PI*8,r=.092*(1-.8*Math.pow(u,7));helix.push([r*Math.cos(a),.11-.55*u,r*Math.sin(a)]);}
- tube(handle,helix,.025,bright);
- const cork=cylinder(g,0,-.245,0,.201,.48,corkmat,'y');
+ const corkY=-.245,corkHeight=.48,tipY=-.44,wormTop=.11,pullStart=.42;
+ const contactLift=corkY+corkHeight/2-tipY,screwPitch=contactLift/3;
+ const touch=pullStart*(1-contactLift/travel);
+ const segments=160,sides=10,helix=[];
+ for(let i=0;i<=segments;i++){
+  const u=i/segments,depth=(wormTop-tipY)*u,a=2*PI*depth/screwPitch,r=.092*(1-u**10);
+  helix.push(V(r*Math.cos(a),wormTop-depth,r*Math.sin(a)));
+ }
+ const curve=new T.CatmullRomCurve3(helix),wormGeometry=new T.TubeGeometry(curve,segments,.025,sides,false);
+ const vertices=wormGeometry.attributes.position,offset=V();
+ // Taper the wire around the helix centerline until it ends at the point of contact.
+ for(let i=segments-15;i<=segments;i++){
+  const center=curve.getPointAt(i/segments),scale=(segments-i)/15;
+  for(let j=0;j<=sides;j++){
+   const k=i*(sides+1)+j;
+   offset.fromBufferAttribute(vertices,k).sub(center).multiplyScalar(scale).add(center);
+   vertices.setXYZ(k,offset.x,offset.y,offset.z);
+  }
+ }
+ wormGeometry.computeVertexNormals();
+ mesh(wormGeometry,bright,handle).name='wing-corkscrew-worm';
+ const cork=cylinder(g,0,corkY,0,.201,corkHeight,corkmat,'y');
+ cork.name='wing-corkscrew-cork';
  for(let i=0;i<55;i++){
   const a=i*2.39996, y=((i*17)%51)/51*.44-.22;
   const fleck=sphere(cork,.198*Math.cos(a),y,.198*Math.sin(a),.007,material('corkFleck'+i,i%2?'#936743':'#d8b083',.98));fleck.castShadow=false;
  }
- b.grip=grip(g,0,0,.16);b.focusSize=1.9;
- b.phase=q=>q<.42?'旋入软木塞 · 双翼抬起':q<.99?'下压双翼 · 软木塞上升':'软木塞离开瓶口';
+ b.grip=grip(g,0,0,.16);b.focusSize=1.9;b.pullStart=pullStart;
+ b.phase=q=>q<touch?'尖端靠近瓶塞':q<pullStart?'顶柄顺时针旋入 · 双翼抬起':q<.99?'下压双翼 · 软木塞上升':'软木塞离开瓶口';
  b.update=q=>{
-  const insert=Math.min(1,q/.42),pull=Math.max(0,(q-.42)/.58),lift=travel*(1-insert+pull),theta=up-lift/rp;
-  wings.forEach(a=>a.rotation.z=theta);spindle.position.y=lift;handle.rotation.y=-insert*PI*8;cork.position.y=-.245+travel*pull;
-  const O=V(ax,ay,.15),E=V(ax+1.48*Math.cos(theta),ay+1.48*Math.sin(theta),.15);
-  b.grip.position.copy(E).add(V(0,0,.10));
-  const R=V(.13,ay,.10);setPoints(b,O,q<.42?V(0,1.66+lift,.10):E,R);
+  const descent=travel*Math.min(1,q/pullStart),pull=Math.max(0,(q-pullStart)/(1-pullStart));
+  const lift=travel-descent+travel*pull,theta=up-lift/rp;
+  const screwDepth=Math.max(0,descent-(travel-contactLift));
+  wings.forEach(a=>a.rotation.z=theta);
+  spindle.position.y=lift;handle.rotation.y=-2*PI*screwDepth/screwPitch;cork.position.y=corkY+travel*pull;
+  const O=V(ax,ay,.15),wingEnd=V(ax+1.48*Math.cos(theta),ay+1.48*Math.sin(theta),.15);
+  const E=q<pullStart?V(0,1.84+lift,.075):wingEnd;
+  b.grip.position.copy(E);
+  if(q>=pullStart)b.grip.position.z+=.10;
+  setPoints(b,O,E,V(.13,ay,.10));
  };
  return b;
 }
 const builders={fishing:buildFishingRod,wingcork:buildWingCorkscrew,opener:buildOpener,clip:buildClip,case:buildCase,barrow:buildBarrow,hammer:buildHammer,scissors:buildScissors,nail:buildNail};
-function makeTrace(b){const points=[];for(let i=0;i<=40;i++){b.update(i/40);points.push(world(b.grip))}const geom=new T.BufferGeometry().setFromPoints(points),line=new T.Line(geom,new T.LineDashedMaterial({color:'#398d9c',transparent:true,opacity:.58,dashSize:.10,gapSize:.07,depthTest:false}));line.computeLineDistances();line.renderOrder=5;b.root.add(line);b.trace=line;b.update(state.q);}
-function setVisibility(){if(!active)return;active.o.visible=active.axis.visible=state.showPivot;active.e.visible=active.r.visible=state.showPoints;active.trace.visible=state.showTrace;$('pivotToggle').classList.toggle('active',state.showPivot);$('traceToggle').classList.toggle('active',state.showTrace);$('pointsToggle').classList.toggle('active',state.showPoints);}
+function makeTrace(b){
+ function lineBetween(start,end){
+  const points=[];
+  for(let i=0;i<=40;i++){b.update(T.MathUtils.lerp(start,end,i/40));points.push(world(b.grip));}
+  const geom=new T.BufferGeometry().setFromPoints(points);
+  const line=new T.Line(geom,new T.LineDashedMaterial({color:'#398d9c',transparent:true,opacity:.58,dashSize:.10,gapSize:.07,depthTest:false}));
+  line.computeLineDistances();line.renderOrder=5;
+  return line;
+ }
+ b.trace=b.pullStart?new T.Group().add(lineBetween(0,b.pullStart-1e-6),lineBetween(b.pullStart,1)):lineBetween(0,1);
+ b.root.add(b.trace);b.update(state.q);
+}
+function setVisibility(){if(!active)return;active.o.visible=active.axis.visible=state.showPivot;active.e.visible=active.r.visible=state.showPoints;active.trace.visible=state.showTrace;if(active.pullStart){const pressing=state.q>=active.pullStart;active.trace.children[0].visible=!pressing;active.trace.children[1].visible=pressing;}$('pivotToggle').classList.toggle('active',state.showPivot);$('traceToggle').classList.toggle('active',state.showTrace);$('pointsToggle').classList.toggle('active',state.showPoints);}
 function applyQ(q){state.q=T.MathUtils.clamp(q,0,1);active.update(state.q);setVisibility();$('progress').value=(state.q*100).toFixed(1);$('pct').textContent=Math.round(state.q*100)+'%';$('phase').textContent=active.phase?active.phase(state.q):state.q<.01?'准备操作':state.q>.99?'完成动作 · 可回放观察':'慢慢观察转动与接触';}
 function fit(mode='home'){const q=state.q,positions=[];for(const t of [0,1]){active.update(t);active.root.updateMatrixWorld(true);const bb=new T.Box3().setFromObject(active.root);positions.push(bb)}active.update(q);const bb=positions[0].union(positions[1]),size=bb.getSize(V()),center=bb.getCenter(V());active.extent={size:size.toArray(),center:center.toArray()};let pose;if(mode==='detail'){pose=LabKit.fitPose({target:active.pivot.toArray(),size:[active.focusSize,active.focusSize,active.focusSize*.8],fov:camera.fov,aspect:camera.aspect,fill:.78,yaw:.25,pitch:.14});}else pose=LabKit.fitPose({target:center.toArray(),size:size.clone().addScalar(.25).toArray(),fov:camera.fov,aspect:camera.aspect,fill:.90,yaw:mode==='side'?0:mode==='back'?PI+.35:({case:.95,opener:.45,nail:.35,barrow:.45,hammer:.72}[state.id]??.22),pitch:mode==='side'?0:mode==='top'?1.45:mode==='back'?.18:({opener:.48,barrow:.40,clip:.25,nail:.48,scissors:.28,case:.15,hammer:.22}[state.id]??.16)});nav.setPose(pose);}
 function setPhoto(index){photoIndex=index;const r=refs[state.id];$('photoSection').hidden=!r;if(!r){$('reference').removeAttribute('src');return}const photos=r.photos||[{image:r.image,caption:'实物',url:r.url}],p=photos[index]||photos[0];$('reference').src=p.image;$('source').href=p.url||r.url;$('source').textContent=r.credit+' · '+p.caption+' ↗';$('photoAngles').innerHTML='';photos.forEach((ph,i)=>{const bt=document.createElement('button');bt.textContent=ph.caption;bt.style.cssText='font-size:11px;padding:4px 7px';bt.classList.toggle('active',i===index);bt.onclick=()=>setPhoto(i);$('photoAngles').append(bt)});}
@@ -265,7 +301,7 @@ floor=mesh(new T.PlaneGeometry(100,100),mats.ground,scene,0,-1.09,0);floor.rotat
 nav=LabKit.createNavigation({element:$('view'),pose:{target:[0,.5,0],dist:12,yaw:.23,pitch:.13},fov:camera.fov,minDistance:.65,maxDistance:35,apply(p,eye){camera.position.set(...eye);camera.lookAt(...p.target)}});
 const resize=()=>{const r=$('stage').getBoundingClientRect();renderer.setSize(r.width,Math.max(1,r.height),false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix()};new ResizeObserver(resize).observe($('stage'));resize();for(const [i,e]of entries.entries()){const btn=document.createElement('button');btn.textContent=e.title;const num=document.createElement('b');num.textContent=String(i+1).padStart(2,'0');btn.prepend(num);btn.dataset.id=e.id;btn.onclick=()=>select(e.id);$('nav').append(btn)}
 $('play').onclick=()=>{if(state.q>=.999)applyQ(0);state.playing=!state.playing;state.clock=0;$('play').textContent=state.playing?'Ⅱ 暂停':'▶ 慢速播放'};$('progress').oninput=e=>{state.playing=false;$('play').textContent='▶ 慢速播放';applyQ(+e.target.value/100)};$('speed').onclick=()=>{state.speed=state.speed===1?.5:state.speed===.5?1.5:1;$('speed').textContent=state.speed+'×'};$('home').onclick=()=>fit();$('side').onclick=()=>fit('side');$('top').onclick=()=>fit('top');$('back').onclick=()=>fit('back');$('detail').onclick=()=>fit('detail');for(const [id,k]of [['pivotToggle','showPivot'],['traceToggle','showTrace'],['pointsToggle','showPoints']])$(id).onclick=()=>{state[k]=!state[k];setVisibility()};$('focus').onclick=()=>document.body.classList.add('focus');$('exitFocus').onclick=()=>document.body.classList.remove('focus');document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.remove('focus')});$('reference').onclick=()=>{$('largePhoto').src=$('reference').src;$('photoDialog').showModal()};$('closePhoto').onclick=()=>$('photoDialog').close();
-const ray=new T.Raycaster();$('view').addEventListener('pointerdown',e=>{if(e.button!==0||e.shiftKey)return;const r=$('view').getBoundingClientRect();ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hits=ray.intersectObject(active.grip,true);if(!hits.length)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,q:state.q};state.playing=false;$('play').textContent='▶ 慢速播放';$('view').setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();},true);$('view').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const inserting=state.id==='wingcork'&&drag.q<.42;const sign=!inserting&&['clip','hammer','scissors','nail','wingcork'].includes(state.id)?-1:1;const q=drag.q+((e.clientX-drag.x)-(e.clientY-drag.y)*sign)/240;applyQ(state.id==='wingcork'?(inserting?Math.min(.42,q):Math.max(.42,q)):q);e.preventDefault();e.stopImmediatePropagation();},true);for(const ev of ['pointerup','pointercancel','lostpointercapture'])$('view').addEventListener(ev,e=>{if(drag&&drag.id===e.pointerId){drag=null;e.stopImmediatePropagation()}},true);
+const ray=new T.Raycaster();$('view').addEventListener('pointerdown',e=>{if(e.button!==0||e.shiftKey)return;const r=$('view').getBoundingClientRect();ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hits=ray.intersectObject(active.grip,true);if(!hits.length)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,q:state.q};state.playing=false;$('play').textContent='▶ 慢速播放';$('view').setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();},true);$('view').addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const split=active.pullStart,sign=['clip','hammer','scissors','nail','wingcork'].includes(state.id)?-1:1;const q=drag.q+((e.clientX-drag.x)-(e.clientY-drag.y)*sign)/240;applyQ(split?(drag.q<split?Math.min(split,q):Math.max(split,q)):q);e.preventDefault();e.stopImmediatePropagation();},true);for(const ev of ['pointerup','pointercancel','lostpointercapture'])$('view').addEventListener(ev,e=>{if(drag&&drag.id===e.pointerId){drag=null;e.stopImmediatePropagation()}},true);
 select('opener');let last=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min(.08,(now-(last||now))/1000);last=now;if(state.playing){applyQ(Math.min(1,state.q+dt*.12*state.speed));if(state.q>=1){state.playing=false;$('play').textContent='↻ 再看一次'}}nav.update(dt);scene.updateMatrixWorld(true);drawLabels();renderer.render(scene,camera)}requestAnimationFrame(frame);
 window.leverLab={state,select,setProgress:applyQ,get active(){return active},get camera(){return camera},get nav(){return nav},get scene(){return scene},get renderer(){return renderer},entries};
 }catch(err){console.error(err);$('fail').style.display='block';$('fail').textContent='三维场景未能启动：'+err.message+'。请使用支持WebGL的浏览器并开启硬件加速。'}

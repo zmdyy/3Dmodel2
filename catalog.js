@@ -157,7 +157,7 @@ window.MODEL_CATALOG = [
     "Three.js",
     "PBR"
   ],
-  "path": "models/life-levers.html?v=20261108-nine",
+  "path": "models/life-levers.html?v=20261108-cork-engagement",
   "cover": "assets/covers/life-levers-scene.jpg?v=20261101-real",
   "symbol": "杆",
   "accent": "green"
