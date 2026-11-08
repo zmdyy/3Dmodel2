@@ -124,10 +124,10 @@
         },
         {
           "path": "models/thermometers-thermal-expansion.html",
-          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "commit": "afa339e0cd8eae31d9b6b7d7db690c55bfd46c85",
           "repository": "zmdyy/3Dmodel2",
           "locator": "dialTexture / svgMap",
-          "sha256": "4b5441941d97b4cdb6559ece7b01c483ce2ac3149f5edd09efebc6af005fc875"
+          "sha256": "a282cd0fee40b69cb17a3942011052b88d374c7012708cdbc1904a9d25fcb041"
         }
       ],
       "limits": [
@@ -572,10 +572,10 @@
       "sources": [
         {
           "path": "models/thermometers-thermal-expansion.html",
-          "commit": "429d9502b2fb70adbe0ada23398c3d74c4ffbf81",
+          "commit": "afa339e0cd8eae31d9b6b7d7db690c55bfd46c85",
           "repository": "zmdyy/3Dmodel2",
           "locator": "dialTexture",
-          "sha256": "4b5441941d97b4cdb6559ece7b01c483ce2ac3149f5edd09efebc6af005fc875"
+          "sha256": "a282cd0fee40b69cb17a3942011052b88d374c7012708cdbc1904a9d25fcb041"
         }
       ],
       "notes": "尚未独立提取。读取源案例并核验后再使用，不可编造现成API。"
