@@ -10,6 +10,7 @@ const sharp = require(path.join(deps, 'sharp'));
 async function main() {
   assert.equal(process.env.GITHUB_REF, 'refs/heads/verify/wheel-axle-cover');
   const browser = await chromium.launch({
+    executablePath: process.env.LAB_KIT_CHROMIUM,
     args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--disable-dev-shm-usage']
   });
   try {
