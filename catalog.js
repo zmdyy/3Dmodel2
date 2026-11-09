@@ -1,5 +1,27 @@
 window.MODEL_CATALOG = [
 {
+  "id": "yin-yang-teapot",
+  "title": "阴阳壶 · 双腔气压实验",
+  "subtitle": "封孔与补气 · 两条流道 · 共用一个壶嘴",
+  "category": "力学实验",
+  "summary": "倾斜阴阳壶，独立开闭两个气孔，比较蓝水、琥珀水、双路出水和停流。双腔剖视可沿箭头观察补气路径，壶嘴特写展示两条流道如何汇合；连续水柱落入碗中可见涟漪。外形与内部尺寸为教学示意。",
+  "tags": [
+    "阴阳壶",
+    "两心壶",
+    "良心壶",
+    "大气压",
+    "气压",
+    "水封",
+    "双腔",
+    "流体",
+    "Three.js"
+  ],
+  "path": "models/yin-yang-teapot.html?v=20261109",
+  "cover": "assets/covers/yin-yang-teapot-scene.jpg?v=20261109",
+  "symbol": "壶",
+  "accent": "green"
+},
+{
   "id": "electronic-scale-single-point",
   "title": "电子秤 · 单点式称重传感器",
   "subtitle": "横梁形变 · 应变片 · 电桥与称重",
