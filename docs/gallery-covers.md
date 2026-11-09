@@ -83,6 +83,6 @@
 
 `assets/covers/electronic-scale-single-point-scene.jpg` 为完整电子秤加载 500 g 时的实际 Chromium/WebGL 画布截图，960×540 JPEG。保留默认四节点接线、四芯线束、材料与光照；仅隐藏 UI 并扩展画布，无生成图替代。重现脚本：`scripts/capture-electronic-scale-cover.cjs`，通过 `CHROMIUM_PATH` 指定浏览器。案例说明见 [电子秤](electronic-scale-single-point.md)。
 
-## 阴阳壶 · 双腔气压实验
+## 大气压拓展 · 四个器物实验
 
-`assets/covers/yin-yang-teapot-scene.jpg` 为实际 Chromium WebGL 画面的 960×540 JPEG。使用双腔剖视、A 气孔补气和蓝水倾倒状态，调整视口并隐藏操作界面，保留模型、灯光与水流动画。详见[案例说明](yin-yang-teapot.md)。
+`assets/covers/yin-yang-teapot-scene.jpg` 为实际 Chromium WebGL 画面的 960×540 JPEG。使用默认页签「普通壶」的单腔剖视与开孔倾倒状态，调整视口并隐藏操作界面，保留模型、灯光与水流动画。详见[案例说明](yin-yang-teapot.md)。
