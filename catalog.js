@@ -1,5 +1,26 @@
 window.MODEL_CATALOG = [
 {
+  "id": "hot-air-balloon-airship",
+  "title": "热气球与飞艇 · 三维浮力实验室",
+  "subtitle": "地面起飞 · 受力变化 · 尾舵特写",
+  "category": "力学实验",
+  "summary": "在深圳福田 CBD 的三维场景中对照热气球和氦气飞艇从地面起飞，观察浮力、重力与地面支持力，并从尾部特写看升降舵和方向舵如何改变飞行姿态。",
+  "tags": [
+    "浮力",
+    "阿基米德原理",
+    "热气球",
+    "氦气飞艇",
+    "支持力",
+    "方向舵",
+    "升降舵",
+    "深圳福田"
+  ],
+  "path": "models/hot-air-balloon-airship.html",
+  "cover": "assets/covers/hot-air-balloon-airship-scene.jpg",
+  "symbol": "浮",
+  "accent": "green"
+},
+{
   "id": "yin-yang-teapot",
   "title": "大气压拓展 · 四个器物实验",
   "subtitle": "普通壶 · 阴阳壶 · 公道杯 · 汲酒器",
