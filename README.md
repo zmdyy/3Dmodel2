@@ -86,7 +86,7 @@
 - [凹透镜成像规律](./models/concave-lens.html) — 正立缩小虚像与三条特殊光线
 - [光的反射与折射](./models/reflection-refraction.html) — 平面实验、光路可逆与空间拓展
 - [海市蜃楼](./models/mirage.html) — 上蜃、下蜃与弯曲光路
-- [平面镜成像规律](./models/plane-mirror.html) — 玻璃板、等大蜡烛与像的位置探究
+- [平面镜成像规律](./models/plane-mirror.html) — 玻璃板、等大蜡烛、像的位置与课本挡镜
 - [凸透镜成像规律](./models/convex-lens.html) — 3D光具座与2D光路联动实验
 - [小孔成像 · 自由探究](./models/pinhole-camera.html) — 孔径、孔形、物距与像距的三维观察
 - [月光下的积水 · 光的反射](./models/moonlight-puddle.html) — 迎月与背月 · 镜面反射和漫反射
