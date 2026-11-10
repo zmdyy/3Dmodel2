@@ -15,7 +15,7 @@ window.MODEL_CATALOG = [
     "铅笔",
     "海岛"
   ],
-  "path": "models/refraction-island.html",
+  "path": "models/refraction-island.html?v=20261110-water-surface",
   "cover": "assets/covers/refraction-island-scene.jpg",
   "symbol": "↗",
   "accent": "green"
