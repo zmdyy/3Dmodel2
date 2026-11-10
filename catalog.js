@@ -1,5 +1,26 @@
 window.MODEL_CATALOG = [
 {
+  "id": "refraction-island",
+  "title": "光的折射 · 一池两世界",
+  "subtitle": "海湾观测站 · 水面上下 · 叉鱼挑战 · 弯折的铅笔",
+  "category": "光学现象",
+  "summary": "在微缩海岛拖动镜头穿过水面，切换折射对比鱼和岸上人物的视位置，查看光路与法线，再用叉鱼挑战和水杯铅笔探究折射造成的视觉偏差。",
+  "tags": [
+    "光的折射",
+    "水面",
+    "视位置",
+    "虚像",
+    "斯涅尔定律",
+    "叉鱼",
+    "铅笔",
+    "海岛"
+  ],
+  "path": "models/refraction-island.html",
+  "cover": "assets/covers/refraction-island-scene.jpg",
+  "symbol": "↗",
+  "accent": "green"
+},
+{
   "id": "hot-air-balloon-airship",
   "title": "热气球与飞艇 · 三维浮力实验室",
   "subtitle": "地面起飞 · 受力变化 · 尾舵特写",

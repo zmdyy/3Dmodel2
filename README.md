@@ -4,7 +4,7 @@
 
 面向初中物理课堂与自主探究的 3D 教学作品集：通过 **Three.js / WebGL、SVG、Canvas** 等技术，把实验器材的结构、实验现象的变化过程与物理量之间的关系呈现在浏览器中。部分案例使用 React、PBR 材质及 Blender / glTF 模型；不同案例的实现方式并不完全相同。
 
-**当前案例：78 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-11-10）
+**当前案例：79 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-11-10）
 
 [查看作品集入口](./index.html) · [浏览完整案例目录](#完整案例目录) · [快速开始](#快速开始) · [新增案例](#新增案例与维护)
 
@@ -80,8 +80,9 @@
 </details>
 
 <details>
-<summary><strong>光学现象（8）</strong></summary>
+<summary><strong>光学现象（9）</strong></summary>
 
+- [光的折射 · 一池两世界](./models/refraction-island.html) — 水面上下观察、叉鱼挑战与弯折的铅笔 · [案例说明](./docs/refraction-island.md)
 - [光与光谱 · 色散、滤光与物体颜色](./models/light-spectrum-color-vision.html) — 三棱镜色散 · 可见与不可见光 · 滤光片 · 物体颜色
 - [凹透镜成像规律](./models/concave-lens.html) — 正立缩小虚像与三条特殊光线
 - [光的反射与折射](./models/reflection-refraction.html) — 平面实验、光路可逆与空间拓展
