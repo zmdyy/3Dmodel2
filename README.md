@@ -4,7 +4,7 @@
 
 面向初中物理课堂与自主探究的 3D 教学作品集：通过 **Three.js / WebGL、SVG、Canvas** 等技术，把实验器材的结构、实验现象的变化过程与物理量之间的关系呈现在浏览器中。部分案例使用 React、PBR 材质及 Blender / glTF 模型；不同案例的实现方式并不完全相同。
 
-**当前案例：79 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-11-10）
+**当前案例：80 个 · 14 个分类**（统计自 `catalog.js`，截至 2026-11-10）
 
 [查看作品集入口](./index.html) · [浏览完整案例目录](#完整案例目录) · [快速开始](#快速开始) · [新增案例](#新增案例与维护)
 
@@ -50,7 +50,7 @@
 
 ## 完整案例目录
 
-作品集中的 78 个正式入口均由 `catalog.js` 登记。下列列表按现有分类分组；点击分类可展开。
+作品集中的 80 个正式入口均由 `catalog.js` 登记。下列列表按现有分类分组；点击分类可展开。
 
 | 分类 | 数量 | 分类 | 数量 |
 |:---|---:|:---|---:|
@@ -104,8 +104,9 @@
 </details>
 
 <details>
-<summary><strong>力学实验（25）</strong></summary>
+<summary><strong>力学实验（26）</strong></summary>
 
+- [机翼升力 · 流速与压强](./models/wing-lift.html) — 文丘里管压差、鼓风机与机翼正倒置对照 · [案例说明](./docs/wing-lift.md)
 - [热气球与飞艇 · 三维浮力实验室](./models/hot-air-balloon-airship.html) — 对照地面起飞、竖直受力和尾舵动作 · [教学与模型说明](./docs/hot-air-balloon-airship.md)
 - [大气压拓展 · 四个器物实验](./models/yin-yang-teapot.html) — 普通壶、阴阳壶、公道杯与汲酒器
 - [生活中的轮轴 · 四种实物观察](./models/wheel-axle.html) — 对照生活器具中的轮与轴

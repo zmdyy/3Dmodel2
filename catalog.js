@@ -1,5 +1,25 @@
 window.MODEL_CATALOG = [
 {
+  "id": "wing-lift",
+  "title": "机翼升力 · 流速与压强",
+  "subtitle": "文丘里管 · 鼓风机 · 正置与倒置机翼",
+  "category": "力学实验",
+  "summary": "用文丘里管和 U 形压强计比较管道宽处与窄处的流速和压强。调节鼓风机风速，对照正置与倒置机翼的受力、压力分布和升降。",
+  "tags": [
+    "伯努利原理",
+    "流速",
+    "压强",
+    "文丘里管",
+    "机翼",
+    "升力",
+    "鼓风机"
+  ],
+  "path": "models/wing-lift.html",
+  "cover": "assets/covers/wing-lift-scene.jpg",
+  "symbol": "翼",
+  "accent": "blue"
+},
+{
   "id": "refraction-island",
   "title": "光的折射 · 一池两世界",
   "subtitle": "海湾观测站 · 水面上下 · 叉鱼挑战 · 弯折的铅笔",
