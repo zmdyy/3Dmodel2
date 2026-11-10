@@ -76,6 +76,11 @@
 </head>
 <body>
 <main class="shell">
+  <aside id="localFileHelp" hidden style="margin-bottom:20px;padding:18px 22px;border:1px solid #e8c57e;border-radius:16px;background:#fff8e8;line-height:1.8">
+    <strong>本地完整案例库：请双击文件夹中的 start-local.cmd 启动。</strong><br>
+    当前为直接打开文件，部分三维模型、贴图和模块无法读取。Windows 启动入口无需联网或安装 Python；启动后保留命令窗口，在自动打开的浏览器中使用。其他系统可在仓库目录运行 <code>python3 -m http.server 8000 --bind 127.0.0.1</code>，然后打开 <code>http://127.0.0.1:8000/</code>。
+  </aside>
+  <script>document.getElementById('localFileHelp').hidden = location.protocol !== 'file:';</script>
   <section class="hero">
     <span class="eyebrow"><i></i> PHYSICS · 3D INTERACTIVE COLLECTION</span>
     <h1>3D 交互模型作品集</h1>
