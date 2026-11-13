@@ -198,15 +198,11 @@
     </div>
     <div class="section">
       <div class="section-title">绘制</div>
-      <div class="btn-group demo-hide" id="mode-group">
-        <button class="btn active" data-mode="point">点点模式</button>
-        <button class="btn" data-mode="measure">测距模式</button>
-      </div>
       <div class="btn-group demo-hide" id="tool-group">
         <button class="btn full" data-tool="object">物的位置</button>
         <button class="btn full" data-tool="image">像的位置</button>
-        <button class="btn full" data-tool="mirrorLine">平面镜位置</button>
-        <button class="btn full" data-tool="ruler" disabled>尺子辅助线</button>
+        <button class="btn full" data-tool="mirrorLine">画出平面镜位置</button>
+        <button class="btn full" data-tool="distance">测量物（像）到平面镜距离</button>
         <button class="btn full" data-tool="erase">擦除</button>
       </div>
       <button class="btn ghost-danger full demo-hide" id="clear-draw">清除绘制</button>
@@ -317,9 +313,7 @@ var state = {
   thickness: 0,
   tiltDeg: 0,
   windowT: 0,
-  drawMode: "point",
   tool: null,
-  rulerFirst: null,
   dragging: null,
   markQueue: [],
   pencilBusy: false,
@@ -337,7 +331,7 @@ var state = {
 var CIRCLE_R = 1.2 * CM;
 var SNAP_R = 1 * CM;
 var markIdSeq = 1;
-var marks = { objects: [], images: [], mirrorLine: null, measures: [], rulers: [] };
+var marks = { objects: [], images: [], mirrorLine: null, measures: [] };
 var tipEl = document.getElementById("mode-tip");
 var wrap = document.getElementById("canvas-wrap");
 var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -2521,15 +2515,6 @@ function clearDrawings() {
     marks.mirrorLine = null;
   }
   clearMeasureVisuals();
-  marks.rulers.forEach((r) => {
-    drawRoot.remove(r.group);
-    disposeObject3D(r.group);
-  });
-  marks.rulers = [];
-  state.rulerFirst = null;
-}
-function distCm(a, b) {
-  return Math.hypot(a.x - b.x, a.z - b.z) / CM;
 }
 function allMarkCenters() {
   return [...marks.objects, ...marks.images];
@@ -2548,7 +2533,7 @@ function nearestMarkCenter(x, z, maxDist = SNAP_R) {
 }
 function refreshMeasureLines() {
   clearMeasureVisuals();
-  if (state.drawMode !== "measure" || !marks.mirrorLine) return;
+  if (!marks.mirrorLine || isTilted()) return;
   const mx = getMirrorCenterX();
   const corner = 0.7 * CM;
   const addPerp = (mark, colorHex, cssColor) => {
@@ -2579,39 +2564,10 @@ function refreshMeasureLines() {
     spr.position.set((mark.x + mx) / 2, 0.03, mark.z + 0.03);
     group.add(spr);
     drawRoot.add(group);
-    marks.measures.push({ group });
+    marks.measures.push({ group, mark });
   };
-  marks.objects.forEach((m) => addPerp(m, 2450411, "#2563eb"));
-  marks.images.forEach((m) => addPerp(m, 14427686, "#dc2626"));
-}
-function addRuler(a, b) {
-  const group = new THREE.Group();
-  group.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(a.x, 2e-3, a.z),
-      new THREE.Vector3(b.x, 2e-3, b.z)
-    ]),
-    new THREE.LineBasicMaterial({ color: 1483594 })
-  ));
-  const spr = makeLabelSprite(`${distCm(a, b).toFixed(1)} cm`, "#16a34a");
-  spr.position.set((a.x + b.x) / 2, 0.035, (a.z + b.z) / 2);
-  group.add(spr);
-  [a, b].forEach((p2) => {
-    const dot = new THREE.Mesh(
-      new THREE.CircleGeometry(0.01, 12),
-      new THREE.MeshBasicMaterial({ color: 1483594, side: THREE.DoubleSide })
-    );
-    dot.rotation.x = -Math.PI / 2;
-    dot.position.set(p2.x, 2e-3, p2.z);
-    group.add(dot);
-  });
-  drawRoot.add(group);
-  marks.rulers.push({
-    id: markIdSeq++,
-    group,
-    a: { x: a.x, z: a.z },
-    b: { x: b.x, z: b.z }
-  });
+  marks.objects.filter((m) => m.measureDistance).forEach((m) => addPerp(m, 2450411, "#2563eb"));
+  marks.images.filter((m) => m.measureDistance).forEach((m) => addPerp(m, 14427686, "#dc2626"));
 }
 function eraseAt(x, z) {
   const hitMark = nearestMarkCenter(x, z, CIRCLE_R * 1.4);
@@ -2630,23 +2586,23 @@ function eraseAt(x, z) {
       drawRoot.remove(marks.mirrorLine);
       disposeObject3D(marks.mirrorLine);
       marks.mirrorLine = null;
+      allMarkCenters().forEach((mark) => { mark.measureDistance = false; });
       refreshMeasureLines();
       showTip("已擦除平面镜位置线");
       return true;
     }
   }
-  for (let i = marks.rulers.length - 1; i >= 0; i--) {
-    const r = marks.rulers[i];
-    const dist = distPointToSegment(x, z, r.a.x, r.a.z, r.b.x, r.b.z);
-    if (dist < 0.035) {
-      drawRoot.remove(r.group);
-      disposeObject3D(r.group);
-      marks.rulers.splice(i, 1);
-      showTip("已擦除该尺子");
-      return true;
-    }
+  const mx = getMirrorCenterX();
+  const hitMeasure = marks.measures.find(({ mark }) =>
+    distPointToSegment(x, z, mark.x, mark.z, mx, mark.z) < 0.025
+  );
+  if (hitMeasure) {
+    hitMeasure.mark.measureDistance = false;
+    refreshMeasureLines();
+    showTip("已擦除该测距线");
+    return true;
   }
-  showTip("请点中要擦除的圈、镜迹或尺子");
+  showTip("请点中要擦除的标记、镜迹或测距线");
   return false;
 }
 function distPointToSegment(px, pz, ax, az, bx, bz) {
@@ -2709,7 +2665,7 @@ function showTip(text, ms2 = 2200) {
 function updateImageToolEnabled() {
   const imgBtn = document.querySelector('[data-tool="image"]');
   imgBtn.disabled = isTilted();
-  if (isTilted() && state.tool === "image") {
+  if (isTilted() && ["image", "distance"].includes(state.tool)) {
     state.tool = null;
   }
   syncToolButtons();
@@ -2717,22 +2673,9 @@ function updateImageToolEnabled() {
 function syncToolButtons() {
   document.querySelectorAll("#tool-group .btn").forEach((btn) => {
     const tool = btn.dataset.tool;
-    btn.disabled = tool === "ruler" && state.drawMode !== "measure" || tool === "image" && isTilted();
+    btn.disabled = ["image", "distance"].includes(tool) && isTilted();
     btn.classList.toggle("active", state.tool === tool && !btn.disabled);
   });
-}
-function updateModeUI() {
-  document.querySelectorAll("#mode-group .btn").forEach((b) => {
-    b.classList.toggle("active", b.dataset.mode === state.drawMode);
-  });
-  if (state.drawMode === "point" && state.tool === "ruler") {
-    state.tool = null;
-    state.rulerFirst = null;
-  }
-  if (state.drawMode === "measure" && (state.tool === "object" || state.tool === "image" || state.tool === "mirrorLine")) {
-  }
-  syncToolButtons();
-  refreshMeasureLines();
 }
 renderer.domElement.addEventListener("pointerdown", (e2) => {
   if (e2.button !== 0) return;
@@ -2750,33 +2693,6 @@ renderer.domElement.addEventListener("pointerdown", (e2) => {
     }
     if (state.tool === "image") {
       startPencilMark("image");
-      return;
-    }
-    if (state.tool === "mirrorLine") {
-      setMirrorLine();
-      state.tool = null;
-      syncToolButtons();
-      showTip("已画出平面镜（厚度中心）位置");
-      return;
-    }
-    if (state.tool === "ruler") {
-      const snap = nearestMarkCenter(p3.x, p3.z);
-      if (!snap) {
-        showTip("请点中已有准星的中心");
-        return;
-      }
-      if (!state.rulerFirst) {
-        state.rulerFirst = { x: snap.x, z: snap.z };
-        showTip("再点另一个准星中心完成测距");
-      } else {
-        if (Math.hypot(snap.x - state.rulerFirst.x, snap.z - state.rulerFirst.z) < 1e-3) {
-          showTip("请选择另一个准星");
-          return;
-        }
-        addRuler(state.rulerFirst, { x: snap.x, z: snap.z });
-        state.rulerFirst = null;
-        showTip("已量出两准星中心距离");
-      }
       return;
     }
   }
@@ -2854,27 +2770,37 @@ document.getElementById("tilt-reset").addEventListener("click", () => {
   tiltInput.value = "0";
   tiltInput.dispatchEvent(new Event("input", { bubbles: true }));
 });
-document.querySelectorAll("#mode-group .btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    state.drawMode = btn.dataset.mode;
-    state.tool = null;
-    state.rulerFirst = null;
-    updateModeUI();
-  });
-});
 document.querySelectorAll("#tool-group .btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (btn.disabled) return;
     const tool = btn.dataset.tool;
+    if (tool === "mirrorLine") {
+      setMirrorLine();
+      state.tool = null;
+      syncToolButtons();
+      showTip("已画出平面镜（厚度中心）位置");
+      return;
+    }
+    if (tool === "distance") {
+      state.tool = null;
+      syncToolButtons();
+      const points = allMarkCenters();
+      if (!points.length) {
+        showTip("请先标记物或像的位置");
+        return;
+      }
+      points.forEach((mark) => { mark.measureDistance = true; });
+      if (marks.mirrorLine) refreshMeasureLines();
+      else setMirrorLine();
+      showTip("已绘制物或像到平面镜的垂直距离");
+      return;
+    }
     state.tool = state.tool === tool ? null : tool;
-    state.rulerFirst = null;
     syncToolButtons();
     const tips = {
       object: "点击白纸：铅笔将绕燃烛底部画圈并出十字准星",
       image: "点击白纸：铅笔将绕未燃烛底部画圈并出十字准星",
-      mirrorLine: "点击后在镜面厚度中心画线",
-      ruler: "依次点中两个准星中心，量出距离",
-      erase: "点中某一圈、镜迹或尺子即可单独擦除"
+      erase: "点击标记、镜迹或测距线即可单独擦除"
     };
     if (state.tool) showTip(tips[state.tool]);
   });
@@ -3157,7 +3083,7 @@ document.getElementById("block-rays").addEventListener("change", (e2) => {
 });
 state.thickness = Number(thicknessInput.value) / 100;
 updateMirrorTransform();
-updateModeUI();
+syncToolButtons();
 syncWindowSlider();
 syncBlockInsetLabel();
 showTip("玻璃已固定。可推窗、切换侧视看光路，或把未燃烛移到像处比较高度", 3800);
