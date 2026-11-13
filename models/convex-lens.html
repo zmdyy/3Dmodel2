@@ -119,9 +119,12 @@
   .stage{position:relative;overflow:hidden}
   #stage3d{flex:0 0 60%;min-height:0;border-bottom:1px solid var(--stroke);background:var(--stage-3d);transition:background .25s}
   #stage2d{flex:0 0 40%;min-height:0;background:var(--stage-2d);transition:background .25s}
-  #stages.only3d #stage3d{flex:1 1 100%;border-bottom:0}
-  #stages.only3d #stage2d{display:none}
-  .hdr-badges #b2d{white-space:nowrap;min-width:100px}
+  #stages[data-view="3d"] #stage3d,#stages[data-view="2d"] #stage2d{flex:1 1 100%;border-bottom:0}
+  #stages[data-view="3d"] #stage2d,#stages[data-view="2d"] #stage3d{display:none}
+  #viewModes{display:flex;gap:3px;padding:3px;border:1px solid var(--stroke);border-radius:10px;background:var(--badge-bg)}
+  #viewModes button{white-space:nowrap;border-color:transparent}
+  #viewModes button:hover{border-color:var(--accent)}
+  #viewModes button[aria-pressed="true"]{border-color:var(--badge-live-border);background:var(--badge-live-bg);color:var(--badge-live-text)}
   #stage3d .phet-bar{top:12px;right:12px}
   #stage3d .phet-bar select{min-width:144px}
   .stage-label{position:absolute;left:12px;top:10px;z-index:5;display:flex;gap:8px;align-items:center;pointer-events:none}
@@ -200,7 +203,8 @@
     body{overflow:auto}
     #app{height:auto;min-height:100vh}
     #main{flex-direction:column}
-    #stages{min-height:86vh}
+    header{height:auto;min-height:56px;padding-block:6px}
+    #stages{flex:none;height:86vh}
     #side{width:auto;border-left:none;border-top:1px solid var(--stroke)}
   }
 
@@ -225,13 +229,17 @@
   <header>
     <div class="logo">🔭</div>
     <div class="hdr-badges">
-      <button class="badge" id="b2d" type="button" aria-pressed="true">隐藏 2D 光路图</button>
+      <div id="viewModes" role="group" aria-label="显示视图">
+        <button class="badge" type="button" data-view="3d" aria-pressed="false">仅显示 3D</button>
+        <button class="badge" type="button" data-view="2d" aria-pressed="false">仅显示 2D</button>
+        <button class="badge" type="button" data-view="both" aria-pressed="true">同时显示</button>
+      </div>
       <button class="badge" id="bDark" type="button">🌙 暗色</button>
       <span class="badge live">● <b id="hSharp">清晰度 100%</b></span>
     </div>
   </header>
   <div id="main">
-    <div id="stages">
+    <div id="stages" data-view="both">
       <div class="stage" id="stage3d">
         <div class="phet-bar">
           <select id="objType" title="选择物体类型">
@@ -370,7 +378,6 @@ const P = {
   auto: false, autoDir: -1, track: true, bundle: true,
   cover: 0, // 0~1，不透明纸片从上沿往下挡透镜
   dark: localStorage.getItem('lensDark')==='1',
-  show2d: true,
 };
 const V = { active:false, type:'none', strength:35, maxPower:.08, distance:5,
   baseline:null, saved:null, compare:false, lastStatus:'' };
@@ -519,15 +526,20 @@ $('sT').addEventListener('input',e=>{P.thick=+e.target.value;P.focal=fFromThick(
 $('sF').addEventListener('input',e=>{P.focal=+e.target.value;P.thick=Math.min(1.8,Math.max(.3,thickFromF(P.focal)));$('sT').value=P.thick;});
 $('sS').addEventListener('input',e=>{P.screen=+e.target.value;P.track=false;$('bTrack').textContent='📍 光屏追像：关';});
 $('objType').addEventListener('change',e=>{P.objType=e.target.value;buildObject();buildVirtualImage();});
-function sync2DLayout(){
-  $('stages').classList.toggle('only3d',!P.show2d);
-  $('b2d').textContent=P.show2d?'隐藏 2D 光路图':'显示 2D 光路图';
-  $('b2d').setAttribute('aria-pressed',String(P.show2d));
-  // CSS flex 高度发生变化后，Canvas WebGL 的像素尺寸必须重算。
-  resize3D();
-  if(P.show2d)resize2D();
+const stages=$('stages');
+const viewButtons=document.querySelectorAll('#viewModes button');
+let viewMode='both';
+function resizeVisibleViews(){
+  if(viewMode!=='2d')resize3D();
+  if(viewMode!=='3d')resize2D();
 }
-$('b2d').onclick=()=>{P.show2d=!P.show2d;sync2DLayout();};
+function setViewMode(mode){
+  viewMode=mode;
+  stages.dataset.view=mode;
+  viewButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.view===mode)));
+  resizeVisibleViews();
+}
+viewButtons.forEach(button=>button.onclick=()=>setViewMode(button.dataset.view));
 function syncRayToggles(){
   document.querySelectorAll('.ray-toggle').forEach(el=>{
     el.classList.toggle('off', !P.rays[+el.dataset.r]);
@@ -1081,12 +1093,14 @@ function layoutVirtualImage(){
 }
 buildVirtualImage();
 
-/* 无边框教学光屏：白色圆角塑料白屏＋中央细金属杆。保留原来的光屏底座与滑块。
-   圆角几何体是实际 3D 网格，不是假装圆角的纹理边框。 */
+/* 无边框磨砂光屏：两面分别显示投影与透射像，保留圆角外缘、支杆和滑块。 */
 const SCREEN_H=12.4, SCREEN_W=8.6;
 const {canvas:scrCanvas,ctx:scrCtx}=createSharpCanvas();
 const scrTex=new THREE.CanvasTexture(scrCanvas);
 configureSharpTexture(scrTex);
+const {canvas:scrRearCanvas,ctx:scrRearCtx}=createSharpCanvas();
+const scrRearMap=new THREE.CanvasTexture(scrRearCanvas);
+configureSharpTexture(scrRearMap);
 const scrGroup=new THREE.Group(); scene.add(scrGroup);
 function roundedScreenOutline(w,h,r){
   const sh=new THREE.Shape(),x=-w/2,y=-h/2;
@@ -1099,14 +1113,14 @@ function roundedScreenOutline(w,h,r){
 }
 const scrShape=roundedScreenOutline(SCREEN_W,SCREEN_H,.29);
 const screenPlastic=new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.8,metalness:0,side:THREE.DoubleSide});
-const screenBack=new THREE.Mesh(
+const screenRim=new THREE.Mesh(
   new THREE.ExtrudeGeometry(scrShape,{depth:.36,bevelEnabled:true,bevelThickness:.045,bevelSize:.07,bevelSegments:3,curveSegments:12}),
-  screenPlastic
+  [new THREE.MeshBasicMaterial({visible:false}),screenPlastic]
 );
-screenBack.rotation.y=-Math.PI/2;
-screenBack.position.x=.17;
-scrGroup.add(screenBack);
-// Canvas 纹理在圆角轮廓内完整贴合，背面绝不出现灰色厚外框。
+screenRim.rotation.y=-Math.PI/2;
+screenRim.position.x=.17;
+scrGroup.add(screenRim);
+// 两面各用朝外的圆角纹理面。观察方向反转时，同一个像的左右也会反转。
 const scrFaceGeo=new THREE.ShapeGeometry(scrShape,12);
 const pos=scrFaceGeo.attributes.position;
 const uv=scrFaceGeo.attributes.uv;
@@ -1114,14 +1128,19 @@ for(let i=0;i<pos.count;i++){
   uv.setXY(i,(pos.getX(i)+SCREEN_W/2)/SCREEN_W,(pos.getY(i)+SCREEN_H/2)/SCREEN_H);
 }
 uv.needsUpdate=true;
-const scrLensMap=scrTex.clone();
-scrLensMap.wrapS=THREE.RepeatWrapping;scrLensMap.repeat.x=-1;scrLensMap.offset.x=1;
-configureSharpTexture(scrLensMap);
-const scrFace=new THREE.MeshBasicMaterial({map:scrLensMap,side:THREE.DoubleSide});
+// 物体正面与光屏背面都朝 +X，背面纹理需左右翻转，配合画布的上下翻转。
+scrRearMap.repeat.x=-1;
+scrRearMap.offset.x=1;
+const scrFace=new THREE.MeshBasicMaterial({map:scrTex,transparent:true,opacity:.96});
 const scrMesh=new THREE.Mesh(scrFaceGeo,scrFace);
 scrMesh.rotation.y=-Math.PI/2;
 scrMesh.position.x=-.245;
 scrGroup.add(scrMesh);
+const scrRearFace=new THREE.MeshBasicMaterial({map:scrRearMap,transparent:true,opacity:.93});
+const scrRearMesh=new THREE.Mesh(scrFaceGeo,scrRearFace);
+scrRearMesh.rotation.y=Math.PI/2;
+scrRearMesh.position.x=.225;
+scrGroup.add(scrRearMesh);
 // 光屏与金属杆之间只保留小型金属套筒，取消旧屏底笨重夹座。
 const scrSocket=new THREE.Mesh(new THREE.CylinderGeometry(.25,.24,.47,20),
  new THREE.MeshStandardMaterial({color:0xdbe1e6,roughness:.36,metalness:.68}));
@@ -1141,21 +1160,29 @@ function drawScreenTexture(){
   drawScreenTexture._last=now;drawScreenTexture._key=key;
   const x=scrCtx,W=256,H=360;
   x.clearRect(0,0,W,H);
-  // 白色塑料屏的本色：未成像时就是白屏，不能再有蓝色底板、边框或大字说明。
+  const rear=scrRearCtx;
+  rear.clearRect(0,0,W,H);
   x.fillStyle=P.dark?'#eeeef0':'#faf9f5';x.fillRect(0,0,W,H);
+  rear.fillStyle=P.dark?'#e1e3e8':'#f1f1ef';rear.fillRect(0,0,W,H);
   if(P.cover<1 && kind==='real' && Number.isFinite(m)){
     const cm2px=H/SCREEN_H;
     const blur=Math.min(28,V.active?(sharpness().blurRadius||0)*cm2px:d*2.4);
     const screenM=V.active?-P.screen/currentSystem().B:m;
     const figH=FIGURE_BASE_CM*Math.abs(screenM)*cm2px;
     const yC=H/2-(screenM*P.objH)*cm2px;
+    const light=Math.pow(uncoverFrac(),.70);
     x.save();
     if(blur>0)x.filter=`blur(${blur.toFixed(1)}px)`;
-    x.globalAlpha=Math.pow(uncoverFrac(),.70);
+    x.globalAlpha=light;
     drawFigure(x,W/2,yC,figH,true);
     x.restore();
+    rear.save();
+    rear.filter=`blur(${Math.hypot(blur,3.4).toFixed(1)}px)`;
+    rear.globalAlpha=.48*light;
+    drawFigure(rear,W/2,yC,figH,true);
+    rear.restore();
   }
-  scrTex.needsUpdate=true;scrLensMap.needsUpdate=true;
+  scrTex.needsUpdate=true;scrRearMap.needsUpdate=true;
 }
 /* 一键物像高度计算。图案高度由绘制边界决定，像高按透镜横向放大率等比计算。 */
 let showMeasurement=false; // 右侧计算结果的展开状态
@@ -1639,7 +1666,7 @@ function resize3D(){
   renderer.setSize(w,h);labelRenderer.setSize(w,h);
   camera.aspect=w/h;camera.updateProjectionMatrix();
 }
-addEventListener('resize',()=>{resize3D();resize2D();});
+addEventListener('resize',resizeVisibleViews);
 
 /* ============ 2D Canvas 光路图 ============ */
 const cv=$('c2d'), ctx2=cv.getContext('2d');
@@ -1656,20 +1683,17 @@ function draw2D(){
   const u=P.objDist,f=P.focal,h=P.objH;
   const {v,m,kind}=lensImage();const {s,d}=sharpness();
   const halfT=lensHalfThick();
-  // 视口自适应：物体、透镜、光屏、像都要落在画布内（像距大时缩小比例，不再截断后半段光线）
-  let xL=Math.min(-u,-2*f,-10)-12;
-  let xR=Math.max(P.screen, 2*f, rayEndX(), 18)+12;
-  if(kind==='virtual' && isFinite(v)) xL=Math.min(xL, v-12);
-  const mag= (kind!=='none' && isFinite(m)) ? Math.abs(m) : 1;
+  // 固定观察范围，覆盖物距、焦点和光屏的可调范围。只有画布尺寸改变时才重算比例。
+  const singleView=viewMode==='2d';
+  const horizontalCm=singleView?80:90;
+  const verticalCm=singleView?17.5:20;
   const hVis=V.active?h:h*2.05; // 2D 物体/像箭头加高，便于看清，3D 仍用真实 h
-  const lensR2=V.active?LENS_R:LENS_R*1.5; // 2D 透镜上下高度为当前的 1.5 倍
-  const yNeed=Math.max(lensR2+2.5, Math.abs(hVis)+3.3, mag*Math.abs(hVis)+3.3, 11.6);
+  const lensR2=V.active?LENS_R:LENS_R*1.5;
   const padX=26, padY=42;
-  const pxPerCm=Math.min((W-2*padX)/(xR-xL), (H-padY)/(2*yNeed));
-  const contentW=(xR-xL)*pxPerCm;
-  const originX=(W-contentW)/2;
+  const lensX=W/2;
+  const pxPerCm=Math.min(Math.max(1,lensX-padX)/horizontalCm, (H-padY)/(2*verticalCm));
   const ax=H*0.50;
-  const X2=cm=>originX+(cm-xL)*pxPerCm;
+  const X2=cm=>lensX+cm*pxPerCm;
   const Y2=hh=>ax-hh*pxPerCm;
   const cx=X2(0);
   // 主光轴（PhET 蓝虚线）
@@ -1847,13 +1871,18 @@ function draw2D(){
   drawObjArrow(-u, hVis, '#6d28d9', '物体', `u=${u.toFixed(1)}  h=${h.toFixed(1)}`, false);
   if(kind==='none'){
     ctx2.fillStyle='#b54708';ctx2.font='bold 14px sans-serif';ctx2.textAlign='center';
-    ctx2.fillText('u = f · 出射平行光 · 不成像',W/2,H-16);
-  }else if(kind==='real'){
-    if(uncoverFrac()>0){
-      drawObjArrow(v, m*hVis, '#7c3aed', '实像', `v=${v.toFixed(1)}  h'=${(m*h).toFixed(1)}`, false);
+    ctx2.fillText('u = f · 出射平行光 · 不成像',W/2,H-38);
+  }else if(kind==='virtual'||uncoverFrac()>0){
+    const isVirtual=kind==='virtual';
+    const title=isVirtual?'虚像':'实像';
+    const imageX=X2(v),imageY=Y2(m*hVis);
+    if(imageX>=padX&&imageX<=W-padX&&imageY>=30&&imageY<=H-48){
+      const heightText=`h'=${(m*h).toFixed(1)}`;
+      drawObjArrow(v,m*hVis,'#7c3aed',title,isVirtual?heightText:`v=${v.toFixed(1)}  ${heightText}`,isVirtual);
+    }else{
+      ctx2.fillStyle=c2dText();ctx2.font='bold 13px sans-serif';ctx2.textAlign='center';
+      ctx2.fillText(`${title}超出视野 · v = ${v.toFixed(1)} cm`,W/2,H-38);
     }
-  }else{
-    drawObjArrow(v, m*hVis, '#7c3aed', '虚像', `h'=${(m*h).toFixed(1)}`, true);
   }
 
   // 光屏框
@@ -1868,8 +1897,10 @@ function draw2D(){
     ctx2.fillText(`通光 ${Math.round(uncoverFrac()*100)}%`,xs,ax-ry-12);
   }
   ctx2.restore();
-  ctx2.fillStyle=c2dText(); ctx2.font='12px sans-serif';
-  ctx2.fillText(kind==='real'?((V.active?d<=.20:s>.6)?`✓ 清晰  v₀=${P.screen.toFixed(1)}`:`模糊 Δ=${d.toFixed(1)}  v₀=${P.screen.toFixed(1)}`):`光屏 v₀=${P.screen.toFixed(1)} · 虚像无法承接`, xs, ax+ry+22);
+  ctx2.fillStyle=c2dText(); ctx2.font='12px sans-serif';ctx2.textAlign='center';
+  const screenLabel=kind==='real'?((V.active?d<=.20:s>.6)?`✓ 清晰  v₀=${P.screen.toFixed(1)}`:`模糊 Δ=${d.toFixed(1)}  v₀=${P.screen.toFixed(1)}`):`光屏 v₀=${P.screen.toFixed(1)} · 虚像无法承接`;
+  const labelInset=Math.min(W/2,ctx2.measureText(screenLabel).width/2+8);
+  ctx2.fillText(screenLabel,Math.max(labelInset,Math.min(W-labelInset,xs)),ax+ry+22);
 
   const legends=V.active?[['① 上部采样',C2.平行,0],['② 中部采样',C2.光心,1],['③ 下部采样',C2.焦点,2],['④ 边缘采样',C2['2F'],3]]:[['① 平行→焦点',C2.平行,0],['② 过光心',C2.光心,1],['③ 过焦点→平行',C2.焦点,2],['④ 过2F',C2['2F'],3]];
   ctx2.textAlign='left';let lx=12;
@@ -1966,7 +1997,7 @@ function exitVision(){
   Object.assign(P,saved);V.saved=null;
   for(const [id,key]of [['sU','objDist'],['sS','screen'],['sF','focal'],['sT','thick'],['sH','objH']])$(id).value=P[key];
   $('sCover').value=P.cover*100;$('objType').value=P.objType;
-  buildObject();buildVirtualImage();applyTheme();sync2DLayout();
+  buildObject();buildVirtualImage();applyTheme();
   refreshVisionControls();invalidateVision();
 }
 function invalidateVision(){
@@ -2033,9 +2064,12 @@ function tick(){
   }
   // 厚度变化重建透镜（节流）
   const wantF=fFromThick(P.thick);
-  syncLabels();updateInfo();update3D(dt,clock.elapsedTime);
-  if(P.show2d)draw2D();
-  controls.update();renderer.render(scene,camera);labelRenderer.render(scene,camera);
+  syncLabels();updateInfo();
+  if(viewMode!=='3d')draw2D();
+  if(viewMode!=='2d'){
+    update3D(dt,clock.elapsedTime);
+    controls.update();renderer.render(scene,camera);labelRenderer.render(scene,camera);
+  }
 }
 function updateInfo(){
   const {v,m,kind}=lensImage();const {s,d}=sharpness();const n=natureText();
@@ -2062,7 +2096,7 @@ function updateInfo(){
   else if(P.cover>0 && kind==='real') $('blurHint').textContent=`通光面积 ${lit}% · 像保持完整，清晰度与亮度分别变化`;
   else $('blurHint').textContent=kind!=='real'?'虚像无法用光屏承接，把眼睛放在光屏一侧透过透镜观察':((V.active?d<=.20:s>.6)?`光屏清晰度 ${pct}% · 对准了，像很锐利 ✓`:(V.active?`光屏已固定，选择并调节矫正透镜（Δ=${d.toFixed(2)} cm）`:`光屏清晰度 ${pct}% · 前后移动光屏寻找清晰像（Δ=${d.toFixed(1)}cm）`));
 }
-applyTheme();sync2DLayout();syncLabels();tick();
+applyTheme();resizeVisibleViews();syncLabels();tick();
 </script>
 </body>
 </html>

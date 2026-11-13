@@ -1496,7 +1496,7 @@ window.MODEL_CATALOG = [
       "远视模型",
       "双透镜"
     ],
-    "path": "models/convex-lens.html?v=20261018-nav1",
+    "path": "models/convex-lens.html?v=20261113-view-screen",
     "symbol": "↔",
     "accent": "violet"
   },
