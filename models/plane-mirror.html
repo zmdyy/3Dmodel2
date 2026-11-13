@@ -396,7 +396,7 @@ orthoCamera.lookAt(0, 0, 0);
 var camera = perspCamera;
 var controls = Navigation3D.configureOrbit(new OrbitControls(camera, renderer.domElement));
 controls.target.copy(OBLIQUE_TARGET);
-controls.enableDamping = true;
+controls.enableDamping = false;
 controls.maxPolarAngle = Math.PI * 0.48;
 controls.minDistance = 1.4;
 controls.maxDistance = 8;
@@ -3070,6 +3070,15 @@ addEventListener("resize", () => {
 });
 var clock = new THREE.Clock();
 var splitLastTime = 0;
+let sceneFrame = 0;
+let sceneNeedsUpdate = true;
+function queueSceneFrame() {
+  if (!sceneFrame) sceneFrame = requestAnimationFrame(animate);
+}
+function requestSceneRefresh() {
+  sceneNeedsUpdate = true;
+  queueSceneFrame();
+}
 function animateFlame(t2) {
   const mats = litCandle.userData.flameMats || [];
   mats.forEach((m) => {
@@ -3079,21 +3088,26 @@ function animateFlame(t2) {
   if (light) light.intensity = 0.12 + Math.sin(t2 * 18.5) * 0.012 + Math.sin(t2 * 31) * 6e-3;
 }
 function animate() {
-  requestAnimationFrame(animate);
+  sceneFrame = 0;
   const t2 = clock.getElapsedTime();
   const splitDt = Math.min(0.05, Math.max(0, t2 - splitLastTime));
   splitLastTime = t2;
-  if (Math.abs(state.splitGap - state.splitTarget) > 2e-4) {
+  const movingSplit = Math.abs(state.splitGap - state.splitTarget) > 2e-4;
+  if (movingSplit) {
     state.splitGap = THREE.MathUtils.damp(state.splitGap, state.splitTarget, 7, splitDt);
     if (Math.abs(state.splitGap - state.splitTarget) < 5e-4) state.splitGap = state.splitTarget;
     rebuildSplitMirror();
   }
-  animateFlame(t2);
+  if (litCandle.visible) animateFlame(t2);
   updatePencilAnim(performance.now());
-  updateRayDiagram();
-  updateHeightMeasure();
-  controls.update();
-  if (state.blockDemo) layoutBlockDemo();
+  // Flame frames reuse the scene. Recalculate teaching overlays only after a change.
+  if (sceneNeedsUpdate || movingSplit) {
+    sceneNeedsUpdate = false;
+    updateRayDiagram();
+    updateHeightMeasure();
+    if (state.blockDemo) layoutBlockDemo();
+  }
+  if (litCandle.visible || pencilAnim || movingSplit) queueSceneFrame();
   const rw = innerWidth;
   const rh = innerHeight;
   renderer.setScissorTest(false);
@@ -3145,7 +3159,19 @@ updateModeUI();
 syncWindowSlider();
 syncBlockInsetLabel();
 showTip("玻璃已固定。可推窗、切换侧视看光路，或把未燃烛移到像处比较高度", 3800);
-animate();
+controls.addEventListener("change", requestSceneRefresh);
+for (const eventType of ["click", "input", "change"]) {
+  document.addEventListener(eventType, requestSceneRefresh, true);
+}
+for (const eventType of ["pointerdown", "pointerup", "pointerleave", "pointercancel", "webglcontextrestored"]) {
+  renderer.domElement.addEventListener(eventType, requestSceneRefresh);
+}
+renderer.domElement.addEventListener("pointermove", () => {
+  if (state.dragging) requestSceneRefresh();
+});
+renderer.domElement.addEventListener("pointercancel", endDrag);
+window.addEventListener("resize", requestSceneRefresh);
+requestSceneRefresh();
 </script>
 </body>
 </html>
