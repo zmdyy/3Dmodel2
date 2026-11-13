@@ -1614,7 +1614,7 @@ window.MODEL_CATALOG = [
       "光屏",
       "几何模糊"
     ],
-    "path": "models/pinhole-camera.html?v=20261018-v6",
+    "path": "models/pinhole-camera.html?v=20261113-aperture",
     "symbol": "◉",
     "accent": "amber"
   },
