@@ -2754,6 +2754,8 @@ renderer.domElement.addEventListener("pointerdown", (e2) => {
     }
     if (state.tool === "mirrorLine") {
       setMirrorLine();
+      state.tool = null;
+      syncToolButtons();
       showTip("已画出平面镜（厚度中心）位置");
       return;
     }
