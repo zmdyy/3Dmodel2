@@ -1529,10 +1529,14 @@ function updateHeightMeasure() {
     prompt = "请先把镜面复位到 0°，再用桌上的未燃蜡烛找像。";
   } else if (state.material === "mirror" || showRearSurfaceImage()) {
     prompt = "请用最薄的透明玻璃，让镜中只显示一个像，便于对齐未燃蜡烛。";
-  } else if (!state.blockDemo && !draggingSetup) {
+  } else if (draggingSetup) {
+    prompt = "请先松开正在拖动的器材，再比较物、像的大小。";
+  } else if (!state.blockDemo) {
     const imageBase = mirrorPoint(litBaseWorld());
     const reference = unlitCandle.position;
-    ready = Math.hypot(reference.x - imageBase.x, reference.z - imageBase.z) <= COINCIDE_R + 1e-9;
+    const offset = Math.hypot(reference.x - imageBase.x, reference.z - imageBase.z);
+    ready = offset <= COINCIDE_R + 1e-9;
+    if (!ready) prompt = `未燃蜡烛与像的位置相差 ${(offset / CM).toFixed(2)} cm。请切到俯视微调至 0.5 cm 以内。`;
   }
   heightMeasurementTip = ready ? "" : prompt;
 
@@ -2616,7 +2620,7 @@ function syncToolButtons() {
   });
 }
 renderer.domElement.addEventListener("pointerdown", (e2) => {
-  if (e2.button !== 0) return;
+  if (e2.button !== 0 || state.dragging) return;
   if (state.tool) {
     const p3 = rayToPaper(e2);
     if (!p3) return;
@@ -2635,12 +2639,13 @@ renderer.domElement.addEventListener("pointerdown", (e2) => {
   const p2 = rayToInteract(e2);
   if (!p2) return;
   const target = kind === "lit" ? litCandle : kind === "unlit" ? unlitCandle : kind === "screen" ? screenGroup : mirrorGroup;
-  state.dragging = { type: kind, offset: new THREE.Vector3().subVectors(target.position, p2) };
+  state.dragging = { type: kind, pointerId: e2.pointerId, offset: new THREE.Vector3().subVectors(target.position, p2) };
+  renderer.domElement.setPointerCapture(e2.pointerId);
   controls.enabled = false;
 });
 let pendingDrag = null;
 renderer.domElement.addEventListener("pointermove", (event) => {
-  if (!state.dragging) return;
+  if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
   pendingDrag = event;
   requestSceneFrame();
 });
@@ -2671,7 +2676,7 @@ function applyPendingDrag() {
   }
 }
 function endDrag(event) {
-  if (!state.dragging) return;
+  if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
   if (event.type === "pointerup") pendingDrag = event;
   applyPendingDrag();
   state.dragging = null;
@@ -2679,7 +2684,7 @@ function endDrag(event) {
   controls.enabled = true;
 }
 renderer.domElement.addEventListener("pointerup", endDrag);
-renderer.domElement.addEventListener("pointerleave", endDrag);
+renderer.domElement.addEventListener("lostpointercapture", endDrag);
 renderer.domElement.addEventListener("pointercancel", endDrag);
 document.querySelectorAll("#material-group .btn").forEach((btn) => {
   btn.addEventListener("click", () => {
