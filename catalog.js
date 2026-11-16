@@ -195,8 +195,8 @@ window.MODEL_CATALOG = [
     "PBR",
     "离线"
   ],
-  "path": "models/fuel-calorific-value.html?v=20261102-contrast",
-  "cover": "assets/covers/fuel-calorific-value-scene.jpg?v=20261102-real",
+  "path": "models/fuel-calorific-value.html?v=20261116-chart-plaque",
+  "cover": "assets/covers/fuel-calorific-value-scene.jpg?v=20261116-chart-plaque",
   "symbol": "燃",
   "accent": "amber"
 },
