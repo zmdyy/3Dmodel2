@@ -22,33 +22,29 @@
  .stage>.chartbox{left:10px;right:10px;bottom:10px;height:285px;padding:12px}
 }
 
-/* Reused circular thermometer magnifier from the water boiling laboratory. */
-.float-mag{position:absolute;top:50px;width:min(18%,190px);aspect-ratio:370/365;border-radius:50%;background:transparent;z-index:5;filter:drop-shadow(0 5px 10px #344c5c38)}
+/* Circular SVG thermometer magnifiers and their projected leaders. */
+.float-mag{position:absolute;top:130px;width:min(18%,190px);aspect-ratio:370/365;border-radius:50%;z-index:5;filter:drop-shadow(0 5px 10px #344c5c38);cursor:grab;touch-action:none;user-select:none;--mag-color:#176488}
 .float-mag[hidden]{display:none}
-.mag-0{left:calc(69% - min(9%,95px))}.mag-1{left:calc(88% - min(9%,95px))}
-.magnifier-circle{display:block;width:100%;height:auto}
+.float-mag.is-dragging{cursor:grabbing;z-index:6}
+.mag-0{left:18%}.mag-1{left:49%;--mag-color:#a55324}
+.magnifier-circle{display:block;width:100%;height:auto;pointer-events:none}
 .float-mag .mag-close{position:absolute;right:3px;top:3px;width:24px;height:24px;padding:0;border-radius:50%;font:17px/22px Arial;background:#fffef9e8;border:1px solid #c9d4d9;color:#596970;z-index:2}
-.mag-caption{position:absolute;top:7px;left:7px;font-size:11px;font-weight:700;padding:3px 6px;border:1px solid #d7e1e4;border-radius:9px;background:#fffef9eb;color:var(--blue);z-index:1}.mag-1 .mag-caption{color:var(--orange)}
-.mag-leader{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;overflow:hidden}.mag-leader path{fill:none;stroke:#79919f;stroke-width:1.5;stroke-dasharray:4 4;opacity:.75}.mag-leader circle{fill:#fff;stroke:#6d8b9d;stroke-width:1.5}
-.zoom-controls{display:flex;gap:8px;flex-wrap:wrap}.zoom-controls button{font-size:12px;padding:8px 10px}
-@media(max-width:1200px){.float-mag{top:70px;width:155px}.mag-0{left:auto;right:180px}.mag-1{left:auto;right:15px}}
-@media(max-width:650px){.float-mag{top:130px;width:135px}.mag-0{left:8px;right:auto}.mag-1{right:8px}.mag-leader{display:none}.mag-caption{font-size:10px}.float-mag .mag-close{width:22px;height:22px}}
+.mag-caption{position:absolute;bottom:8px;left:7px;font-size:11px;font-weight:700;padding:3px 6px;border:1px solid #d7e1e4;border-radius:9px;background:#fffef9ef;color:var(--mag-color);z-index:1}
+.mag-leader{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;overflow:hidden}
+.mag-leader g{color:#176488}.mag-leader g+g{color:#a55324}
+.mag-leader path{fill:none;stroke:currentColor;stroke-width:2;stroke-dasharray:6 4;stroke-linecap:round}
+.mag-leader circle{fill:#fff;stroke:currentColor;stroke-width:2}
 
 /* Wider apparatus spacing, compact graph and scene-local controls. */
-#view{width:70%}.labels{width:70%}.stage>.chartbox{width:29%;height:72%;min-height:360px}
-.stage-top{pointer-events:auto}.stage-top .scene-zoom-controls{display:flex;gap:7px;margin-top:9px}.scene-zoom-controls button{font-size:11px;padding:6px 9px;background:#fffdf9df;border-color:#c6d8df}
-.stage-hint{top:107px;font-size:10px;max-width:43%;line-height:1.5}
+#view{width:70%;z-index:0}.labels{width:70%;z-index:3}.stage>.chartbox{width:29%;height:72%;min-height:360px}
+.stage-top,.viewtools{z-index:7}
+.stage-top .scene-zoom-controls{display:flex;gap:7px;margin-top:9px;pointer-events:auto}.scene-zoom-controls button{font-size:11px;padding:6px 9px;background:#fffdf9df;border-color:#c6d8df}
+.stage-hint{top:103px;z-index:7;font-size:10px;max-width:43%;line-height:1.5;color:#405764}
 .run #reset{grid-column:1/-1}
 #thermScales{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden}
 #view canvas{position:relative;z-index:1}
-.float-mag{top:65px}.mag-0{left:calc(30% - 95px)}.mag-1{left:calc(60% - 95px)}
-@media(max-width:1200px){#view{width:100%}.labels{width:100%}.stage>.chartbox{width:auto;height:290px;min-height:0}.float-mag{width:155px}.mag-0{left:calc(35% - 77px);right:auto}.mag-1{left:calc(80% - 77px);right:auto}.stage-hint{max-width:55%}}
-@media(max-width:650px){.stage-top .scene-zoom-controls{gap:4px}.scene-zoom-controls button{font-size:9px;padding:5px 6px}.stage-hint{top:105px;max-width:75%;font-size:9px}.float-mag{width:120px;top:140px}.mag-0{left:calc(32% - 60px)}.mag-1{left:calc(82% - 60px)}.stage>.chartbox{height:285px}}
-
-#view{z-index:0}.stage-top,.labels,.viewtools{z-index:3}
-
-.mag-caption{top:auto;bottom:8px;left:7px}
-@media(max-width:650px){.viewtools{top:10px}}
+@media(max-width:1200px){#view,.labels{width:100%}.stage>.chartbox{width:auto;height:290px;min-height:0}.float-mag{width:155px}.stage-hint{max-width:55%}}
+@media(max-width:650px){.stage-top .scene-zoom-controls{gap:4px}.scene-zoom-controls button{font-size:9px;padding:5px 6px}.stage-hint{top:105px;max-width:75%;font-size:9px}.float-mag{width:min(120px,42%)}.mag-caption{font-size:10px}.float-mag .mag-close{width:22px;height:22px}.stage>.chartbox{height:285px}.viewtools{top:10px}}
 
 /* Fill the desktop window vertically while keeping the laboratory usable on narrow screens. */
 @media(min-width:1201px){
@@ -84,7 +80,7 @@ aside{color:#183443}aside h2{color:#132f3e}aside .param span{color:#243f4e}aside
 @font-face{font-family:FuelSC;font-style:normal;font-weight:100 900;src:url(data:font/woff;base64,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) format('woff');unicode-range:U+7184;}
 body,button,input,select,textarea{font-family:'Microsoft YaHei','PingFang SC',FuelSC,sans-serif}svg text{font-family:FuelSC,sans-serif}</style><!-- Noto Sans SC subset, SIL Open Font License 1.1 --></head><body>
 <header><div><small>PHYSICS · INQUIRY LAB</small><h1>不同燃料的热值 · 双灯探究实验</h1></div><span class="badge">观察 · 记录 · 再试一次</span></header>
-<main><section class="left"><div class="stage"><div id="view"><svg id="thermScales" aria-label="两支温度计的矢量刻度"></svg></div><svg class="mag-leader" id="magLeader" aria-hidden="true"><path id="magLine0"/><circle id="magAnchor0" r="4"/><path id="magLine1"/><circle id="magAnchor1" r="4"/></svg><div class="float-mag mag-0" id="mag0"><span class="mag-caption" id="magCaption0"></span><button class="mag-close" id="magClose0" title="关闭该组温度计放大">×</button><div id="magContent0"></div></div><div class="float-mag mag-1" id="mag1"><span class="mag-caption" id="magCaption1"></span><button class="mag-close" id="magClose1" title="关闭该组温度计放大">×</button><div id="magContent1"></div></div><div id="error"></div><div class="stage-top"><b>相同装置，换一种燃料</b><p>两杯均装水 · 酒精 / 煤油</p><div class="scene-zoom-controls"><button id="zoomToggle0">隐藏酒精组放大</button><button id="zoomToggle1">隐藏煤油组放大</button></div></div><div class="viewtools"><button id="home">默认视角</button><button id="front">正面</button><button id="glass">隐藏杯壁</button></div><div class="labels" id="labels"></div><div class="stage-hint">左键旋转 · 右键或 Shift＋左键平移 · 滚轮缩放 · 双击复位</div><div class="panel chartbox"><div class="charttitle"><h2>温度—时间图像</h2><div class="legend"><span><i class="dot"></i>酒精组</span><span><i class="dot o"></i>煤油组</span><button id="prev">显示上轮曲线</button></div></div><svg id="chart" viewBox="0 0 900 240" role="img" aria-label="两组水温随时间变化图像"></svg></div></div>
+<main><section class="left"><div class="stage"><div id="view"><svg id="thermScales" aria-label="两支温度计的矢量刻度"></svg></div><svg class="mag-leader" id="magLeader" aria-hidden="true"><g id="magLeader0" visibility="hidden"><path/><circle r="4"/></g><g id="magLeader1" visibility="hidden"><path/><circle r="4"/></g></svg><div class="float-mag mag-0" id="mag0"><span class="mag-caption">酒精组</span><button class="mag-close" id="magClose0" aria-label="关闭该组温度计放大">×</button><div id="magContent0"></div></div><div class="float-mag mag-1" id="mag1"><span class="mag-caption">煤油组</span><button class="mag-close" id="magClose1" aria-label="关闭该组温度计放大">×</button><div id="magContent1"></div></div><div id="error"></div><div class="stage-top"><b>相同装置，换一种燃料</b><p>两杯均装水 · 酒精 / 煤油</p><div class="scene-zoom-controls"><button id="zoomToggle0">隐藏酒精组放大</button><button id="zoomToggle1">隐藏煤油组放大</button></div></div><div class="viewtools"><button id="home">默认视角</button><button id="front">正面</button><button id="glass">隐藏杯壁</button></div><div class="labels" id="labels"></div><div class="stage-hint">拖动圆形读数窗可调整位置<br>左键旋转 · 右键或 Shift＋左键平移 · 滚轮缩放 · 双击复位</div><div class="panel chartbox"><div class="charttitle"><h2>温度—时间图像</h2><div class="legend"><span><i class="dot"></i>酒精组</span><span><i class="dot o"></i>煤油组</span><button id="prev">显示上轮曲线</button></div></div><svg id="chart" viewBox="0 0 900 240" role="img" aria-label="两组水温随时间变化图像"></svg></div></div>
 </section><aside><section class="panel"><h2>实验设置</h2><label class="param"><span>每杯水的质量</span><span class="inputbox"><input id="water" type="number" min="50" max="400" step="10" value="200"><small>g</small></span></label><label class="param"><span>两杯水的初温</span><span class="inputbox"><input id="initial" type="number" min="5" max="95" step="5" value="20"><small>℃</small></span></label><label class="param"><span>各消耗燃料质量</span><span class="inputbox"><input id="fuel" type="number" min="0.1" max="30" step="0.5" value="2"><small>g</small></span></label><p class="sub">两灯初始各装 40.0 g 燃料；达到设定消耗质量后盖帽熄火。</p><div class="run"><button id="play" class="primary">点燃两灯</button><button id="reset">重新试验</button></div><div class="param"><span>演示速度</span><select id="speed"><option value="1">1×</option><option value="5">5×</option><option value="10" selected>10×</option><option value="30">30×</option></select></div></section>
 <section class="panel"><div class="status"><span id="status">准备实验</span><span><b class="time" id="clock">0</b> s</span></div><div id="data"></div></section>
 
@@ -284,14 +280,16 @@ function saveRound(){if(!started)return;const p=snapshot();const existing=histor
 function readConfig(){const limits={water:[50,400],initial:[5,95],fuel:[.1,30]};for(const k of Object.keys(limits)){let n=Number($(k).value);config[k]=Math.max(limits[k][0],Math.min(limits[k][1],Number.isFinite(n)?n:config[k]));$(k).value=config[k];}}
 function reset(){saveRound();if(started)round++;readConfig();run=started=done=saved=false;time=0;lastSample=0;states=initialState();samples=[{t:0,v:states.map(s=>s.temp)}];renderUI();}
 function renderHistory(){}
-let zoomVisible=[true,true];
+const zoomVisible=[true,true];
+const thermometerDetailScale=1.5;
 function zoomSVG(s,i){
- if(s.dry)return `<svg viewBox="0 0 370 365"><circle cx="188" cy="180" r="167" fill="#d1d5d8" stroke="#fff" stroke-width="5"/><text x="188" y="185" text-anchor="middle" font-size="25" fill="#425560">水已汽化</text></svg>`;
+ if(s.dry)return `<svg viewBox="0 0 370 365" class="magnifier-circle"><circle cx="188" cy="180" r="167" fill="#d1d5d8" stroke="#fff" stroke-width="5"/><text x="188" y="185" text-anchor="middle" font-size="25" fill="#425560">水已汽化</text></svg>`;
  const val=Math.max(0,Math.min(110,s.temp)),lo=Math.max(0,Math.min(80,Math.floor(val/10)*10-10)),hi=lo+30,Y=v=>315-(v-lo)/30*285;
+ const readoutY=Y(val);
  let ticks='';for(let t=lo;t<=hi;t++){const yy=Y(t),major=t%10===0,mid=t%5===0;ticks+=`<line x1="${major?149:mid?158:167}" x2="202" y1="${yy}" y2="${yy}" stroke="${major?'#21282e':'#303a3e'}" stroke-width="${major?3.3:mid?2.3:1.35}"/>`;if(major)ticks+=`<text x="217" y="${yy+8}" font-size="27" font-weight="750" fill="#24292e" font-family="Arial,sans-serif">${t}</text>`;}
- return `<svg viewBox="0 0 370 365" class="magnifier-circle" role="img" aria-label="${F[i].name}组圆形温度计放大，每小格1摄氏度，当前${val.toFixed(1)}摄氏度"><defs><linearGradient id="mgBg${i}" x1="0%" x2="100%"><stop offset="0%" stop-color="#b5b8bc"/><stop offset="49%" stop-color="#e7e8e8"/><stop offset="100%" stop-color="#a7abb0"/></linearGradient><linearGradient id="mgTube${i}" x1="0%" x2="100%"><stop offset="0%" stop-color="#7e929c" stop-opacity=".9"/><stop offset="21%" stop-color="#f5f8f9" stop-opacity=".94"/><stop offset="58%" stop-color="#cad3d7" stop-opacity=".49"/><stop offset="100%" stop-color="#fff" stop-opacity=".86"/></linearGradient><clipPath id="mgClip${i}"><circle cx="188" cy="180" r="164"/></clipPath></defs><path d="M9 180 L27 169 L27 191 Z" fill="#f0f1f2" stroke="#b8bec5" stroke-width="2"/><circle cx="188" cy="180" r="167" fill="url(#mgBg${i})" stroke="#d8dbdf" stroke-width="5"/><g clip-path="url(#mgClip${i})"><rect x="23" y="15" width="332" height="330" fill="url(#mgBg${i})"/><rect x="122" y="2" width="83" height="356" rx="18" fill="url(#mgTube${i})" stroke="#f1f5f7" stroke-width="1.5"/><rect x="139" y="9" width="57" height="350" fill="#e7e9e9" opacity=".77"/><path d="M150 0 V359" stroke="#fff" stroke-width="3" opacity=".8"/><rect x="183" y="${Y(val)}" width="10" height="${359-Y(val)}" fill="#d62835"/><rect x="184.5" y="${Y(val)}" width="2.5" height="${359-Y(val)}" fill="#f76e74" opacity=".72"/>${ticks}<rect x="126" y="3" width="3" height="354" fill="#fff" opacity=".58"/></g><circle cx="188" cy="180" r="167" fill="none" stroke="#fff" stroke-width="2.3"/></svg>`;
+ return `<svg viewBox="0 0 370 365" class="magnifier-circle" role="img" aria-label="${F[i].name}组圆形温度计放大，每小格1摄氏度，当前${val.toFixed(1)}摄氏度"><defs><linearGradient id="mgBg${i}" x1="0%" x2="100%"><stop offset="0%" stop-color="#b5b8bc"/><stop offset="49%" stop-color="#e7e8e8"/><stop offset="100%" stop-color="#a7abb0"/></linearGradient><linearGradient id="mgTube${i}" x1="0%" x2="100%"><stop offset="0%" stop-color="#7e929c" stop-opacity=".9"/><stop offset="21%" stop-color="#f5f8f9" stop-opacity=".94"/><stop offset="58%" stop-color="#cad3d7" stop-opacity=".49"/><stop offset="100%" stop-color="#fff" stop-opacity=".86"/></linearGradient><clipPath id="mgClip${i}"><circle cx="188" cy="180" r="164"/></clipPath></defs><circle cx="188" cy="180" r="167" fill="url(#mgBg${i})" stroke="#d8dbdf" stroke-width="5"/><g clip-path="url(#mgClip${i})"><rect x="23" y="15" width="332" height="330" fill="url(#mgBg${i})"/><g transform="translate(188 ${readoutY}) scale(${thermometerDetailScale}) translate(-188 ${-readoutY})"><rect x="122" y="2" width="83" height="356" rx="18" fill="url(#mgTube${i})" stroke="#f1f5f7" stroke-width="1.5"/><rect x="139" y="9" width="57" height="350" fill="#e7e9e9" opacity=".77"/><path d="M150 0 V359" stroke="#fff" stroke-width="3" opacity=".8"/><rect x="183" y="${Y(val)}" width="10" height="${359-Y(val)}" fill="#d62835"/><rect x="184.5" y="${Y(val)}" width="2.5" height="${359-Y(val)}" fill="#f76e74" opacity=".72"/>${ticks}<rect x="126" y="3" width="3" height="354" fill="#fff" opacity=".58"/></g></g><circle cx="188" cy="180" r="167" fill="none" stroke="#fff" stroke-width="2.3"/></svg>`;
 }
-function updateZooms(){states.forEach((s,i)=>{const panel=$('mag'+i);panel.hidden=!zoomVisible[i];$('magContent'+i).innerHTML=zoomSVG(s,i);$('zoomToggle'+i).textContent=(zoomVisible[i]?'隐藏':'显示')+F[i].name+'组放大';$('magCaption'+i).textContent=F[i].name+'组';});}
+function updateZooms(){states.forEach((s,i)=>{const panel=$('mag'+i);panel.hidden=!zoomVisible[i];$('magContent'+i).innerHTML=zoomSVG(s,i);$('zoomToggle'+i).textContent=(zoomVisible[i]?'隐藏':'显示')+F[i].name+'组放大';});}
 function renderUI(){ $('play').textContent=done?'本轮完成':run?'暂停实验':started?'继续实验':'点燃两灯';$('play').disabled=done;$('clock').textContent=Math.floor(time);$('status').textContent=done?'两灯已熄灭':run?'实验进行中':started?'已暂停':'准备实验';for(const id of ['water','initial','fuel'])$(id).disabled=started;
 $('labels').innerHTML=states.map((s,i)=>`<div class="label ${i?'o':''}"><div class="row"><span class="name">${F[i].name}组</span><strong>${s.dry?'—':s.temp.toFixed(1)}<small style="display:inline"> ℃</small></strong></div><small>已消耗 ${s.used.toFixed(2)} / ${config.fuel.toFixed(2)} g · ${s.used>=config.fuel?'已盖帽':started?'燃烧灯':'待点燃'}</small><div class="meter"><i style="width:${100*s.used/config.fuel}%"></i></div></div>`).join('');
 $('data').innerHTML=`<table><thead><tr><th></th><th style="color:${F[0].color}">酒精组</th><th style="color:${F[1].color}">煤油组</th></tr></thead><tbody>${[['水温 / ℃',s=>s.dry?'—':s.temp.toFixed(1)],['温升 / ℃',s=>s.dry?'—':(s.temp-config.initial).toFixed(1)],['灯内剩余 / g',s=>(40-s.used).toFixed(2)],['水的剩余质量 / g',s=>s.remainingWater.toFixed(1)]].map(([n,f])=>`<tr><td>${n}</td>${states.map(s=>`<td>${f(s)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
@@ -316,7 +314,7 @@ try{history=JSON.parse(localStorage.getItem('fuelLabHistoryV1')||'[]');if(histor
 for(let i=0;i<2;i++){for(const id of ['zoomToggle','magClose'])$(id+i).onclick=()=>{zoomVisible[i]=!zoomVisible[i];updateZooms();};}
 states=initialState();samples=[{t:0,v:states.map(s=>s.temp)}];renderHistory();renderUI();
 const mount=$('view');let scene,camera,renderer,rigs=[],yaw=.13,pitch=.22,dist=10.4,aim=new THREE.Vector3(-.1,2.2,0),visibleGlass=true;
-function updateCamera(){const d=dist;camera.position.set(aim.x+d*Math.sin(yaw)*Math.cos(pitch),aim.y+d*Math.sin(pitch),aim.z+d*Math.cos(yaw)*Math.cos(pitch));camera.lookAt(aim);}
+function updateCamera(){const d=dist;camera.position.set(aim.x+d*Math.sin(yaw)*Math.cos(pitch),aim.y+d*Math.sin(pitch),aim.z+d*Math.cos(yaw)*Math.cos(pitch));camera.lookAt(aim);camera.updateMatrixWorld();}
 
 const materials={
  copper:new THREE.MeshStandardMaterial({color:0xa85c2b,metalness:.81,roughness:.32,envMapIntensity:.60}),
@@ -371,7 +369,7 @@ m(new THREE.SphereGeometry(.053,24,16),materials.red,group,[thermX,.49,thermZ+.0
 // metallic flat cap
 m(new THREE.CylinderGeometry(.048,.048,.055,20),materials.steel,group,[thermX,3.345,thermZ]);
 // Tick marks and numerals are drawn as projected SVG, without bitmap labels or text outlines.
-const thermParts=group.children.slice(thermPartsStart);return {group,liquidWall,liquidTop,fillLine,redCol,thermParts,glass:[cyl,baseGlass,rim,lip]};}
+const thermParts=group.children.slice(thermPartsStart);return {group,liquidWall,liquidTop,fillLine,thermometer,redCol,thermParts,glass:[cyl,baseGlass,rim,lip]};}
 function createLamp(parent){const T=THREE,PI=Math.PI;const material=(color,metalness=0,roughness=.6)=>new T.MeshStandardMaterial({color,metalness,roughness});const darkMetal=materials.steelDark,lightMetal=materials.steel,brass=material(0xab9070,.72,.4),blackMat=materials.rubber,burnerGlass=materials.glass.clone();burnerGlass.opacity=.25;burnerGlass.transmission=.10;
 function mesh(g,ma,pos,pa){return m(g,ma,pa,pos)}function cyl(rt,rb,h,ma,x,y,z,pa){return mesh(new T.CylinderGeometry(rt,rb,h,48),ma,[x,y,z],pa)}function torus(r,t,ma,x,y,z,pa){const o=mesh(new T.TorusGeometry(r,t,10,64),ma,[x,y,z],pa);o.rotation.x=-PI/2;return o}function segment(a,b,r,ma,pa){return rodBetween(a,b,r,ma,pa)}
 // alcohol lamp: accurately joined glass globe, threaded cap, metal burner, wick
@@ -452,6 +450,70 @@ function renderThermScales(){
  if(major){const p=proj(tx+.15,yy-.042,.27),px=proj(tx+.25,yy-.042,.27),py=proj(tx+.15,yy-.142,.27);out+=`<text x="0" y="0" font-size="12" transform="matrix(${((px.x-p.x)/10).toFixed(5)} ${((px.y-p.y)/10).toFixed(5)} ${((py.x-p.x)/10).toFixed(5)} ${((py.y-p.y)/10).toFixed(5)} ${p.x.toFixed(2)} ${p.y.toFixed(2)})">${t}</text>`;}}
  out+='</g>';});svg.innerHTML=out;
 }
+const magStage=mount.parentElement;
+const magOverlay=$('magLeader');
+const magnifiers=rigs.map((_,i)=>{
+ const panel=$('mag'+i),leader=$('magLeader'+i);
+ const mag={panel,leader,line:leader.querySelector('path'),anchor:leader.querySelector('circle'),
+  base:new THREE.Vector3(),tip:new THREE.Vector3(),offsetX:0,offsetY:0,drag:null};
+ panel.addEventListener('pointerdown',event=>{
+  if(event.button!==0||mag.drag||event.target.closest('button'))return;
+  mag.drag={id:event.pointerId,x:event.clientX-panel.offsetLeft,y:event.clientY-panel.offsetTop,
+   left:panel.offsetLeft,top:panel.offsetTop};
+  panel.setPointerCapture(event.pointerId);
+  panel.classList.add('is-dragging');
+  event.preventDefault();
+ });
+ panel.addEventListener('pointermove',event=>{
+  if(mag.drag?.id!==event.pointerId)return;
+  mag.drag.left=event.clientX-mag.drag.x;
+  mag.drag.top=event.clientY-mag.drag.y;
+  renderMagnifiers(mount.clientWidth,mount.clientHeight);
+ });
+ for(const type of ['pointerup','pointercancel','lostpointercapture']){
+  panel.addEventListener(type,event=>{
+   if(mag.drag?.id!==event.pointerId)return;
+   mag.drag=null;
+   panel.classList.remove('is-dragging');
+  });
+ }
+ return mag;
+});
+function renderMagnifiers(w,h){
+ magOverlay.setAttribute('viewBox',`0 0 ${magStage.clientWidth} ${magStage.clientHeight}`);
+ magnifiers.forEach((mag,i)=>{
+  const {panel,leader,line,anchor,base,tip,drag}=mag;
+  if(panel.hidden){leader.setAttribute('visibility','hidden');return;}
+  const {thermometer,redCol}=rigs[i].cup;
+  // Position the lens beside the upper shaft; connect it to the liquid column tip.
+  base.copy(thermometer.position);
+  base.x+=1.28;
+  base.y+=.60;
+  thermometer.parent.localToWorld(base).project(camera);
+  redCol.localToWorld(tip.set(0,.5,0)).project(camera);
+  const width=panel.offsetWidth,height=panel.offsetHeight;
+  const bx=(base.x+1)*w/2-width/2,by=(1-base.y)*h/2-height/2;
+  const validBase=base.z>=-1&&base.z<=1;
+  const autoX=validBase?bx:panel.offsetLeft-mag.offsetX;
+  const autoY=validBase?by:panel.offsetTop-mag.offsetY;
+  const x=Math.round(THREE.MathUtils.clamp(drag?drag.left:autoX+mag.offsetX,6,Math.max(6,w-width-6)));
+  const y=Math.round(THREE.MathUtils.clamp(drag?drag.top:autoY+mag.offsetY,6,Math.max(6,h-height-6)));
+  if(drag){mag.offsetX=x-autoX;mag.offsetY=y-autoY;}
+  panel.style.left=x+'px';
+  panel.style.top=y+'px';
+
+  const sx=(tip.x+1)*w/2,sy=(1-tip.y)*h/2;
+  const cx=x+188*width/370,cy=y+180*height/365,radius=167*width/370;
+  const dx=sx-cx,dy=sy-cy,distance=Math.hypot(dx,dy);
+  const show=!states[i].dry&&tip.z>=-1&&tip.z<=1&&sx>=0&&sx<=w&&sy>=0&&sy<=h&&distance>radius;
+  leader.setAttribute('visibility',show?'visible':'hidden');
+  if(!show)return;
+  const ex=cx+dx*radius/distance,ey=cy+dy*radius/distance;
+  line.setAttribute('d',`M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`);
+  anchor.setAttribute('cx',sx.toFixed(1));
+  anchor.setAttribute('cy',sy.toFixed(1));
+ });
+}
 function frame(now){const realdt=Math.min(.08,(now-last)/1000);last=now;if(run){animationTime+=realdt;const simdt=realdt*Number($('speed').value);let rest=simdt;while(rest>0){const dt=Math.min(.1,rest);advance(dt);rest-=dt;}}uiClock+=realdt;if(uiClock>.12){renderUI();uiClock=0;}
 rigs.forEach((r,i)=>{const s=states[i];const height=Math.max(.001,s.remainingWater/400*1.8),bottom=.14,surface=bottom+height;const cup=r.cup;cup.liquidWall.scale.y=height/.9;cup.liquidWall.position.y=bottom+height/2;cup.liquidTop.position.y=surface;cup.fillLine.position.y=surface;cup.liquidWall.visible=cup.liquidTop.visible=cup.fillLine.visible=!s.dry;
 const offset=Math.max(0,.58-surface);cup.thermParts.forEach((o,k)=>o.position.y=r.thermBase[k]-offset);r.bracket.position.y=4.29-offset;const len=.030+s.temp/100*2.58;cup.redCol.scale.y=len;cup.redCol.position.y=.49+len/2-offset;cup.redCol.visible=!s.dry;
@@ -461,10 +523,7 @@ const intensity=s.boiling&&lit?1:s.temp>65&&lit?.10:0;for(let k=0;k<r.bubbles.le
 for(let k=0;k<r.mist.length;k++){const o=r.mist[k],ph=(animationTime*.27+k/14)%1;o.visible=s.boiling&&lit&&!s.dry;o.position.set(Math.sin(k*2.4)*(.07+ph*.27),surface+.08+ph*.85,Math.cos(k*2.4)*.15);o.scale.setScalar(.19+ph*.4);o.material.opacity=.18*Math.sin(ph*PI);}
 });
 const w=mount.clientWidth,h=mount.clientHeight;if(renderer.domElement.width!==Math.round(w*renderer.getPixelRatio())||renderer.domElement.height!==Math.round(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();nav.setPose({...nav.pose,dist:Math.max(nav.pose.dist,fitDistance())});updateCamera();}renderThermScales();
-const stage=mount.parentElement,sw=stage.clientWidth,sh=stage.clientHeight;const leader=$('magLeader');leader.setAttribute('viewBox',`0 0 ${sw} ${sh}`);
-rigs.forEach((r,i)=>{const panel=$('mag'+i),line=$('magLine'+i),anchor=$('magAnchor'+i);const show=zoomVisible[i]&&!states[i].dry;line.style.display=anchor.style.display=show?'':'none';if(!show)return;
-const nearby=new THREE.Vector3(r.cx+.97,4.08,.18).project(camera);const diameter=panel.offsetWidth;const px=(nearby.x+1)*mount.clientWidth/2,py=(1-nearby.y)*mount.clientHeight/2;panel.style.left=Math.max(6,Math.min(mount.clientWidth-diameter-6,px-diameter/2))+'px';panel.style.top=Math.max(sw<650?135:76,Math.min(mount.clientHeight-diameter-110,py-diameter/2))+'px';
-const surf=.14+states[i].remainingWater/400*1.8,offset=Math.max(0,.58-surf);const pos=new THREE.Vector3(r.cx-.34,1.45+.49+.030+states[i].temp*.0258-offset,.248).project(camera);const sx=(pos.x+1)*mount.clientWidth/2,sy=(1-pos.y)*mount.clientHeight/2,ex=panel.offsetLeft+panel.offsetWidth*.08,ey=panel.offsetTop+panel.offsetHeight*.5;line.setAttribute('d',`M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${((sx+ex)/2).toFixed(1)} ${(Math.min(sy,ey)-22).toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`);anchor.setAttribute('cx',sx.toFixed(1));anchor.setAttribute('cy',sy.toFixed(1));});
+renderMagnifiers(w,h);
 renderer.render(scene,camera);requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 // Deterministic hooks for validation of calculations, UI and assembled positions.
