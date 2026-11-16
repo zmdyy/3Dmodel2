@@ -1,29 +1,17 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>不同燃料的热值 · 双灯探究实验</title><style>
-:root{--ink:#203d4d;--muted:#71858c;--line:#d8e2e4;--blue:#277caa;--orange:#bd7339;--green:#477c6b}*{box-sizing:border-box}body{margin:0;background:#eef1ed;color:var(--ink);font-family:'Microsoft YaHei','PingFang SC',sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:1px solid #ccd9da;background:#fff;color:var(--ink);border-radius:9px;padding:9px 12px}button:hover{background:#edf5f1}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #70a99b;outline-offset:2px}header{padding:19px 25px 16px;display:flex;align-items:center;justify-content:space-between;background:#fffdf6;border-bottom:1px solid var(--line)}header small{color:#83958c;font-size:10px;letter-spacing:2px}h1{font-size:25px;margin:5px 0 0;letter-spacing:1px}.badge{background:#e6eee8;color:#577465;border-radius:20px;padding:8px 14px;font-size:12px}main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:15px;padding:16px;max-width:1920px;margin:auto}.left{min-width:0}.stage{height:570px;position:relative;border:1px solid #cedbdc;border-radius:16px;overflow:hidden;background:linear-gradient(#e8eff0,#f8f9f3)}#view{position:absolute;inset:0}#view canvas{display:block;touch-action:none}.stage-top{position:absolute;top:17px;left:20px;pointer-events:none}.stage-top b{font-size:15px}.stage-top p{font-size:12px;color:var(--muted);margin:7px 0}.viewtools{position:absolute;right:12px;top:12px;display:flex;gap:5px}.viewtools button{font-size:11px;padding:7px 9px}.stage-hint{position:absolute;top:61px;left:20px;color:#6c8087;font-size:11px;pointer-events:none}.labels{position:absolute;bottom:15px;left:0;width:100%;display:flex;justify-content:space-around;pointer-events:none}.label{width:34%;padding:10px 14px;background:#fffffff2;border:1px solid #d4e5ed;border-radius:12px;box-shadow:0 5px 18px #234a5b0b}.label.o{border-color:#e8d6c4}.label .name{color:var(--blue);font-size:17px;font-weight:bold}.label.o .name{color:var(--orange)}.label strong{font-size:25px;font-variant-numeric:tabular-nums}.label .row{display:flex;justify-content:space-between;align-items:center}.label small{display:block;color:#70818b;font-size:11px;margin-top:5px}.meter{height:4px;background:#e3e9ea;margin-top:8px;border-radius:3px;overflow:hidden}.meter i{display:block;height:100%;background:var(--blue)}.o .meter i{background:var(--orange)}aside{display:flex;flex-direction:column;gap:12px}.panel{background:#fffef9;border:1px solid var(--line);border-radius:14px;padding:16px}.panel h2{font-size:15px;margin:0 0 14px}.param{display:flex;justify-content:space-between;align-items:center;margin:13px 0;font-size:13px;gap:10px}.param span{color:#5e737d}.inputbox{display:flex;align-items:center;gap:6px}.inputbox input{width:83px;padding:8px;border:1px solid #d0dddd;border-radius:7px;background:#fff;font-variant-numeric:tabular-nums}.inputbox small{width:20px;color:#7d9197}.sub{font-size:11px;color:#7c8c8f;line-height:1.8;margin:9px 0 0}.run{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.primary{background:var(--green);color:#fff;border-color:var(--green);font-weight:bold}.primary:hover{background:#3c6c5d}.run .primary{grid-column:1/-1}.status{font-size:12px;color:#57746c;display:flex;justify-content:space-between;margin-bottom:12px}.time{font-size:20px;font-variant-numeric:tabular-nums}select{padding:5px;border:1px solid #d2dddd;border-radius:6px;background:#fff}#chart{width:100%;height:240px;display:block}.legend{display:flex;gap:15px;font-size:12px;align-items:center}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:5px}.dot.o{background:var(--orange)}.zoomrow{display:flex;justify-content:space-evenly;gap:5px}.zoomrow svg{width:45%;height:136px}.chartbox{margin-top:13px}.charttitle{flex-wrap:wrap;gap:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}.charttitle h2{margin:0}.charttitle button{font-size:11px;padding:6px 9px}.notes{display:flex;gap:12px;margin-top:12px}.notes .panel{flex:1}textarea{width:100%;min-height:80px;border:1px solid #d2dddd;border-radius:8px;padding:10px;resize:vertical;background:#fff;font:13px/1.7 inherit}details summary{cursor:pointer;font-size:13px;font-weight:bold}details p{font-size:12px;line-height:1.85;color:#5e737b}table{border-collapse:collapse;width:100%;font-size:12px}td,th{text-align:center;border-bottom:1px solid #e3e8e7;padding:9px 5px}th{font-size:11px;color:#71838a;font-weight:normal}#historyWrap{max-height:230px;overflow:auto}.analysis{margin-top:13px}.footer{font-size:10px;color:#8b9897;text-align:center;padding:5px 12px 15px}#error{display:none;position:absolute;inset:40% 10%;background:#fff;padding:20px;z-index:10}button.active{background:#e3eee9;border-color:#76a18f}.hidden{display:none!important}@media(min-width:1500px){.stage{height:650px}main{grid-template-columns:minmax(0,1fr) 360px}}@media(max-width:1000px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:1fr 1fr}.stage{height:570px}.zoompanel{grid-column:2}.label{width:37%}}@media(max-width:650px){header{padding:12px}h1{font-size:19px}.badge{display:none}main{padding:8px;gap:10px}aside{display:flex}.stage{height:490px}.stage-top{top:12px;left:12px}.stage-top p{max-width:180px;line-height:1.7}.viewtools{top:65px;right:8px;flex-direction:column}.label{width:43%;padding:8px}.label strong{font-size:19px}.label .name{font-size:14px}.notes{flex-direction:column}.stage-hint{font-size:9px}.panel{padding:13px}}
-/* Reserve a row for the live readings outside the 3D viewport. */
-.stage{
- display:grid;
- grid-template-columns:minmax(0,7fr) minmax(0,3fr);
- grid-template-rows:minmax(0,1fr) auto;
- background:#e9eef0;
+:root{--ink:#203d4d;--muted:#71858c;--line:#d8e2e4;--blue:#277caa;--orange:#bd7339;--green:#477c6b}*{box-sizing:border-box}body{margin:0;background:#eef1ed;color:var(--ink);font-family:'Microsoft YaHei','PingFang SC',sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:1px solid #ccd9da;background:#fff;color:var(--ink);border-radius:9px;padding:9px 12px}button:hover{background:#edf5f1}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #70a99b;outline-offset:2px}header{padding:19px 25px 16px;display:flex;align-items:center;justify-content:space-between;background:#fffdf6;border-bottom:1px solid var(--line)}header small{color:#83958c;font-size:10px;letter-spacing:2px}h1{font-size:25px;margin:5px 0 0;letter-spacing:1px}.badge{background:#e6eee8;color:#577465;border-radius:20px;padding:8px 14px;font-size:12px}main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:15px;padding:16px;max-width:1920px;margin:auto}.left{min-width:0}.stage{height:570px;position:relative;border:1px solid #cedbdc;border-radius:16px;overflow:hidden;background:linear-gradient(#e8eff0,#f8f9f3)}#view{position:absolute;inset:0}#view canvas{display:block;touch-action:none}.stage-top{position:absolute;top:17px;left:20px;pointer-events:none}.stage-top b{font-size:15px}.stage-top p{font-size:12px;color:var(--muted);margin:7px 0}.viewtools{position:absolute;right:12px;top:12px;display:flex;gap:5px}.viewtools button{font-size:11px;padding:7px 9px}.stage-hint{position:absolute;top:61px;left:20px;color:#6c8087;font-size:11px;pointer-events:none}.label .name{color:var(--blue);font-size:17px;font-weight:bold}.label.o .name{color:var(--orange)}.label .row{display:flex;justify-content:space-between;align-items:center}aside{display:flex;flex-direction:column;gap:12px}.panel{background:#fffef9;border:1px solid var(--line);border-radius:14px;padding:16px}.panel h2{font-size:15px;margin:0 0 14px}.param{display:flex;justify-content:space-between;align-items:center;margin:13px 0;font-size:13px;gap:10px}.param span{color:#5e737d}.inputbox{display:flex;align-items:center;gap:6px}.inputbox input{width:83px;padding:8px;border:1px solid #d0dddd;border-radius:7px;background:#fff;font-variant-numeric:tabular-nums}.inputbox small{width:20px;color:#7d9197}.sub{font-size:11px;color:#7c8c8f;line-height:1.8;margin:9px 0 0}.run{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.primary{background:var(--green);color:#fff;border-color:var(--green);font-weight:bold}.primary:hover{background:#3c6c5d}.run .primary{grid-column:1/-1}.status{font-size:12px;color:#57746c;display:flex;justify-content:space-between;margin-bottom:12px}.time{font-size:20px;font-variant-numeric:tabular-nums}select{padding:5px;border:1px solid #d2dddd;border-radius:6px;background:#fff}#chart{width:100%;height:240px;display:block}.legend{display:flex;gap:15px;font-size:12px;align-items:center}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:5px}.dot.o{background:var(--orange)}.zoomrow{display:flex;justify-content:space-evenly;gap:5px}.zoomrow svg{width:45%;height:136px}.chartbox{margin-top:13px}.charttitle{flex-wrap:wrap;gap:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}.charttitle h2{margin:0}.charttitle button{font-size:11px;padding:6px 9px}.notes{display:flex;gap:12px;margin-top:12px}.notes .panel{flex:1}textarea{width:100%;min-height:80px;border:1px solid #d2dddd;border-radius:8px;padding:10px;resize:vertical;background:#fff;font:13px/1.7 inherit}details summary{cursor:pointer;font-size:13px;font-weight:bold}details p{font-size:12px;line-height:1.85;color:#5e737b}table{border-collapse:collapse;width:100%;font-size:12px}td,th{text-align:center;border-bottom:1px solid #e3e8e7;padding:9px 5px}th{font-size:11px;color:#71838a;font-weight:normal}#historyWrap{max-height:230px;overflow:auto}.analysis{margin-top:13px}.footer{font-size:10px;color:#8b9897;text-align:center;padding:5px 12px 15px}#error{display:none;position:absolute;inset:40% 10%;background:#fff;padding:20px;z-index:10}button.active{background:#e3eee9;border-color:#76a18f}.hidden{display:none!important}@media(min-width:1500px){.stage{height:650px}main{grid-template-columns:minmax(0,1fr) 360px}}@media(max-width:1000px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:1fr 1fr}.stage{height:570px}.zoompanel{grid-column:2}}@media(max-width:650px){header{padding:12px}h1{font-size:19px}.badge{display:none}main{padding:8px;gap:10px}aside{display:flex}.stage{height:490px}.stage-top{top:12px;left:12px}.stage-top p{max-width:180px;line-height:1.7}.viewtools{top:65px;right:8px;flex-direction:column}.label .name{font-size:14px}.notes{flex-direction:column}.stage-hint{font-size:9px}.panel{padding:13px}}
+/* The chart floats over the scene so it never changes the camera's viewport. */
+.scene-view{position:absolute;inset:0;overflow:hidden;background:#637482}
+.stage>.chartbox{
+ position:absolute;top:54px;right:14px;width:min(44%,560px);height:min(75%,620px);max-height:calc(100% - 68px);
+ margin:0;display:flex;flex-direction:column;z-index:8;background:#fffef9;border-color:#b8cbd5;box-shadow:0 8px 28px #1c314e50;
 }
-.scene-view{position:relative;grid-column:1;grid-row:1;min-height:0;overflow:hidden;background:#637482}
-.reading-strip{grid-column:1;grid-row:2;min-width:0}
-.labels{position:static;width:auto;gap:12px;padding:8px 14px 5px}
-.label{width:calc(50% - 6px);padding:9px 12px}
-.stage>.chartbox{position:static;grid-column:2;grid-row:1 / 3;align-self:end;height:72%;min-height:min(360px,90%);margin:0 14px 14px 0;display:flex;flex-direction:column;background:#fffef9}
+.stage>.chartbox[hidden]{display:none}
 .stage>.chartbox #chart{flex:1;min-height:0;height:100%;width:100%}
 .stage>.chartbox .charttitle{flex-shrink:0;align-items:flex-start}
 .stage>.chartbox .legend{flex-wrap:wrap;gap:9px}
-@media(max-width:1200px){
- .stage{height:auto;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:540px auto 300px}
- .stage>.chartbox{grid-column:1;grid-row:3;align-self:stretch;height:auto;min-height:0;margin:0 14px 14px}
-}
 @media(max-width:650px){
- .stage{grid-template-rows:470px auto 295px}
- .labels{gap:8px;padding:8px 10px 5px}
- .label{width:calc(50% - 4px);padding:8px}
- .stage>.chartbox{margin:0 10px 10px;padding:12px}
+ .stage>.chartbox{width:calc(100% - 20px);right:10px;top:95px;height:65%;padding:12px}
 }
 
 /* Circular SVG thermometer magnifiers and their projected leaders. */
@@ -44,12 +32,13 @@
 .stage-top,.viewtools{z-index:7}
 .stage-top b,.stage-top p{color:#f5f9fc;text-shadow:0 1px 3px #263849}
 .stage-top .scene-zoom-controls{display:flex;gap:7px;margin-top:9px;pointer-events:auto}.scene-zoom-controls button{font-size:11px;padding:6px 9px;background:#fffdf9df;border-color:#c6d8df}
-.reading-strip .stage-hint{position:static;margin:0 14px 8px;color:#405764;font-size:10px;line-height:1.5}
-.run #reset{grid-column:1/-1}
+.stage-hint{top:auto;bottom:10px;font-size:10px;line-height:1.5;color:#f5f9fc;text-shadow:0 1px 3px #263849;z-index:3}
+.run #reset,.run #toggleChart{grid-column:1/-1}
+#toggleChart[aria-expanded="true"]{background:#315e73;color:#fff;border-color:#315e73;font-weight:700}
 #thermScales{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden}
 #view canvas{position:relative;z-index:1}
 @media(max-width:1200px){.float-mag{width:155px}}
-@media(max-width:650px){.stage-top .scene-zoom-controls{gap:4px}.scene-zoom-controls button{font-size:9px;padding:5px 6px}.reading-strip .stage-hint{margin-inline:10px}.float-mag{width:min(120px,42%)}.mag-caption{font-size:10px}.float-mag .mag-close{width:22px;height:22px}.viewtools{top:10px}}
+@media(max-width:650px){.stage-top .scene-zoom-controls{gap:4px}.scene-zoom-controls button{font-size:9px;padding:5px 6px}.float-mag{width:min(120px,42%)}.mag-caption{font-size:10px}.float-mag .mag-close{width:22px;height:22px}.viewtools{top:10px}}
 
 /* Fill the desktop window vertically while keeping the laboratory usable on narrow screens. */
 @media(min-width:1201px){
@@ -59,11 +48,20 @@
  main{flex:1 1 auto;min-height:0;width:100%;max-width:none;margin:0;align-items:stretch;padding:14px 16px 10px}
  .left{min-height:0;height:100%}
  .stage{height:100%;min-height:0}
- aside{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px}
+ aside{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(184px,1fr);gap:12px;overflow:auto}
  aside>.panel:last-child{display:flex;flex-direction:column;min-height:0}
  #data{flex:1;min-height:0;display:flex}
  #data table{height:100%}
  .footer{flex:0 0 auto;padding:3px 12px 7px;margin:0;font-size:10px;line-height:14px}
+}
+
+@media(min-width:1201px) and (max-height:830px){
+ aside>.panel{padding:12px 15px}
+ aside h2{margin-bottom:10px}
+ aside .param{margin:9px 0}
+ .run{gap:6px;margin-top:11px}
+ .run button{padding-block:7px}
+ #data th,#data td{padding-block:6px}
 }
 
 /* Classroom projection: stronger text contrast in controls and the data plot. */
@@ -85,8 +83,8 @@ aside{color:#183443}aside h2{color:#132f3e}aside .param span{color:#243f4e}aside
 @font-face{font-family:FuelSC;font-style:normal;font-weight:100 900;src:url(data:font/woff;base64,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) format('woff');unicode-range:U+7184;}
 body,button,input,select,textarea{font-family:'Microsoft YaHei','PingFang SC',FuelSC,sans-serif}svg text{font-family:FuelSC,sans-serif}</style><!-- Noto Sans SC subset, SIL Open Font License 1.1 --></head><body>
 <header><div><small>PHYSICS · INQUIRY LAB</small><h1>不同燃料的热值 · 双灯探究实验</h1></div><span class="badge">观察 · 记录 · 再试一次</span></header>
-<main><section class="left"><div class="stage"><div class="scene-view"><div id="view"><svg id="thermScales" aria-label="两支温度计的矢量刻度"></svg></div><svg class="mag-leader" id="magLeader" aria-hidden="true"><g id="magLeader0" visibility="hidden"><path/><circle r="4"/></g><g id="magLeader1" visibility="hidden"><path/><circle r="4"/></g></svg><div class="float-mag mag-0" id="mag0"><span class="mag-caption">酒精组</span><button class="mag-close" id="magClose0" aria-label="关闭该组温度计放大">×</button><div id="magContent0"></div></div><div class="float-mag mag-1" id="mag1"><span class="mag-caption">煤油组</span><button class="mag-close" id="magClose1" aria-label="关闭该组温度计放大">×</button><div id="magContent1"></div></div><div id="error"></div><div class="stage-top"><b>相同装置，换一种燃料</b><p>两杯均装水 · 酒精 / 煤油</p><div class="scene-zoom-controls"><button id="zoomToggle0">隐藏酒精组放大</button><button id="zoomToggle1">隐藏煤油组放大</button></div></div><div class="viewtools"><button id="home">默认视角</button><button id="front">正面</button><button id="glass">隐藏杯壁</button></div></div><div class="reading-strip"><div class="labels" id="labels"></div><div class="stage-hint">拖动圆窗调整位置 · 左键旋转 · 右键或 Shift＋左键平移 · 滚轮缩放 · 双击复位</div></div><div class="panel chartbox"><div class="charttitle"><h2>温度—时间图像</h2><div class="legend"><span><i class="dot"></i>酒精组</span><span><i class="dot o"></i>煤油组</span><button id="prev">显示上轮曲线</button></div></div><svg id="chart" viewBox="0 0 900 240" role="img" aria-label="两组水温随时间变化图像"></svg></div></div>
-</section><aside><section class="panel"><h2>实验设置</h2><label class="param"><span>每杯水的质量</span><span class="inputbox"><input id="water" type="number" min="50" max="400" step="10" value="200"><small>g</small></span></label><label class="param"><span>两杯水的初温</span><span class="inputbox"><input id="initial" type="number" min="5" max="95" step="5" value="20"><small>℃</small></span></label><label class="param"><span>各消耗燃料质量</span><span class="inputbox"><input id="fuel" type="number" min="0.1" max="30" step="0.5" value="2"><small>g</small></span></label><p class="sub">两灯初始各装 40.0 g 燃料；达到设定消耗质量后盖帽熄火。</p><div class="run"><button id="play" class="primary">点燃两灯</button><button id="reset">重新试验</button></div><div class="param"><span>演示速度</span><select id="speed"><option value="1">1×</option><option value="5">5×</option><option value="10" selected>10×</option><option value="30">30×</option></select></div></section>
+<main><section class="left"><div class="stage"><div class="scene-view"><div id="view"><svg id="thermScales" aria-label="两支温度计的矢量刻度"></svg></div><svg class="mag-leader" id="magLeader" aria-hidden="true"><g id="magLeader0" visibility="hidden"><path/><circle r="4"/></g><g id="magLeader1" visibility="hidden"><path/><circle r="4"/></g></svg><div class="float-mag mag-0" id="mag0"><span class="mag-caption">酒精组</span><button class="mag-close" id="magClose0" aria-label="关闭该组温度计放大">×</button><div id="magContent0"></div></div><div class="float-mag mag-1" id="mag1"><span class="mag-caption">煤油组</span><button class="mag-close" id="magClose1" aria-label="关闭该组温度计放大">×</button><div id="magContent1"></div></div><div id="error"></div><div class="stage-top"><b>相同装置，换一种燃料</b><p>两杯均装水 · 酒精 / 煤油</p><div class="scene-zoom-controls"><button id="zoomToggle0">隐藏酒精组放大</button><button id="zoomToggle1">隐藏煤油组放大</button></div></div><div class="viewtools"><button id="home">默认视角</button><button id="front">正面</button><button id="glass">隐藏杯壁</button></div><div class="stage-hint">拖动圆窗调整位置 · 左键旋转 · 右键或 Shift＋左键平移 · 滚轮缩放 · 双击复位</div></div><div class="panel chartbox" id="chartPanel" hidden><div class="charttitle"><h2>温度—时间图像</h2><div class="legend"><span><i class="dot"></i>酒精组</span><span><i class="dot o"></i>煤油组</span><button id="prev">显示上轮曲线</button></div></div><svg id="chart" viewBox="0 0 900 240" role="img" aria-label="两组水温随时间变化图像"></svg></div></div>
+</section><aside><section class="panel"><h2>实验设置</h2><label class="param"><span>每杯水的质量</span><span class="inputbox"><input id="water" type="number" min="50" max="400" step="10" value="200"><small>g</small></span></label><label class="param"><span>两杯水的初温</span><span class="inputbox"><input id="initial" type="number" min="5" max="95" step="5" value="20"><small>℃</small></span></label><label class="param"><span>各消耗燃料质量</span><span class="inputbox"><input id="fuel" type="number" min="0.1" max="30" step="0.5" value="2"><small>g</small></span></label><p class="sub">两灯初始各装 40.0 g 燃料；达到设定消耗质量后盖帽熄火。</p><div class="run"><button id="play" class="primary">点燃两灯</button><button id="reset">重新试验</button><button id="toggleChart" aria-controls="chartPanel" aria-expanded="false">绘制图像</button></div><div class="param"><span>演示速度</span><select id="speed"><option value="1">1×</option><option value="5">5×</option><option value="10" selected>10×</option><option value="30">30×</option></select></div></section>
 <section class="panel"><div class="status"><span id="status">准备实验</span><span><b class="time" id="clock">0</b> s</span></div><div id="data"></div></section>
 
 
@@ -296,11 +294,12 @@ function zoomSVG(s,i){
 }
 function updateZooms(){states.forEach((s,i)=>{const panel=$('mag'+i);panel.hidden=!zoomVisible[i];$('magContent'+i).innerHTML=zoomSVG(s,i);$('zoomToggle'+i).textContent=(zoomVisible[i]?'隐藏':'显示')+F[i].name+'组放大';});}
 function renderUI(){ $('play').textContent=done?'本轮完成':run?'暂停实验':started?'继续实验':'点燃两灯';$('play').disabled=done;$('clock').textContent=Math.floor(time);$('status').textContent=done?'两灯已熄灭':run?'实验进行中':started?'已暂停':'准备实验';for(const id of ['water','initial','fuel'])$(id).disabled=started;
-$('labels').innerHTML=states.map((s,i)=>`<div class="label ${i?'o':''}"><div class="row"><span class="name">${F[i].name}组</span><strong>${s.dry?'—':s.temp.toFixed(1)}<small style="display:inline"> ℃</small></strong></div><small>已消耗 ${s.used.toFixed(2)} / ${config.fuel.toFixed(2)} g · ${s.used>=config.fuel?'已盖帽':started?'燃烧灯':'待点燃'}</small><div class="meter"><i style="width:${100*s.used/config.fuel}%"></i></div></div>`).join('');
+rigs.forEach((rig,i)=>rig.plaque.update(states[i]));
 $('data').innerHTML=`<table><thead><tr><th></th><th style="color:${F[0].color}">酒精组</th><th style="color:${F[1].color}">煤油组</th></tr></thead><tbody>${[['水温 / ℃',s=>s.dry?'—':s.temp.toFixed(1)],['温升 / ℃',s=>s.dry?'—':(s.temp-config.initial).toFixed(1)],['灯内剩余 / g',s=>(40-s.used).toFixed(2)],['水的剩余质量 / g',s=>s.remainingWater.toFixed(1)]].map(([n,f])=>`<tr><td>${n}</td>${states.map(s=>`<td>${f(s)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 updateZooms();$('prev').disabled=!previous;$('prev').classList.toggle('active',showPrev);
 renderChart();}
 function renderChart(){
+ if($('chartPanel').hidden)return;
  const svg=$('chart'),W=Math.max(320,svg.clientWidth||450),H=Math.max(240,svg.clientHeight||340),l=43,r=15,top=26,bottom=37,iw=W-l-r,ih=H-top-bottom;
  const maxTime=Math.max(60,...F.map(f=>config.fuel/f.rate),showPrev&&previous?previous.time:0),step=[10,20,50,100,200,500,1000,2000].find(t=>t>=maxTime/6)||5000,xmax=Math.ceil(maxTime/step)*step,x=t=>l+t/xmax*iw,y=t=>top+(110-t)/110*ih;
  let h=`<rect x="${l}" y="${top}" width="${iw}" height="${ih}" fill="#f8fbfd"/>`;
@@ -314,11 +313,18 @@ function renderChart(){
  if(showPrev&&previous)paths(previous.samples,true,.42);paths(samples,false,1);if(started)h+=`<path d="M${x(time)} ${top}V${H-bottom}" stroke="#6f8793" stroke-dasharray="3 4" stroke-width=".8"/>`;
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=h;
 }
+$('toggleChart').onclick=()=>{
+ const panel=$('chartPanel');
+ panel.hidden=!panel.hidden;
+ $('toggleChart').setAttribute('aria-expanded',String(!panel.hidden));
+ renderChart();
+};
 $('play').onclick=()=>{if(!started){readConfig();states=initialState();samples=[{t:0,v:states.map(s=>s.temp)}];started=true;}run=!run;renderUI();};$('reset').onclick=reset;$('prev').onclick=()=>{showPrev=!showPrev;renderUI();};for(const k of ['water','fuel','initial'])$(k).onchange=()=>{if(!started){readConfig();states=initialState();samples=[{t:0,v:states.map(s=>s.temp)}];renderUI();}};
 try{history=JSON.parse(localStorage.getItem('fuelLabHistoryV1')||'[]');if(history.length){previous=history[0];round=previous.round+1;}}catch(e){}
 for(let i=0;i<2;i++){for(const id of ['zoomToggle','magClose'])$(id+i).onclick=()=>{zoomVisible[i]=!zoomVisible[i];updateZooms();};}
+const mount=$('view');
+let scene,camera,renderer,rigs=[],yaw=.13,pitch=.22,dist=10.4,aim=new THREE.Vector3(.28,2.2,0),visibleGlass=true;
 states=initialState();samples=[{t:0,v:states.map(s=>s.temp)}];renderHistory();renderUI();
-const mount=$('view');let scene,camera,renderer,rigs=[],yaw=.13,pitch=.22,dist=10.4,aim=new THREE.Vector3(-.1,2.2,0),visibleGlass=true;
 function updateCamera(){const d=dist;camera.position.set(aim.x+d*Math.sin(yaw)*Math.cos(pitch),aim.y+d*Math.sin(pitch),aim.z+d*Math.cos(yaw)*Math.cos(pitch));camera.lookAt(aim);camera.updateMatrixWorld();}
 
 const materials={
@@ -431,19 +437,67 @@ camera=new THREE.PerspectiveCamera(37,1,.05,100);updateCamera();scene.add(new TH
 const envFaces=Array.from({length:6},(_,i)=>{const c=document.createElement('canvas');c.width=c.height=128;const a=c.getContext('2d'),g=a.createLinearGradient(0,0,0,128);g.addColorStop(0,'#8496a7');g.addColorStop(1,'#4c5e70');a.fillStyle=g;a.fillRect(0,0,128,128);const x=i%2?74:18;const strip=a.createLinearGradient(x,0,x+33,0);strip.addColorStop(0,'#e4efff00');strip.addColorStop(.30,'#f2f8ff');strip.addColorStop(.72,'#e5f1fc');strip.addColorStop(1,'#e4efff00');a.fillStyle=strip;a.fillRect(x,9,33,101);return c;});const envTex=new THREE.CubeTexture(envFaces);envTex.colorSpace=THREE.SRGBColorSpace;envTex.needsUpdate=true;const pmrem=new THREE.PMREMGenerator(renderer);
 const floor=m(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0x586978,roughness:.95,userData:{noMaterialFinish:true}}),scene,[0,-.085,0],[-PI/2,0,0]);floor.receiveShadow=true;floor.castShadow=false;
 const ceramic=new THREE.MeshStandardMaterial({color:0xbfb49b,roughness:.94});
+function createReadingPlaque(parent,fuel){
+ const width=1.54,height=.63;
+ const plaque=new THREE.Group();
+ plaque.name=fuel.name+'组读数铭牌';
+ plaque.position.set(1.60,0,.54);
+ parent.add(plaque);
+ m(new THREE.BoxGeometry(width+.05,.08,.38),materials.graphite,plaque,[0,-.045,.015]);
+ const face=new THREE.Group();
+ face.position.y=.285;
+ face.rotation.x=-.31;
+ plaque.add(face);
+ m(new THREE.BoxGeometry(width,height,.055),materials.graphite,face);
+ const image=new Image();
+ const texture=new THREE.Texture();
+ texture.colorSpace=THREE.SRGBColorSpace;
+ texture.anisotropy=4;
+ image.onload=()=>{
+  texture.image=image;
+  texture.needsUpdate=true;
+ };
+ const surface=m(new THREE.PlaneGeometry(width-.052,height-.052),
+  new THREE.MeshBasicMaterial({map:texture,toneMapped:false}),face,[0,0,.028]);
+ surface.castShadow=false;
+ let previousReadout='';
+ return {update(state){
+  const temperature=state.dry?'—':state.temp.toFixed(1);
+  const used=state.used.toFixed(2),target=config.fuel.toFixed(2);
+  const status=state.used>=config.fuel?'已盖帽':started?'灯已点燃':'待点燃';
+  const values=[temperature,used,target,status].join('|');
+  if(values===previousReadout)return;
+  previousReadout=values;
+  const progress=Math.min(1,state.used/config.fuel);
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="768" height="298" viewBox="0 0 768 298">
+   <rect width="768" height="298" fill="#fafafa"/>
+   <rect width="768" height="9" fill="${fuel.color}"/>
+   <g font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+    <text x="32" y="104" font-size="69" font-weight="700" fill="${fuel.color}">${fuel.name}组</text>
+    <text x="736" y="109" text-anchor="end" font-size="86" font-weight="700" fill="#193847">${temperature}<tspan font-size="42"> ℃</tspan></text>
+    <text x="33" y="193" font-size="48" font-weight="600" fill="#324b58">已消耗 ${used} / ${target} g</text>
+    <text x="735" y="193" text-anchor="end" font-size="47" font-weight="600" fill="#324b58">${status}</text>
+   </g>
+   <rect x="32" y="241" width="704" height="23" rx="11.5" fill="#dce4e8"/>
+   <rect x="32" y="241" width="${704*progress}" height="23" rx="11.5" fill="${fuel.color}"/>
+  </svg>`;
+  image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+ }};
+}
 function makeRig(cx,i){const support=new THREE.Group();support.position.x=cx;scene.add(support);m(new THREE.BoxGeometry(1.95,.105,1.45),materials.graphite,support,[-.25,.025,0]);for(const x of [-1.02,.52])for(const z of [-.57,.57])m(new THREE.CylinderGeometry(.07,.07,.035,12),materials.rubber,support,[x,-.05,z]);rodBetween([-.87,.10,-.34],[-.87,4.8,-.34],.038,materials.steel,support);const cup=createCup(cx);const bracket=new THREE.Group();support.add(bracket);bracket.position.y=4.29; m(new THREE.SphereGeometry(.104,20,14),materials.knob,bracket,[-.87,0,-.34]);rodBetween([-.87,0,-.34],[-.44,0,.13],.031,materials.steel,bracket);m(new THREE.BoxGeometry(.018,.20,.085),materials.clamp,bracket,[-.400,0,.18]);m(new THREE.BoxGeometry(.018,.20,.085),materials.clamp,bracket,[-.280,0,.18]);m(new THREE.BoxGeometry(.12,.20,.020),materials.clamp,bracket,[-.34,0,.11]);
 // Lower ring and wire gauze are in actual contact with the beaker bottom.
 const ring=m(new THREE.TorusGeometry(.69,.035,10,80),materials.steel,support,[0,1.461,0],[-PI/2,0,0]);rodBetween([-.87,1.46,-.34],[-.57,1.46,-.30],.042,materials.steel,support);m(new THREE.SphereGeometry(.09,16,12),materials.knob,support,[-.87,1.46,-.34]);
 for(let n=-9;n<=9;n++){const t=n*.076;rodBetween([-.72,1.497,t],[.72,1.497,t],.0045,materials.steelDark,support);rodBetween([t,1.502,-.72],[t,1.502,.72],.0045,materials.steelDark,support);}m(new THREE.CylinderGeometry(.46,.46,.049,64),ceramic,support,[0,1.502,0]);
-const lamp=createLamp(support);const fuelColor=i?0xbd7339:0x277caa;lamp.liquid.material.color.setHex(fuelColor);lamp.liquid.material.opacity=.70;lamp.liquidTop.material.color.setHex(fuelColor);lamp.liquidTop.material.opacity=.76;const thermBase=cup.thermParts.map(o=>o.position.y);const bubbleMat=new THREE.MeshPhysicalMaterial({color:0xf1ffff,transparent:true,opacity:.65,roughness:.1,depthWrite:false});const bubbles=Array.from({length:65},(_,k)=>{const o=m(new THREE.SphereGeometry(1,9,7),bubbleMat,cup.group);o.castShadow=false;o.renderOrder=8;return {o,phase:k/65,angle:k*2.39996,rad:.07+(k%13)/13*.43};});const mistCanvas=document.createElement('canvas');mistCanvas.width=mistCanvas.height=64;const ctx=mistCanvas.getContext('2d'),g=ctx.createRadialGradient(32,32,0,32,32,31);g.addColorStop(0,'rgba(255,255,255,.65)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,64,64);const mistTexture=new THREE.CanvasTexture(mistCanvas);const mist=Array.from({length:14},(_,k)=>{const o=new THREE.Sprite(new THREE.SpriteMaterial({map:mistTexture,transparent:true,opacity:.15,depthWrite:false}));cup.group.add(o);o.renderOrder=10;return o;});return {cx,cup,bracket,thermBase,...lamp,bubbles,mist,capProgress:0};}
+const lamp=createLamp(support);const fuelColor=i?0xbd7339:0x277caa;lamp.liquid.material.color.setHex(fuelColor);lamp.liquid.material.opacity=.70;lamp.liquidTop.material.color.setHex(fuelColor);lamp.liquidTop.material.opacity=.76;const thermBase=cup.thermParts.map(o=>o.position.y);const bubbleMat=new THREE.MeshPhysicalMaterial({color:0xf1ffff,transparent:true,opacity:.65,roughness:.1,depthWrite:false});const bubbles=Array.from({length:65},(_,k)=>{const o=m(new THREE.SphereGeometry(1,9,7),bubbleMat,cup.group);o.castShadow=false;o.renderOrder=8;return {o,phase:k/65,angle:k*2.39996,rad:.07+(k%13)/13*.43};});const mistCanvas=document.createElement('canvas');mistCanvas.width=mistCanvas.height=64;const ctx=mistCanvas.getContext('2d'),g=ctx.createRadialGradient(32,32,0,32,32,31);g.addColorStop(0,'rgba(255,255,255,.65)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,64,64);const mistTexture=new THREE.CanvasTexture(mistCanvas);const mist=Array.from({length:14},(_,k)=>{const o=new THREE.Sprite(new THREE.SpriteMaterial({map:mistTexture,transparent:true,opacity:.15,depthWrite:false}));cup.group.add(o);o.renderOrder=10;return o;});return {cx,cup,bracket,thermBase,plaque:createReadingPlaque(support,F[i]),...lamp,bubbles,mist,capProgress:0};}
 rigs=F.map((f,i)=>makeRig(i?2.10:-2.10,i));
+renderUI();
 // Inspect the actual assembled scene before environment prefilter passes consume initial renderer frames.
 renderer.setSize(mount.clientWidth,mount.clientHeight,false);camera.aspect=mount.clientWidth/mount.clientHeight;camera.updateProjectionMatrix();renderer.render(scene,camera);scene.environment=pmrem.fromCubemap(envTex).texture;
 const canvas=renderer.domElement;
-const fitDistance=()=>Math.max(10.4,7.5/(2*Math.tan(camera.fov*PI/360)*Math.max(.2,mount.clientWidth/Math.max(1,mount.clientHeight))));
-const nav=LabKit.createNavigation({element:canvas,pose:{target:[-.1,2.2,0],dist:fitDistance(),yaw:.13,pitch:.22},fov:camera.fov,minDistance:3,maxDistance:28,apply(p){yaw=p.yaw;pitch=p.pitch;dist=p.dist;aim.set(...p.target);updateCamera();}});
-function home(){nav.setPose({target:[-.1,2.2,0],dist:fitDistance(),yaw:.13,pitch:.22});}
-canvas.ondblclick=home;$('home').onclick=home;$('front').onclick=()=>nav.setPose({target:[-.1,2.38,0],dist:fitDistance(),yaw:0,pitch:.04});
+const fitDistance=()=>Math.max(10.4,8.5/(2*Math.tan(camera.fov*PI/360)*Math.max(.2,mount.clientWidth/Math.max(1,mount.clientHeight))));
+const nav=LabKit.createNavigation({element:canvas,pose:{target:[.28,2.2,0],dist:fitDistance(),yaw:.13,pitch:.22},fov:camera.fov,minDistance:3,maxDistance:28,apply(p){yaw=p.yaw;pitch=p.pitch;dist=p.dist;aim.set(...p.target);updateCamera();}});
+function home(){nav.setPose({target:[.28,2.2,0],dist:fitDistance(),yaw:.13,pitch:.22});}
+canvas.ondblclick=home;$('home').onclick=home;$('front').onclick=()=>nav.setPose({target:[.28,2.38,0],dist:fitDistance(),yaw:0,pitch:.04});
 $('glass').onclick=()=>{visibleGlass=!visibleGlass;for(const r of rigs)for(const g of r.cup.glass)g.visible=visibleGlass;$('glass').textContent=visibleGlass?'隐藏杯壁':'显示杯壁';};
 let last=performance.now(),uiClock=0;
 let lastScaleSignature='';
