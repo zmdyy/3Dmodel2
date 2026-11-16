@@ -1,25 +1,29 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>不同燃料的热值 · 双灯探究实验</title><style>
 :root{--ink:#203d4d;--muted:#71858c;--line:#d8e2e4;--blue:#277caa;--orange:#bd7339;--green:#477c6b}*{box-sizing:border-box}body{margin:0;background:#eef1ed;color:var(--ink);font-family:'Microsoft YaHei','PingFang SC',sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:1px solid #ccd9da;background:#fff;color:var(--ink);border-radius:9px;padding:9px 12px}button:hover{background:#edf5f1}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #70a99b;outline-offset:2px}header{padding:19px 25px 16px;display:flex;align-items:center;justify-content:space-between;background:#fffdf6;border-bottom:1px solid var(--line)}header small{color:#83958c;font-size:10px;letter-spacing:2px}h1{font-size:25px;margin:5px 0 0;letter-spacing:1px}.badge{background:#e6eee8;color:#577465;border-radius:20px;padding:8px 14px;font-size:12px}main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:15px;padding:16px;max-width:1920px;margin:auto}.left{min-width:0}.stage{height:570px;position:relative;border:1px solid #cedbdc;border-radius:16px;overflow:hidden;background:linear-gradient(#e8eff0,#f8f9f3)}#view{position:absolute;inset:0}#view canvas{display:block;touch-action:none}.stage-top{position:absolute;top:17px;left:20px;pointer-events:none}.stage-top b{font-size:15px}.stage-top p{font-size:12px;color:var(--muted);margin:7px 0}.viewtools{position:absolute;right:12px;top:12px;display:flex;gap:5px}.viewtools button{font-size:11px;padding:7px 9px}.stage-hint{position:absolute;top:61px;left:20px;color:#6c8087;font-size:11px;pointer-events:none}.labels{position:absolute;bottom:15px;left:0;width:100%;display:flex;justify-content:space-around;pointer-events:none}.label{width:34%;padding:10px 14px;background:#fffffff2;border:1px solid #d4e5ed;border-radius:12px;box-shadow:0 5px 18px #234a5b0b}.label.o{border-color:#e8d6c4}.label .name{color:var(--blue);font-size:17px;font-weight:bold}.label.o .name{color:var(--orange)}.label strong{font-size:25px;font-variant-numeric:tabular-nums}.label .row{display:flex;justify-content:space-between;align-items:center}.label small{display:block;color:#70818b;font-size:11px;margin-top:5px}.meter{height:4px;background:#e3e9ea;margin-top:8px;border-radius:3px;overflow:hidden}.meter i{display:block;height:100%;background:var(--blue)}.o .meter i{background:var(--orange)}aside{display:flex;flex-direction:column;gap:12px}.panel{background:#fffef9;border:1px solid var(--line);border-radius:14px;padding:16px}.panel h2{font-size:15px;margin:0 0 14px}.param{display:flex;justify-content:space-between;align-items:center;margin:13px 0;font-size:13px;gap:10px}.param span{color:#5e737d}.inputbox{display:flex;align-items:center;gap:6px}.inputbox input{width:83px;padding:8px;border:1px solid #d0dddd;border-radius:7px;background:#fff;font-variant-numeric:tabular-nums}.inputbox small{width:20px;color:#7d9197}.sub{font-size:11px;color:#7c8c8f;line-height:1.8;margin:9px 0 0}.run{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.primary{background:var(--green);color:#fff;border-color:var(--green);font-weight:bold}.primary:hover{background:#3c6c5d}.run .primary{grid-column:1/-1}.status{font-size:12px;color:#57746c;display:flex;justify-content:space-between;margin-bottom:12px}.time{font-size:20px;font-variant-numeric:tabular-nums}select{padding:5px;border:1px solid #d2dddd;border-radius:6px;background:#fff}#chart{width:100%;height:240px;display:block}.legend{display:flex;gap:15px;font-size:12px;align-items:center}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:5px}.dot.o{background:var(--orange)}.zoomrow{display:flex;justify-content:space-evenly;gap:5px}.zoomrow svg{width:45%;height:136px}.chartbox{margin-top:13px}.charttitle{flex-wrap:wrap;gap:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}.charttitle h2{margin:0}.charttitle button{font-size:11px;padding:6px 9px}.notes{display:flex;gap:12px;margin-top:12px}.notes .panel{flex:1}textarea{width:100%;min-height:80px;border:1px solid #d2dddd;border-radius:8px;padding:10px;resize:vertical;background:#fff;font:13px/1.7 inherit}details summary{cursor:pointer;font-size:13px;font-weight:bold}details p{font-size:12px;line-height:1.85;color:#5e737b}table{border-collapse:collapse;width:100%;font-size:12px}td,th{text-align:center;border-bottom:1px solid #e3e8e7;padding:9px 5px}th{font-size:11px;color:#71838a;font-weight:normal}#historyWrap{max-height:230px;overflow:auto}.analysis{margin-top:13px}.footer{font-size:10px;color:#8b9897;text-align:center;padding:5px 12px 15px}#error{display:none;position:absolute;inset:40% 10%;background:#fff;padding:20px;z-index:10}button.active{background:#e3eee9;border-color:#76a18f}.hidden{display:none!important}@media(min-width:1500px){.stage{height:650px}main{grid-template-columns:minmax(0,1fr) 360px}}@media(max-width:1000px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:1fr 1fr}.stage{height:570px}.zoompanel{grid-column:2}.label{width:37%}}@media(max-width:650px){header{padding:12px}h1{font-size:19px}.badge{display:none}main{padding:8px;gap:10px}aside{display:flex}.stage{height:490px}.stage-top{top:12px;left:12px}.stage-top p{max-width:180px;line-height:1.7}.viewtools{top:65px;right:8px;flex-direction:column}.label{width:43%;padding:8px}.label strong{font-size:19px}.label .name{font-size:14px}.notes{flex-direction:column}.stage-hint{font-size:9px}.panel{padding:13px}}
-/* Layout revision: graph lives beside the apparatus, within the stage. */
-#view{width:59%;right:auto}
-.labels{width:59%;bottom:15px}
-.label{width:43%;padding:10px 12px}
-.stage>.chartbox{position:absolute;right:14px;bottom:14px;width:40%;height:60%;min-height:290px;margin:0;display:flex;flex-direction:column;z-index:2;background:#fffef9f5}
+/* Reserve a row for the live readings outside the 3D viewport. */
+.stage{
+ display:grid;
+ grid-template-columns:minmax(0,7fr) minmax(0,3fr);
+ grid-template-rows:minmax(0,1fr) auto;
+ background:#e9eef0;
+}
+.scene-view{position:relative;grid-column:1;grid-row:1;min-height:0;overflow:hidden;background:#637482}
+.reading-strip{grid-column:1;grid-row:2;min-width:0}
+.labels{position:static;width:auto;gap:12px;padding:8px 14px 5px}
+.label{width:calc(50% - 6px);padding:9px 12px}
+.stage>.chartbox{position:static;grid-column:2;grid-row:1 / 3;align-self:end;height:72%;min-height:min(360px,90%);margin:0 14px 14px 0;display:flex;flex-direction:column;background:#fffef9}
 .stage>.chartbox #chart{flex:1;min-height:0;height:100%;width:100%}
 .stage>.chartbox .charttitle{flex-shrink:0;align-items:flex-start}
 .stage>.chartbox .legend{flex-wrap:wrap;gap:9px}
 @media(max-width:1200px){
- .stage{height:900px;min-height:900px}
- #view{width:100%;height:570px;bottom:auto}
- .labels{width:100%;top:465px;bottom:auto}
- .stage>.chartbox{width:auto;left:14px;right:14px;height:290px;min-height:0;bottom:14px}
+ .stage{height:auto;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:540px auto 300px}
+ .stage>.chartbox{grid-column:1;grid-row:3;align-self:stretch;height:auto;min-height:0;margin:0 14px 14px}
 }
 @media(max-width:650px){
- .stage{height:800px;min-height:800px}
- #view{height:490px}
- .labels{top:390px}
- .label{padding:8px}
- .stage>.chartbox{left:10px;right:10px;bottom:10px;height:285px;padding:12px}
+ .stage{grid-template-rows:470px auto 295px}
+ .labels{gap:8px;padding:8px 10px 5px}
+ .label{width:calc(50% - 4px);padding:8px}
+ .stage>.chartbox{margin:0 10px 10px;padding:12px}
 }
 
 /* Circular SVG thermometer magnifiers and their projected leaders. */
@@ -31,20 +35,21 @@
 .float-mag .mag-close{position:absolute;right:3px;top:3px;width:24px;height:24px;padding:0;border-radius:50%;font:17px/22px Arial;background:#fffef9e8;border:1px solid #c9d4d9;color:#596970;z-index:2}
 .mag-caption{position:absolute;bottom:8px;left:7px;font-size:11px;font-weight:700;padding:3px 6px;border:1px solid #d7e1e4;border-radius:9px;background:#fffef9ef;color:var(--mag-color);z-index:1}
 .mag-leader{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;overflow:hidden}
-.mag-leader g{color:#176488}.mag-leader g+g{color:#a55324}
-.mag-leader path{fill:none;stroke:currentColor;stroke-width:2;stroke-dasharray:6 4;stroke-linecap:round}
-.mag-leader circle{fill:#fff;stroke:currentColor;stroke-width:2}
+.mag-leader g{color:#a9e5ff}.mag-leader g+g{color:#ffd0a3}
+.mag-leader path{fill:none;stroke:currentColor;stroke-width:2;stroke-dasharray:6 4;stroke-linecap:round;filter:drop-shadow(0 1px 1px #1f3446)}
+.mag-leader circle{fill:#26394b;stroke:currentColor;stroke-width:2}
 
 /* Wider apparatus spacing, compact graph and scene-local controls. */
-#view{width:70%;z-index:0}.labels{width:70%;z-index:3}.stage>.chartbox{width:29%;height:72%;min-height:360px}
+#view{z-index:0}
 .stage-top,.viewtools{z-index:7}
+.stage-top b,.stage-top p{color:#f5f9fc;text-shadow:0 1px 3px #263849}
 .stage-top .scene-zoom-controls{display:flex;gap:7px;margin-top:9px;pointer-events:auto}.scene-zoom-controls button{font-size:11px;padding:6px 9px;background:#fffdf9df;border-color:#c6d8df}
-.stage-hint{top:103px;z-index:7;font-size:10px;max-width:43%;line-height:1.5;color:#405764}
+.reading-strip .stage-hint{position:static;margin:0 14px 8px;color:#405764;font-size:10px;line-height:1.5}
 .run #reset{grid-column:1/-1}
 #thermScales{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden}
 #view canvas{position:relative;z-index:1}
-@media(max-width:1200px){#view,.labels{width:100%}.stage>.chartbox{width:auto;height:290px;min-height:0}.float-mag{width:155px}.stage-hint{max-width:55%}}
-@media(max-width:650px){.stage-top .scene-zoom-controls{gap:4px}.scene-zoom-controls button{font-size:9px;padding:5px 6px}.stage-hint{top:105px;max-width:75%;font-size:9px}.float-mag{width:min(120px,42%)}.mag-caption{font-size:10px}.float-mag .mag-close{width:22px;height:22px}.stage>.chartbox{height:285px}.viewtools{top:10px}}
+@media(max-width:1200px){.float-mag{width:155px}}
+@media(max-width:650px){.stage-top .scene-zoom-controls{gap:4px}.scene-zoom-controls button{font-size:9px;padding:5px 6px}.reading-strip .stage-hint{margin-inline:10px}.float-mag{width:min(120px,42%)}.mag-caption{font-size:10px}.float-mag .mag-close{width:22px;height:22px}.viewtools{top:10px}}
 
 /* Fill the desktop window vertically while keeping the laboratory usable on narrow screens. */
 @media(min-width:1201px){
@@ -80,7 +85,7 @@ aside{color:#183443}aside h2{color:#132f3e}aside .param span{color:#243f4e}aside
 @font-face{font-family:FuelSC;font-style:normal;font-weight:100 900;src:url(data:font/woff;base64,d09GRgABAAAAAAZ8ABEAAAAAB8QAAQABAAAAAAAAAAAAAAAAAAAAAAAAAABCQVNFAAAFOAAAAIcAAADeYmSCaUdQT1MAAAXAAAAAIAAAACBEdkx1R1NVQgAABeAAAABBAAAAQm00WS5PUy8yAAAB8AAAAEwAAABgxp/MaFNUQVQAAAYkAAAAKgAAAC54kmzdY21hcAAAAkQAAAAqAAAANAAMcddnYXNwAAAFMAAAAAgAAAAIAAAAEGdseWYAAAJ4AAABgAAAAZR4PmG1aGVhZAAAAYAAAAA2AAAANibFGPRoaGVhAAABuAAAACAAAAAkCHkC5mhtdHgAAAI8AAAABgAAAAYECwBkbG9jYQAAAnAAAAAGAAAABgDKAABtYXhwAAAB2AAAABgAAAAgAA4Agm5hbWUAAAP4AAABIgAAAiotLEbycG9zdAAABRwAAAATAAAAIP+GADJ2aGVhAAAGUAAAACIAAAAkBdwSHXZtdHgAAAZ0AAAABgAAAAYEDQAAAAEAAAACAQbAjoD4Xw889QADA+gAAAAA3LAkpwAAAADnDa9pACP/sAPMA0sAAAAGAAIAAAAAAAB4nGNgZGBg6fj3gIGB+QWDMoMM8xkGoAgKYAQAdDwEZ3icY2BkYGBgYmhk4GYAAUYGNAAADhwAkXicY2BhfsA4gYGVgYGpiymCgYHBG0IzxjEYMboCRbmZGBCAA4nt6OLkz+BQ2FLYwlzwv4OBgaWDUQEozAiSY5JnugukFBjYACOUC5ED6ABkACMAAHicY2BgYGJgYGAGYhEgyQimWRgUgDQLEAL5hS3//0PIvlqwPAMAYcwHUQAAAAAAAADKAAB4nGPgZlD+v4H5DLM3Ay+DLoMrgyeDL0MgQzRDKkM+QwVDAwMDozgbOxu7saCioLGZuZmqsaAIkCsmLsckzq6mpq6mDpRlY9djUrdjMmU0FhURMzY2MjMzB0rzMSkrK6mpmQqLKpqqQjEzSAKomhEoyw7UAqOZxYGGAGlhczExkLlMmWFc3KzMN/65T2dhYfsX58rKzMLOKayjymnMpSzCw83EKORuwyYkzOnlLMKo7SIg2yQgyM4IdBYns7Ca8gRtXSEJRu1/VyGY21xCT5Hdml1R66+8OSOPpKiJsDgvo4k1q6CEgI2ghKCug6iBqD6PjOQdbfUQMV2xIGZvdmVFHu5/NoxHBEWUeP+t8/VRUGDnENFT5zTl15Hg5WFj9eqw5hARZvVcvSP6392twlx8urqsXBzMFnbiAhrKjLP8/Zt9fYHo729JBR8vWRlZb1/Gdxx6CeHyUjJ+Mf9yhZX9PKTlpJy9mZilTIo1xGW8fP9Vako6SulKuzAAACWASJl4nI2RzUrDUBCFz22rKIhrl1kITcXGpmoRu/EPcVVBQdc1taZqrDS19UFc+hguXPtkfpmkLoqCXCb3mztnzp1LJC2pr7JcZVnSO5Gz0xpZziWt6qPgsg70VXBFvisVvKB7t1HwotbdW87OacV9ylekmjw11VCoHdWNmrCnQ/U01I1uYV+xxqxn7WuLNbUVqPujCXAaKqFW0yYdUw3Qx9AF1ZQYacK3x8kpyieqnjo4JHZDVZecvqCKyKv4dcjHhEeliz41Oja/O5SPnI6YNWDihs1+RtZm7hMd6RyaOcz6s+76XP9ft3hzuit7Qcqrstm9X+6NzSmy+gRFaIqAPdQe9QSfB1wyVZ/91d6d+ewSLb4t9Nv/mvqabEDOX/kGYh9PRAAAeJxjYGYAg//NDEYMWAAAKEQBuAAAAQAB//8AD3icY2BkYGTgYchiAIEkBhYGNhc3nxAGteTKohwGi/Si1GwGi4zEvEwGtezEvEQGtZzEkjwGCwY2sHomoHo5BhUGLYZZUBFmoAgPgxCDBEMHA/P/TSARZjcgyfi/AygjxsCSmZyWBMQlmSmp+UX5uXlk2qeHYZ8MkK0Ftm8fyD4wrgAAKqwklwAAAQAAAAoAHAAeAAFERkxUAAgABAAAAAD//wAAAAAAAHicY2BkYGDgYrBjcGBgc3HzCWFQS64symEwSC9KzWYwyEjMy2QwyE7MS2QwyEksyWMwYGABqmf4/58BDgC4cA0fAAAAeJxjYGRgZOAAYgYGETApw8BUnp5RwghiMzEwg0kmxglAag8DAwA5WwNTAAB4nGNgFGBg/PKPh4GB+QWDKoMG8wEGBgZGBmTACABrUAQOAAAD6AAAACUAAA==) format('woff');unicode-range:U+7184;}
 body,button,input,select,textarea{font-family:'Microsoft YaHei','PingFang SC',FuelSC,sans-serif}svg text{font-family:FuelSC,sans-serif}</style><!-- Noto Sans SC subset, SIL Open Font License 1.1 --></head><body>
 <header><div><small>PHYSICS · INQUIRY LAB</small><h1>不同燃料的热值 · 双灯探究实验</h1></div><span class="badge">观察 · 记录 · 再试一次</span></header>
-<main><section class="left"><div class="stage"><div id="view"><svg id="thermScales" aria-label="两支温度计的矢量刻度"></svg></div><svg class="mag-leader" id="magLeader" aria-hidden="true"><g id="magLeader0" visibility="hidden"><path/><circle r="4"/></g><g id="magLeader1" visibility="hidden"><path/><circle r="4"/></g></svg><div class="float-mag mag-0" id="mag0"><span class="mag-caption">酒精组</span><button class="mag-close" id="magClose0" aria-label="关闭该组温度计放大">×</button><div id="magContent0"></div></div><div class="float-mag mag-1" id="mag1"><span class="mag-caption">煤油组</span><button class="mag-close" id="magClose1" aria-label="关闭该组温度计放大">×</button><div id="magContent1"></div></div><div id="error"></div><div class="stage-top"><b>相同装置，换一种燃料</b><p>两杯均装水 · 酒精 / 煤油</p><div class="scene-zoom-controls"><button id="zoomToggle0">隐藏酒精组放大</button><button id="zoomToggle1">隐藏煤油组放大</button></div></div><div class="viewtools"><button id="home">默认视角</button><button id="front">正面</button><button id="glass">隐藏杯壁</button></div><div class="labels" id="labels"></div><div class="stage-hint">拖动圆形读数窗可调整位置<br>左键旋转 · 右键或 Shift＋左键平移 · 滚轮缩放 · 双击复位</div><div class="panel chartbox"><div class="charttitle"><h2>温度—时间图像</h2><div class="legend"><span><i class="dot"></i>酒精组</span><span><i class="dot o"></i>煤油组</span><button id="prev">显示上轮曲线</button></div></div><svg id="chart" viewBox="0 0 900 240" role="img" aria-label="两组水温随时间变化图像"></svg></div></div>
+<main><section class="left"><div class="stage"><div class="scene-view"><div id="view"><svg id="thermScales" aria-label="两支温度计的矢量刻度"></svg></div><svg class="mag-leader" id="magLeader" aria-hidden="true"><g id="magLeader0" visibility="hidden"><path/><circle r="4"/></g><g id="magLeader1" visibility="hidden"><path/><circle r="4"/></g></svg><div class="float-mag mag-0" id="mag0"><span class="mag-caption">酒精组</span><button class="mag-close" id="magClose0" aria-label="关闭该组温度计放大">×</button><div id="magContent0"></div></div><div class="float-mag mag-1" id="mag1"><span class="mag-caption">煤油组</span><button class="mag-close" id="magClose1" aria-label="关闭该组温度计放大">×</button><div id="magContent1"></div></div><div id="error"></div><div class="stage-top"><b>相同装置，换一种燃料</b><p>两杯均装水 · 酒精 / 煤油</p><div class="scene-zoom-controls"><button id="zoomToggle0">隐藏酒精组放大</button><button id="zoomToggle1">隐藏煤油组放大</button></div></div><div class="viewtools"><button id="home">默认视角</button><button id="front">正面</button><button id="glass">隐藏杯壁</button></div></div><div class="reading-strip"><div class="labels" id="labels"></div><div class="stage-hint">拖动圆窗调整位置 · 左键旋转 · 右键或 Shift＋左键平移 · 滚轮缩放 · 双击复位</div></div><div class="panel chartbox"><div class="charttitle"><h2>温度—时间图像</h2><div class="legend"><span><i class="dot"></i>酒精组</span><span><i class="dot o"></i>煤油组</span><button id="prev">显示上轮曲线</button></div></div><svg id="chart" viewBox="0 0 900 240" role="img" aria-label="两组水温随时间变化图像"></svg></div></div>
 </section><aside><section class="panel"><h2>实验设置</h2><label class="param"><span>每杯水的质量</span><span class="inputbox"><input id="water" type="number" min="50" max="400" step="10" value="200"><small>g</small></span></label><label class="param"><span>两杯水的初温</span><span class="inputbox"><input id="initial" type="number" min="5" max="95" step="5" value="20"><small>℃</small></span></label><label class="param"><span>各消耗燃料质量</span><span class="inputbox"><input id="fuel" type="number" min="0.1" max="30" step="0.5" value="2"><small>g</small></span></label><p class="sub">两灯初始各装 40.0 g 燃料；达到设定消耗质量后盖帽熄火。</p><div class="run"><button id="play" class="primary">点燃两灯</button><button id="reset">重新试验</button></div><div class="param"><span>演示速度</span><select id="speed"><option value="1">1×</option><option value="5">5×</option><option value="10" selected>10×</option><option value="30">30×</option></select></div></section>
 <section class="panel"><div class="status"><span id="status">准备实验</span><span><b class="time" id="clock">0</b> s</span></div><div id="data"></div></section>
 
@@ -326,9 +331,10 @@ const materials={
  plastic:new THREE.MeshStandardMaterial({color:0x858f99,metalness:.03,roughness:.62,envMapIntensity:.35}),
  plasticDark:new THREE.MeshStandardMaterial({color:0x48515b,metalness:.02,roughness:.72,envMapIntensity:.30}),
  rubber:new THREE.MeshStandardMaterial({color:0x333b41,metalness:0,roughness:.85}),
- glass:new THREE.MeshPhysicalMaterial({color:0xa2c8dc,metalness:0,roughness:.12,transmission:.52,thickness:.10,ior:1.48,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.32}),
- glassEdge:new THREE.MeshPhysicalMaterial({color:0x82aec4,metalness:0,roughness:.19,transmission:.28,thickness:.045,transparent:true,opacity:.79,depthWrite:false,envMapIntensity:.30}),
- water:new THREE.MeshPhysicalMaterial({color:0x64cbe9,metalness:0,roughness:.18,transmission:.42,transparent:true,opacity:.56,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.34}),
+ glass:new THREE.MeshPhysicalMaterial({color:0xc9e2ea,roughness:.09,transmission:.08,thickness:.10,ior:1.48,transparent:true,opacity:.19,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.86}),
+ glassEdge:new THREE.MeshPhysicalMaterial({color:0xb9d5e2,roughness:.14,transparent:true,opacity:.70,depthWrite:false,envMapIntensity:.72}),
+ water:new THREE.MeshPhysicalMaterial({color:0x84c7d6,roughness:.14,transmission:.07,transparent:true,opacity:.32,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.55}),
+ waterEdge:new THREE.MeshPhysicalMaterial({color:0x82d4e3,roughness:.14,transparent:true,opacity:.78,depthWrite:false,envMapIntensity:.56}),
  oil:new THREE.MeshPhysicalMaterial({color:0xd7a137,metalness:0,roughness:.21,transmission:.30,transparent:true,opacity:.70,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:.38}),
  glassTube:new THREE.MeshPhysicalMaterial({color:0xaabfcf,metalness:0,roughness:.13,transmission:.39,transparent:true,opacity:.52,depthWrite:false,envMapIntensity:.25}),
  red:new THREE.MeshStandardMaterial({color:0xdf2427,emissive:0x9d0700,emissiveIntensity:.20,roughness:.23}),
@@ -350,14 +356,15 @@ const baseGlass=m(new THREE.CylinderGeometry(CUP_R-.017,CUP_R-.025,.052,88),mate
 let rim=m(new THREE.TorusGeometry(CUP_R,.024,12,96),materials.glassEdge,group,[0,CUP_TOP,0],[-Math.PI/2,0,0]);rim.renderOrder=5;rim.castShadow=false;
 let lip=m(new THREE.TorusGeometry(CUP_R-.025,.014,12,96),materials.glassEdge,group,[0,CUP_BOTTOM+.028,0],[-Math.PI/2,0,0]);lip.renderOrder=5;lip.castShadow=false;
 // beaker pouring spout, fixed rim triangle (not a giant polygon)
-tube([[-.595,CUP_TOP,.18],[-.67,CUP_TOP+.037,.24],[-.745,CUP_TOP+.012,.26]],.022,materials.glassEdge,group,28);
+const spout=tube([[-.595,CUP_TOP,.18],[-.67,CUP_TOP+.037,.24],[-.745,CUP_TOP+.012,.26]],.022,materials.glassEdge,group,28);
+spout.renderOrder=5;spout.castShadow=false;
 // 3. Liquid column and top meniscus: kept clear of glass, visual surface accurate to mass class
 const liquidMat=materials.water;
 const liquidGroup=new THREE.Group();group.add(liquidGroup);
 let liquidWall=m(new THREE.CylinderGeometry(CUP_IN,CUP_IN,.9,72,1,true),liquidMat,liquidGroup,[0,.0,0]);liquidWall.renderOrder=2;liquidWall.castShadow=false;
-const topMat=liquidMat.clone();topMat.opacity=.48;topMat.transmission=.15;
+const topMat=liquidMat.clone();topMat.opacity=.45;topMat.transmission=.12;topMat.color.set(0xa5d8df);
 const liquidTop=m(new THREE.CircleGeometry(CUP_IN,88),topMat,liquidGroup,[0,0,0],[-Math.PI/2,0,0]);liquidTop.renderOrder=2;liquidTop.castShadow=false;
-const fillLine=m(new THREE.TorusGeometry(CUP_IN-.005,.008,8,84),materials.glassEdge,liquidGroup,[0,0,0],[-Math.PI/2,0,0]);fillLine.renderOrder=5;fillLine.castShadow=false;
+const fillLine=m(new THREE.TorusGeometry(CUP_IN-.005,.010,8,84),materials.waterEdge,liquidGroup,[0,0,0],[-Math.PI/2,0,0]);fillLine.renderOrder=5;fillLine.castShadow=false;
 const thermPartsStart=group.children.length;
 // 4. Thermometer: separate glass sheath, cap and red liquid column, offset from heater
 const thermX=-.34,thermZ=.18;
@@ -369,7 +376,7 @@ m(new THREE.SphereGeometry(.053,24,16),materials.red,group,[thermX,.49,thermZ+.0
 // metallic flat cap
 m(new THREE.CylinderGeometry(.048,.048,.055,20),materials.steel,group,[thermX,3.345,thermZ]);
 // Tick marks and numerals are drawn as projected SVG, without bitmap labels or text outlines.
-const thermParts=group.children.slice(thermPartsStart);return {group,liquidWall,liquidTop,fillLine,thermometer,redCol,thermParts,glass:[cyl,baseGlass,rim,lip]};}
+const thermParts=group.children.slice(thermPartsStart);return {group,liquidWall,liquidTop,fillLine,thermometer,redCol,thermParts,glass:[cyl,baseGlass,rim,lip,spout]};}
 function createLamp(parent){const T=THREE,PI=Math.PI;const material=(color,metalness=0,roughness=.6)=>new T.MeshStandardMaterial({color,metalness,roughness});const darkMetal=materials.steelDark,lightMetal=materials.steel,brass=material(0xab9070,.72,.4),blackMat=materials.rubber,burnerGlass=materials.glass.clone();burnerGlass.opacity=.25;burnerGlass.transmission=.10;
 function mesh(g,ma,pos,pa){return m(g,ma,pa,pos)}function cyl(rt,rb,h,ma,x,y,z,pa){return mesh(new T.CylinderGeometry(rt,rb,h,48),ma,[x,y,z],pa)}function torus(r,t,ma,x,y,z,pa){const o=mesh(new T.TorusGeometry(r,t,10,64),ma,[x,y,z],pa);o.rotation.x=-PI/2;return o}function segment(a,b,r,ma,pa){return rodBetween(a,b,r,ma,pa)}
 // alcohol lamp: accurately joined glass globe, threaded cap, metal burner, wick
@@ -419,11 +426,10 @@ let flameOuter=flameMesh(.43,.14,false),flameInner=flameMesh(.355,.080,true);fla
 const cap=new T.Group();lamp.add(cap);cyl(.19,.22,.26,darkMetal,0,0,0,cap);cap.position.set(.88,.39,.10);return {lamp,flameOuter,flameInner,flame,liquid,liquidTop,cap};}
 
 try{
-scene=new THREE.Scene();renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;mount.appendChild(renderer.domElement);
-camera=new THREE.PerspectiveCamera(37,1,.05,100);updateCamera();scene.add(new THREE.HemisphereLight(0xffffff,0x81958d,2.4));const sun=new THREE.DirectionalLight(0xfff4df,3.1);sun.position.set(-4,10,6);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7,near:.5,far:30});sun.shadow.bias=-.0004;scene.add(sun);const fill=new THREE.DirectionalLight(0xd5eeff,1.3);fill.position.set(6,5,-3);scene.add(fill);
-const envFaces=Array.from({length:6},(_,i)=>{const c=document.createElement('canvas');c.width=c.height=128;const a=c.getContext('2d'),g=a.createLinearGradient(0,0,0,128);g.addColorStop(0,'#f5f5ed');g.addColorStop(1,'#899c9a');a.fillStyle=g;a.fillRect(0,0,128,128);a.fillStyle='#ffffff';a.fillRect(i%2?70:15,10,25,95);return c;});const envTex=new THREE.CubeTexture(envFaces);envTex.needsUpdate=true;const pmrem=new THREE.PMREMGenerator(renderer);
-materials.water.transmission=.08;materials.water.opacity=.25;materials.water.color.set(0xa5d6de);materials.glass.transmission=.08;materials.glass.opacity=.20;materials.glassEdge.opacity=.55;
-const floor=m(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0xd6dfda,roughness:.92}),scene,[0,-.085,0],[-PI/2,0,0]);floor.receiveShadow=true;floor.castShadow=false;
+scene=new THREE.Scene();scene.fog=new THREE.Fog(0x637482,14,44);renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.98;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;mount.appendChild(renderer.domElement);
+camera=new THREE.PerspectiveCamera(37,1,.05,100);updateCamera();scene.add(new THREE.HemisphereLight(0xe7f1fc,0x6a7680,1.55));const sun=new THREE.DirectionalLight(0xfff1dd,2.75);sun.position.set(-4,10,6);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7,near:.5,far:30});sun.shadow.bias=-.0004;scene.add(sun);const fill=new THREE.DirectionalLight(0xc3e3fa,.90);fill.position.set(6,5,-4);scene.add(fill);
+const envFaces=Array.from({length:6},(_,i)=>{const c=document.createElement('canvas');c.width=c.height=128;const a=c.getContext('2d'),g=a.createLinearGradient(0,0,0,128);g.addColorStop(0,'#8496a7');g.addColorStop(1,'#4c5e70');a.fillStyle=g;a.fillRect(0,0,128,128);const x=i%2?74:18;const strip=a.createLinearGradient(x,0,x+33,0);strip.addColorStop(0,'#e4efff00');strip.addColorStop(.30,'#f2f8ff');strip.addColorStop(.72,'#e5f1fc');strip.addColorStop(1,'#e4efff00');a.fillStyle=strip;a.fillRect(x,9,33,101);return c;});const envTex=new THREE.CubeTexture(envFaces);envTex.colorSpace=THREE.SRGBColorSpace;envTex.needsUpdate=true;const pmrem=new THREE.PMREMGenerator(renderer);
+const floor=m(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0x586978,roughness:.95,userData:{noMaterialFinish:true}}),scene,[0,-.085,0],[-PI/2,0,0]);floor.receiveShadow=true;floor.castShadow=false;
 const ceramic=new THREE.MeshStandardMaterial({color:0xbfb49b,roughness:.94});
 function makeRig(cx,i){const support=new THREE.Group();support.position.x=cx;scene.add(support);m(new THREE.BoxGeometry(1.95,.105,1.45),materials.graphite,support,[-.25,.025,0]);for(const x of [-1.02,.52])for(const z of [-.57,.57])m(new THREE.CylinderGeometry(.07,.07,.035,12),materials.rubber,support,[x,-.05,z]);rodBetween([-.87,.10,-.34],[-.87,4.8,-.34],.038,materials.steel,support);const cup=createCup(cx);const bracket=new THREE.Group();support.add(bracket);bracket.position.y=4.29; m(new THREE.SphereGeometry(.104,20,14),materials.knob,bracket,[-.87,0,-.34]);rodBetween([-.87,0,-.34],[-.44,0,.13],.031,materials.steel,bracket);m(new THREE.BoxGeometry(.018,.20,.085),materials.clamp,bracket,[-.400,0,.18]);m(new THREE.BoxGeometry(.018,.20,.085),materials.clamp,bracket,[-.280,0,.18]);m(new THREE.BoxGeometry(.12,.20,.020),materials.clamp,bracket,[-.34,0,.11]);
 // Lower ring and wire gauze are in actual contact with the beaker bottom.
@@ -445,8 +451,8 @@ function renderThermScales(){
  const svg=$('thermScales'),w=mount.clientWidth,h=mount.clientHeight;const offsets=states.map(s=>Math.max(0,.58-(.14+s.remainingWater/400*1.8)));const sig=[yaw,pitch,dist,aim.x,aim.y,aim.z,w,h,...offsets].join('|');if(sig===lastScaleSignature)return;lastScaleSignature=sig;
  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);if(camera.position.z<.25){svg.innerHTML='';return;}
  const proj=(x,y,z)=>{const p=new THREE.Vector3(x,y,z).project(camera);return {x:(p.x+1)*w/2,y:(1-p.y)*h/2,z:p.z};};let out='';
- rigs.forEach((r,i)=>{const tx=r.cx-.34,offset=offsets[i];out+=`<g id="thermScale${i}" fill="#11191e" stroke="none" font-family="Arial,sans-serif" font-weight="600">`;
- for(let t=0;t<=100;t++){const yy=1.45+.52+t*.0258-offset,major=t%10===0,mid=t%5===0,a=proj(tx+.026,yy,.265),b=proj(tx+(major?.12:mid?.094:.069),yy,.265);if(a.z< -1||a.z>1)continue;out+=`<path d="M${a.x.toFixed(2)} ${a.y.toFixed(2)}L${b.x.toFixed(2)} ${b.y.toFixed(2)}" stroke="#11191e" stroke-width="${major?1.3:mid?1:.7}"/>`;
+ rigs.forEach((r,i)=>{const tx=r.cx-.34,offset=offsets[i];out+=`<g id="thermScale${i}" fill="#f7fbff" stroke="#2c4354" stroke-width="1.4" paint-order="stroke fill" font-family="Arial,sans-serif" font-weight="600">`;
+ for(let t=0;t<=100;t++){const yy=1.45+.52+t*.0258-offset,major=t%10===0,mid=t%5===0,a=proj(tx+.026,yy,.265),b=proj(tx+(major?.12:mid?.094:.069),yy,.265);if(a.z< -1||a.z>1)continue;out+=`<path d="M${a.x.toFixed(2)} ${a.y.toFixed(2)}L${b.x.toFixed(2)} ${b.y.toFixed(2)}" stroke="#f7fbff" stroke-width="${major?1.5:mid?1.1:.8}"/>`;
  if(major){const p=proj(tx+.15,yy-.042,.27),px=proj(tx+.25,yy-.042,.27),py=proj(tx+.15,yy-.142,.27);out+=`<text x="0" y="0" font-size="12" transform="matrix(${((px.x-p.x)/10).toFixed(5)} ${((px.y-p.y)/10).toFixed(5)} ${((py.x-p.x)/10).toFixed(5)} ${((py.y-p.y)/10).toFixed(5)} ${p.x.toFixed(2)} ${p.y.toFixed(2)})">${t}</text>`;}}
  out+='</g>';});svg.innerHTML=out;
 }
